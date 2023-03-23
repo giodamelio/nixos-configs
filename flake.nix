@@ -10,17 +10,17 @@
     };
   };
 
-  outputs = { self, nixpkgs, ... }@inputs: {
-    nixosConfigurations."nixos-playground" = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-
-      modules = [
-        ./hosts/nixos-playgtound/configuration.nix
-        ./common/base-packages.nix
-      ];
-
-      # Pass nixpkgs down into the modules
-      specialArgs = { inherit nixpkgs; };
+  outputs = { self, nixpkgs, ... }@inputs: 
+  let
+    inherit (self) outputs;
+  in
+  {
+    nixosConfigurations = {
+      # Testing system
+      "nixos-playground" = nixpkgs.lib.nixosSystem {
+        specialArgs = { inherit inputs outputs; };
+        modules = [ ./hosts/nixos-playground ];
+      };
     };
   };
 }
