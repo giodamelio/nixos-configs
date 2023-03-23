@@ -18,6 +18,9 @@
         ./hosts/nixos-playgtound/configuration.nix
         ./common/base-packages.nix
       ];
+
+      # Pass nixpkgs down into the modules
+      specialArgs = { inherit nixpkgs; };
     };
   };
 }
