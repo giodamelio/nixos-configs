@@ -11,4 +11,6 @@
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFbUQ/gUuzZbOtBPseVWL1GVrjP08JqdNwHdndQgH+Am giodamelio@penguin"
     ];
   };
+
+  home-manager.users.giodamelio = import ../../home/giodamelio/${config.networking.hostName}.nix;
 }

@@ -1,7 +1,8 @@
-{ nixpkgs, ... }: {
+{ nixpkgs, inputs, ... }: {
   imports = [
     ./hardware-configuration.nix
     ./networking.nix # generated at runtime by nixos-infect
+    ../../common/global
     ../../common/base-packages.nix
     ../../common/users/giodamelio.nix
   ];

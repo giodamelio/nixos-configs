@@ -10,7 +10,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, ... }@inputs: 
+  outputs = { self, nixpkgs, home-manager, ... }@inputs: 
   let
     inherit (self) outputs;
   in
@@ -20,6 +20,13 @@
       "nixos-playground" = nixpkgs.lib.nixosSystem {
         specialArgs = { inherit inputs outputs; };
         modules = [ ./hosts/nixos-playground ];
+      };
+    };
+
+    homeConfigurations = {
+      "giodamelio@nixos-playground" = home-manager.lib.homeManagerConfiguration {
+       extraSpecialArgs = { inherit inputs outputs; };
+       modules = [ ./home/giodamelio/nixos-playground.nix ];
       };
     };
   };
