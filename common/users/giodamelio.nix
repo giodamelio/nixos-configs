@@ -1,6 +1,9 @@
 { config, pkgs, ... }:
 
 {
+  # TODO: should probabaly enable this
+  # users.mutableUsers = false;
+
   users.users.giodamelio = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];

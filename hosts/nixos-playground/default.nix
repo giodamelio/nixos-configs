@@ -3,7 +3,7 @@
     ./hardware-configuration.nix
     ./networking.nix # generated at runtime by nixos-infect
     ../../common/base-packages.nix
-    ../../common/users
+    ../../common/users/giodamelio.nix
   ];
 
   boot.cleanTmpDir = true;
