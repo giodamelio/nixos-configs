@@ -11,7 +11,7 @@
   };
 
   outputs = { self, nixpkgs, ... }@inputs: {
-    nixosConfigurations."nixos-playgtound" = nixpkgs.lib.nixosSystem {
+    nixosConfigurations."nixos-playground" = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
         ./machines/nixos-playgtound/configuration.nix

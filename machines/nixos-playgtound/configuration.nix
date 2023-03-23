@@ -7,7 +7,7 @@
 
   boot.cleanTmpDir = true;
   zramSwap.enable = true;
-  networking.hostName = "nixos-playgtound";
+  networking.hostName = "nixos-playground";
   networking.domain = "";
   services.openssh.enable = true;
   users.users.root.openssh.authorizedKeys.keys = [
