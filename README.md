@@ -2,7 +2,8 @@
 
 ## Bootstrap Instructions
 
+    # curl -LO https://github.com/giodamelio/nixos-configs/archive/refs/heads/main.tar.gz
+    # tar xzf main.tar.gz
+    # cd nixos-configs-main/
     # nix-shell
-    # git clone https://github.com/giodamelio/nixos-configs
-    # cd nixos-configs/
     # nix-rebuild switch --flake .
