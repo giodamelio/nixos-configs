@@ -60,7 +60,7 @@ return require('lazy').setup({
     branch = 'v2.x',
     dependencies = {
       -- LSP Support
-      {'neovim/nvim-lspconfig'},             -- Required
+      {'neovim/nvim-lspconfig'}, -- Required
 
       -- Autocompletion
       {'hrsh7th/nvim-cmp'},     -- Required
@@ -70,7 +70,7 @@ return require('lazy').setup({
     config = function()
       local lsp = require('lsp-zero').preset({})
 
-      lsp.on_attach(function(client, bufnr)
+      lsp.on_attach(function(_client, bufnr)
         lsp.default_keymaps({buffer = bufnr})
       end)
 
@@ -79,7 +79,10 @@ return require('lazy').setup({
 
       lsp.setup()
     end
-  }
+  },
+
+  -- Language support
+  { 'LnL7/vim-nix' }
 }, {
   lockfile = lazy_lockfile_path
 })
