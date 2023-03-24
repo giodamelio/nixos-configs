@@ -74,8 +74,15 @@ return require('lazy').setup({
         lsp.default_keymaps({buffer = bufnr})
       end)
 
-      -- Configure lua language server for neovim
-      require('lspconfig').lua_ls.setup(lsp.nvim_lua_ls())
+
+      -- Configure the language servers
+      local lspconfig = require('lspconfig')
+
+      -- Lua with extra support for Neovim
+      lspconfig.lua_ls.setup(lsp.nvim_lua_ls())
+
+      -- Nix
+      lspconfig.nil_ls.setup({})
 
       lsp.setup()
     end
