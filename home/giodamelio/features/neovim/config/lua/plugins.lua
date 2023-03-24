@@ -1,10 +1,10 @@
 -- Set the Lazy.nvim lockfile path to a special location if we are on NixOS
 local lazy_lockfile_path
-if vim.fn.isdirectory(vim.fn.expand("~/nixos-configs")) then
-  lazy_lockfile_path = "~/nixos-configs/home/giodamelio/features/neovim/config/lazy-lock.json"
+if vim.fn.isdirectory(vim.fn.expand('~/nixos-configs')) then
+  lazy_lockfile_path = '~/nixos-configs/home/giodamelio/features/neovim/config/lazy-lock.json'
 else
   -- Lazy.nvim default
-  lazy_lockfile_path = vim.fn.stdpath("config") .. "/lazy-lock.json"
+  lazy_lockfile_path = vim.fn.stdpath('config') .. '/lazy-lock.json'
 end
 
 return require('lazy').setup({
@@ -16,14 +16,14 @@ return require('lazy').setup({
     config = function()
       require('tokyonight').setup({
         style = 'storm',
-	styles = {
-	  -- Don't italazise comments or keywords
+        styles = {
+          -- Don't italazise comments or keywords
           comments = { italic = false },
           keywords = { italic = false }
-	}
+        }
       })
 
-      vim.cmd[[colorscheme tokyonight]]
+      vim.cmd [[colorscheme tokyonight]]
     end
   },
 
@@ -40,16 +40,16 @@ return require('lazy').setup({
     'nvim-telescope/telescope.nvim',
     dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
-      local wk = require("which-key")
+      local wk = require('which-key')
       local builtin = require('telescope.builtin')
       wk.register({
           f = {
-            name = "file",
-            f = { builtin.find_files, "Find File" },
-            g = { builtin.live_grep, "Live Grep" }
+            name = 'file',
+            f = { builtin.find_files, 'Find File' },
+            g = { builtin.live_grep, 'Live Grep' }
           },
         },
-        { prefix = "<leader>" }
+        { prefix = '<leader>' }
       )
     end
   },
@@ -60,18 +60,18 @@ return require('lazy').setup({
     branch = 'v2.x',
     dependencies = {
       -- LSP Support
-      {'neovim/nvim-lspconfig'}, -- Required
+      { 'neovim/nvim-lspconfig' }, -- Required
 
       -- Autocompletion
-      {'hrsh7th/nvim-cmp'},     -- Required
-      {'hrsh7th/cmp-nvim-lsp'}, -- Required
-      {'L3MON4D3/LuaSnip'},     -- Required
+      { 'hrsh7th/nvim-cmp' },     -- Required
+      { 'hrsh7th/cmp-nvim-lsp' }, -- Required
+      { 'L3MON4D3/LuaSnip' },     -- Required
     },
     config = function()
       local lsp = require('lsp-zero').preset({})
 
       lsp.on_attach(function(_client, bufnr)
-        lsp.default_keymaps({buffer = bufnr})
+        lsp.default_keymaps({ buffer = bufnr })
         lsp.buffer_autoformat()
       end)
 
