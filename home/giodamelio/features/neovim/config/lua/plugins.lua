@@ -283,6 +283,11 @@ return require('lazy').setup({
     end,
   },
 
+  -- Run tests easily
+  {
+    'vim-test/vim-test'
+  },
+
   -- Language support
   { 'LnL7/vim-nix' } -- Nix
 }, {
