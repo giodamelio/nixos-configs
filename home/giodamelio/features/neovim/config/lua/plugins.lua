@@ -72,8 +72,8 @@ return require('lazy').setup({
 
       lsp.on_attach(function(_client, bufnr)
         lsp.default_keymaps({buffer = bufnr})
+        lsp.buffer_autoformat()
       end)
-
 
       -- Configure the language servers
       local lspconfig = require('lspconfig')
