@@ -1,3 +1,13 @@
+-- Set the Lazy.nvim lockfile path to a special location if we are on NixOS
+local lazy_lockfile_path
+if vim.fn.isdirectory(vim.fn.expand("~/nixos-configs")) then
+  lazy_lockfile_path = "~/nixos-configs/home/giodamelio/features/neovim/config/lazy-lock.json"
+else
+  -- Lazy.nvim default
+  lazy_lockfile_path = vim.fn.stdpath("config") .. "/lazy-lock.json"
+end
+
+
 return require('lazy').setup({
   -- TokyoNight Colorscheme
   {
@@ -44,4 +54,6 @@ return require('lazy').setup({
       )
     end
   }
+}, {
+  lockfile = lazy_lockfile_path
 })
