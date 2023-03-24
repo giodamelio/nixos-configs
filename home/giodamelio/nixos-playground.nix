@@ -1,6 +1,7 @@
 { inputs, pkgs, lib, config, ... }: {
   imports = [
     ./features/cli
+    ./features/neovim
   ];
 
   programs = {
