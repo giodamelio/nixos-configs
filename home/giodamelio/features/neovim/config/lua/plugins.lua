@@ -122,6 +122,23 @@ return require('lazy').setup({
     end
   },
 
+  -- Status bar
+  {
+    'nvim-lualine/lualine.nvim',
+    dependencies = {
+      { 'kyazdani42/nvim-web-devicons' }
+    },
+    config = function()
+      local lualine = require('lualine')
+
+      -- Enable lualine
+      lualine.setup()
+
+      -- Hide mode display in the command bar since lualine shows it
+      vim.opt.showmode = false
+    end
+  },
+
   -- Language support
   { 'LnL7/vim-nix' } -- Nix
 }, {
