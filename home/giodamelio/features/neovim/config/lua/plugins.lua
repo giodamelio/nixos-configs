@@ -250,6 +250,14 @@ return require('lazy').setup({
   -- Easy Git
   { 'tpope/vim-fugitive' },
 
+  -- Better comments
+  {
+    'numToStr/Comment.nvim',
+    config = function()
+      require('Comment').setup()
+    end,
+  },
+
   -- Language support
   { 'LnL7/vim-nix' } -- Nix
 }, {
