@@ -258,6 +258,23 @@ return require('lazy').setup({
     end,
   },
 
+  -- Do a Unix to it!
+  { 'tpope/vim-eunuch' },
+
+  -- Add a well behaved :Bdelete (keeps splits etc...)
+  { 'famiu/bufdelete.nvim' },
+
+  -- Deal with pairs of things
+  { 'tpope/vim-surround' },
+
+  -- Show marks in the sign
+  {
+    'chentoast/marks.nvim',
+    config = function()
+      require('marks').setup({})
+    end
+  },
+
   -- Language support
   { 'LnL7/vim-nix' } -- Nix
 }, {
