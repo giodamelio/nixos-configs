@@ -42,15 +42,52 @@ return require('lazy').setup({
     config = function()
       local wk = require('which-key')
       local builtin = require('telescope.builtin')
+      local telescope = require('telescope')
+      local tb = require('telescope.builtin');
+      local trouble = require('trouble.providers.telescope')
+
       wk.register({
-          f = {
-            name = 'file',
-            f = { builtin.find_files, 'Find File' },
-            g = { builtin.live_grep, 'Live Grep' }
+        f = {
+          name = 'Find',
+          f = { function() tb.find_files() end, 'Find file' },
+          g = { function() tb.live_grep() end, 'Find line in file' },
+          b = { function() tb.buffers() end, 'Find buffer' },
+          h = { function() tb.help_tags() end, 'Find buffer' },
+          r = { function() tb.oldfiles() end, 'Find recent files' },
+          m = { function() tb.marks() end, 'Find marks' },
+        },
+      }, { prefix = '<leader>' })
+
+      telescope.setup({
+        defaults = {
+          mappings = {
+            i = { ['<c-t>'] = trouble.open_with_trouble },
+            n = { ['<c-t>'] = trouble.open_with_trouble },
           },
         },
-        { prefix = '<leader>' }
-      )
+      })
+
+      -- Setup language server bindings
+      wk.register({
+        l = {
+          name = 'LSP',
+          l = { function() tb.lsp_code_actions() end, 'Show code actions' },
+          r = { function() tb.lsp_references() end, 'Show references' },
+          e = { function() tb.lsp_definitions() end, 'Show definitions' },
+          t = { function() tb.lsp_type_definitions() end, 'Show type definition' },
+          i = { function() tb.lsp_implementations() end, 'Show implementations' },
+          s = {
+            name = 'Symbols',
+            s = { function() tb.lsp_document_symbols() end, 'Show document symbols' },
+            w = { function() tb.lsp_workspace_symbols() end, 'Show workspace symbols' },
+          },
+          d = {
+            name = 'Diagnostics',
+            d = { function() tb.lsp_document_diagnostics() end, 'Show document diagnostics' },
+            w = { function() tb.lsp_workspace_diagnostics() end, 'Show workspace diagnostics' },
+          },
+        },
+      }, { prefix = '<leader>' })
     end
   },
 
@@ -137,6 +174,11 @@ return require('lazy').setup({
       -- Hide mode display in the command bar since lualine shows it
       vim.opt.showmode = false
     end
+  },
+
+  -- Lists make your troubles go away!
+  {
+    'folke/trouble.nvim'
   },
 
   -- Language support
