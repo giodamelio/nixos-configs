@@ -14,4 +14,9 @@
     source = "${./config}";
     target = ".config/nvim/";
   };
+
+  home.packages = with pkgs; [
+    # Install some language servers
+    sumneko-lua-language-server # Lua
+  ];
 }
