@@ -17,3 +17,7 @@ require('basic')
 
 -- Load all the plugins
 require('plugins')
+
+-- Hack to get the path from the treesitter grammers into the Neovim runtimepath
+local treesitter_path = vim.fn.readfile(vim.fn.expand('~/.config/nvim-treesitter-runtimepath-hack.txt'))
+vim.opt.runtimepath:append(treesitter_path)

@@ -88,8 +88,34 @@ return require('lazy').setup({
     end
   },
 
+  -- Treesitter
+  {
+    'nvim-treesitter/nvim-treesitter',
+    dependencies = {
+      { 'p00f/nvim-ts-rainbow' } -- Rainbow parens
+    },
+    config = function()
+      local ts = require('nvim-treesitter.configs')
+
+      ts.setup({
+        highlight = {
+          enable = true,
+          disable = {},
+        },
+        indent = {
+          enable = true,
+          disable = {},
+        },
+        rainbow = {
+          enable = true,
+          disable = {},
+        },
+      })
+    end
+  },
+
   -- Language support
-  { 'LnL7/vim-nix' }
+  { 'LnL7/vim-nix' } -- Nix
 }, {
   lockfile = lazy_lockfile_path
 })
