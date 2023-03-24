@@ -227,6 +227,9 @@ return require('lazy').setup({
     end
   },
 
+  -- Easy Git
+  { 'tpope/vim-fugitive' },
+
   -- Language support
   { 'LnL7/vim-nix' } -- Nix
 }, {
