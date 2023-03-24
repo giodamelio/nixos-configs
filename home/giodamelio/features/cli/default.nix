@@ -12,5 +12,6 @@
     fd # Better find
     httpie # Better curl
     jq # JSON pretty printer and manipulator
+    exa # ls alternative
   ];
 }
