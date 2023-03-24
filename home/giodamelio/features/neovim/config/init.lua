@@ -12,8 +12,8 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Set the leader to the space key
-vim.g.mapleader = " "
+-- Setup basic vim settings
+require("basic")
 
 -- Load all the plugins
 require("plugins")
