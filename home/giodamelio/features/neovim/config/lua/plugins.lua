@@ -84,6 +84,14 @@ return require('lazy').setup({
       -- Nix
       lspconfig.nil_ls.setup({})
 
+      -- Setup some additional cmp bindings
+      local cmp = require('cmp')
+      cmp.setup({
+        mapping = {
+          ['<CR>'] = cmp.mapping.confirm()
+        }
+      })
+
       lsp.setup()
     end
   },
