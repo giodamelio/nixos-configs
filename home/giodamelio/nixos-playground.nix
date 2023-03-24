@@ -1,6 +1,7 @@
 { inputs, pkgs, lib, config, ... }: {
   programs = {
     home-manager.enable = true;
+    gh.enable = true;
     git = {
       enable = true;
       userName = "Giovanni d'Amelio";
