@@ -7,3 +7,4 @@
     # cd nixos-configs-main/
     # nix-shell
     # nix-rebuild switch --flake .
+    # # Set User password before exiting
