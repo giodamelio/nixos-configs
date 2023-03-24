@@ -4,6 +4,7 @@
     ./git.nix
     ./fish.nix
     ./starship.nix
+    ./atuin.nix
   ];
 
   home.packages = with pkgs; [
