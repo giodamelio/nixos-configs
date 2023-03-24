@@ -1,19 +1,10 @@
 { inputs, pkgs, lib, config, ... }: {
+  imports = [
+    ./features/cli
+  ];
+
   programs = {
     home-manager.enable = true;
-    gh.enable = true;
-    git = {
-      enable = true;
-      userName = "Giovanni d'Amelio";
-      userEmail = "gio@damelio.net";
-      aliases = {
-        ci = "commit";
-        st = "status";
-      };
-      delta = {
-        enable = true;
-      };
-    };
   };
 
   home = {
