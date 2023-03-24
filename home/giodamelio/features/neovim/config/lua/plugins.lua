@@ -177,7 +177,27 @@ return require('lazy').setup({
   },
 
   -- Lists make your troubles go away!
-  { 'folke/trouble.nvim' },
+  {
+    'folke/trouble.nvim',
+    config = function()
+      local trouble = require('trouble')
+      local wk = require('which-key')
+
+      trouble.setup()
+
+      -- Setup some keybindings
+      wk.register({
+        d = {
+          name = 'Diagnostics/Trouble',
+          t = { '<cmd>TroubleToggle<cr>', 'Time for trouble' },
+          d = { '<cmd>TroubleToggle document_diagnostics<cr>', 'Trouble document diagnostics' },
+          r = { '<cmd>TroubleToggle lsp_references<cr>', 'Trouble references' },
+          e = { '<cmd>TroubleToggle lsp_definitions<cr>', 'Trouble definitions' },
+          i = { '<cmd>TroubleToggle lsp_implementations<cr>', 'Trouble implementations' },
+        },
+      }, { prefix = '<leader>' })
+    end
+  },
 
   -- Show git status in gutter
   {
