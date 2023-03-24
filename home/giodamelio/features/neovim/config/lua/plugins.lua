@@ -275,6 +275,14 @@ return require('lazy').setup({
     end
   },
 
+  -- Keep the cursor vertically centered
+  {
+    'arnamak/stay-centered.nvim',
+    config = function()
+      require('stay-centered')
+    end,
+  },
+
   -- Language support
   { 'LnL7/vim-nix' } -- Nix
 }, {
