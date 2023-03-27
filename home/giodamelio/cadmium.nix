@@ -2,6 +2,7 @@
   imports = [
     ./features/cli
     ./features/neovim
+    ./features/hyprland
   ];
 
   programs = {
