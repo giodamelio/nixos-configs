@@ -19,6 +19,9 @@
   # Set your time zone.
   time.timeZone = "America/Los_Angeles";
 
+  # Change the RTC so Windows will have the correrct time
+  time.hardwareClockInLocalTime = true;
+
   # Enable the nix command and flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
