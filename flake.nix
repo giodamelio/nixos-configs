@@ -21,12 +21,22 @@
         specialArgs = { inherit inputs outputs; };
         modules = [ ./hosts/nixos-playground ];
       };
+
+      "cadmium" = nixpkgs.lib.nixosSystem {
+        specialArgs = { inherit inputs outputs; };
+        modules = [ ./hosts/cadmium ];
+      };
     };
 
     homeConfigurations = {
       "giodamelio@nixos-playground" = home-manager.lib.homeManagerConfiguration {
        extraSpecialArgs = { inherit inputs outputs; };
        modules = [ ./home/giodamelio/nixos-playground.nix ];
+      };
+
+      "giodamelio@cadmium" = home-manager.lib.homeManagerConfiguration {
+       extraSpecialArgs = { inherit inputs outputs; };
+       modules = [ ./home/giodamelio/cadmium.nix ];
       };
     };
   };
