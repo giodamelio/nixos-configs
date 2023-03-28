@@ -29,10 +29,16 @@
   services.openssh = {
     enable = true;
     settings = {
-      PermitRootLogin = "no";
+      # PermitRootLogin = "no";
       PasswordAuthentication = false;
     };
   };
+
+  # Add an ssh key to the root user
+  users.users.root.openssh.authorizedKeys.keys = [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFbUQ/gUuzZbOtBPseVWL1GVrjP08JqdNwHdndQgH+Am giodamelio@penguin"
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAZF+j6HGldFqQdp+CaPaYKGMsFpUsk49jqhb7VtdUvn giodamelio@cadmium"
+  ];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
