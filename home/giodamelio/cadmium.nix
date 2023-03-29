@@ -3,6 +3,7 @@
     ./features/cli
     ./features/neovim
     ./features/hyprland
+    ./features/window-manager/sway
   ];
 
   programs = {
