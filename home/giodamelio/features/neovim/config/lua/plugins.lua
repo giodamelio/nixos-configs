@@ -121,6 +121,9 @@ return require('lazy').setup({
       -- Nix
       lspconfig.nil_ls.setup({})
 
+      -- Rust
+      lspconfig.rust_analyzer.setup({})
+
       -- Setup some additional cmp bindings
       local cmp = require('cmp')
       cmp.setup({
