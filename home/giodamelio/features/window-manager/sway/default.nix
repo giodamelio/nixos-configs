@@ -7,6 +7,11 @@
     config = {
       modifier = "Mod4";
       terminal = "${pkgs.kitty}/bin/kitty";
+      gaps = {
+        inner = 10;
+        # Disable gaps on a workspace with a single container
+        smartGaps = true;
+      };
 
       # Configure monitors
       # Remember to take scaling into account when calculating positions
