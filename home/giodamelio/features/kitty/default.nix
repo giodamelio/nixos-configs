@@ -4,7 +4,7 @@
     font = {
       package = pkgs.nerdfonts;
       name = "Inconsolata";
-      size = 16;
+      size = 12;
     };
   };
 }
