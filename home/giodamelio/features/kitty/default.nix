@@ -7,10 +7,4 @@
       size = 16;
     };
   };
-
-  home.packages = [
-    (pkgs.nerdfonts.override {
-      fonts = [ "Inconsolata" ];
-    })
-  ];
 }

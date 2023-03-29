@@ -1,8 +1,9 @@
-{ inputs, pkgs, lib, config, ... }: {
+{ lib, config, ... }: {
   imports = [
     ./features/cli
     ./features/neovim
     ./features/kitty
+    ./features/window-manager
     ./features/window-manager/hyprland
     ./features/window-manager/sway
   ];
@@ -17,6 +18,4 @@
     stateVersion = lib.mkDefault "22.05";
     sessionPath = [ "$HOME/.local/bin" ];
   };
-
-  fonts.fontconfig.enable = true;
 }
