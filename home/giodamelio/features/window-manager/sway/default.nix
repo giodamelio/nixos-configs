@@ -45,6 +45,14 @@ in {
         };
       };
 
+      # Configure workspaces
+      workspaceAutoBackAndForth = true;
+      workspaceOutputAssign = [
+        { workspace = "1"; output = "DP-3"; }
+        { workspace = "2"; output = "DP-2"; }
+        { workspace = "3"; output = "DP-1"; }
+      ];
+
       keybindings = let
         mod = config.wayland.windowManager.sway.config.modifier;
       in lib.mkOptionDefault {
