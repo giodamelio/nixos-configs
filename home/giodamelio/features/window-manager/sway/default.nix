@@ -1,4 +1,7 @@
-{ pkgs, ... }: {
+{ inputs, pkgs, config, lib, ... }: 
+let
+    yofi = inputs.yofi.packages.x86_64-linux.default;
+in {
   imports = [
   ];
 
@@ -41,6 +44,17 @@
           position = "3000 420";
         };
       };
+
+      keybindings = let
+        mod = config.wayland.windowManager.sway.config.modifier;
+      in lib.mkOptionDefault {
+        "${mod}+d" = "exec ${yofi}/bin/yofi";
+      };
     };
   };
+
+  home.packages = [
+    # Yofi launcher
+    yofi
+  ];
 }

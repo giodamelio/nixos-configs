@@ -11,7 +11,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Nixified software
     hyprland.url = "github:hyprwm/Hyprland";
+    yofi = {
+      url = "github:l4l/yofi";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, deploy-rs, ... }@inputs: 
