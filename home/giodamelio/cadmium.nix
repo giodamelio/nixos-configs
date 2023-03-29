@@ -2,7 +2,7 @@
   imports = [
     ./features/cli
     ./features/neovim
-    ./features/hyprland
+    ./features/window-manager/hyprland
     ./features/window-manager/sway
   ];
 
