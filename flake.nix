@@ -47,7 +47,11 @@
 
       "giodamelio@cadmium" = home-manager.lib.homeManagerConfiguration {
        extraSpecialArgs = { inherit inputs outputs; };
-       modules = [ ./home/giodamelio/cadmium.nix ];
+       modules = [
+         ./home/giodamelio/cadmium.nix
+         # TODO: how do I get this into a different file?
+         # inputs.hyprland.homeManagerModules.default
+       ];
       };
     };
 

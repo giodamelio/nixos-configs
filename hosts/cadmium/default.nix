@@ -10,6 +10,9 @@
       ../../common/global
       ../../common/base-packages.nix
       ../../common/users/giodamelio.nix
+
+      # TODO: figure out how to get this into the home manager module
+      inputs.hyprland.nixosModules.default
     ];
 
   # Use the systemd-boot EFI boot loader.
@@ -49,6 +52,9 @@
   # Enable OpenGL
   # This was needed to make Sway work
   hardware.opengl.enable = true;
+
+  # TODO: figure out how to get this into the home manager config
+  programs.hyprland.enable = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

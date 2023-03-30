@@ -1,11 +1,14 @@
-{ pkgs, inputs, ... }:
+{ inputs, ... }:
 
 {
   imports = [
+    # inputs.hyprland.nixosModules.default
     inputs.hyprland.homeManagerModules.default
   ];
 
   wayland.windowManager.hyprland.enable = true;
 
-  home.packages = with pkgs; [];
+  # home.packages = [
+  #   inputs.hyprland.nixosModules.default
+  # ];
 }
