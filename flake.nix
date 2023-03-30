@@ -4,6 +4,8 @@
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
 
+    hardware.url = "github:NixOS/nixos-hardware";
+
     deploy-rs.url = "github:serokell/deploy-rs";
 
     home-manager = {

@@ -1,8 +1,11 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   imports =
     [ # Include the results of the hardware scan.
+      inputs.hardware.nixosModules.common-cpu-intel
+      inputs.hardware.nixosModules.common-gpu-amd
+      inputs.hardware.nixosModules.common-pc-ssd
       ./hardware-configuration.nix
       ../../common/global
       ../../common/base-packages.nix
