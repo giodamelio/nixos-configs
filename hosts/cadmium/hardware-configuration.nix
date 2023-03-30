@@ -41,6 +41,7 @@
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  # TODO: a flake update told me to disable this
   # high-resolution display
-  fonts.optimizeForVeryHighDPI = lib.mkDefault true;
+  # fonts.optimizeForVeryHighDPI = lib.mkDefault true;
 }
