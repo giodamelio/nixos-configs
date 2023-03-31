@@ -3,6 +3,7 @@
     ./features/cli
     ./features/neovim
     ./features/kitty
+    ./features/bitwarden
     ./features/browser/firefox
     ./features/browser/qutebrowser
     ./features/window-manager
