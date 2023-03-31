@@ -28,6 +28,7 @@
 
         modules-left = [ "wlr/workspaces" ];
         modules-center = [ "clock" ];
+        modules-right = [ "cpu" "memory" "network" "tray" ];
 
         clock = {
           format = "{:%I:%M%p}";
@@ -37,6 +38,18 @@
 
         "wlr/workspaces" = {
           format = "{icon}";
+        };
+
+        cpu = {
+          format = "{usage}% ";
+        };
+
+        memory = {
+          format = "{}% ";
+        };
+
+        network = {
+          format = "{ifname}: {ipaddr} 󰱓";
         };
       };
       leftBar = {
