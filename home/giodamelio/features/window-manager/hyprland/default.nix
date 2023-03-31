@@ -18,7 +18,13 @@
   programs.waybar = {
     enable = true;
     package = inputs.hyprland.packages.${pkgs.system}.waybar-hyprland;
-    settings = {
+    settings = let 
+      clock-config = {
+        format = "{:%I:%M%p}";
+        format-alt = "{:%A, %B %d, %Y (%R)}";
+        tooltip-format = "<tt><small>{calendar}</small></tt>";
+      };
+    in {
       mainBar = {
         layer = "top";
         position = "top";
@@ -26,15 +32,11 @@
           "DP-3"
         ];
 
-        modules-left = [ "wlr/workspaces" ];
-        modules-center = [ "clock" ];
-        modules-right = [ "cpu" "memory" "network" "tray" ];
+        modules-left = [ "wlr/workspaces" "hyprland/submap" ];
+        modules-center = [ "hyprland/window" ];
+        modules-right = [ "clock" "cpu" "memory" "network" "tray" ];
 
-        clock = {
-          format = "{:%I:%M%p}";
-          format-alt = "{:%A, %B %d, %Y (%R)}";
-          tooltip-format = "<tt><small>{calendar}</small></tt>";
-        };
+        clock = clock-config;
 
         "wlr/workspaces" = {
           format = "{icon}";
@@ -66,7 +68,10 @@
           "DP-2"
         ];
 
-        modules-left = [ "wlr/workspaces" ];
+        modules-left = [ "wlr/workspaces" "hyprland/submap" ];
+        modules-right = [ "clock" ];
+
+        clock = clock-config;
       };
       rightBar = {
         layer = "top";
@@ -75,7 +80,10 @@
           "DP-1"
         ];
 
-        modules-left = [ "wlr/workspaces" ];
+        modules-left = [ "wlr/workspaces" "hyprland/submap" ];
+        modules-right = [ "clock" ];
+
+        clock = clock-config;
       };
     };
   };
