@@ -50,6 +50,13 @@
 
         network = {
           format = "{ifname}: {ipaddr} 󰱓";
+          tooltip-format = ''
+            {ifname}
+            IP: {ipaddr}
+            Gateway: {gwaddr}
+            Down (b/s): {bandwidthDownBytes}
+            Up (b/s): {bandwidthUpBytes}
+          '';
         };
       };
       leftBar = {
