@@ -3,7 +3,7 @@
     ./features/cli
     ./features/neovim
     ./features/kitty
-    ./features/firefox
+    ./features/browser/firefox
     ./features/window-manager
     ./features/window-manager/hyprland
     ./features/window-manager/sway
