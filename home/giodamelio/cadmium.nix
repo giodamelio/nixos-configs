@@ -4,6 +4,7 @@
     ./features/neovim
     ./features/kitty
     ./features/browser/firefox
+    ./features/browser/qutebrowser
     ./features/window-manager
     ./features/window-manager/hyprland
     ./features/window-manager/sway
