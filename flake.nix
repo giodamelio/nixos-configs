@@ -6,8 +6,6 @@
 
     hardware.url = "github:NixOS/nixos-hardware";
 
-    deploy-rs.url = "github:serokell/deploy-rs";
-
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -21,7 +19,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, deploy-rs, ... }@inputs: 
+  outputs = { self, nixpkgs, home-manager, ... }@inputs: 
   let
     inherit (self) outputs;
   in
@@ -55,19 +53,6 @@
       };
     };
 
-    deploy = {
-      nodes = {
-        cadmium = {
-          hostname = "localhost";
-          sshUser = "root";
-          profiles.system = {
-            user = "root";
-            path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations."cadmium";
-          };
-        };
-      };
-    };
-
     # Build Colmena machines from each of flake.nixosConfigurations
     # See: https://github.com/zhaofengli/colmena/issues/60#issuecomment-1510496861
     colmena = let
@@ -80,8 +65,5 @@
         nodeSpecialArgs = builtins.mapAttrs (name: value: value._module.specialArgs) conf;
       };
     } // builtins.mapAttrs (name: value: { imports = value._module.args.modules; }) conf;
-
-    # Catch mistakes with automated checks
-    checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
   };
 }
