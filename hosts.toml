@@ -1,0 +1,11 @@
+[hosts.cadmium]
+hostname = "cadmium.home.gio.ninja"
+description = "My Desktop PC"
+location = "home"
+
+[hosts.californium]
+hostname = "californium.home.gio.ninja"
+description = "Critical Services"
+location = "digitalocean.sfo3"
+# Current list of services
+#  - DNS Server for Tailscale network
