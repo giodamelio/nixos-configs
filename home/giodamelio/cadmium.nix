@@ -6,6 +6,7 @@
     ./features/bitwarden
     ./features/browser/firefox
     ./features/browser/qutebrowser
+    ./features/tailscale
     ./features/window-manager
     ./features/window-manager/hyprland
     ./features/window-manager/sway
