@@ -1,15 +1,50 @@
 {
   description = "My NixOS Systems";
 
-  inputs = {
-    nixpkgs.url = "nixpkgs/nixos-unstable";
+  nixConfig = {
+    extra-experimental-features = "nix-command flakes";
   };
 
-  outputs = { self, nixpkgs }: {
+  inputs = {
+    # Follow the unstable nixpkgs by default
+    nixpkgs.url = "nixpkgs/nixos-unstable";
 
-    packages.x86_64-linux.hello = nixpkgs.legacyPackages.x86_64-linux.hello;
+    # std keeps things organized
+    std = {
+      url = "github:divnix/std";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+      };
+    };
 
-    packages.x86_64-linux.default = self.packages.x86_64-linux.hello;
+    # Hive builds on std but with more NixOS
+    hive = {
+      url = "github:divnix/hive";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        colmena.follows = "colmena";
+      };
+    };
 
+    # Allows easy deploying of our configs
+    colmena = {
+      url = "github:zhaofengli/colmena";
+    };
+  };
+
+  outputs = {
+    # self,
+    hive,
+    # std,
+    ...
+  } @ inputs: hive.growOn {
+    inherit inputs;
+
+    cellsFrom = ./nix;
+    cellBlocks = [];
+  } {
+    # Std stuff?
+  } {
+    # Hive stuff?
   };
 }
