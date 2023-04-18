@@ -9,3 +9,8 @@ description = "Critical Services"
 location = "digitalocean.sfo3"
 # Current list of services
 #  - DNS Server for Tailscale network
+
+[hosts.germanium]
+hostname = "germanium.home.gio.ninja"
+description = "Lenovo Chromebook"
+location = "mobile"
