@@ -1,2 +1,5 @@
 tmp/
+.cache/
+.data/
+.local/
 result

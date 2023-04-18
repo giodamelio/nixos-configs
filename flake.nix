@@ -33,17 +33,19 @@
   };
 
   outputs = {
-    # self,
+    self,
     hive,
-    # std,
+    std,
     ...
   } @ inputs: hive.growOn {
     inherit inputs;
 
     cellsFrom = ./nix;
-    cellBlocks = [];
+    cellBlocks = with std.blockTypes; with hive.blockTypes; [
+      (devshells "devshells")
+    ];
   } {
-    # Std stuff?
+    devShells = std.harvest self ["giodamelio" "devshells"];
   } {
     # Hive stuff?
   };
