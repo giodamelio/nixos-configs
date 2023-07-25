@@ -2,6 +2,15 @@
 let
   nixosModule = { config, lib, pkgs, ... }: {
     config = {
+      environment = {
+        systemPackages = [
+          pkgs.curl
+          pkgs.xh
+          pkgs.ripgrep
+          pkgs.fd
+          pkgs.wget
+        ];
+      };
       programs = {
         neovim = {
           defaultEditor = true;
