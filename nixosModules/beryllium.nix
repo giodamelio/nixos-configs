@@ -1,6 +1,7 @@
 { inputs, ... }@flakeContext:
 { config, lib, pkgs, ... }: {
   config = {
+    networking.hostName = "beryllium";
     environment = {
       systemPackages = [
         pkgs.curl
@@ -10,17 +11,23 @@
         pkgs.wget
         pkgs.nnn
         pkgs.neovim
+	pkgs.git
+	pkgs.cifs-utils
       ];
+      etc."issue.d/ip.issue".text = "\\4{eth0}\n";
     };
     nix = {
       settings = {
         experimental-features = [ "nix-command" "flakes" ];
+	trusted-users = [ "root" "@wheel" ];
       };
     };
     programs = {
       neovim = {
-        defaultEditor = true;
         enable = true;
+        defaultEditor = true;
+	viAlias = true;
+	vimAlias = true;
       };
     };
     security = {
@@ -30,6 +37,9 @@
     };
     services = {
       openssh = {
+        enable = true;
+      };
+      tailscale = {
         enable = true;
       };
     };
@@ -51,6 +61,11 @@
           };
         };
       };
+    };
+    fileSystems."/mnt/isos" = {
+      device = "//gallium.gio.ninja/isos";
+      fsType = "cifs";
+      options = ["username=giodamelio" "password=CKdD3WL9kvnwxrdmrAAedLit" "x-systemd.automount" "noauto"];
     };
   };
 }

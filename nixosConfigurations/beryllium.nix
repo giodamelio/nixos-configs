@@ -2,6 +2,8 @@
 let
   nixosModule = { config, lib, pkgs, ... }: {
     imports = [
+      inputs.self.nixosModules.system-image-gen
+      inputs.self.nixosModules.grub-boot
       inputs.self.nixosModules.beryllium
     ];
   };
