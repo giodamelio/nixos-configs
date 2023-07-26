@@ -12,6 +12,11 @@
         pkgs.neovim
       ];
     };
+    nix = {
+      settings = {
+        experimental-features = [ "nix-command" "flakes" ];
+      };
+    };
     programs = {
       neovim = {
         defaultEditor = true;
