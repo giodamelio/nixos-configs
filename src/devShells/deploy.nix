@@ -1,4 +1,4 @@
-{ inputs, ... }@flakeContext:
+{ inputs, ... }:
 { system }:
 let
   pkgs = inputs.nixpkgs.legacyPackages."${system}";

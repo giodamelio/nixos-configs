@@ -1,4 +1,4 @@
-{ inputs, ... }@flakeContext:
+{ inputs, ... }:
 { config, lib, pkgs, ... }: {
   config = {
     networking.hostName = "beryllium";

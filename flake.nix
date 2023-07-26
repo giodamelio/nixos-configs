@@ -4,6 +4,10 @@
     nixpkgs.url = "flake:nixpkgs/nixpkgs-unstable";
     nixos-generators.url = "flake:nixos-generators";
     colmena.url = "github:zhaofengli/colmena";
+    haumea = {
+      url = "github:nix-community/haumea/v0.2.2";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
   outputs = inputs:
     let
@@ -11,52 +15,31 @@
         inherit inputs;
       };
       homelab = (builtins.fromTOML (builtins.readFile ./homelab.toml));
+      lib = inputs.haumea.lib.load {
+	src = ./src;
+	inputs = {
+	  inherit inputs homelab;
+	};
+	transformer = inputs.haumea.lib.transformers.liftDefault;
+      };
     in
     {
       devShells = {
-        x86_64-linux = {
-          default = import ./devShells/default.nix flakeContext { system = "x86_64-linux"; };
+        x86_64-linux = rec {
+          deploy = lib.devShells.deploy {
+	    system = "x86_64-linux";
+	  };
+	  default = deploy;
 	};
       };
-      nixosConfigurations = {
-        beryllium = import ./nixosConfigurations/beryllium.nix flakeContext;
-        testing = import ./nixosConfigurations/testing.nix flakeContext;
-      };
-      nixosModules = {
-        beryllium = import ./nixosModules/beryllium.nix flakeContext;
-        testing = import ./nixosModules/testing.nix flakeContext;
-      };
+      nixosConfigurations = lib.nixosConfigurations;
+      nixosModules = lib.nixosModules;
       packages = {
         x86_64-linux = {
-          beryllium-do = import ./packages/beryllium-do.nix flakeContext;
-          beryllium-hyperv = import ./packages/beryllium-hyperv.nix flakeContext;
+	  beryllium-do = lib.packages.beryllium-do;
+	  beryllium-hyperv = lib.packages.beryllium-hyperv;
         };
       };
-      colmena = {
-	meta = {
-	  nixpkgs = import inputs.nixpkgs {
-	    system = "x86_64-linux";
-	    overlays = [];
-	  };
-	};
-
-	beryllium = {
-	  deployment = homelab.machines.beryllium.deployment;
-
-	  imports = [
-	    inputs.nixos-generators.nixosModules.do
-	    inputs.self.nixosModules.beryllium
-	  ];
-	};
-
-	testing = {
-	  deployment = homelab.machines.testing.deployment;
-
-	  imports = [
-	    inputs.nixos-generators.nixosModules.hyperv
-	    inputs.self.nixosModules.testing
-	  ];
-	};
-      };
+      colmena = lib.colmena;
     };
 }
