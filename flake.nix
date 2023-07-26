@@ -10,6 +10,7 @@
       flakeContext = {
         inherit inputs;
       };
+      homelab = (builtins.fromTOML (builtins.readFile ./homelab.toml));
     in
     {
       devShells = {
@@ -40,10 +41,7 @@
 	};
 
 	beryllium = {
-	  deployment = {
-	    targetHost = "128.199.9.59";
-	    targetUser = "server";
-	  };
+	  deployment = homelab.machines.beryllium.deployment;
 
 	  imports = [
 	    inputs.nixos-generators.nixosModules.do
@@ -52,10 +50,7 @@
 	};
 
 	testing = {
-	  deployment = {
-	    allowLocalDeployment = true;
-	    targetHost = null;
-	  };
+	  deployment = homelab.machines.testing.deployment;
 
 	  imports = [
 	    inputs.nixos-generators.nixosModules.hyperv
