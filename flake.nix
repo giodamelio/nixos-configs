@@ -19,9 +19,11 @@
       };
       nixosConfigurations = {
         beryllium = import ./nixosConfigurations/beryllium.nix flakeContext;
+        testing = import ./nixosConfigurations/testing.nix flakeContext;
       };
       nixosModules = {
         beryllium = import ./nixosModules/beryllium.nix flakeContext;
+        testing = import ./nixosModules/testing.nix flakeContext;
       };
       packages = {
         x86_64-linux = {
@@ -46,6 +48,18 @@
 	  imports = [
 	    inputs.nixos-generators.nixosModules.do
 	    inputs.self.nixosModules.beryllium
+	  ];
+	};
+
+	testing = {
+	  deployment = {
+	    allowLocalDeployment = true;
+	    targetHost = null;
+	  };
+
+	  imports = [
+	    inputs.nixos-generators.nixosModules.hyperv
+	    inputs.self.nixosModules.testing
 	  ];
 	};
       };
