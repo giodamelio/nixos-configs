@@ -22,9 +22,6 @@
       };
       nixosModules = {
         beryllium = import ./nixosModules/beryllium.nix flakeContext;
-        system-image-gen = import ./nixosModules/system-image-gen.nix flakeContext;
-	systemd-boot = import ./nixosModules/systemd-boot.nix flakeContext;
-	grub-boot = import ./nixosModules/grub-boot.nix flakeContext;
       };
       packages = {
         x86_64-linux = {
