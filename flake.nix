@@ -14,6 +14,9 @@
       nixosConfigurations = {
         beryllium = import ./nixosConfigurations/beryllium.nix flakeContext;
       };
+      nixosModules = {
+        beryllium = import ./nixosModules/beryllium.nix flakeContext;
+      };
       packages = {
         x86_64-linux = {
           beryllium = import ./packages/beryllium.nix flakeContext;
