@@ -19,7 +19,8 @@
       };
       packages = {
         x86_64-linux = {
-          beryllium = import ./packages/beryllium.nix flakeContext;
+          beryllium-do = import ./packages/beryllium-do.nix flakeContext;
+          beryllium-hyperv = import ./packages/beryllium-hyperv.nix flakeContext;
         };
       };
     };
