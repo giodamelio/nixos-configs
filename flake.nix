@@ -3,6 +3,7 @@
   inputs = {
     nixpkgs.url = "flake:nixpkgs/nixpkgs-unstable";
     nixos-generators.url = "flake:nixos-generators";
+    testing.url = "git+https://git.mynixos.com/giodamelio/testing.git";
   };
   outputs = inputs:
     let
@@ -13,9 +14,6 @@
     {
       nixosConfigurations = {
         beryllium = import ./nixosConfigurations/beryllium.nix flakeContext;
-      };
-      nixosModules = {
-        beryllium = import ./nixosModules/beryllium.nix flakeContext;
       };
       packages = {
         x86_64-linux = {
