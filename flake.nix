@@ -3,6 +3,7 @@
   inputs = {
     nixpkgs.url = "flake:nixpkgs/nixpkgs-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
+    treefmt-nix.url = "github:numtide/treefmt-nix";
     nixos-generators.url = "flake:nixos-generators";
     colmena.url = "github:zhaofengli/colmena";
     haumea = {
@@ -14,6 +15,9 @@
     homelab = (builtins.fromTOML (builtins.readFile ./homelab.toml));
     debug = inputs.nixpkgs.lib.debug;
   in flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = [
+        inputs.treefmt-nix.flakeModule
+      ];
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
       perSystem = { config, pkgs, inputs', self', system, ... }: let
         lib = inputs.haumea.lib.load {
@@ -27,6 +31,12 @@
 	  default = deploy;
 	};
 	packages = lib.packages;
+	treefmt = {
+	  projectRootFile = ".git/config";
+          programs = {
+	    alejandra.enable = true;
+	  };
+	};
       };
       flake = let
         lib = inputs.haumea.lib.load {
