@@ -1,10 +1,6 @@
-{ inputs, ... }:
-{ system }:
-let
-  pkgs = inputs.nixpkgs.legacyPackages."${system}";
-in
+{ pkgs, inputs', ... }:
 pkgs.mkShell {
   packages = [
-    inputs.colmena.packages.${system}.colmena
+    inputs'.colmena.packages.colmena
   ];
 }

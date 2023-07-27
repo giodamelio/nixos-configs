@@ -1,15 +1,8 @@
-{ inputs, ... }@flakeContext:
-let
-  nixosModule = { config, lib, pkgs, ... }: {
-    imports = [
-      inputs.self.nixosModules.beryllium
-    ];
-  };
-in
+{ root, inputs, system, ... }:
 inputs.nixos-generators.nixosGenerate {
-  system = "x86_64-linux";
+  inherit system;
   format = "do";
   modules = [
-    nixosModule
+    root.nixosModules.beryllium
   ];
 }

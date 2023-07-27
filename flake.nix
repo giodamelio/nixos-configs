@@ -2,6 +2,7 @@
   description = "";
   inputs = {
     nixpkgs.url = "flake:nixpkgs/nixpkgs-unstable";
+    flake-parts.url = "github:hercules-ci/flake-parts";
     nixos-generators.url = "flake:nixos-generators";
     colmena.url = "github:zhaofengli/colmena";
     haumea = {
@@ -9,37 +10,33 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  outputs = inputs:
-    let
-      flakeContext = {
-        inherit inputs;
-      };
-      homelab = (builtins.fromTOML (builtins.readFile ./homelab.toml));
-      lib = inputs.haumea.lib.load {
-	src = ./src;
-	inputs = {
-	  inherit inputs homelab;
-	};
-	transformer = inputs.haumea.lib.transformers.liftDefault;
-      };
-    in
-    {
-      devShells = {
-        x86_64-linux = rec {
-          deploy = lib.devShells.deploy {
-	    system = "x86_64-linux";
-	  };
+  outputs = inputs @ { self, flake-parts, ... }: let
+    homelab = (builtins.fromTOML (builtins.readFile ./homelab.toml));
+    debug = inputs.nixpkgs.lib.debug;
+  in flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
+      perSystem = { config, pkgs, inputs', self', system, ... }: let
+        lib = inputs.haumea.lib.load {
+	  src = ./src;
+	  inputs = { inherit config pkgs inputs' inputs self' system homelab debug; };
+	  transformer = inputs.haumea.lib.transformers.liftDefault;
+        };
+      in {
+        devShells = rec {
+	  deploy = lib.devShells.deploy;
 	  default = deploy;
 	};
+	packages = lib.packages;
       };
-      nixosConfigurations = lib.nixosConfigurations;
-      nixosModules = lib.nixosModules;
-      packages = {
-        x86_64-linux = {
-	  beryllium-do = lib.packages.beryllium-do;
-	  beryllium-hyperv = lib.packages.beryllium-hyperv;
+      flake = let
+        lib = inputs.haumea.lib.load {
+	  src = ./src;
+	  inputs = { inherit inputs homelab debug; };
+	  transformer = inputs.haumea.lib.transformers.liftDefault;
         };
+      in {
+	nixosModules = lib.nixosModules;
+	colmena = lib.colmena;
       };
-      colmena = lib.colmena;
     };
 }
