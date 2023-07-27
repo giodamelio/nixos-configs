@@ -29,6 +29,9 @@
 	viAlias = true;
 	vimAlias = true;
       };
+      direnv = {
+        enable = true;
+      };
     };
     security = {
       sudo = {
