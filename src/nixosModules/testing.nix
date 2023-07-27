@@ -1,5 +1,9 @@
-{ ... }:
-{ config, lib, pkgs, ... }: {
+{...}: {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   config = {
     networking.hostName = "testing";
     environment = {
@@ -11,23 +15,23 @@
         pkgs.wget
         pkgs.nnn
         pkgs.neovim
-	pkgs.git
-	pkgs.cifs-utils
+        pkgs.git
+        pkgs.cifs-utils
       ];
       etc."issue.d/ip.issue".text = "\\4{eth0}\n";
     };
     nix = {
       settings = {
-        experimental-features = [ "nix-command" "flakes" ];
-	trusted-users = [ "root" "@wheel" ];
+        experimental-features = ["nix-command" "flakes"];
+        trusted-users = ["root" "@wheel"];
       };
     };
     programs = {
       neovim = {
         enable = true;
         defaultEditor = true;
-	viAlias = true;
-	vimAlias = true;
+        viAlias = true;
+        vimAlias = true;
       };
       direnv = {
         enable = true;

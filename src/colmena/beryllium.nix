@@ -1,5 +1,9 @@
-{ root, inputs, homelab, ... }:
 {
+  root,
+  inputs,
+  homelab,
+  ...
+}: {
   deployment = homelab.machines.beryllium.deployment;
 
   imports = [

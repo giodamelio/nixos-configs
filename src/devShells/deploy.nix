@@ -1,4 +1,9 @@
-{ pkgs, inputs', config, ... }:
+{
+  pkgs,
+  inputs',
+  config,
+  ...
+}:
 pkgs.mkShell {
   nativeBuildInputs = [
     config.treefmt.build.wrapper

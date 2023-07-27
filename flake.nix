@@ -11,42 +11,54 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
-  outputs = inputs @ { self, flake-parts, ... }: let
-    homelab = (builtins.fromTOML (builtins.readFile ./homelab.toml));
+  outputs = inputs @ {
+    self,
+    flake-parts,
+    ...
+  }: let
+    homelab = builtins.fromTOML (builtins.readFile ./homelab.toml);
     debug = inputs.nixpkgs.lib.debug;
-  in flake-parts.lib.mkFlake { inherit inputs; } {
+  in
+    flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         inputs.treefmt-nix.flakeModule
       ];
-      systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
-      perSystem = { config, pkgs, inputs', self', system, ... }: let
+      systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin"];
+      perSystem = {
+        config,
+        pkgs,
+        inputs',
+        self',
+        system,
+        ...
+      }: let
         lib = inputs.haumea.lib.load {
-	  src = ./src;
-	  inputs = { inherit config pkgs inputs' inputs self' system homelab debug; };
-	  transformer = inputs.haumea.lib.transformers.liftDefault;
+          src = ./src;
+          inputs = {inherit config pkgs inputs' inputs self' system homelab debug;};
+          transformer = inputs.haumea.lib.transformers.liftDefault;
         };
       in {
         devShells = rec {
-	  deploy = lib.devShells.deploy;
-	  default = deploy;
-	};
-	packages = lib.packages;
-	treefmt = {
-	  projectRootFile = ".git/config";
+          deploy = lib.devShells.deploy;
+          default = deploy;
+        };
+        packages = lib.packages;
+        treefmt = {
+          projectRootFile = ".git/config";
           programs = {
-	    alejandra.enable = true;
-	  };
-	};
+            alejandra.enable = true;
+          };
+        };
       };
       flake = let
         lib = inputs.haumea.lib.load {
-	  src = ./src;
-	  inputs = { inherit inputs homelab debug; };
-	  transformer = inputs.haumea.lib.transformers.liftDefault;
+          src = ./src;
+          inputs = {inherit inputs homelab debug;};
+          transformer = inputs.haumea.lib.transformers.liftDefault;
         };
       in {
-	nixosModules = lib.nixosModules;
-	colmena = lib.colmena;
+        nixosModules = lib.nixosModules;
+        colmena = lib.colmena;
       };
     };
 }
