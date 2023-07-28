@@ -9,5 +9,6 @@
   imports = [
     inputs.nixos-generators.nixosModules.hyperv
     root.nixosModules.testing
+    root.nixosModules.homemanager
   ];
 }
