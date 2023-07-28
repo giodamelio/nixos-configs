@@ -11,5 +11,11 @@ pkgs.mkShell {
 
   packages = [
     inputs'.colmena.packages.colmena
+
+    pkgs.lefthook
   ];
+
+  shellHook = ''
+    ${pkgs.lefthook}/bin/lefthook install
+  '';
 }

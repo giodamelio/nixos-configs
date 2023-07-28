@@ -1,0 +1,5 @@
+pre-commit:
+  commands:
+    treefmt:
+      glob: "*.nix"
+      run: treefmt --fail-on-change
