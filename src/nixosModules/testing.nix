@@ -16,7 +16,7 @@
         pkgs.nnn
         pkgs.neovim
         pkgs.git
-        pkgs.cifs-utils
+        pkgs.zellij
       ];
       etc."issue.d/ip.issue".text = "\\4{eth0}\n";
     };
