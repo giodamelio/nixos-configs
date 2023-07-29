@@ -4,7 +4,7 @@
     nixpkgs.url = "flake:nixpkgs/nixpkgs-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
     treefmt-nix.url = "github:numtide/treefmt-nix";
-    nixos-generators.url = "flake:nixos-generators";
+    nixos-generators.url = "github:nix-community/nixos-generators";
     colmena.url = "github:zhaofengli/colmena";
     haumea = {
       url = "github:nix-community/haumea/v0.2.2";
@@ -20,8 +20,26 @@
     flake-parts,
     ...
   }: let
-    homelab = builtins.fromTOML (builtins.readFile ./homelab.toml);
     debug = inputs.nixpkgs.lib.debug;
+
+    # Static data about our homelab
+    homelab = builtins.fromTOML (builtins.readFile ./homelab.toml);
+
+    # Some utility functions
+    util = import ./util.nix {inherit (inputs) nixpkgs;};
+
+    # Load our source files with out transformers
+    loadSrc = custom-inputs:
+      inputs.haumea.lib.load {
+        src = ./src;
+        inputs = custom-inputs;
+        transformer = [
+          inputs.haumea.lib.transformers.liftDefault
+          (util.subtreeTransformer
+            ["nixosModules"]
+            util.flattenTransformer)
+        ];
+      };
   in
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
@@ -34,13 +52,10 @@
         inputs',
         self',
         system,
+        debug,
         ...
       }: let
-        lib = inputs.haumea.lib.load {
-          src = ./src;
-          inputs = {inherit config pkgs inputs' inputs self' system homelab debug;};
-          transformer = inputs.haumea.lib.transformers.liftDefault;
-        };
+        lib = loadSrc {inherit config pkgs inputs' inputs self' system homelab debug;};
       in {
         devShells = rec {
           deploy = lib.devShells.deploy;
@@ -54,12 +69,9 @@
           };
         };
       };
+
       flake = let
-        lib = inputs.haumea.lib.load {
-          src = ./src;
-          inputs = {inherit inputs homelab debug;};
-          transformer = inputs.haumea.lib.transformers.liftDefault;
-        };
+        lib = loadSrc {inherit inputs homelab debug;};
       in {
         nixosModules = lib.nixosModules;
         colmena = lib.colmena;

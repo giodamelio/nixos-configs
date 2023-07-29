@@ -8,6 +8,6 @@
 
   imports = [
     inputs.nixos-generators.nixosModules.do
-    root.nixosModules.beryllium
+    root.nixosModules.systems-beryllium
   ];
 }
