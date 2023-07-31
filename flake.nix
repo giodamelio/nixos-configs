@@ -5,7 +5,7 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     treefmt-nix.url = "github:numtide/treefmt-nix";
     nixos-generators.url = "github:nix-community/nixos-generators";
-    colmena.url = "github:zhaofengli/colmena";
+    deploy-rs.url = "github:serokell/deploy-rs";
     haumea = {
       url = "github:nix-community/haumea/v0.2.2";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -18,6 +18,7 @@
   outputs = inputs @ {
     self,
     flake-parts,
+    deploy-rs,
     ...
   }: let
     debug = inputs.nixpkgs.lib.debug;
@@ -74,7 +75,9 @@
         lib = loadSrc {inherit inputs homelab debug;};
       in {
         nixosModules = lib.nixosModules;
-        colmena = lib.colmena;
+        nixosConfigurations = lib.nixosConfigurations;
+        deploy.nodes = lib.deploy-rs;
+        checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
       };
     };
 }

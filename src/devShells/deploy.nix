@@ -10,7 +10,7 @@ pkgs.mkShell {
   ];
 
   packages = [
-    inputs'.colmena.packages.colmena
+    inputs'.deploy-rs.packages.deploy-rs
 
     pkgs.lefthook
   ];

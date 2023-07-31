@@ -19,6 +19,11 @@ in {
             };
           };
 
+          exa = {
+            enable = true;
+            enableAliases = true;
+          };
+
           neovim = {
             enable = true;
             defaultEditor = true;

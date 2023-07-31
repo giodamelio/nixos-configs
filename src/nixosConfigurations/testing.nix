@@ -3,10 +3,13 @@
   inputs,
   homelab,
   ...
-}: {
-  deployment = homelab.machines.testing.deployment;
+}:
+inputs.nixpkgs.lib.nixosSystem {
+  system = "x86_64-linux";
 
-  imports = [
+  #deployment = homelab.machines.testing.deployment;
+
+  modules = [
     inputs.nixos-generators.nixosModules.hyperv
     root.nixosModules.systems-testing
     root.nixosModules.home-manager-loader

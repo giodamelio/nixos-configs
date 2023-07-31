@@ -3,10 +3,11 @@
   inputs,
   homelab,
   ...
-}: {
-  deployment = homelab.machines.beryllium.deployment;
+}:
+inputs.nixpkgs.lib.nixosSystem {
+  system = "x86_64-linux";
 
-  imports = [
+  modules = [
     inputs.nixos-generators.nixosModules.do
     root.nixosModules.systems-beryllium
   ];
