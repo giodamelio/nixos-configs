@@ -11,6 +11,13 @@ in {
       home-manager.users.server = {
         home.stateVersion = "23.11";
         programs = {
+          zsh = {
+            enable = true;
+            shellAliases = {
+              tree = "exa --tree";
+            };
+          };
+
           zellij = {
             enable = true;
             settings = {

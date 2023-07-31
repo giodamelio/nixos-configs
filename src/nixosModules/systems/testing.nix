@@ -16,6 +16,7 @@
         pkgs.nnn
         pkgs.neovim
         pkgs.git
+        pkgs.zsh
       ];
       etc."issue.d/ip.issue".text = "\\4{eth0}\n";
     };
@@ -33,6 +34,9 @@
         vimAlias = true;
       };
       direnv = {
+        enable = true;
+      };
+      zsh = {
         enable = true;
       };
     };
@@ -56,6 +60,7 @@
             "wheel"
           ];
           isNormalUser = true;
+          shell = pkgs.zsh;
           openssh = {
             authorizedKeys = {
               keys = [
