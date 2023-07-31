@@ -3,3 +3,7 @@ pre-commit:
     treefmt:
       glob: "*.nix"
       run: treefmt --fail-on-change
+pre-push:
+  commands:
+    nix-check:
+      run: nix flake check
