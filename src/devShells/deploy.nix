@@ -13,6 +13,7 @@ pkgs.mkShell {
     inputs'.deploy-rs.packages.deploy-rs
 
     pkgs.lefthook
+    pkgs.nurl
   ];
 
   shellHook = ''
