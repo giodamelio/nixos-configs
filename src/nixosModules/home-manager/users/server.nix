@@ -1,4 +1,8 @@
-{inputs, ...}: {
+{
+  inputs,
+  root,
+  ...
+}: {
   config,
   lib,
   pkgs,
@@ -13,7 +17,7 @@ in {
 
         # Load neovim config from a dedicated package
         xdg.configFile.neovim-config = {
-          source = root.packages.neovim-config { inherit pkgs; };
+          source = root.packages.neovim-config {inherit pkgs;};
           target = "nvim";
         };
 

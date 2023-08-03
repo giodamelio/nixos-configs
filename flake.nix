@@ -29,40 +29,38 @@
     # Some utility functions
     util = import ./util.nix {inherit (inputs) nixpkgs;};
 
-    # Load our source files with out transformers
-    loadSrc = custom-inputs:
-      inputs.haumea.lib.load {
-        src = ./src;
-        inputs = custom-inputs;
-        transformer = [
-          inputs.haumea.lib.transformers.liftDefault
-          (util.subtreeTransformer
-            ["nixosModules"]
-            util.flattenTransformer)
-        ];
-      };
+    # Load all of our source file
+    # Flatten the modules under ./src/nixosModules
+    lib = inputs.haumea.lib.load {
+      src = ./src;
+      inputs = {inherit inputs homelab debug;};
+      transformer = [
+        (util.subtreeTransformer ["nixosModules"] util.flattenTransformer)
+      ];
+    };
   in
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         inputs.treefmt-nix.flakeModule
       ];
+
       systems = ["x86_64-linux" "aarch64-linux"];
+
       perSystem = {
-        config,
         pkgs,
         inputs',
+        config,
         self',
         system,
-        debug,
         ...
-      }: let
-        lib = loadSrc {inherit config pkgs inputs' inputs self' system homelab debug;};
-      in {
+      }: {
         devShells = rec {
-          deploy = lib.devShells.deploy;
+          deploy = lib.devShells.deploy {inherit pkgs inputs' config;};
           default = deploy;
         };
-        packages = lib.packages;
+        packages = {
+          neovim-config = lib.packages.neovim-config {inherit pkgs;};
+        };
         treefmt = {
           projectRootFile = ".git/config";
           programs = {
@@ -71,11 +69,12 @@
         };
       };
 
-      flake = let
-        lib = loadSrc {inherit inputs homelab debug;};
-      in {
+      flake = {
+        # Export our modules and configurations
         nixosModules = lib.nixosModules;
         nixosConfigurations = lib.nixosConfigurations;
+
+        # Deploy with deploy-rs
         deploy.nodes = lib.deploy-rs;
         checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
       };
