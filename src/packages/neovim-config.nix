@@ -46,6 +46,7 @@ in
         gitsigns-nvim
         comment-nvim
         marks-nvim
+        neogit
       ];
 
       # Some plugins I need different versions then NixPkgs has

@@ -337,6 +337,11 @@ local plugins = {
     config = true,
   },
 
+  {
+    'NeogitOrg/neogit',
+    config = true
+  },
+
   -- Do a Unix to it!
   { 'tpope/vim-eunuch' },
 
