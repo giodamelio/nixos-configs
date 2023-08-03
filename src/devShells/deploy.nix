@@ -14,9 +14,12 @@ pkgs.mkShell {
 
     pkgs.lefthook
     pkgs.nurl
+    pkgs.just
   ];
 
   shellHook = ''
     ${pkgs.lefthook}/bin/lefthook install
+
+    just
   '';
 }

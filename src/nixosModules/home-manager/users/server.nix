@@ -42,6 +42,14 @@ in {
             enableAliases = true;
           };
 
+          atuin = {
+            enable = true;
+            enableZshIntegration = true;
+            flags = [
+              "--disable-up-arrow"
+            ];
+          };
+
           neovim = {
             enable = true;
             defaultEditor = true;
