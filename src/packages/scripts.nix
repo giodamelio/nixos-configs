@@ -12,16 +12,11 @@
     overlays = [inputs.nuenv.overlays.nuenv];
   };
 in {
-  oldz = pkgs.writeShellApplication {
-    name = "oldz";
-    runtimeInputs = with pkgs; [zellij skim];
-    text = ''
-      zellij list-sessions | sk
-    '';
-  };
-  z = pkgsWithNu.nuenv.mkScript {
+  z = pkgsWithNu.nuenv.mkCommand {
     name = "z";
-    script = ''
+    runtimeInputs = with pkgsWithNu; [zellij skim];
+    description = "Interactivaly choose which Zellij session to join, or create one if none exist";
+    text = ''
       let sessions = (zellij list-sessions | lines)
       let session_count = ($sessions | length)
       if $session_count == 0 {
@@ -33,5 +28,11 @@ in {
         exec zellij attach $picked_session
       }
     '';
+    subCommands = {
+      ls = {
+        description = "Lists the Zellij sessions";
+        text = "zellij ls";
+      };
+    };
   };
 }

@@ -7,7 +7,7 @@
     nixos-generators.url = "github:nix-community/nixos-generators";
     deploy-rs.url = "github:serokell/deploy-rs";
     nuenv = {
-      url = "github:DeterminateSystems/nuenv";
+      url = "github:giodamelio/nuenv/mkCommand";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     haumea = {
