@@ -47,6 +47,8 @@ in
         comment-nvim
         marks-nvim
         neogit
+        ChatGPT-nvim
+        nui-nvim
       ];
 
       # Some plugins I need different versions then NixPkgs has

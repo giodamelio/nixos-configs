@@ -311,6 +311,31 @@ local plugins = {
     end
   },
 
+  {
+    'jackMort/ChatGPT.nvim',
+    dependencies = {
+      'MunifTanjim/nui.nvim',
+    },
+    event = 'VeryLazy',
+    opts = {
+      chat = {
+        keymaps = {
+          close = { '<Esc>' },
+        },
+      },
+      edit_with_instructions = {
+        diff = false,
+        keymaps = {
+          close = '<Esc>',
+        },
+      },
+      popup_input = {
+        submit = 'Enter',
+      },
+    },
+    config = true,
+  },
+
   -- Move/create/delete files directly in a vim buffer
   {
     'stevearc/oil.nvim',
