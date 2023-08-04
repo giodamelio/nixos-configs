@@ -50,6 +50,15 @@ in {
             ];
           };
 
+          git = {
+            enable = true;
+            delta.enable = true;
+            ignores = [
+              "tmp/"
+              ".direnv/"
+            ];
+          };
+
           neovim = {
             enable = true;
             defaultEditor = true;
