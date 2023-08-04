@@ -1,8 +1,11 @@
-{...}: {
+{
+  root,
+  debug,
+  ...
+}: {
   pkgs,
   inputs',
   config,
-  ...
 }:
 pkgs.mkShell {
   nativeBuildInputs = [
@@ -12,9 +15,12 @@ pkgs.mkShell {
   packages = [
     inputs'.deploy-rs.packages.deploy-rs
 
+    config.packages.scripts-z
+
     pkgs.lefthook
     pkgs.nurl
     pkgs.just
+    pkgs.nushell
   ];
 
   shellHook = ''

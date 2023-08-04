@@ -6,6 +6,10 @@
     treefmt-nix.url = "github:numtide/treefmt-nix";
     nixos-generators.url = "github:nix-community/nixos-generators";
     deploy-rs.url = "github:serokell/deploy-rs";
+    nuenv = {
+      url = "github:DeterminateSystems/nuenv";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     haumea = {
       url = "github:nix-community/haumea/v0.2.2";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -58,8 +62,11 @@
           deploy = lib.devShells.deploy {inherit pkgs inputs' config;};
           default = deploy;
         };
-        packages = {
+        packages = let
+          scripts = lib.packages.scripts {inherit pkgs system;};
+        in {
           neovim-config = lib.packages.neovim-config {inherit pkgs;};
+          scripts-z = scripts.z;
         };
         treefmt = {
           projectRootFile = ".git/config";

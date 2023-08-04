@@ -54,6 +54,24 @@
         "type": "github"
       }
     },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1681202837,
+        "narHash": "sha256-H+Rh19JDwRtpVPAWp64F+rlEtxUWBAQW28eAi3SRSzg=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "cfacdce06f30d2b68473a46042957675eebb3401",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "haumea": {
       "inputs": {
         "nixpkgs": [
@@ -210,6 +228,27 @@
         "type": "github"
       }
     },
+    "nuenv": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "rust-overlay": "rust-overlay"
+      },
+      "locked": {
+        "lastModified": 1691094429,
+        "narHash": "sha256-NF5mgnHDy8UXkbYamrxzs6e/VYaOgYDxRPdB8eTIY+w=",
+        "owner": "DeterminateSystems",
+        "repo": "nuenv",
+        "rev": "9beb9b3a8c245d56c7882da1c0d443202e96e47c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "DeterminateSystems",
+        "repo": "nuenv",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "deploy-rs": "deploy-rs",
@@ -218,7 +257,45 @@
         "home-manager": "home-manager",
         "nixos-generators": "nixos-generators",
         "nixpkgs": "nixpkgs_3",
+        "nuenv": "nuenv",
         "treefmt-nix": "treefmt-nix"
+      }
+    },
+    "rust-overlay": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": [
+          "nuenv",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1691029059,
+        "narHash": "sha256-QwVeE9YTgH3LmL7yw2V/hgswL6yorIvYSp4YGI8lZYM=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "99df4908445be37ddb2d332580365fce512a7dcf",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
       }
     },
     "treefmt-nix": {
