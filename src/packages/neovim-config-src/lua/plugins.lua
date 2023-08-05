@@ -377,6 +377,7 @@ local plugins = {
       wk.register({
         g = {
           name = 'Git',
+          g = { '<cmd>Neogit<cr>', 'Open Neogit UI' },
           n = { function() gsa.next_hunk() end, 'Go to next hunk' },
           p = { function() gsa.prev_hunk() end, 'Go to previous hunk' },
           s = { function() gs.stage_hunk() end, 'Stage hunk' },
