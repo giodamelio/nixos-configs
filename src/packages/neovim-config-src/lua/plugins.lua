@@ -10,12 +10,12 @@ local plugins = {
         styles = {
           -- Don't italazise comments or keywords
           comments = { italic = false },
-          keywords = { italic = false }
-        }
+          keywords = { italic = false },
+        },
       })
 
-      vim.cmd [[colorscheme tokyonight]]
-    end
+      vim.cmd([[colorscheme tokyonight]])
+    end,
   },
 
   -- Interactivly show keybindings
@@ -32,7 +32,7 @@ local plugins = {
     config = function()
       local wk = require('which-key')
       local telescope = require('telescope')
-      local tb = require('telescope.builtin');
+      local tb = require('telescope.builtin')
       local trouble = require('trouble.providers.telescope')
 
       wk.register({
@@ -56,7 +56,7 @@ local plugins = {
           },
         },
       })
-    end
+    end,
   },
 
   -- Setup Language Server, Autocomplete and Snippets
@@ -76,7 +76,7 @@ local plugins = {
       { 'rafamadriz/friendly-snippets' },
 
       -- Code Context
-      { 'SmiteshP/nvim-navic' }
+      { 'SmiteshP/nvim-navic' },
     },
     config = function()
       -- Helper function for cmp/LuaSnip bindings
@@ -95,9 +95,7 @@ local plugins = {
       -- Setup completion
       cmp.setup({
         snippet = {
-          expand = function(args)
-            require('luasnip').lsp_expand(args.body)
-          end,
+          expand = function(args) require('luasnip').lsp_expand(args.body) end,
         },
         mapping = cmp.mapping.preset.insert({
           ['<C-b>'] = cmp.mapping.scroll_docs(-4),
@@ -130,52 +128,43 @@ local plugins = {
           completion = cmp.config.window.bordered(),
           documentation = cmp.config.window.bordered(),
         },
-        sources = cmp.config.sources(
-          {
-            { name = 'path', },
-            { name = 'nvim_lsp', keyword_length = 2, },
-            { name = 'luasnip',  keyword_length = 3, },
-          }, {
-            { name = 'buffer', keyword_length = 4, },
-          }
-        ),
+        sources = cmp.config.sources({
+          { name = 'path' },
+          { name = 'nvim_lsp', keyword_length = 2 },
+          { name = 'luasnip', keyword_length = 3 },
+        }, {
+          { name = 'buffer', keyword_length = 4 },
+        }),
       })
 
       -- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
       cmp.setup.cmdline({ '/', '?' }, {
         mapping = cmp.mapping.preset.cmdline(),
         sources = {
-          { name = 'buffer' }
-        }
+          { name = 'buffer' },
+        },
       })
 
       -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
       cmp.setup.cmdline(':', {
         mapping = cmp.mapping.preset.cmdline(),
-        sources = cmp.config.sources(
-          {
-            { name = 'path' }
-          }, {
-            { name = 'cmdline' }
-          }
-        )
+        sources = cmp.config.sources({
+          { name = 'path' },
+        }, {
+          { name = 'cmdline' },
+        }),
       })
 
       -- Setup Language Servers
 
       -- Set the default capabilities
       local lsp_defaults = lspconfig.util.default_config
-      lsp_defaults.capabilities = vim.tbl_deep_extend(
-        'force',
-        lsp_defaults.capabilities,
-        require('cmp_nvim_lsp').default_capabilities()
-      )
+      lsp_defaults.capabilities =
+        vim.tbl_deep_extend('force', lsp_defaults.capabilities, require('cmp_nvim_lsp').default_capabilities())
 
       -- Attach navic
       lsp_defaults.on_attach = function(client, bufnr)
-        if client.server_capabilities.documentSymbolProvider then
-          navic.attach(client, bufnr)
-        end
+        if client.server_capabilities.documentSymbolProvider then navic.attach(client, bufnr) end
       end
 
       -- Autoformat before save
@@ -183,9 +172,7 @@ local plugins = {
       vim.api.nvim_create_autocmd('BufWritePre', {
         pattern = '*',
         group = 'AutoFormatting',
-        callback = function()
-          vim.lsp.buf.format()
-        end,
+        callback = function() vim.lsp.buf.format() end,
       })
 
       -- Setup some language servers
@@ -209,18 +196,18 @@ local plugins = {
               },
               diagnostics = {
                 -- Get the language server to recognize the `vim` global
-                globals = { 'vim' }
+                globals = { 'vim' },
               },
               workspace = {
                 checkThirdParty = false,
                 library = {
                   -- Make the server aware of Neovim runtime files
                   vim.fn.expand('$VIMRUNTIME/lua'),
-                  vim.fn.stdpath('config') .. '/lua'
-                }
-              }
-            }
-          }
+                  vim.fn.stdpath('config') .. '/lua',
+                },
+              },
+            },
+          },
         }
       end
       lspconfig.lua_ls.setup(lua_ls_config()) -- Lua
@@ -243,7 +230,7 @@ local plugins = {
 
       -- Load Snippets
       require('luasnip.loaders.from_vscode').lazy_load()
-    end
+    end,
   },
 
   -- Treesitter
@@ -262,7 +249,7 @@ local plugins = {
           disable = {},
         },
       })
-    end
+    end,
   },
 
   -- Rainbow delimiters with Treesitter
@@ -290,7 +277,7 @@ local plugins = {
           'RainbowDelimiterCyan',
         },
       })
-    end
+    end,
   },
 
   -- Status bar
@@ -298,7 +285,7 @@ local plugins = {
     'nvim-lualine/lualine.nvim',
     dependencies = {
       { 'kyazdani42/nvim-web-devicons' },
-      { 'arkav/lualine-lsp-progress' }
+      { 'arkav/lualine-lsp-progress' },
     },
     config = function()
       local lualine = require('lualine')
@@ -307,20 +294,20 @@ local plugins = {
       -- Enable lualine
       local config = vim.tbl_deep_extend('force', default_config, {
         sections = {
-          lualine_c = { 'filename', 'lsp_progress' }
+          lualine_c = { 'filename', 'lsp_progress' },
         },
         winbar = {
           lualine_c = {
             {
               'navic',
               color_correction = nil,
-              navic_opts = nil
-            }
-          }
+              navic_opts = nil,
+            },
+          },
         },
         -- Show some help when the tabline is open, I always forget the keys...
         tabline = {
-          lualine_a = { { 'tabs', mode = 2 }, },
+          lualine_a = { { 'tabs', mode = 2 } },
           lualine_x = { '"[next tab] gt, [prev tab] gT, [close tab] :tabclose"' },
         },
       })
@@ -331,7 +318,7 @@ local plugins = {
 
       -- Only show the tabline if there is more then one tab
       vim.opt.showtabline = 1
-    end
+    end,
   },
 
   -- Lists make your troubles go away!
@@ -357,14 +344,14 @@ local plugins = {
         },
         t = { '<cmd>TroubleToggle document_diagnostics<cr>', 'Trouble document diagnostics' },
       }, { prefix = '<leader>' })
-    end
+    end,
   },
 
   -- Show git status in gutter
   {
     'lewis6991/gitsigns.nvim',
     dependencies = {
-      { 'linrongbin16/gitlinker.nvim' }
+      { 'linrongbin16/gitlinker.nvim' },
     },
     config = function()
       local gs = require('gitsigns')
@@ -378,7 +365,7 @@ local plugins = {
       })
 
       gl.setup({
-        mapping = nil
+        mapping = nil,
       })
 
       -- Setup some keybindings
@@ -392,17 +379,18 @@ local plugins = {
           u = { function() gs.undo_stage_hunk() end, 'Unstage hunk' },
           r = { function() gs.reset_hunk() end, 'Reset hunk' },
           b = { function() gs.blame_line(true) end, 'Blame Current Line' }, -- true shows full blame with a diff
-          y = { function()
-            gl.link({
-              -- GitLinker hard codes to the + register which doesn't work over ssh
-              -- action = gla.clipboard,
-              action = function(url)
-                vim.fn.setreg('"', url)
-              end,
-              lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
-              lend = vim.api.nvim_buf_get_mark(0, '>')[1]
-            })
-          end, 'Copy permalink to clipboard' },
+          y = {
+            function()
+              gl.link({
+                -- GitLinker hard codes to the + register which doesn't work over ssh
+                -- action = gla.clipboard,
+                action = function(url) vim.fn.setreg('"', url) end,
+                lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
+                lend = vim.api.nvim_buf_get_mark(0, '>')[1],
+              })
+            end,
+            'Copy permalink to clipboard',
+          },
         },
       }, { prefix = '<leader>' })
 
@@ -411,22 +399,23 @@ local plugins = {
       wk.register({
         g = {
           name = 'Git',
-          s = { function() gs.stage_hunk({ vim.fn.line("."), vim.fn.line("v") }) end, 'Stage hunk' },
-          r = { function() gs.reset_hunk({ vim.fn.line("."), vim.fn.line("v") }) end, 'Reset hunk' },
-          y = { function()
-            gl.link({
-              -- GitLinker hard codes to the + register which doesn't work over ssh
-              -- action = gla.clipboard,
-              action = function(url)
-                vim.fn.setreg('"', url)
-              end,
-              lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
-              lend = vim.api.nvim_buf_get_mark(0, '>')[1]
-            })
-          end, 'Copy permalink to clipboard' },
+          s = { function() gs.stage_hunk({ vim.fn.line('.'), vim.fn.line('v') }) end, 'Stage hunk' },
+          r = { function() gs.reset_hunk({ vim.fn.line('.'), vim.fn.line('v') }) end, 'Reset hunk' },
+          y = {
+            function()
+              gl.link({
+                -- GitLinker hard codes to the + register which doesn't work over ssh
+                -- action = gla.clipboard,
+                action = function(url) vim.fn.setreg('"', url) end,
+                lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
+                lend = vim.api.nvim_buf_get_mark(0, '>')[1],
+              })
+            end,
+            'Copy permalink to clipboard',
+          },
         },
       }, { prefix = '<leader>', mode = 'v' })
-    end
+    end,
   },
 
   {
@@ -458,7 +447,7 @@ local plugins = {
   {
     'stevearc/oil.nvim',
     opts = {
-      columns = { 'icon', 'permissions', 'size' }
+      columns = { 'icon', 'permissions', 'size' },
     },
     config = true,
   },
@@ -489,7 +478,7 @@ local plugins = {
 
   {
     'NeogitOrg/neogit',
-    config = true
+    config = true,
   },
 
   -- Do a Unix to it!
@@ -513,10 +502,10 @@ if os.getenv('NIX_PATH') then
       local transformed_deps = {}
       for _, plugin_dep in ipairs(plugin.dependencies) do
         -- If it is a bare string dep, convert it to a table version
-        if type(plugin_dep) == "string" then
+        if type(plugin_dep) == 'string' then
           table.insert(transformed_deps, {
             plugin_dep,
-            dev = true
+            dev = true,
           })
         else
           plugin_dep.dev = true
@@ -530,8 +519,8 @@ if os.getenv('NIX_PATH') then
   return require('lazy').setup(plugins, {
     lockfile = '/tmp/lazy-lock.json',
     dev = {
-      path     = "@allThePlugins@",
-      fallback = false
+      path = '@allThePlugins@',
+      fallback = false,
     },
   })
 else
