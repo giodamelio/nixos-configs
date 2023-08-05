@@ -32,10 +32,18 @@ in
         bufdelete-nvim
         which-key-nvim
         telescope-nvim
+
+        # LSP + Completion + Snippets
         nvim-lspconfig
         nvim-cmp
         cmp-nvim-lsp
+        cmp-buffer
+        cmp-path
+        cmp-cmdline
         luasnip
+        cmp_luasnip
+        friendly-snippets
+
         nvim-treesitter.withAllGrammars
         lualine-nvim
         lualine-lsp-progress
@@ -53,19 +61,6 @@ in
 
       # Some plugins I need different versions then NixPkgs has
       customPlugins = [
-        # I want the yet unreleased v3.x
-        (pkgs.vimUtils.buildVimPluginFrom2Nix {
-          pname = "lsp-zero.nvim";
-          version = "2023-08-03";
-          src = pkgs.fetchFromGitHub {
-            owner = "VonHeikemen";
-            repo = "lsp-zero.nvim";
-            rev = "ef56e4c6cbcf95e807a89140ab1c87d22f5ea067"; # Latest on branch dev-v3 as of 2023-08-03
-            hash = "sha256-zIb/7s/xBYEYtTBPtPQUyktSu5aHG+mlWoYRmoo+vu4=";
-          };
-          meta.homepage = "https://github.com/VonHeikemen/lsp-zero.nvim/";
-        })
-
         # Not yet packaged
         (pkgs.vimUtils.buildVimPluginFrom2Nix {
           pname = "rainbow-delimiters.nvim";
