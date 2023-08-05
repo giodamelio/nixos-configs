@@ -6,3 +6,6 @@ require('basic')
 
 -- Load the plugins
 require('plugins')
+
+-- Setup some keybinds
+require('keybinds')
