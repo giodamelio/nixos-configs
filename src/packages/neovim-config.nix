@@ -52,6 +52,7 @@ in
         nvim-navic
         oil-nvim
         gitsigns-nvim
+        nvim-surround
         comment-nvim
         marks-nvim
         neogit

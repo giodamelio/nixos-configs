@@ -463,6 +463,13 @@ local plugins = {
     config = true,
   },
 
+  -- Deal with pairs of things
+  {
+    'kylechui/nvim-surround',
+    event = 'VeryLazy',
+    config = true,
+  },
+
   -- Better comments
   {
     'numToStr/comment.nvim',
@@ -490,9 +497,6 @@ local plugins = {
 
   -- Add a well behaved :Bdelete (keeps splits etc...)
   { 'famiu/bufdelete.nvim' },
-
-  -- Deal with pairs of things
-  { 'tpope/vim-surround' },
 }
 
 -- Do a crazy dev mode hack if we are useing Nix
