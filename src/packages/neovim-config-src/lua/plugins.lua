@@ -317,12 +317,20 @@ local plugins = {
               navic_opts = nil
             }
           }
-        }
+        },
+        -- Show some help when the tabline is open, I always forget the keys...
+        tabline = {
+          lualine_a = { { 'tabs', mode = 2 }, },
+          lualine_x = { '"[next tab] gt, [prev tab] gT, [close tab] :tabclose"' },
+        },
       })
       lualine.setup(config)
 
       -- Hide mode display in the command bar since lualine shows it
       vim.opt.showmode = false
+
+      -- Only show the tabline if there is more then one tab
+      vim.opt.showtabline = 1
     end
   },
 
