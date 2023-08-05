@@ -12,8 +12,8 @@
     overlays = [inputs.nuenv.overlays.nuenv];
   };
 in {
-  z = pkgsWithNu.nuenv.mkCommand {
-    name = "z";
+  zz = pkgsWithNu.nuenv.mkCommand {
+    name = "zz";
     runtimeInputs = with pkgsWithNu; [zellij skim];
     description = "Interactivaly choose which Zellij session to join, or create one if none exist";
     text = ''

@@ -15,7 +15,7 @@ pkgs.mkShell {
   packages = [
     inputs'.deploy-rs.packages.deploy-rs
 
-    config.packages.scripts-z
+    config.packages.scripts-zz
 
     pkgs.lefthook
     pkgs.nurl
