@@ -1,7 +1,7 @@
 pre-commit:
   commands:
     treefmt:
-      glob: "*.nix"
+      glob: "*.{nix,lua}"
       run: treefmt --fail-on-change
 pre-push:
   commands:

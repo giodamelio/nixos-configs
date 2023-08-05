@@ -72,6 +72,7 @@
           projectRootFile = ".git/config";
           programs = {
             alejandra.enable = true;
+            stylua.enable = true;
           };
         };
       };
