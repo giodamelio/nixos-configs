@@ -59,6 +59,11 @@ in {
             ];
           };
 
+          zoxide = {
+            enable = true;
+            enableZshIntegration = true;
+          };
+
           neovim = {
             enable = true;
             defaultEditor = true;
