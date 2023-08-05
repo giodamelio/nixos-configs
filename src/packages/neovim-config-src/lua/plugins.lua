@@ -347,6 +347,7 @@ local plugins = {
           n = { function() vim.diagnostic.goto_next() end, 'Go to next diagnostic' },
           p = { function() vim.diagnostic.goto_prev() end, 'Go to previous diagnostic' },
         },
+        t = { '<cmd>TroubleToggle document_diagnostics<cr>', 'Trouble document diagnostics' },
       }, { prefix = '<leader>' })
     end
   },
