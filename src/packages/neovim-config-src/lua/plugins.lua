@@ -212,7 +212,15 @@ local plugins = {
       end
       lspconfig.lua_ls.setup(lua_ls_config()) -- Lua
       lspconfig.nil_ls.setup({})
-      lspconfig.rust_analyzer.setup({})
+      lspconfig.rust_analyzer.setup({
+        settings = {
+          ['rust-analyzer'] = {
+            check = {
+              command = 'clippy',
+            },
+          },
+        },
+      })
 
       -- Setup some LSP keybindings
       wk.register({
