@@ -495,11 +495,11 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1691183448,
-        "narHash": "sha256-nvFetH7nRNKSPwKTDuhqWZZ78KixxinmOabdHZIDq8k=",
+        "lastModified": 1691601213,
+        "narHash": "sha256-PolSlBskl3Cuepv8qxPpVb2BByz9+N191guAVBWUunY=",
         "owner": "giodamelio",
         "repo": "nuenv",
-        "rev": "2598b780b5f09e139f3deb504ae421ef6219aa80",
+        "rev": "ad8ba02aecafc5ff6ce23965e5b463d8b6bc0ddf",
         "type": "github"
       },
       "original": {

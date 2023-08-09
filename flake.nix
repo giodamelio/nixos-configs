@@ -76,6 +76,7 @@
         in {
           neovim-config = lib.packages.neovim-config {inherit pkgs;};
           scripts-zz = scripts.zz;
+          scripts-deploy-it = scripts.deploy-it;
         };
         treefmt = {
           projectRootFile = ".git/config";

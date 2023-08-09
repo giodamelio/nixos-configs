@@ -35,4 +35,35 @@ in {
       };
     };
   };
+  deploy-it = pkgsWithNu.nuenv.mkCommand {
+    name = "deploy-it";
+    description = "Interactivaly choose a host and deploy to it";
+    runtimeInputs = with pkgsWithNu; [skim jq];
+    text = ''
+      let nodes = (
+        nix eval .#deploy.nodes --apply builtins.attrNames --json
+      )
+      let node = ($nodes | jq  -r ".[]" | sk)
+      let args = (printf ".#%s" $node)
+
+      printf "Running 'deploy -s %s'\n\n" $args
+      deploy -s $args
+    '';
+
+    subCommands = {
+      one = {
+        description = "Deploy one host";
+        args = ["host:string"];
+        text = ''
+          deploy -s .#$host
+        '';
+      };
+      all = {
+        description = "Deploy all hosts";
+        text = ''
+          deploy -s
+        '';
+      };
+    };
+  };
 }

@@ -17,6 +17,7 @@ pkgs.mkShell {
     inputs'.little_boxes.packages.default
 
     config.packages.scripts-zz
+    config.packages.scripts-deploy-it
 
     pkgs.lefthook
     pkgs.nurl

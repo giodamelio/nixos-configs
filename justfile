@@ -6,6 +6,10 @@
   echo
   just --list
 
-# Deploy configs to all machines
+# Interactivly select a host and deploy to it
 deploy:
-  deploy -s
+  deploy-it
+
+# Deploy configs to all hosts
+deploy-all:
+  deploy-it all
