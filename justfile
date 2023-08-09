@@ -1,5 +1,8 @@
 @_default:
-  echo "Nix Configurations"
+  just _list | little_boxes --title "NixOS Configurations"
+
+@_list:
+  echo "These are the configs for all my NixOS systems"
   echo
   just --list
 

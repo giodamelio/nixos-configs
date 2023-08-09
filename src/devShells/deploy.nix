@@ -27,6 +27,6 @@ pkgs.mkShell {
   shellHook = ''
     ${pkgs.lefthook}/bin/lefthook install
 
-    just | little_boxes
+    just
   '';
 }
