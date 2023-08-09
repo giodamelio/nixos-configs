@@ -14,6 +14,7 @@ pkgs.mkShell {
 
   packages = [
     inputs'.deploy-rs.packages.deploy-rs
+    inputs'.little_boxes.packages.default
 
     config.packages.scripts-zz
 
@@ -26,6 +27,6 @@ pkgs.mkShell {
   shellHook = ''
     ${pkgs.lefthook}/bin/lefthook install
 
-    just
+    just | little_boxes
   '';
 }

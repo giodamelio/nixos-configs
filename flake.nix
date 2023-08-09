@@ -19,6 +19,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
+
+  # Programs
+  inputs = {
+    little_boxes = {
+      url = "github:giodamelio/little_boxes";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
   outputs = inputs @ {
     self,
     flake-parts,
