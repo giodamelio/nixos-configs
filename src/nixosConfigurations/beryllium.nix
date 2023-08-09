@@ -1,7 +1,6 @@
 {
   root,
   inputs,
-  homelab,
   ...
 }:
 inputs.nixpkgs.lib.nixosSystem {
@@ -9,6 +8,8 @@ inputs.nixpkgs.lib.nixosSystem {
 
   modules = [
     inputs.nixos-generators.nixosModules.do
+    root.nixosModules.basic-packages
     root.nixosModules.systems-beryllium
+    root.nixosModules.home-manager-users-server
   ];
 }

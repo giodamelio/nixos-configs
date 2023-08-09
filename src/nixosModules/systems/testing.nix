@@ -8,15 +8,7 @@
     networking.hostName = "testing";
     environment = {
       systemPackages = [
-        pkgs.curl
-        pkgs.xh
-        pkgs.ripgrep
-        pkgs.fd
-        pkgs.wget
-        pkgs.nnn
-        pkgs.neovim
-        pkgs.git
-        pkgs.zsh
+        pkgs.cifs-utils
       ];
       etc."issue.d/ip.issue".text = "\\4{eth0}\n";
     };
@@ -66,6 +58,11 @@
           };
         };
       };
+    };
+    fileSystems."/mnt/isos" = {
+      device = "//gallium.gio.ninja/isos";
+      fsType = "cifs";
+      options = ["username=giodamelio" "password=CKdD3WL9kvnwxrdmrAAedLit" "x-systemd.automount" "noauto"];
     };
   };
 }

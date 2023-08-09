@@ -7,17 +7,6 @@
   config = {
     networking.hostName = "beryllium";
     environment = {
-      systemPackages = [
-        pkgs.curl
-        pkgs.xh
-        pkgs.ripgrep
-        pkgs.fd
-        pkgs.wget
-        pkgs.nnn
-        pkgs.neovim
-        pkgs.git
-        pkgs.cifs-utils
-      ];
       etc."issue.d/ip.issue".text = "\\4{eth0}\n";
     };
     nix = {
@@ -33,6 +22,7 @@
         viAlias = true;
         vimAlias = true;
       };
+      zsh.enable = true;
     };
     security = {
       sudo = {
@@ -54,6 +44,7 @@
             "wheel"
           ];
           isNormalUser = true;
+          shell = pkgs.zsh;
           openssh = {
             authorizedKeys = {
               keys = [
@@ -65,11 +56,6 @@
           };
         };
       };
-    };
-    fileSystems."/mnt/isos" = {
-      device = "//gallium.gio.ninja/isos";
-      fsType = "cifs";
-      options = ["username=giodamelio" "password=CKdD3WL9kvnwxrdmrAAedLit" "x-systemd.automount" "noauto"];
     };
   };
 }

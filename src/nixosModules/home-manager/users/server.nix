@@ -7,10 +7,9 @@
   lib,
   pkgs,
   ...
-}: let
-  home-manager = inputs.home-manager;
-in {
+}: {
   imports = [
+    root.nixosModules.home-manager-loader
     {
       home-manager.users.server = {
         home.stateVersion = "23.11";
