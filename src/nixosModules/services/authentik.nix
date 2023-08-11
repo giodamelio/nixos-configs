@@ -1,4 +1,28 @@
-{...}: {pkgs, ...}: {
+{...}: {
+  pkgs,
+  config,
+  ...
+}: {
+  environment = {
+    systemPackages = with pkgs; [
+      # Easily connect to the Redis REPL
+      (writeShellApplication {
+        name = "connect-redis";
+        runtimeInputs = [redis];
+        text = let
+          redisConfig = config.services.redis.servers.authentik;
+        in ''
+          sudo -u ${redisConfig.user} redis-cli -s ${redisConfig.unixSocket}
+        '';
+      })
+    ];
+  };
+
+  # Start our own Redis server
+  services.redis.servers.authentik = {
+    enable = true;
+  };
+
   # Mount some secrets for the service
   services.vault-agent.instances.authentik = {
     enable = true;
