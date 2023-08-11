@@ -15,12 +15,38 @@
           sudo -u ${redisConfig.user} redis-cli -s ${redisConfig.unixSocket}
         '';
       })
+
+      # Easily connect to PostgreSQL REPL
+      (writeShellApplication {
+        name = "connect-postgres";
+        runtimeInputs = [pgcli];
+        text = let
+          postgresqlConfig = config.services.postgresql;
+        in ''
+          sudo -u postgres pgcli
+        '';
+      })
     ];
   };
 
   # Start our own Redis server
   services.redis.servers.authentik = {
     enable = true;
+  };
+
+  # Ensure PostgreSQL is running and has a database and user for us
+  services.postgresql = {
+    enable = true;
+
+    ensureDatabases = ["authentik"];
+    ensureUsers = [
+      {
+        name = "authentik";
+        ensurePermissions = {
+          "DATABASE authentik" = "ALL PRIVILEGES";
+        };
+      }
+    ];
   };
 
   # Mount some secrets for the service
