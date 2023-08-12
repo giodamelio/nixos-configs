@@ -28,16 +28,16 @@
       fi
 
       # Write some secrets out for the Vault agents
-      vault read auth/approle/role/agent-authentik > /dev/null
+      vault read auth/approle/role/agent-lldap > /dev/null
       if [ $? -eq 2 ]; then
-        echo "AppRole 'agent-authentik' does not exist. Cannot write secrets."
+        echo "AppRole 'agent-lldap' does not exist. Cannot write secrets."
       else
-        SECRET_LOCATION="/var/run/credentials/vault-agent-authentik"
-        echo "Writing Secrets for vault-agent-authentik to $SECRET_LOCATION"
+        SECRET_LOCATION="/var/run/credentials/vault-agent-lldap"
+        echo "Writing Secrets for vault-agent-lldap to $SECRET_LOCATION"
         mkdir -p $SECRET_LOCATION
         chmod 0600 $SECRET_LOCATION
-        vault read -field=role_id auth/approle/role/agent-authentik/role-id > $SECRET_LOCATION/role_id
-        vault write -field=secret_id -force auth/approle/role/agent-authentik/secret-id > $SECRET_LOCATION/secret_id
+        vault read -field=role_id auth/approle/role/agent-lldap/role-id > $SECRET_LOCATION/role_id
+        vault write -field=secret_id -force auth/approle/role/agent-lldap/secret-id > $SECRET_LOCATION/secret_id
       fi
     '';
   };
