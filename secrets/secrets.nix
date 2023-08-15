@@ -8,4 +8,5 @@ let
 in {
   "lldap_jwt_secret.age".publicKeys = users ++ systems;
   "lldap_default_admin_password.age".publicKeys = users ++ systems;
+  "service_dns_updater.age".publicKeys = users ++ systems;
 }
