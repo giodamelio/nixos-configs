@@ -15,6 +15,7 @@ pkgs.mkShell {
   packages = [
     inputs'.deploy-rs.packages.deploy-rs
     inputs'.little_boxes.packages.default
+    inputs'.ragenix.packages.ragenix
 
     config.packages.scripts-zz
     config.packages.scripts-deploy-it
@@ -23,6 +24,7 @@ pkgs.mkShell {
     pkgs.nurl
     pkgs.just
     pkgs.nushell
+    pkgs.rage
   ];
 
   shellHook = ''

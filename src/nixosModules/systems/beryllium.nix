@@ -57,5 +57,10 @@
         };
       };
     };
+    age = {
+      secrets = {
+        test_secret.file = ../../../secrets/test_secret.age;
+      };
+    };
   };
 }

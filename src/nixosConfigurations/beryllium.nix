@@ -8,10 +8,9 @@ inputs.nixpkgs.lib.nixosSystem {
 
   modules = [
     inputs.nixos-generators.nixosModules.do
+    inputs.ragenix.nixosModules.default
     root.nixosModules.basic-packages
     root.nixosModules.systems-beryllium
     root.nixosModules.home-manager-users-server
-    root.nixosModules.services-vault
-    root.nixosModules.services-authentik
   ];
 }
