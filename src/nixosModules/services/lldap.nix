@@ -10,6 +10,11 @@
       ];
     };
 
+    # Define ragenix secrets
+    age.secrets.lldap_jwt_secret.file = ../../../secrets/lldap_jwt_secret.age;
+    age.secrets.lldap_default_admin_password.file = ../../../secrets/lldap_default_admin_password.age;
+
+    # Run LLDAP
     services.lldap = {
       enable = true;
       settings = {
@@ -22,37 +27,17 @@
       };
     };
 
-    # Mount some secrets for the service
-    services.vault-agent.instances.lldap = {
-      enable = true;
-      settings = {
-        vault = [
-          {
-            address = "http://127.0.0.1:8200";
-          }
+    # Small overide of systemd service to load the credentials via systemd LoadCredential
+    systemd.services.lldap = {
+      serviceConfig = {
+        LoadCredential = [
+          ("jwt_secret:" + config.age.secrets.lldap_jwt_secret.path)
+          ("default_admin_password:" + config.age.secrets.lldap_default_admin_password.path)
         ];
-        auto_auth = [
-          {
-            method = [
-              {
-                type = "approle";
-                config = {
-                  role_id_file_path = "/var/run/credentials/vault-agent-lldap/role_id";
-                  secret_id_file_path = "/var/run/credentials/vault-agent-lldap/secret_id";
-                };
-              }
-            ];
-          }
-        ];
-        template = [
-          {
-            destination = "/var/run/testing";
-            contents = ''
-              Hello World!
-            '';
-            error_on_missing_key = true;
-          }
-        ];
+      };
+      environment = {
+        LLDAP_JWT_SECRET_FILE = "%d/jwt_secret";
+        LLDAP_LDAP_USER_PASS_FILE = "%d/default_admin_password";
       };
     };
   };
