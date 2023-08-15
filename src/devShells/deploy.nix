@@ -25,6 +25,7 @@ pkgs.mkShell {
     pkgs.just
     pkgs.nushell
     pkgs.rage
+    pkgs.pwgen
   ];
 
   shellHook = ''
