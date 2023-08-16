@@ -8,4 +8,7 @@ let
 in {
   "service_lldap.age".publicKeys = users ++ systems;
   "service_dns_updater.age".publicKeys = users ++ systems;
+  "service_authelia_jwt_secret.age".publicKeys = users ++ systems;
+  "service_authelia_storage_encryption_key.age".publicKeys = users ++ systems;
+  "service_authelia_ldap_password.age".publicKeys = users ++ systems;
 }
