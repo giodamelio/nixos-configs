@@ -6,7 +6,6 @@ let
   beryllium = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC1yjCGzopneOVL0+bVHAoFmnypw/qQh/exCXYPwr06b";
   systems = [beryllium];
 in {
-  "lldap_jwt_secret.age".publicKeys = users ++ systems;
-  "lldap_default_admin_password.age".publicKeys = users ++ systems;
+  "service_lldap.age".publicKeys = users ++ systems;
   "service_dns_updater.age".publicKeys = users ++ systems;
 }
