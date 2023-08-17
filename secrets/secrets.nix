@@ -11,4 +11,6 @@ in {
   "service_authelia_jwt_secret.age".publicKeys = users ++ systems;
   "service_authelia_storage_encryption_key.age".publicKeys = users ++ systems;
   "service_authelia_ldap_password.age".publicKeys = users ++ systems;
+  "service_authentik_secret_key.age".publicKeys = users ++ systems;
+  "service_authentik_postgres_password.age".publicKeys = users ++ systems;
 }
