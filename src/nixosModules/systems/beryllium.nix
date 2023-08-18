@@ -5,7 +5,14 @@
   ...
 }: {
   config = {
-    networking.hostName = "beryllium";
+    networking = {
+      hostName = "beryllium";
+      firewall = {
+        enable = true;
+        allowedTCPPorts = [22]; # I'm sure the openssh module does this, but I am paranoid
+        allowPing = true;
+      };
+    };
     environment = {
       etc."issue.d/ip.issue".text = "\\4{eth0}\n";
     };
