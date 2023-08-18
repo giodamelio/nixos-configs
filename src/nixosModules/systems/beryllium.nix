@@ -11,6 +11,9 @@
         enable = true;
         allowedTCPPorts = [22]; # I'm sure the openssh module does this, but I am paranoid
         allowPing = true;
+
+        # Allow all connections from the podman network if it exists
+        trustedInterfaces = ["podman0"];
       };
     };
     environment = {

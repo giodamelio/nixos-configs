@@ -13,5 +13,7 @@ in {
   "service_authelia_ldap_password.age".publicKeys = users ++ systems;
   "service_authentik_secret_key.age".publicKeys = users ++ systems;
   "service_authentik_postgres_password.age".publicKeys = users ++ systems;
+  "service_firezone_postgres_password.age".publicKeys = users ++ systems;
+  "service_firezone_envfile.age".publicKeys = users ++ systems;
   "cert_cloudflare_gio_ninja.age".publicKeys = users ++ systems;
 }
