@@ -24,7 +24,7 @@
   in {
     enableServer = true;
     serverSettings = {
-      bindaddress = "0.0.0.0:443";
+      bindaddress = "0.0.0.0:8443";
 
       origin = "https://idm.gio.ninja";
       domain = "idm.gio.ninja";
@@ -43,6 +43,23 @@
     enableClient = true;
     clientSettings = {
       uri = "https://idm.gio.ninja";
+    };
+  };
+
+  # Use Caddy to reverse proxy
+  services.caddy = {
+    enable = true;
+    group = "kanidm";
+
+    virtualHosts."https://idm.gio.ninja" = {
+      useACMEHost = "idm.gio.ninja";
+      extraConfig = ''
+        reverse_proxy https://localhost:8443 {
+          transport http {
+            tls_insecure_skip_verify
+          }
+        }
+      '';
     };
   };
 
