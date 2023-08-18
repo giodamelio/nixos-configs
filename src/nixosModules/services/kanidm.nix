@@ -3,7 +3,7 @@
   config,
   ...
 }: {
-  age.secrets.cert_idm_gio_ninja.file = ../../../secrets/cert_idm_gio_ninja.age;
+  age.secrets.cert_idm_gio_ninja.file = ../../../secrets/cert_cloudflare_gio_ninja.age;
 
   # Get HTTPS certificates from LetsEncrypt for Kanidm
   security.acme = {
@@ -14,7 +14,6 @@
       dnsProvider = "cloudflare";
       credentialsFile = config.age.secrets.cert_idm_gio_ninja.path;
       group = config.systemd.services.kanidm.serviceConfig.Group;
-      # group = "kanidm";
     };
   };
 
