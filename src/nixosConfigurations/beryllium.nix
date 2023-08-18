@@ -14,6 +14,7 @@ inputs.nixpkgs.lib.nixosSystem {
     root.nixosModules.home-manager-users-server
     root.nixosModules.services-lldap
     root.nixosModules.services-dns-updater
-    root.nixosModules.services-authentik
+    #root.nixosModules.services-authentik
+    root.nixosModules.services-kanidm
   ];
 }
