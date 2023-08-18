@@ -13,13 +13,23 @@
     certs."idm.gio.ninja" = {
       dnsProvider = "cloudflare";
       credentialsFile = config.age.secrets.cert_idm_gio_ninja.path;
-      group = config.systemd.services.kanidm.serviceConfig.Group;
+    };
+  };
+
+  # Load the LetsEncrypt certs as SystemD credentials
+  systemd.services.kanidm = {
+    serviceConfig = let
+      cert_dir = config.security.acme.certs."idm.gio.ninja".directory;
+    in {
+      LoadCredential = [
+        "certs:${cert_dir}"
+      ];
     };
   };
 
   # Start Kanidm
   services.kanidm = let
-    cert_dir = config.security.acme.certs."idm.gio.ninja".directory;
+    credentials_directory = "/run/credentials/kanidm.service";
   in {
     enableServer = true;
     serverSettings = {
@@ -29,8 +39,11 @@
       domain = "idm.gio.ninja";
 
       # Certificates from the security.acme module
-      tls_key = "${cert_dir}/key.pem";
-      tls_chain = "${cert_dir}/fullchain.pem";
+      # TODO: these should really be referencing the $CREDENTIALS_DIRECTORY not hardcoded
+      # kanidm will need some way to load config from env vars or files first
+      # See: https://github.com/kanidm/kanidm/issues/290
+      tls_key = "${credentials_directory}/certs_key.pem";
+      tls_chain = "${credentials_directory}/certs_fullchain.pem";
 
       online_backup = {
         path = "/var/lib/kanidm/backups/";
@@ -48,7 +61,7 @@
   # Use Caddy to reverse proxy
   services.caddy = {
     enable = true;
-    group = "kanidm";
+    group = "acme";
 
     virtualHosts."https://idm.gio.ninja" = {
       useACMEHost = "idm.gio.ninja";
