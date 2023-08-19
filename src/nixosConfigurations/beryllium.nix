@@ -14,5 +14,6 @@ inputs.nixpkgs.lib.nixosSystem {
     root.nixosModules.home-manager-users-server
     root.nixosModules.services-kanidm
     root.nixosModules.services-firezone
+    root.nixosModules.services-netmaker
   ];
 }
