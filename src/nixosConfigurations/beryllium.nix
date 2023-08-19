@@ -12,8 +12,6 @@ inputs.nixpkgs.lib.nixosSystem {
     root.nixosModules.basic-packages
     root.nixosModules.systems-beryllium
     root.nixosModules.home-manager-users-server
-    root.nixosModules.services-lldap
-    root.nixosModules.services-dns-updater
     root.nixosModules.services-kanidm
     root.nixosModules.services-firezone
   ];
