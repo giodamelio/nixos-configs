@@ -6,6 +6,8 @@ let
   beryllium = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC1yjCGzopneOVL0+bVHAoFmnypw/qQh/exCXYPwr06b";
   systems = [beryllium];
 in {
+  "cert_cloudflare_gio_ninja.age".publicKeys = users ++ systems;
+
   "service_lldap.age".publicKeys = users ++ systems;
   "service_dns_updater.age".publicKeys = users ++ systems;
   "service_authelia_jwt_secret.age".publicKeys = users ++ systems;
@@ -15,5 +17,7 @@ in {
   "service_authentik_postgres_password.age".publicKeys = users ++ systems;
   "service_firezone_postgres_password.age".publicKeys = users ++ systems;
   "service_firezone_envfile.age".publicKeys = users ++ systems;
-  "cert_cloudflare_gio_ninja.age".publicKeys = users ++ systems;
+  "service_netmaker_mosquitto_password_file.age".publicKeys = users ++ systems;
+  "service_netmaker_postgres_password.age".publicKeys = users ++ systems;
+  "service_netmaker_envfile.age".publicKeys = users ++ systems;
 }

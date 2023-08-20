@@ -77,10 +77,12 @@
         };
         packages = let
           scripts = lib.packages.scripts {inherit pkgs system;};
+          netmaker = lib.packages.netmaker {inherit pkgs;};
         in {
           neovim-config = lib.packages.neovim-config {inherit pkgs;};
           scripts-zz = scripts.zz;
           scripts-deploy-it = scripts.deploy-it;
+          netmaker-ui = netmaker.netmaker-ui;
         };
         treefmt = {
           projectRootFile = ".git/config";
