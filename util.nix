@@ -16,8 +16,11 @@
 
   # Transform the tree into a single level deep attrset by combining names with dashes
   # e.g. { a = { b = 1; c = 2; } } -> { a-b = 1; a-c = 2 }
+  # Remove any path that has "deprecated" anywhere in it
   flattenTransformer = path: children:
-    mergeAttrsList (flattenOneLevel children);
+    if (builtins.elem "deprecated" path)
+    then {}
+    else mergeAttrsList (flattenOneLevel children);
 
   # Takes an atterset and turns it into a list of attrsets that have their names flattened one level
   flattenOneLevel = input:
