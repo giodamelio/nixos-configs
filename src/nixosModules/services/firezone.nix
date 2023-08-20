@@ -97,37 +97,10 @@ in {
   };
 
   # Ensure PostgreSQL is running and has a database and user for us
-  services.postgresql = {
+  services.my-postgres = {
     enable = true;
-
-    settings = {
-      listen_addresses = lib.mkForce "*";
-    };
-    authentication = "host all all samenet md5";
-
-    ensureDatabases = ["firezone"];
-    ensureUsers = [
-      {
-        name = "firezone";
-        ensurePermissions = {
-          "DATABASE firezone" = "ALL PRIVILEGES";
-        };
-      }
-    ];
-  };
-
-  systemd.services.postgresql = {
-    # Set the firezone postgresql password
-    # Note the multiple ''' to escape '' inside of ''
-    postStart = ''
-      $PSQL -tAc "ALTER ROLE firezone WITH PASSWORD '$(cat $CREDENTIALS_DIRECTORY/postgres_password)'"
-    '';
-
-    # Load some credentials for the service
-    serviceConfig = {
-      LoadCredential = [
-        "postgres_password:${config.age.secrets.service_firezone_postgres_password.path}"
-      ];
+    databases = {
+      firezone = config.age.secrets.service_firezone_postgres_password.path;
     };
   };
 }

@@ -12,6 +12,7 @@ inputs.nixpkgs.lib.nixosSystem {
     root.nixosModules.basic-packages
     root.nixosModules.systems-beryllium
     root.nixosModules.home-manager-users-server
+    root.nixosModules.core-postgres
     root.nixosModules.services-kanidm
     root.nixosModules.services-firezone
     root.nixosModules.services-netmaker
