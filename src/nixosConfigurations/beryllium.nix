@@ -15,6 +15,5 @@ inputs.nixpkgs.lib.nixosSystem {
     root.nixosModules.core-postgres
     root.nixosModules.services-kanidm
     root.nixosModules.services-firezone
-    root.nixosModules.services-netmaker
   ];
 }
