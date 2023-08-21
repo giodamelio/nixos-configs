@@ -32,6 +32,20 @@ in {
       };
     };
   };
+  zdeploy = pkgsWithNu.nuenv.mkCommand {
+    name = "zdeploy";
+    runtimeInputs = with pkgsWithNu; [zellij];
+    args = ["host:string"];
+    description = "Run deploy command in another Zellij session (that I keep open on another monitor)";
+    text = ''
+      # Write ASCII ETX (end of text), basically ^C
+      zellij --session runner action write 3
+      zellij --session runner action write-chars "deploy "
+      zellij --session runner action write-chars $host
+      # Write ASCII Newline
+      zellij --session runner action write 10
+    '';
+  };
   deploy = pkgsWithNu.nuenv.mkCommand {
     name = "deploy";
     description = "Interactivaly choose a host and deploy to it";

@@ -18,6 +18,7 @@ pkgs.mkShell {
     inputs'.ragenix.packages.ragenix
 
     config.packages.scripts-deploy
+    config.packages.scripts-zdeploy
 
     pkgs.lefthook
     pkgs.nurl
