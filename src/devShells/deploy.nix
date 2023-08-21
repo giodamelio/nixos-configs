@@ -17,7 +17,6 @@ pkgs.mkShell {
     inputs'.little_boxes.packages.default
     inputs'.ragenix.packages.ragenix
 
-    config.packages.scripts-zz
     config.packages.scripts-deploy
 
     pkgs.lefthook

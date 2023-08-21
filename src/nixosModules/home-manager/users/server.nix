@@ -7,7 +7,9 @@
   lib,
   pkgs,
   ...
-}: {
+}: let
+  scripts = root.packages.scripts {inherit pkgs;};
+in {
   imports = [
     root.nixosModules.home-manager-loader
     {
@@ -19,6 +21,10 @@
           source = root.packages.neovim-config {inherit pkgs;};
           target = "nvim";
         };
+
+        home.packages = [
+          scripts.zz
+        ];
 
         programs = {
           zsh = {
