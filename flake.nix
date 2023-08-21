@@ -78,7 +78,7 @@
           default = deploy;
         };
         packages = let
-          scripts = lib.packages.scripts {inherit pkgs system;};
+          scripts = lib.packages.scripts {inherit pkgs;};
         in {
           neovim-config = lib.packages.neovim-config {inherit pkgs;};
           scripts-zz = scripts.zz;

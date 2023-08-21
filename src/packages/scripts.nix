@@ -2,13 +2,10 @@
   debug,
   inputs,
   ...
-}: {
-  pkgs,
-  system,
-}: let
+}: {pkgs}: let
   # Create a copy of our nixpkgs with the Nu builder
   pkgsWithNu = import inputs.nixpkgs {
-    inherit system;
+    system = pkgs.system;
     overlays = [inputs.nuenv.overlays.nuenv];
   };
 in {
@@ -38,23 +35,32 @@ in {
   deploy = pkgsWithNu.nuenv.mkCommand {
     name = "deploy";
     description = "Interactivaly choose a host and deploy to it";
-    runtimeInputs = with pkgsWithNu; [skim jq];
+    runtimeInputs = with pkgsWithNu; [skim];
     args = ["host?:string"];
+    flags = {
+      verbose = {
+        description = "Disable Colmena spinners and print the whole build log";
+        type = "bool";
+        short = "v";
+      };
+    };
     text = ''
-      # If there is a host passed, deploy to it
-      if ($host != null) {
-        colmena apply --on $host
-        exit 0
-      }
-
-      # Otherwise interactivaly pick a host to deploy to
-      let nodes = (
-        nix eval .#nixosConfigurations --apply builtins.attrNames --json
-      )
-      let node = ($nodes | jq  -r ".[]" | sk)
+      # If no node is passed, interactivaly pick one
+      let node = (if ($host == null) {
+        let nodes = (
+          nix eval .#nixosConfigurations --apply builtins.attrNames --json
+        )
+        ($nodes | from json | to text | sk)
+      } else {
+        $host
+      })
 
       printf "Running 'colmena apply --on %s'\n\n" $node
-      colmena apply --on $node
+      if ($verbose != null) {
+        colmena apply --verbose --on $node
+      } else {
+        colmena apply --on $node
+      }
     '';
 
     subCommands = {
