@@ -13,12 +13,12 @@ pkgs.mkShell {
   ];
 
   packages = [
-    inputs'.deploy-rs.packages.deploy-rs
+    inputs'.colmena.packages.colmena
     inputs'.little_boxes.packages.default
     inputs'.ragenix.packages.ragenix
 
     config.packages.scripts-zz
-    config.packages.scripts-deploy-it
+    config.packages.scripts-deploy
 
     pkgs.lefthook
     pkgs.nurl

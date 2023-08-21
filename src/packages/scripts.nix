@@ -35,33 +35,33 @@ in {
       };
     };
   };
-  deploy-it = pkgsWithNu.nuenv.mkCommand {
-    name = "deploy-it";
+  deploy = pkgsWithNu.nuenv.mkCommand {
+    name = "deploy";
     description = "Interactivaly choose a host and deploy to it";
     runtimeInputs = with pkgsWithNu; [skim jq];
+    args = ["host?:string"];
     text = ''
+      # If there is a host passed, deploy to it
+      if ($host != null) {
+        colmena apply --on $host
+        exit 0
+      }
+
+      # Otherwise interactivaly pick a host to deploy to
       let nodes = (
-        nix eval .#deploy.nodes --apply builtins.attrNames --json
+        nix eval .#nixosConfigurations --apply builtins.attrNames --json
       )
       let node = ($nodes | jq  -r ".[]" | sk)
-      let args = (printf ".#%s" $node)
 
-      printf "Running 'deploy -s %s'\n\n" $args
-      deploy -s $args
+      printf "Running 'colmena apply --on %s'\n\n" $node
+      colmena apply --on $node
     '';
 
     subCommands = {
-      one = {
-        description = "Deploy one host";
-        args = ["host:string"];
-        text = ''
-          deploy -s .#$host
-        '';
-      };
       all = {
         description = "Deploy all hosts";
         text = ''
-          deploy -s
+          colmena apply
         '';
       };
     };

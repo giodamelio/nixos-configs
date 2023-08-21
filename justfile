@@ -8,8 +8,8 @@
 
 # Interactivly select a host and deploy to it
 deploy:
-  deploy-it
+  deploy
 
 # Deploy configs to all hosts
 deploy-all:
-  deploy-it all
+  deploy all

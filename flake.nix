@@ -5,7 +5,10 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     treefmt-nix.url = "github:numtide/treefmt-nix";
     nixos-generators.url = "github:nix-community/nixos-generators";
-    deploy-rs.url = "github:serokell/deploy-rs";
+    colmena = {
+      url = "github:zhaofengli/colmena";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nuenv = {
       url = "github:giodamelio/nuenv/mkCommand";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -35,7 +38,6 @@
   outputs = inputs @ {
     self,
     flake-parts,
-    deploy-rs,
     ...
   }: let
     debug = inputs.nixpkgs.lib.debug;
@@ -80,7 +82,7 @@
         in {
           neovim-config = lib.packages.neovim-config {inherit pkgs;};
           scripts-zz = scripts.zz;
-          scripts-deploy-it = scripts.deploy-it;
+          scripts-deploy = scripts.deploy;
         };
         treefmt = {
           projectRootFile = ".git/config";
@@ -96,9 +98,19 @@
         nixosModules = lib.nixosModules;
         nixosConfigurations = lib.nixosConfigurations;
 
-        # Deploy with deploy-rs
-        deploy.nodes = lib.deploy-rs;
-        checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
+        # Deploy with Colmena
+        colmena =
+          {
+            meta = {
+              description = "My personal boxes";
+
+              # This can be overriden by node nixpkgs
+              nixpkgs = import inputs.nixpkgs {system = "x86_64-linux";};
+              nodeNixpkgs = builtins.mapAttrs (name: value: value.pkgs) lib.nixosConfigurations;
+              nodeSpecialArgs = builtins.mapAttrs (name: value: value._module.specialArgs) lib.nixosConfigurations;
+            };
+          }
+          // builtins.mapAttrs (name: value: {imports = value._module.args.modules;}) lib.nixosConfigurations;
       };
     };
 }

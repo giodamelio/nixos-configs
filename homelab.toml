@@ -4,14 +4,13 @@
 description = "Critical Services on DigitalOcean"
 
 [machines.beryllium.deployment]
-hostname = "128.199.9.59"
-user = "root"
-sshUser = "server"
+targetHost = "128.199.9.59"
+targetUser = "server"
 
 [machines.testing]
 description = "Testing NixOS VM running in HyperV on Cadmium"
 
 [machines.testing.deployment]
-hostname = "10.0.128.171"
-user = "root"
-sshUser = "server"
+targetHost = "10.0.128.171"
+targetUser = "server"
+allowLocalDeployment = true
