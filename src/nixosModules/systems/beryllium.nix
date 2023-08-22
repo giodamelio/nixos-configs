@@ -43,9 +43,6 @@
       openssh = {
         enable = true;
       };
-      tailscale = {
-        enable = true;
-      };
     };
     users = {
       users = {
