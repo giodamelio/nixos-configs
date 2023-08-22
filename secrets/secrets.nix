@@ -20,4 +20,5 @@ in {
   "service_netmaker_mosquitto_password_file.age".publicKeys = users ++ systems;
   "service_netmaker_postgres_password.age".publicKeys = users ++ systems;
   "service_netmaker_envfile.age".publicKeys = users ++ systems;
+  "service_headscale_postgres_password.age".publicKeys = users ++ systems;
 }
