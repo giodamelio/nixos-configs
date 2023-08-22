@@ -21,4 +21,7 @@ in {
   "service_netmaker_postgres_password.age".publicKeys = users ++ systems;
   "service_netmaker_envfile.age".publicKeys = users ++ systems;
   "service_headscale_postgres_password.age".publicKeys = users ++ systems;
+  "service_boundary_postgres_password.age".publicKeys = users ++ systems;
+  "service_boundary_kms_config.age".publicKeys = users ++ systems;
+  "service_boundary_admin_password.age".publicKeys = users ++ systems;
 }
