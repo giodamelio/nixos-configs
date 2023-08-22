@@ -11,6 +11,7 @@
       fd # Better find
       git
       neovim
+      file
 
       # Internet fetchers
       curl
