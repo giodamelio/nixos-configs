@@ -14,3 +14,17 @@ description = "Testing NixOS VM running in HyperV on Cadmium"
 targetHost = "10.0.128.171"
 targetUser = "server"
 allowLocalDeployment = true
+
+## All the networks
+
+# Normal home LAN managed by Ubiquiti hardware
+[networks.home-lan]
+cidr = "10.0.0.1/16"
+
+# Homelab servers hosted in my closet
+[networks.homelab-lan]
+cidr = "10.1.0.1/16"
+
+# Homelab servers hosted on public VPSs
+[networks.homelab-vps]
+cidr = "10.2.0.1/16"
