@@ -14,9 +14,11 @@ inputs.nixpkgs.lib.nixosSystem {
 
   modules = [
     inputs.nixos-generators.nixosModules.hyperv
+    inputs.ragenix.nixosModules.default
     root.nixosModules.basic-packages
     root.nixosModules.systems-testing
     root.nixosModules.home-manager-users-server
+    root.nixosModules.core-wireguard
 
     # Load the deployment config from our homelab.toml
     ({...}: {

@@ -1,5 +1,14 @@
 ## All the machines
 
+# My Pixel 7
+[machines.gio-pixel-7]
+description = "My current phone"
+
+[machines.gio-pixel-7.wireguard.rescue]
+address = ["10.99.0.2/32"]
+publicKey = "yYhgMMTtvKJvJ2S31yWlxMmp+MOF5hPSHGKjWPuh0mg="
+
+# Critical Services on Digital Ocean
 [machines.beryllium]
 description = "Critical Services on DigitalOcean"
 
@@ -7,6 +16,15 @@ description = "Critical Services on DigitalOcean"
 targetHost = "128.199.9.59"
 targetUser = "server"
 
+[machines.beryllium.wireguard.rescue]
+address = ["10.99.0.1/32"]
+publicKey = "nTGFAv9loCw2Jdon46eT6GOlNpm+Wnsrh30W4UP32Ws="
+endpoint = "beryllium.gio.ninja"
+persistentKeepalive = 60
+interface = "wg99"
+port = 51821
+
+# VM running on Cadmium
 [machines.testing]
 description = "Testing NixOS VM running in HyperV on Cadmium"
 
@@ -14,6 +32,12 @@ description = "Testing NixOS VM running in HyperV on Cadmium"
 targetHost = "10.0.128.171"
 targetUser = "server"
 allowLocalDeployment = true
+
+[machines.testing.wireguard.rescue]
+address = ["10.99.0.3/32"]
+publicKey = "dY/n06ZCLjvjXSQgJfX2mdFylURdt0hXxJWp84PcO0Y="
+interface = "wg99"
+port = 51821
 
 ## All the networks
 
@@ -28,3 +52,7 @@ cidr = "10.1.0.1/16"
 # Homelab servers hosted on public VPSs
 [networks.homelab-vps]
 cidr = "10.2.0.1/16"
+
+# Rescue network
+[networks.rescue]
+cidr = "10.99.0.1/16"
