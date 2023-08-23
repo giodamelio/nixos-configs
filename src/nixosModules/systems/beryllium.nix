@@ -7,6 +7,7 @@
   config = {
     networking = {
       hostName = "beryllium";
+      nftables.enable = true;
       firewall = {
         enable = true;
         allowedTCPPorts = [22]; # I'm sure the openssh module does this, but I am paranoid
