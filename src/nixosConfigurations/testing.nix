@@ -19,7 +19,6 @@ inputs.nixpkgs.lib.nixosSystem {
     root.nixosModules.systems-testing
     root.nixosModules.home-manager-users-server
     root.nixosModules.core-wireguard
-    root.nixosModules.services-cockpit
 
     # Load the deployment config from our homelab.toml
     ({...}: {

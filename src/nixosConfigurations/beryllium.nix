@@ -22,7 +22,6 @@ inputs.nixpkgs.lib.nixosSystem {
     root.nixosModules.core-wireguard
     root.nixosModules.services-kanidm
     root.nixosModules.services-firezone
-    root.nixosModules.services-cockpit
 
     # Load the deployment config from our homelab.toml
     ({...}: {
