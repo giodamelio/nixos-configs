@@ -13,20 +13,6 @@ in {
   "wireguard/testing/rescue.key.age".publicKeys = [system_testing] ++ users;
   "wireguard/gio-pixel-7/rescue.key.age".publicKeys = users;
 
-  "service_lldap.age".publicKeys = users ++ systems;
-  "service_dns_updater.age".publicKeys = users ++ systems;
-  "service_authelia_jwt_secret.age".publicKeys = users ++ systems;
-  "service_authelia_storage_encryption_key.age".publicKeys = users ++ systems;
-  "service_authelia_ldap_password.age".publicKeys = users ++ systems;
-  "service_authentik_secret_key.age".publicKeys = users ++ systems;
-  "service_authentik_postgres_password.age".publicKeys = users ++ systems;
-  "service_firezone_postgres_password.age".publicKeys = users ++ systems;
-  "service_firezone_envfile.age".publicKeys = users ++ systems;
-  "service_netmaker_mosquitto_password_file.age".publicKeys = users ++ systems;
-  "service_netmaker_postgres_password.age".publicKeys = users ++ systems;
-  "service_netmaker_envfile.age".publicKeys = users ++ systems;
-  "service_headscale_postgres_password.age".publicKeys = users ++ systems;
-  "service_boundary_postgres_password.age".publicKeys = users ++ systems;
-  "service_boundary_kms_config.age".publicKeys = users ++ systems;
-  "service_boundary_admin_password.age".publicKeys = users ++ systems;
+  "service_firezone_postgres_password.age".publicKeys = [system_beryllium] ++ users;
+  "service_firezone_envfile.age".publicKeys = [system_beryllium] ++ users;
 }
