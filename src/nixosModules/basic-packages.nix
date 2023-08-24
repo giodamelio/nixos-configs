@@ -9,6 +9,8 @@
       zsh # Better default shell
       ripgrep # Better grep
       fd # Better find
+      htop # Better top
+
       git
       neovim
       file
