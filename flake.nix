@@ -77,14 +77,19 @@
           deploy = lib.devShells.deploy {inherit pkgs inputs' config;};
           default = deploy;
         };
+
         packages = let
           scripts = lib.packages.scripts {inherit pkgs;};
-        in {
-          neovim-config = lib.packages.neovim-config {inherit pkgs;};
-          scripts-zz = scripts.zz;
-          scripts-deploy = scripts.deploy;
-          scripts-zdeploy = scripts.zdeploy;
-        };
+          installers = lib.packages.installers {inherit system;};
+        in
+          {
+            neovim-config = lib.packages.neovim-config {inherit pkgs;};
+            scripts-zz = scripts.zz;
+            scripts-deploy = scripts.deploy;
+            scripts-zdeploy = scripts.zdeploy;
+          }
+          // installers;
+
         treefmt = {
           projectRootFile = ".git/config";
           programs = {
