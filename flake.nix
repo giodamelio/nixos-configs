@@ -9,6 +9,10 @@
       url = "github:zhaofengli/colmena";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nuenv = {
       url = "github:giodamelio/nuenv/mkCommand";
       inputs.nixpkgs.follows = "nixpkgs";

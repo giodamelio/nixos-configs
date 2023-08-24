@@ -1,3 +1,11 @@
+## Some SSH public keys to add to the hosts
+ssh_keys = [
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKaKx5hPY3/SHy+xezxd5IsCmDoFTMIbqxTonmVVC0GB giodamelio@DESKTOP-LP2IMU5",
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAZF+j6HGldFqQdp+CaPaYKGMsFpUsk49jqhb7VtdUvn giodamelio@cadmium",
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFbUQ/gUuzZbOtBPseVWL1GVrjP08JqdNwHdndQgH+Am giodamelio@penguin",
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG8PqtBQIDBUs5fzhblKQpcWLJWPWgZ01bNmhZuw03il server@testing"
+]
+
 ## All the machines
 
 # My Pixel 7
@@ -38,6 +46,20 @@ address = ["10.99.0.3/32"]
 publicKey = "dY/n06ZCLjvjXSQgJfX2mdFylURdt0hXxJWp84PcO0Y="
 interface = "wg99"
 port = 51821
+
+# VM running on Cadmium
+[machines.windows]
+description = "Testing NixOS VM running in HyperV on Cadmium"
+
+[machines.windows.deployment]
+targetHost = "10.0.128.178"
+targetUser = "server"
+
+# [machines.testing.wireguard.rescue]
+# address = ["10.99.0.3/32"]
+# publicKey = "dY/n06ZCLjvjXSQgJfX2mdFylURdt0hXxJWp84PcO0Y="
+# interface = "wg99"
+# port = 51821
 
 ## All the networks
 
