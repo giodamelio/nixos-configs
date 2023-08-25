@@ -21,7 +21,7 @@ in {
 
   config = {
     # Load the deployment settings from our homelab.toml
-    deployment = homelab.machines.windows.deployment;
+    inherit (homelab.machines.windows) deployment;
 
     # Set the hostname
     networking.hostName = "windows";

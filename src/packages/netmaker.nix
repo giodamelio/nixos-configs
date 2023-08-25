@@ -1,4 +1,4 @@
-{...}: {pkgs}: {
+_: {pkgs}: {
   netmaker-ui = pkgs.buildNpmPackage rec {
     name = "netmaker-ui";
     version = "0.19.0";

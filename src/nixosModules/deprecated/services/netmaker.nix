@@ -7,7 +7,7 @@
   config,
   ...
 }: let
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
   baseDomain = "nm.gio.ninja";
   n = root.packages.netmaker {inherit pkgs;};
 in {

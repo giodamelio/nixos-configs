@@ -18,7 +18,7 @@ in {
   services.headscale = {
     enable = true;
     address = "127.0.0.1";
-    port = port;
+    inherit port;
 
     settings = {
       server_url = "https://${baseDomain}";

@@ -24,7 +24,7 @@ inputs.nixpkgs.lib.nixosSystem {
     root.nixosModules.services-firezone
 
     # Load the deployment config from our homelab.toml
-    ({...}: {
+    (_: {
       config.deployment = homelab.machines.beryllium.deployment;
     })
   ];

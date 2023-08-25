@@ -7,7 +7,7 @@
   config,
   ...
 }: let
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
   hostname = config.networking.hostName;
 
   # Get a network from a machine
@@ -26,7 +26,7 @@ in {
   # Load the keys for each network
   age.secrets = builtins.listToAttrs (builtins.map (networkName: {
       name = "wireguard_${hostname}_${networkName}_key";
-      value = {file = ../../../secrets/wireguard/${hostname}/${networkName}.key.age;};
+      value = {file = ../../../. + "secrets/wireguard/${hostname}/${networkName}.key.age";};
     })
     networks);
 
@@ -45,7 +45,7 @@ in {
     networkToPeer = network:
       {
         allowedIPs = network.address;
-        publicKey = network.publicKey;
+        inherit (network) publicKey;
       }
       # Add in the endpoint if it exists
       // lib.attrsets.optionalAttrs
@@ -54,7 +54,7 @@ in {
       # Add in persistantKeepalive if it exists
       // lib.attrsets.optionalAttrs
       (builtins.hasAttr "persistentKeepalive" network)
-      {persistentKeepalive = network.persistentKeepalive;};
+      {inherit (network) persistentKeepalive;};
 
     # Convert a network to a interface
     networkToInterface = networkName: network: peers: let
@@ -64,9 +64,9 @@ in {
       (builtins.hasAttr keyName config.age.secrets)
       "A private key must exist for machine:${hostname} network:${networkName}"; {
         listenPort = network.port;
-        address = network.address;
+        inherit (network) address;
         privateKeyFile = config.age.secrets."${keyName}".path;
-        peers = peers;
+        inherit peers;
       };
 
     # Get a list of peers for a network

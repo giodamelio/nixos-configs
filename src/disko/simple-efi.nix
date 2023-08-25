@@ -1,4 +1,4 @@
-{...}: {disk ? "/dev/sda"}: {
+_: {disk ? "/dev/sda"}: {
   disk.${disk} = {
     device = disk;
     type = "disk";

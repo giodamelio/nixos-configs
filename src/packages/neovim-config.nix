@@ -1,5 +1,5 @@
 {debug, ...}: {pkgs, ...}: let
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
 in
   pkgs.stdenv.mkDerivation {
     name = "neovim-config";
@@ -15,8 +15,8 @@ in
           removeNCharFromEnd = str: n: builtins.substring 0 ((builtins.stringLength str) - n) str;
           removePrefix = name:
             lib.pipe name [
-              (n: lib.strings.removePrefix "vimplugin-" n)
-              (n: lib.strings.removePrefix "lua5.1-" n)
+              (lib.strings.removePrefix "vimplugin-")
+              (lib.strings.removePrefix "lua5.1-")
             ];
           removeSuffix = name: removeNCharFromEnd name 11;
         in

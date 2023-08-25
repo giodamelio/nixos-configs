@@ -44,7 +44,7 @@
     flake-parts,
     ...
   }: let
-    debug = inputs.nixpkgs.lib.debug;
+    inherit (inputs.nixpkgs.lib) debug;
 
     # Static data about our homelab
     homelab = builtins.fromTOML (builtins.readFile ./homelab.toml);
@@ -105,8 +105,8 @@
 
       flake = {
         # Export our modules and configurations
-        nixosModules = lib.nixosModules;
-        nixosConfigurations = lib.nixosConfigurations;
+        inherit (lib) nixosModules;
+        inherit (lib) nixosConfigurations;
 
         # Deploy with Colmena
         colmena =

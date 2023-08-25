@@ -4,7 +4,7 @@
   pkgs,
   ...
 }: let
-  home-manager = inputs.home-manager;
+  inherit (inputs) home-manager;
 in {
   imports = [
     home-manager.nixosModules.home-manager

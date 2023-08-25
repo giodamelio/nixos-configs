@@ -1,4 +1,4 @@
-{homelab, ...}: {...}: {
+{homelab, ...}: _: {
   users.users.server = {
     extraGroups = ["wheel"];
     isNormalUser = true;

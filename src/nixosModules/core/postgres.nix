@@ -1,4 +1,4 @@
-{...}: {
+_: {
   config,
   lib,
   pkgs,
@@ -30,7 +30,7 @@ in {
     ensureDatabases = names;
     ensureUsers =
       builtins.map (name: {
-        name = name;
+        inherit name;
         ensurePermissions = {
           "DATABASE ${name}" = "ALL PRIVILEGES";
         };

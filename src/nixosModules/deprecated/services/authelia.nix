@@ -1,4 +1,4 @@
-{...}: {
+_: {
   pkgs,
   config,
   ...
@@ -6,17 +6,17 @@
   age.secrets.service_authelia_jwt_secret = {
     file = ../../../secrets/service_authelia_jwt_secret.age;
     owner = config.services.authelia.instances.main.user;
-    group = config.services.authelia.instances.main.group;
+    inherit (config.services.authelia.instances.main) group;
   };
   age.secrets.service_authelia_storage_encryption_key = {
     file = ../../../secrets/service_authelia_storage_encryption_key.age;
     owner = config.services.authelia.instances.main.user;
-    group = config.services.authelia.instances.main.group;
+    inherit (config.services.authelia.instances.main) group;
   };
   age.secrets.service_authelia_ldap_password = {
     file = ../../../secrets/service_authelia_ldap_password.age;
     owner = config.services.authelia.instances.main.user;
-    group = config.services.authelia.instances.main.group;
+    inherit (config.services.authelia.instances.main) group;
   };
 
   services.authelia.instances.main = {

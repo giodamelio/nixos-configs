@@ -1,9 +1,9 @@
-{...}: {
+_: {
   pkgs,
   config,
   ...
 }: let
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
 in {
   # Load our secrets
   age.secrets.cert_firezone_gio_ninja.file = ../../../secrets/cert_cloudflare_gio_ninja.age;

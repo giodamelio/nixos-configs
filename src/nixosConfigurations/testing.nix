@@ -21,7 +21,7 @@ inputs.nixpkgs.lib.nixosSystem {
     root.nixosModules.core-wireguard
 
     # Load the deployment config from our homelab.toml
-    ({...}: {
+    (_: {
       config.deployment = homelab.machines.testing.deployment;
     })
   ];

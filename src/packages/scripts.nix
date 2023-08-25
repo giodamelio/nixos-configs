@@ -5,7 +5,7 @@
 }: {pkgs}: let
   # Create a copy of our nixpkgs with the Nu builder
   pkgsWithNu = import inputs.nixpkgs {
-    system = pkgs.system;
+    inherit (pkgs) system;
     overlays = [inputs.nuenv.overlays.nuenv];
   };
 in {

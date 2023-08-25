@@ -1,4 +1,4 @@
-{...}: {pkgs, ...}: let
+_: {pkgs, ...}: let
   runOnRebootScript = pkgs.writeShellApplication {
     name = "unlock-vault-after-reboot";
     runtimeInputs = with pkgs; [vault];

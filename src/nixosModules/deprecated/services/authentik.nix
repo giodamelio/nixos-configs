@@ -1,9 +1,9 @@
-{...}: {
+_: {
   pkgs,
   config,
   ...
 }: let
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
 in {
   # Trust requests that coming from the podman0 interface
   networking.firewall.trustedInterfaces = ["podman0"];

@@ -3,7 +3,7 @@
   inherit (lib) strings attrsets lists debug;
 
   # Helper function to join path components with dashes
-  joinPaths = path: strings.concatMapStringsSep "-" (x: toString x) path;
+  joinPaths = strings.concatMapStringsSep "-" toString;
 
   # Only run the transformer on a subpath of the tree
   subtreeTransformer = subpath: transformer: let
@@ -23,13 +23,12 @@
     else mergeAttrsList (flattenOneLevel children);
 
   # Takes an atterset and turns it into a list of attrsets that have their names flattened one level
-  flattenOneLevel = input:
+  flattenOneLevel =
     attrsets.mapAttrsToList
     (name: value:
       if !builtins.isAttrs value
       then {${name} = value;}
-      else (attrsets.mapAttrs' (child-name: child-value: attrsets.nameValuePair (name + "-" + child-name) child-value) value))
-    input;
+      else (attrsets.mapAttrs' (child-name: attrsets.nameValuePair (name + "-" + child-name)) value));
 
   # Used by flatten
   flatten' = input: length: let
