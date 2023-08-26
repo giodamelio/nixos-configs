@@ -8,12 +8,9 @@
   lib,
   pkgs,
   ...
-}: let
-  rootDisk = "/dev/sda";
-in {
+}: {
   imports = [
-    inputs.disko.nixosModules.disko
-
+    root.nixosModules.partitions-windows
     root.nixosModules.basic-packages
     root.nixosModules.basic-settings
     root.nixosModules.users-server
@@ -25,9 +22,7 @@ in {
 
     # Set the hostname
     networking.hostName = "windows";
-
-    # Setup the partitions/mounts
-    disko.devices = root.disko.simple-efi {disk = rootDisk;};
+    networking.hostId = "f92eef93";
 
     # Setup hyperv kernel modules etc
     virtualisation.hypervGuest.enable = true;
