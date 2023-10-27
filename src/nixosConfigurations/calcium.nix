@@ -23,8 +23,8 @@ inputs.nixpkgs.lib.nixosSystem {
     root.nixosModules.systems-calcium
 
     # Load the deployment config from our homelab.toml
-    # (_: {
-    #   config.deployment = homelab.machines.beryllium.deployment;
-    # })
+    (_: {
+      config.deployment = homelab.machines.calcium.deployment;
+    })
   ];
 }

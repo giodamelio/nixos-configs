@@ -55,6 +55,14 @@ description = "Testing NixOS VM running in HyperV on Cadmium"
 targetHost = "10.0.128.178"
 targetUser = "server"
 
+[machines.calcium]
+description = "WSL2 Distribution running on Cadmium"
+
+[machines.calcium.deployment]
+targetHost = "172.21.201.219" # Not sure how stable this is
+targetUser = "giodamelio"
+allowLocalDeployment = true
+
 # [machines.testing.wireguard.rescue]
 # address = ["10.99.0.3/32"]
 # publicKey = "dY/n06ZCLjvjXSQgJfX2mdFylURdt0hXxJWp84PcO0Y="
