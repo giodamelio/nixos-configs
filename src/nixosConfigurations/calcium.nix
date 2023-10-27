@@ -19,8 +19,12 @@ inputs.nixpkgs.lib.nixosSystem {
       wsl.enable = true;
     })
 
+    # Load some basic packages
     root.nixosModules.basic-packages
+
+    # System Specific Confiuration
     root.nixosModules.systems-calcium
+    root.nixosModules.home-manager-users-giodamelio
 
     # Load the deployment config from our homelab.toml
     (_: {
