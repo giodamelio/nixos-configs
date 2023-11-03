@@ -26,6 +26,9 @@ inputs.nixpkgs.lib.nixosSystem {
     root.nixosModules.systems-calcium
     root.nixosModules.home-manager-users-giodamelio
 
+    # Enable some services
+    root.nixosModules.services-tailscale
+
     # Load the deployment config from our homelab.toml
     (_: {
       config.deployment = homelab.machines.calcium.deployment;
