@@ -9,11 +9,19 @@
   ...
 }: let
   scripts = root.packages.scripts {inherit pkgs;};
+  username = "giodamelio";
 in {
   imports = [
     root.nixosModules.home-manager-loader
+
+    (root.nixosModules.home-manager-programs-git {
+      inherit username;
+      userName = "Giovanni d'Amelio";
+      userEmail = "gio@damelio.net";
+    })
+
     {
-      home-manager.users.giodamelio = {
+      home-manager.users."${username}" = {
         home.stateVersion = "23.11";
 
         # Load neovim config from a dedicated package
@@ -51,15 +59,6 @@ in {
             enableZshIntegration = true;
             flags = [
               "--disable-up-arrow"
-            ];
-          };
-
-          git = {
-            enable = true;
-            delta.enable = true;
-            ignores = [
-              "tmp/"
-              ".direnv/"
             ];
           };
 
