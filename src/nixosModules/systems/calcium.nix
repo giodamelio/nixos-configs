@@ -25,11 +25,6 @@ _: {
         wheelNeedsPassword = false;
       };
     };
-    services = {
-      openssh = {
-        enable = true;
-      };
-    };
     users = {
       users = {
         giodamelio = {
