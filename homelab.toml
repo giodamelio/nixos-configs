@@ -6,6 +6,11 @@ ssh_keys = [
   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG8PqtBQIDBUs5fzhblKQpcWLJWPWgZ01bNmhZuw03il server@testing"
 ]
 
+## Age public keys to encrypt bootstrap information with
+bootstrap_keys = [
+  "age1d063kvuzcuhr0jfd42c4ppez6hdv7acnpfmczmf2e8sdlenzepvsccevsg" # Calcium
+]
+
 ## All the machines
 
 # My Pixel 7
