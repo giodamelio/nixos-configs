@@ -19,6 +19,8 @@ _: {
       curl
       wget
       xh
+
+      rage # Easy encryption
     ];
   };
 
