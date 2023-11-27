@@ -95,6 +95,7 @@
             scripts-zz = scripts.zz;
             scripts-deploy = scripts.deploy;
             scripts-zdeploy = scripts.zdeploy;
+            list-system-info = lib.packages.list-system-info {inherit pkgs;};
           }
           // installers;
 
