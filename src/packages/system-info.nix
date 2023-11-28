@@ -2,7 +2,10 @@
   inputs,
   homelab,
   debug,
-}: {pkgs}: rec {
+}: {pkgs}: let
+  # List of encryption recipients formatted for age
+  recipients = pkgs.lib.strings.concatMapStringsSep " " (item: "-r ${item}") homelab.bootstrap_keys;
+in rec {
   # List system info from various tools
   list-system-info = pkgs.writeShellApplication {
     name = "list-system-info";
@@ -54,7 +57,4 @@
       print_info
     '';
   };
-
-  # List of encryption recipients formatted for age
-  recipients = pkgs.lib.strings.concatMapStringsSep " " (item: "-r ${item}") homelab.bootstrap_keys;
 }
