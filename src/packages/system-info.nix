@@ -15,7 +15,7 @@
         exit 1
       fi
 
-      sudo inxi -v 8 --width 1
+      inxi -v 8 --width 1
     '';
   };
 
@@ -23,17 +23,21 @@
   upload-system-info = pkgs.writeShellApplication {
     name = "upload-system-info";
 
-    runtimeInputs = with pkgs; [list-system-info rage];
+    runtimeInputs = with pkgs; [list-system-info rage curl];
 
     text = ''
       SYSTEM_INFO_FILE=/tmp/system-info-url
 
-      if [[ -f "$SYSTEM_INFO_FILE" ]]; then
+      print_info() {
         URL=$(< "$SYSTEM_INFO_FILE")
         printf "System Info Uploaded: %s\n" "$URL"
-        echo ""
         echo "To view, run this command:"
         echo "    curl --silent $URL | rage --decrypt -i ~/.age/bootstrap.key | less"
+        echo ""
+      }
+
+      if [[ -f "$SYSTEM_INFO_FILE" ]]; then
+        print_info
         exit 0
       fi
 
@@ -46,8 +50,8 @@
       list-system-info | rage ${recipients} | curl --silent -F 'f:1=<-' ix.io > "$SYSTEM_INFO_FILE"
       echo " Done"
 
-      # Rerun itself
-      exec "$0"
+      print_info > /etc/issue.d/99-system-info.issue
+      print_info
     '';
   };
 
