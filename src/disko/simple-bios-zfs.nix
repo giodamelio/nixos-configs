@@ -13,14 +13,9 @@
           content = {
             type = "gpt";
             partitions = {
-              ESP = {
-                size = "64M";
-                type = "EF00";
-                content = {
-                  type = "filesystem";
-                  format = "vfat";
-                  mountpoint = "/boot";
-                };
+              boot = {
+                size = "1M";
+                type = "EF02"; # for grub MBR
               };
               zfs = {
                 size = "100%";

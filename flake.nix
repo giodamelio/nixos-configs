@@ -88,7 +88,7 @@
 
         packages = let
           scripts = lib.packages.scripts {inherit pkgs;};
-          installers = lib.packages.installers {inherit system;};
+          installers = lib.packages.installers {inherit system self;};
           system-info = lib.packages.system-info {inherit pkgs;};
         in
           {

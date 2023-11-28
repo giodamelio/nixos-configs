@@ -1,9 +1,8 @@
 _: _: {
   boot.loader = {
-    systemd-boot = {
+    grub = {
       enable = true;
-      consoleMode = "auto";
-      netbootxyz.enable = true;
+      efiSupport = true;
     };
 
     efi.canTouchEfiVariables = true;
