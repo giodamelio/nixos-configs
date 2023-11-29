@@ -16,5 +16,9 @@ inputs.nixpkgs.lib.nixosSystem {
 
     # Basic packages I want on every system
     root.nixosModules.basic-packages
+
+    (_: {
+      networking.hostId = "3c510ad9";
+    })
   ];
 }
