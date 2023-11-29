@@ -5,6 +5,7 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     treefmt-nix.url = "github:numtide/treefmt-nix";
     nixos-generators.url = "github:nix-community/nixos-generators";
+    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
     colmena = {
       url = "github:zhaofengli/colmena";
       inputs.nixpkgs.follows = "nixpkgs";
