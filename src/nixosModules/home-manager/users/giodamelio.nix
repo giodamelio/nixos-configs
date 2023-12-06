@@ -38,7 +38,7 @@ in {
           zsh = {
             enable = true;
             shellAliases = {
-              tree = "exa --tree";
+              tree = "eza --tree";
             };
           };
 
@@ -49,7 +49,7 @@ in {
             };
           };
 
-          exa = {
+          eza = {
             enable = true;
             enableAliases = true;
           };
