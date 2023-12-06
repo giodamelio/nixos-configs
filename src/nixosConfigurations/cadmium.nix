@@ -20,6 +20,10 @@ inputs.nixpkgs.lib.nixosSystem {
     # Basic packages I want on every system
     root.nixosModules.basic-packages
 
+    # Add giodamelio user with Home Manager config
+    root.nixosModules.users-giodamelio
+    root.nixosModules.home-manager-users-giodamelio
+
     (_: {
       networking.hostId = "3c510ad9";
     })
