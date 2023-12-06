@@ -11,6 +11,9 @@ inputs.nixpkgs.lib.nixosSystem {
     inputs.disko.nixosModules.disko
     root.disko.systems.cadmium
 
+    # Hardware
+    root.nixosModules.systems-hardware-cadmium
+
     # Boot with grub
     root.nixosModules.core-bootloader-grub
 

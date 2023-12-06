@@ -3,7 +3,7 @@ _: {
     disk = {
       a = {
         type = "disk";
-        device = "/dev/disk/by-id/scsi-SNVMe_INTEL_SSDPEKNW010000_0000_0100_0000_E4D2_5C33_2A5C_5101.";
+        device = "/dev/disk/by-id/nvme-INTEL_SSDPEKNW010T8_BTNH93440UH21P0B";
         content = {
           type = "gpt";
           partitions = {

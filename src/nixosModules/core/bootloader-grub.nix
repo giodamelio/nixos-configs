@@ -1,7 +1,9 @@
-_: _: {
+{ inputs, ... }: _: let
+  lib = inputs.nixpkgs.lib;
+in {
   boot.loader = {
     grub = {
-      enable = true;
+      enable = lib.mkDefault true;
       efiSupport = true;
       device = "nodev";
     };
