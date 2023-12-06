@@ -14,6 +14,8 @@ _: { config, lib, pkgs, modulesPath, ... }:
   # Make hardware clock compatable with Windows
   time.hardwareClockInLocalTime = true;
 
+  time.timeZone = "America/Los_Angeles";
+
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
