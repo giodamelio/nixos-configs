@@ -28,6 +28,9 @@ inputs.nixpkgs.lib.nixosSystem {
     # Add Hyprland WM
     root.nixosModules.services-hyprland
 
+    # Start some services
+    root.nixosModules.services-tailscale
+
     (_: {
       networking.hostId = "3c510ad9";
     })
