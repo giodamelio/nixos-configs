@@ -4,11 +4,6 @@
   pkgs,
   ...
 }: {
-  imports = [
-    # Setup the bootloader to handle zfs
-    root.nixosModules.core-bootloader-zfs
-  ];
-
   config = {
     networking.hostName = "calcium";
     nix = {
@@ -24,6 +19,7 @@
       zsh = {
         enable = true;
       };
+      nix-ld.enable = true;
     };
     security = {
       sudo = {
