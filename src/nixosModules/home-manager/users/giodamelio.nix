@@ -105,6 +105,13 @@ in {
           };
 
           nix-index.enable = true;
+
+          direnv = {
+            enable = true;
+            enableBashIntegration = true;
+            enableZshIntegration = true;
+            nix-direnv.enable = true;
+          };
         };
 
         # TODO: contribute this back to the HomeManager module
