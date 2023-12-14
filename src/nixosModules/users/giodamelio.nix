@@ -1,4 +1,4 @@
-{homelab, ...}: { pkgs, ... }: {
+{homelab, ...}: {pkgs, ...}: {
   users.users.giodamelio = {
     extraGroups = ["wheel"];
     isNormalUser = true;

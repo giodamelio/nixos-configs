@@ -1,4 +1,4 @@
-{ inputs, ... }: _: let
+{inputs, ...}: _: let
   lib = inputs.nixpkgs.lib;
 in {
   boot.loader = {
