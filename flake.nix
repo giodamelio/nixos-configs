@@ -93,7 +93,6 @@
           system-info = lib.packages.system-info {inherit pkgs;};
         in
           {
-            neovim-config = lib.packages.neovim-config {inherit pkgs;};
             neovim = lib.packages.neovim {inherit pkgs;};
             scripts-zz = scripts.zz;
             scripts-deploy = scripts.deploy;
