@@ -9,10 +9,10 @@
     pname = "rainbow-delimiters.nvim";
     version = "2023-12-15";
     src = pkgs.fetchFromGitLab {
-      owner = "hiphish";
+      owner = "HiPhish";
       repo = "rainbow-delimiters.nvim";
-      rev = "0b4c1ab6724062f3582746c6a5a8c0636bf7ed81"; # Latest on branch master as of 2023-12-15
-      hash = "sha256-FIenPsoplMt9yYFTCrkfHWWMHRIUTxE8cFwEYM/RHOQ=";
+      rev = "0b4c1ab6724062f3582746c6a5a8c0636bf7ed81";
+      hash = "sha256-LV/kFqq0e4/208cN6B2R+ECvpGG4MUsfPIZsk/up53c=";
     };
     meta.homepage = "https://github.com/hiphish/rainbow-delimiters.nvim";
   };
