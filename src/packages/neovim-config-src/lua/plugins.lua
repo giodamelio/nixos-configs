@@ -212,6 +212,9 @@ local plugins = {
       end
       lspconfig.lua_ls.setup(lua_ls_config()) -- Lua
       lspconfig.nil_ls.setup({})
+      lspconfig.elixirls.setup({
+        cmd = { os.getenv('ELIXIRLS_CMD') },
+      })
       lspconfig.rust_analyzer.setup({
         settings = {
           ['rust-analyzer'] = {
