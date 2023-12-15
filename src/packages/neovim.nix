@@ -42,6 +42,10 @@
   };
 
   nvimConfig = pkgs.neovimUtils.makeNeovimConfig {
+    withPython3 = true;
+    vimAlias = true;
+    viAlias = true;
+
     plugins = with pkgs.vimPlugins; [
       # Colorscheme
       {

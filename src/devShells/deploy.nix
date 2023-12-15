@@ -26,6 +26,10 @@ pkgs.mkShell {
     pkgs.nushell
     pkgs.rage
     pkgs.pwgen
+
+    # Language servers
+    pkgs.lua-language-server # Lua
+    pkgs.nil # Nix
   ];
 
   shellHook = ''

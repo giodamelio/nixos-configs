@@ -9,6 +9,7 @@
   ...
 }: let
   scripts = root.packages.scripts {inherit pkgs;};
+  neovim = root.packages.neovim {inherit pkgs;};
   username = "giodamelio";
 in {
   imports = [
@@ -24,15 +25,14 @@ in {
       home-manager.users."${username}" = {
         home.stateVersion = "23.11";
 
-        # Load neovim config from a dedicated package
-        xdg.configFile.neovim-config = {
-          source = root.packages.neovim-config {inherit pkgs;};
-          target = "nvim";
-        };
-
         home.packages = [
           scripts.zz
+          neovim
         ];
+
+        # Set Neovim as the default editor manually.
+        # Since we have a custom Neovim package, we can't use the HomeManager module directly
+        home.sessionVariables = {EDITOR = "nvim";};
 
         programs = {
           zsh = {
@@ -65,19 +65,6 @@ in {
           zoxide = {
             enable = true;
             enableZshIntegration = true;
-          };
-
-          neovim = {
-            enable = true;
-            defaultEditor = true;
-            vimAlias = true;
-            viAlias = true;
-            withPython3 = true;
-            extraPackages = with pkgs; [
-              # Language servers
-              lua-language-server # Lua
-              nil # Nix
-            ];
           };
 
           starship = {
