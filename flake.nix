@@ -94,6 +94,7 @@
         in
           {
             neovim-config = lib.packages.neovim-config {inherit pkgs;};
+            neovim = lib.packages.neovim {inherit pkgs;};
             scripts-zz = scripts.zz;
             scripts-deploy = scripts.deploy;
             scripts-zdeploy = scripts.zdeploy;
