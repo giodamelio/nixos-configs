@@ -8,6 +8,7 @@ inputs.home-manager.lib.homeManagerConfiguration {
 
   modules = [
     root.homeModules.user-giodamelio
+    root.homeModules.modern-coreutils
     root.homeModules.git
     root.homeModules.neovim
   ];
