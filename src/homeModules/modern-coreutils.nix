@@ -17,6 +17,12 @@
     pkgs.du-dust
   ];
 
+  home.shellAliases = {
+    tree = "eza --tree";
+    du = "dust";
+    ps = "procs";
+  };
+
   programs = {
     # ls
     eza = {

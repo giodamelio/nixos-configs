@@ -11,5 +11,6 @@ inputs.home-manager.lib.homeManagerConfiguration {
     root.homeModules.modern-coreutils
     root.homeModules.git
     root.homeModules.neovim
+    root.homeModules.zsh
   ];
 }
