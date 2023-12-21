@@ -74,6 +74,9 @@ allowLocalDeployment = true
 # interface = "wg99"
 # port = 51821
 
+[machines.cesium]
+description = "Linux Developer Experience on Lenovo Chromebook"
+
 ## All the networks
 
 # Normal home LAN managed by Ubiquiti hardware

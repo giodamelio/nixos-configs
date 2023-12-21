@@ -94,6 +94,7 @@
         in
           {
             neovim = lib.packages.neovim {inherit pkgs;};
+            generate-readme = lib.packages.generate-readme {inherit pkgs;};
             scripts-zz = scripts.zz;
             scripts-deploy = scripts.deploy;
             scripts-zdeploy = scripts.zdeploy;
