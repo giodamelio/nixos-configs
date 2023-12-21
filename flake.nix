@@ -10,6 +10,10 @@
       url = "github:zhaofengli/colmena";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    ez-configs = {
+      url = "github:ehllie/ez-configs";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -70,9 +74,20 @@
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         inputs.treefmt-nix.flakeModule
+        inputs.ez-configs.flakeModule
       ];
 
       systems = ["x86_64-linux" "aarch64-linux"];
+
+      ezConfigs = {
+        root = ./nix;
+        globalArgs = {inherit inputs;};
+
+        home.users.giodamelio.standalone = {
+          enable = true;
+          pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+        };
+      };
 
       perSystem = {
         pkgs,
