@@ -118,27 +118,6 @@
         "type": "github"
       }
     },
-    "ez-configs": {
-      "inputs": {
-        "flake-parts": "flake-parts",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1700606599,
-        "narHash": "sha256-Guoclq1HJAQ67hkQMVDMVss8E4HHVEgB61e2nno8qNA=",
-        "owner": "ehllie",
-        "repo": "ez-configs",
-        "rev": "fa75b68c677d71aa17ec0efacd09aa0f69d5a4a3",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ehllie",
-        "repo": "ez-configs",
-        "type": "github"
-      }
-    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -189,27 +168,6 @@
     },
     "flake-parts": {
       "inputs": {
-        "nixpkgs-lib": [
-          "ez-configs",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1698882062,
-        "narHash": "sha256-HkhafUayIqxXyHH1X8d9RDl1M2CkFgZLjKD3MzabiEo=",
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "rev": "8c9fa2545007b49a5db5f650ae91f227672c3877",
-        "type": "github"
-      },
-      "original": {
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "type": "github"
-      }
-    },
-    "flake-parts_2": {
-      "inputs": {
         "nixpkgs-lib": "nixpkgs-lib"
       },
       "locked": {
@@ -226,7 +184,7 @@
         "type": "github"
       }
     },
-    "flake-parts_3": {
+    "flake-parts_2": {
       "inputs": {
         "nixpkgs-lib": "nixpkgs-lib_2"
       },
@@ -431,7 +389,7 @@
     },
     "little_boxes": {
       "inputs": {
-        "flake-parts": "flake-parts_3",
+        "flake-parts": "flake-parts_2",
         "nixago": "nixago",
         "nixpkgs": [
           "nixpkgs"
@@ -782,8 +740,7 @@
       "inputs": {
         "colmena": "colmena",
         "disko": "disko",
-        "ez-configs": "ez-configs",
-        "flake-parts": "flake-parts_2",
+        "flake-parts": "flake-parts",
         "haumea": "haumea",
         "home-manager": "home-manager",
         "little_boxes": "little_boxes",
