@@ -21,6 +21,7 @@ _: {
       xh
 
       rage # Easy encryption
+      cachix # Nix binary caching
     ];
   };
 
