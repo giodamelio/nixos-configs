@@ -38,6 +38,13 @@ interface = "wg99"
 port = 51821
 
 # VM running on Cadmium
+[machines.cadmium]
+description = "Main Linux Machine"
+
+[machines.cadmium.deployment]
+allowLocalDeployment = true
+
+# VM running on Cadmium
 [machines.testing]
 description = "Testing NixOS VM running in HyperV on Cadmium"
 

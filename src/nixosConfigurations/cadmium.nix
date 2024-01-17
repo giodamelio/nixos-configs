@@ -1,10 +1,16 @@
 {
   root,
   inputs,
+  homelab,
   ...
 }:
 inputs.nixpkgs.lib.nixosSystem {
   system = "x86_64-linux";
+
+  extraModules = [
+    # Not sure why this has to be an extraModule instead of a regular module
+    inputs.colmena.nixosModules.deploymentOptions
+  ];
 
   modules = [
     # Disk layout
@@ -33,6 +39,9 @@ inputs.nixpkgs.lib.nixosSystem {
 
     (_: {
       networking.hostId = "3c510ad9";
+
+      # Load the deployment config from our homelab.toml
+      deployment = homelab.machines.cadmium.deployment;
     })
   ];
 }
