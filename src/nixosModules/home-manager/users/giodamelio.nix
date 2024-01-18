@@ -15,6 +15,8 @@ in {
   imports = [
     root.nixosModules.home-manager-loader
 
+    root.nixosModules.home-manager-programs-hyprland
+
     (root.nixosModules.home-manager-programs-git {
       inherit username;
       userName = "Giovanni d'Amelio";
