@@ -1,4 +1,4 @@
-_: _: {
+_: {pkgs, ...}: {
   home = {
     username = "giodamelio";
     homeDirectory = "/home/giodamelio";
@@ -6,4 +6,15 @@ _: _: {
   };
 
   programs.home-manager.enable = true;
+
+  # Setup fonts
+  fonts = {
+    fontconfig.enable = true;
+  };
+  home.packages = [
+    # Add Inconsolata Nerdfont
+    (pkgs.nerdfonts.override {
+      fonts = ["Inconsolata"];
+    })
+  ];
 }

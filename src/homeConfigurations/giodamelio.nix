@@ -12,5 +12,7 @@ inputs.home-manager.lib.homeManagerConfiguration {
     root.homeModules.git
     root.homeModules.neovim
     root.homeModules.zsh
+    root.homeModules.kitty
+    root.homeModules.hyprland
   ];
 }

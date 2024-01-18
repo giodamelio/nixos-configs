@@ -1,7 +1,7 @@
 _: _: {
   programs.zsh = {
     enable = true;
-    enableCompletions = true;
+    enableCompletion = true;
   };
 
   programs.atuin = {
@@ -19,6 +19,7 @@ _: _: {
 
   programs.starship = {
     enable = true;
+    enableZshIntegration = true;
     settings = {
       format = "$all$fill $time\n$character";
       directory = {

@@ -17,7 +17,6 @@ inputs.nixpkgs.lib.nixosSystem {
     inputs.ragenix.nixosModules.default
     root.nixosModules.basic-packages
     root.nixosModules.systems-beryllium
-    root.nixosModules.home-manager-users-server
     root.nixosModules.core-postgres
     root.nixosModules.core-wireguard
     root.nixosModules.services-kanidm

@@ -24,7 +24,6 @@ inputs.nixpkgs.lib.nixosSystem {
 
     # System Specific Confiuration
     root.nixosModules.systems-calcium
-    root.nixosModules.home-manager-users-giodamelio
 
     # Enable some services
     root.nixosModules.services-tailscale
