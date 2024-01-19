@@ -32,10 +32,11 @@ inputs.nixpkgs.lib.nixosSystem {
 
     # Add giodamelio user with Home Manager config
     root.nixosModules.users-giodamelio
+    inputs.home-manager.nixosModules.home-manager
     (_: {
-      environment.systemPackages = [
-        root.homeConfigurations.giodamelio.activationPackage
-      ];
+      home-manager.useGlobalPkgs = true;
+      home-manager.useUserPackages = true;
+      home-manager.users.giodamelio = root.homeModules.user-giodamelio;
     })
 
     # Add Hyprland WM

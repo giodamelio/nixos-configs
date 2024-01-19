@@ -1,4 +1,13 @@
-_: {pkgs, ...}: {
+{root, ...}: {pkgs, ...}: {
+  imports = [
+    root.homeModules.modern-coreutils
+    root.homeModules.git
+    root.homeModules.neovim
+    root.homeModules.zsh
+    root.homeModules.kitty
+    root.homeModules.hyprland
+  ];
+
   home = {
     username = "giodamelio";
     homeDirectory = "/home/giodamelio";

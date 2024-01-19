@@ -115,8 +115,7 @@
         # Export our modules and configurations
         inherit (lib) nixosModules;
         inherit (lib) nixosConfigurations;
-
-        homeConfigurations."giodamelio" = lib.homeConfigurations."giodamelio";
+        inherit (lib) homeModules;
 
         # Deploy with Colmena
         colmena =
