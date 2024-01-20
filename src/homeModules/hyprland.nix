@@ -1,4 +1,9 @@
 _: {pkgs, ...}: {
+  home.packages = with pkgs; [
+    rofi-wayland
+    swww
+  ];
+
   wayland.windowManager.hyprland = {
     enable = true;
     xwayland.enable = true;
@@ -57,6 +62,7 @@ _: {pkgs, ...}: {
 
       exec-once = [
         "waybar"
+        "swww init"
       ];
     };
   };
@@ -148,7 +154,6 @@ _: {pkgs, ...}: {
     };
   };
 
-  home.packages = [pkgs.rofi-wayland];
   programs.rofi = {
     enable = true;
     package = pkgs.rofi-wayland;
