@@ -27,8 +27,8 @@ inputs.nixpkgs.lib.nixosSystem {
     root.nixosModules.basic-packages
     root.nixosModules.basic-settings
 
-    # Autosnapshot with Sanoid
-    root.nixosModules.services-sanoid
+    root.nixosModules.services-greetd # Minimal Login Manager
+    root.nixosModules.services-sanoid # Autosnapshot with Sanoid
 
     # Add giodamelio user with Home Manager config
     root.nixosModules.users-giodamelio
