@@ -86,4 +86,29 @@ in {
       };
     };
   };
+  wallpaper-epic-downloader = pkgsWithNu.nuenv.mkCommand {
+    name = "wallpaper-epic-downloader";
+    runtimeInputs = with pkgsWithNu; [curl imagemagick swww];
+    description = "Download the latest photo from the DSCOVR: EPIC instrument and annotate the datetime on the bottom";
+    text = ''
+      # Get the url of the latest image and it's metadata
+      let latest_image_info = (http get https://epic.gsfc.nasa.gov/api/natural | last)
+      let latest_image_date = ($latest_image_info.date | date to-record)
+      let latest_image_url = (printf "https://epic.gsfc.nasa.gov/archive/natural/%d/%02d/%02d/png/%s.png" $latest_image_date.year $latest_image_date.month $latest_image_date.day $latest_image_info.image)
+
+      # Create a date string that we can annotate onto the image
+      let date_exact = ($latest_image_info.date | into datetime | format date "%A %B %d %I:%M %p")
+      let date_relative = ($latest_image_info.date | date humanize)
+      let date_string = (printf "%s | %s" $date_exact $date_relative)
+
+      # Download the latest image
+      curl -o /tmp/epic_latest.png $latest_image_url
+
+      # Annotate the image
+      magick /tmp/epic_latest.png -gravity South -pointsize 40 -fill white -annotate +0+40 $date_string /tmp/epic_latest_annotated.png
+
+      # Set it as the desktop background
+      swww img /tmp/epic_latest_annotated.png --transition-type none --resize no
+    '';
+  };
 }

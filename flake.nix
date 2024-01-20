@@ -98,6 +98,7 @@
             scripts-zz = scripts.zz;
             scripts-deploy = scripts.deploy;
             scripts-zdeploy = scripts.zdeploy;
+            wallpaper-epic-downloader = scripts.wallpaper-epic-downloader;
           }
           // installers
           // system-info;
