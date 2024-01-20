@@ -10,6 +10,10 @@ _: {pkgs, ...}: {
         # Launch Kitty with mod+enter
         "$mainMod, Return, exec, kitty"
 
+        # Launch programs with Rofi
+        "$mainMod, d, exec, rofi -show drun"
+        "$mainMod SHIFT, d, exec, rofi -show run"
+
         # Exit Hyprland
         "$mainMod, M, exit"
 
@@ -142,5 +146,11 @@ _: {pkgs, ...}: {
         inherit clock;
       };
     };
+  };
+
+  home.packages = [pkgs.rofi-wayland];
+  programs.rofi = {
+    enable = true;
+    package = pkgs.rofi-wayland;
   };
 }
