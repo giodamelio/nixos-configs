@@ -88,7 +88,7 @@ in {
   };
   wallpaper-epic-downloader = pkgsWithNu.nuenv.mkCommand {
     name = "wallpaper-epic-downloader";
-    runtimeInputs = with pkgsWithNu; [curl imagemagick swww];
+    runtimeInputs = with pkgsWithNu; [curl imagemagick swww coreutils];
     description = "Download the latest photo from the DSCOVR: EPIC instrument and annotate the datetime on the bottom";
     text = ''
       # Get the url of the latest image and it's metadata
@@ -102,6 +102,8 @@ in {
       let date_string = (printf "%s | %s" $date_exact $date_relative)
 
       # Download the latest image
+      echo $"Downloading latest image \(($date_relative)\) from ($latest_image_url)"
+      echo
       curl -o /tmp/epic_latest.png $latest_image_url
 
       # Annotate the image

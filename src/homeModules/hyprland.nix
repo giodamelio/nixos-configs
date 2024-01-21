@@ -63,6 +63,7 @@ _: {pkgs, ...}: {
       exec-once = [
         "waybar"
         "swww init"
+        "swww img /tmp/epic_latest_annotated.png --transition-type none --resize no"
       ];
     };
   };

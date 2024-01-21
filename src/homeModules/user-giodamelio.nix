@@ -7,6 +7,7 @@
     root.homeModules.kitty
     root.homeModules.hyprland
     root.homeModules.nix-index
+    root.homeModules.earth-desktop-background
   ];
 
   home = {
