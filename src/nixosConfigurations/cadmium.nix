@@ -43,6 +43,9 @@ inputs.nixpkgs.lib.nixosSystem {
     # Add Hyprland WM
     root.nixosModules.services-hyprland
 
+    # Experimental COSMIC DE
+    root.nixosModules.services-cosmic
+
     # Start some services
     root.nixosModules.services-tailscale
 
