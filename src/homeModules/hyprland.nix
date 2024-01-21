@@ -28,6 +28,12 @@ _: {pkgs, ...}: {
         "$mainMod, k, movefocus, u"
         "$mainMod, l, movefocus, r"
 
+        # Move windows with SHIFT HJKL
+        "$mainMod SHIFT, H, movewindow, l"
+        "$mainMod SHIFT, L, movewindow, r"
+        "$mainMod SHIFT, K, movewindow, u"
+        "$mainMod SHIFT, J, movewindow, d"
+
         # Switch workspaces
         "$mainMod, 1, workspace, 1"
         "$mainMod, 2, workspace, 2"
