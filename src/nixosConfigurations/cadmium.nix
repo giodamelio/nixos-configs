@@ -29,6 +29,7 @@ inputs.nixpkgs.lib.nixosSystem {
 
     root.nixosModules.services-greetd # Minimal Login Manager
     root.nixosModules.services-sanoid # Autosnapshot with Sanoid
+    root.nixosModules.services-firefox # Setup Firefox
 
     # Add giodamelio user with Home Manager config
     root.nixosModules.users-giodamelio
