@@ -62,6 +62,7 @@ _: {pkgs, ...}: {
 
       exec-once = [
         "waybar"
+        "dunst"
         "swww init"
         "swww img /tmp/epic_latest_annotated.png --transition-type none --resize no"
       ];
@@ -158,5 +159,14 @@ _: {pkgs, ...}: {
   programs.rofi = {
     enable = true;
     package = pkgs.rofi-wayland;
+  };
+
+  services.dunst = {
+    enable = true;
+    settings = {
+      global = {
+        follow = "mouse";
+      };
+    };
   };
 }
