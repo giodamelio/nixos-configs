@@ -5,7 +5,14 @@
     root.homeModules.neovim
     root.homeModules.zsh
     root.homeModules.kitty
+
+    # Window Managers
     root.homeModules.hyprland
+    root.homeModules.sway
+
+    # Bars
+    root.homeModules.waybar
+
     root.homeModules.nix-index
     root.homeModules.earth-desktop-background
   ];
