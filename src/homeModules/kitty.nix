@@ -3,8 +3,8 @@ _: _: {
     enable = true;
 
     font = {
-      name = "Inconsolata Nerd Font Mono";
-      size = 14.0;
+      name = "JetBrainsMono Nerd Font";
+      size = 12.0;
     };
 
     shellIntegration.enableZshIntegration = true;
