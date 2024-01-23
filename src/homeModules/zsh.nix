@@ -20,22 +20,24 @@ _: _: {
   programs.starship = {
     enable = true;
     enableZshIntegration = true;
-    settings = {
-      format = "$all$fill $time\n$character";
-      directory = {
-        truncation_length = 4;
-      };
-      fill = {
-        symbol = ".";
-        style = "#666666";
-      };
-      time = {
-        disabled = false;
-      };
-      line_break = {
-        disabled = true;
-      };
-    };
+    settings =
+      {
+        format = "$all$fill $time\n$character";
+        directory = {
+          truncation_length = 4;
+        };
+        fill = {
+          symbol = ".";
+          style = "#666666";
+        };
+        time = {
+          disabled = false;
+        };
+        line_break = {
+          disabled = true;
+        };
+      }
+      // (builtins.fromTOML (builtins.readFile ./starship-nerdfont.toml));
   };
 
   programs.nnn = {
