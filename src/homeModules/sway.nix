@@ -23,6 +23,9 @@ in {
         }
       ];
 
+      # Don't make the window focus follow the mouse
+      focus.followMouse = "no";
+
       # Setup our monitors
       output = let
         shared = {
@@ -43,5 +46,22 @@ in {
           };
         };
     };
+  };
+
+  programs.swaylock = {
+    enable = true;
+    package = pkgs.swaylock-effects;
+    settings = {
+      screenshots = true;
+      effect-blur = "7x5";
+      indicator = true;
+      clock = true;
+    };
+  };
+
+  # Add an entry to lock the screen to XDG Desktop so Rofi can pick it up
+  xdg.desktopEntries.swaylock = {
+    name = "Lock Screen";
+    exec = "swaylock";
   };
 }
