@@ -69,6 +69,7 @@ neogit.setup()
 
 -- ChatGPT
 require('chatgpt').setup({
+  yank_register = 'C',
   chat = {
     keymaps = {
       close = { '<Esc>' },
@@ -79,9 +80,6 @@ require('chatgpt').setup({
     keymaps = {
       close = '<Esc>',
     },
-  },
-  popup_input = {
-    submit = 'Enter',
   },
 })
 

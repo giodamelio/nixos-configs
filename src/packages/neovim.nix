@@ -41,6 +41,21 @@
     meta.homepage = "https://github.com/linrongbin16/gitlinker.nvim";
   };
 
+  # With fix for latest neovim
+  # Can be removed after #378 is merged and upstreamed
+  # https://github.com/jackMort/ChatGPT.nvim/pull/378
+  ChatGPT-nvim-with-fix = pkgs.vimUtils.buildVimPlugin {
+    pname = "ChatGPT.nvim";
+    version = "2024-01-25";
+    src = pkgs.fetchFromGitHub {
+      owner = "Macsob";
+      repo = "ChatGPT.nvim";
+      rev = "feature/fix_concat_tab_val";
+      hash = "sha256-Wu93CngiS/Kyx3ofm/s2xl437Qrx1eV2NTu7rjZuhWo=";
+    };
+    meta.homepage = "https://github.com/Macsob/ChatGPT.nvim/tree/feature/fix_concat_tab_val";
+  };
+
   nvimConfig = pkgs.neovimUtils.makeNeovimConfig {
     withPython3 = true;
     vimAlias = true;
@@ -95,7 +110,8 @@
       gitlinker # Easily link to specific file locations
       neogit # Git ui
 
-      ChatGPT-nvim # ChatGPT integration
+      # ChatGPT-nvim # ChatGPT integration
+      ChatGPT-nvim-with-fix # ChatGPT integration
       nui-nvim # needed for ChatGPT
       oil-nvim # Move/Create/Delete files/directories directly in a vim buffer
       nvim-surround # Deal with pairs of things
