@@ -25,6 +25,7 @@ inputs.nixpkgs.lib.nixosSystem {
 
     # Basic packages I want on every system
     root.nixosModules.basic-packages
+    root.nixosModules.basic-packages-desktop
     root.nixosModules.basic-settings
 
     root.nixosModules.services-greetd # Minimal Login Manager
