@@ -3,6 +3,7 @@ local wk = require('which-key')
 local telescope = require('telescope')
 local tb = require('telescope.builtin')
 local trouble = require('trouble.providers.telescope')
+local neotest = require('neotest')
 
 wk.register({
   ['<Tab>'] = { '<cmd>edit #<cr>', 'Switch to last buffer' },
@@ -31,7 +32,18 @@ wk.register({
     n = { function() vim.diagnostic.goto_next() end, 'Go to next diagnostic' },
     p = { function() vim.diagnostic.goto_prev() end, 'Go to previous diagnostic' },
   },
-  t = { '<cmd>TroubleToggle document_diagnostics<cr>', 'Trouble document diagnostics' },
+}, { prefix = '<leader>' })
+
+-- Testing
+wk.register({
+  t = {
+    name = 'Testing',
+    t = { function() neotest.run.run() end, 'Run nearest test' },
+    f = { function() neotest.run.run(vim.fn.expand('%')) end, 'Run tests in file' },
+    p = { function() neotest.output_panel.toggle() end, 'Toggle output panel' },
+    s = { function() neotest.summary.toggle() end, 'Toggle summary' },
+    w = { function() neotest.watch.toggle(vim.fn.expand('%')) end, 'Watch tests in file' },
+  },
 }, { prefix = '<leader>' })
 
 -- Language Server

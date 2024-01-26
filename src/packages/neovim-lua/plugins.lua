@@ -88,6 +88,16 @@ require('oil').setup({
   columns = { 'icon', 'permissions', 'size' },
 })
 
+-- NeoTest
+require('neotest').setup({
+  adapters = {
+    require('neotest-rust'),
+    require('neotest-elixir'),
+    require('neotest-go'),
+    require('neotest-deno'),
+  },
+})
+
 require('nvim-surround').setup()
 require('Comment').setup()
 require('stay-centered').setup()

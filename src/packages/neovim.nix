@@ -110,6 +110,13 @@
       gitlinker # Easily link to specific file locations
       neogit # Git ui
 
+      # Test running
+      neotest
+      neotest-rust
+      neotest-elixir
+      neotest-go
+      neotest-deno
+
       # ChatGPT-nvim # ChatGPT integration
       ChatGPT-nvim-with-fix # ChatGPT integration
       nui-nvim # needed for ChatGPT
