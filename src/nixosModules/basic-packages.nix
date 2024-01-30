@@ -1,9 +1,11 @@
-_: {
+{root, ...}: {
   config,
   lib,
   pkgs,
   ...
-}: {
+}: let
+  customNeovim = root.packages.neovim {inherit pkgs;};
+in {
   environment = {
     systemPackages = with pkgs; [
       zsh # Better default shell
@@ -12,8 +14,10 @@ _: {
       htop # Better top
 
       git
-      neovim
       file
+
+      # My custom wrapped Neovim with configs/plugins
+      customNeovim
 
       # Internet fetchers
       curl
