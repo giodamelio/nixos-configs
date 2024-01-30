@@ -81,6 +81,14 @@ allowLocalDeployment = true
 # interface = "wg99"
 # port = 51821
 
+[machines.carbon]
+hardwareDescription = "HP EliteDesk Mini Computer in the closet"
+useDescription = "Hosting damelio.net and other web services"
+
+[machines.carbon.deployment]
+targetHost = "10.0.128.144"
+targetUser = "root"
+
 [machines.cesium]
 description = "Linux Developer Experience on Lenovo Chromebook"
 
