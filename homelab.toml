@@ -3,7 +3,8 @@ ssh_keys = [
   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKaKx5hPY3/SHy+xezxd5IsCmDoFTMIbqxTonmVVC0GB giodamelio@DESKTOP-LP2IMU5",
   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAZF+j6HGldFqQdp+CaPaYKGMsFpUsk49jqhb7VtdUvn giodamelio@cadmium",
   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFbUQ/gUuzZbOtBPseVWL1GVrjP08JqdNwHdndQgH+Am giodamelio@penguin",
-  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG8PqtBQIDBUs5fzhblKQpcWLJWPWgZ01bNmhZuw03il server@testing"
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG8PqtBQIDBUs5fzhblKQpcWLJWPWgZ01bNmhZuw03il server@testing",
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOKmSxFyT9n91A9dOpSCfl9kJj80KWFA6UvCtguT4S5b giodamelio@cadmium"
 ]
 
 ## Age public keys to encrypt bootstrap information with
@@ -86,8 +87,8 @@ hardwareDescription = "HP EliteDesk Mini Computer in the closet"
 useDescription = "Hosting damelio.net and other web services"
 
 [machines.carbon.deployment]
-targetHost = "10.0.128.144"
-targetUser = "root"
+targetHost = "10.0.128.207"
+targetUser = "server"
 
 [machines.cesium]
 description = "Linux Developer Experience on Lenovo Chromebook"

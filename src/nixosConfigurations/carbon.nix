@@ -19,6 +19,7 @@ inputs.nixpkgs.lib.nixosSystem {
 
     # Boot with systemd-boot
     root.nixosModules.core-bootloader-systemd-boot
+    root.nixosModules.core-bootloader-zfs
 
     # Basic packages I want on every system
     root.nixosModules.basic-packages
