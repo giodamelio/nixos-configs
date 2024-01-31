@@ -25,6 +25,19 @@ inputs.nixpkgs.lib.nixosSystem {
     root.nixosModules.basic-packages
     root.nixosModules.basic-settings
 
+    # Autosnapshot with Sanoid
+    root.nixosModules.services-sanoid
+    (_: {
+      gio.services.zfs_backup = {
+        enable = true;
+        datasets = [
+          "tank/home"
+          "tank/nix"
+          "tank/root"
+        ];
+      };
+    })
+
     # Add giodamelio user with Home Manager config
     root.nixosModules.users-server
 
