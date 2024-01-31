@@ -64,6 +64,9 @@ inputs.nixpkgs.lib.nixosSystem {
         authentication = ''
           # Trust all local connections to the Unix socket
           local all all trust
+
+          # Trust server to connect from localhost
+          host all server samehost trust
         '';
       };
     })
