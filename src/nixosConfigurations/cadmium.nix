@@ -29,8 +29,20 @@ inputs.nixpkgs.lib.nixosSystem {
     root.nixosModules.basic-settings
 
     root.nixosModules.services-greetd # Minimal Login Manager
-    root.nixosModules.services-sanoid # Autosnapshot with Sanoid
     root.nixosModules.services-firefox # Setup Firefox
+
+    # Autosnapshot with Sanoid
+    root.nixosModules.services-sanoid
+    (_: {
+      gio.services.zfs_backup = {
+        enable = true;
+        datasets = [
+          "tank/home"
+          "tank/nix"
+          "tank/root"
+        ];
+      };
+    })
 
     # Add giodamelio user with Home Manager config
     root.nixosModules.users-giodamelio
