@@ -38,14 +38,34 @@ inputs.nixpkgs.lib.nixosSystem {
       };
     })
 
-    # Add giodamelio user with Home Manager config
+    # Add server user
     root.nixosModules.users-server
 
-    (_: {
+    ({pkgs, ...}: {
       networking.hostId = "3a06cc0b";
 
       # Load the deployment config from our homelab.toml
       deployment = homelab.machines.carbon.deployment;
+
+      # Setup a PostgreSQL db
+      environment.systemPackages = [pkgs.pgcli];
+      services.postgresql = {
+        enable = true;
+
+        ensureDatabases = ["damelio_prod"];
+        ensureUsers = [
+          {
+            name = "damelio_prod";
+            ensureDBOwnership = true;
+            ensureClauses.login = true;
+          }
+        ];
+
+        authentication = ''
+          # Trust all local connections to the Unix socket
+          local all all trust
+        '';
+      };
     })
   ];
 }
