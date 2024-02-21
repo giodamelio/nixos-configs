@@ -5,6 +5,7 @@
     root.homeModules.neovim
     root.homeModules.zsh
     root.homeModules.kitty
+    root.homeModules.helix
 
     # Window Managers
     root.homeModules.hyprland

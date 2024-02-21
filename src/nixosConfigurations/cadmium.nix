@@ -30,6 +30,7 @@ inputs.nixpkgs.lib.nixosSystem {
 
     root.nixosModules.services-greetd # Minimal Login Manager
     root.nixosModules.services-firefox # Setup Firefox
+    root.nixosModules.services-keyd # Easy key rebinding
 
     # Autosnapshot with Sanoid
     root.nixosModules.services-sanoid
