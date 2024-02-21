@@ -54,6 +54,13 @@ inputs.nixpkgs.lib.nixosSystem {
       home-manager.users.giodamelio = root.homeModules.user-giodamelio;
     })
 
+    (_: {
+      virtualisation.docker = {
+        enable = true;
+      };
+      programs.ssh.startAgent = true;
+    })
+
     # Add Hyprland WM
     root.nixosModules.services-hyprland
 
