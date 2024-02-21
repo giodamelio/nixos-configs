@@ -41,19 +41,16 @@
     meta.homepage = "https://github.com/linrongbin16/gitlinker.nvim";
   };
 
-  # With fix for latest neovim
-  # Can be removed after #378 is merged and upstreamed
-  # https://github.com/jackMort/ChatGPT.nvim/pull/378
-  ChatGPT-nvim-with-fix = pkgs.vimUtils.buildVimPlugin {
+  ChatGPT = pkgs.vimUtils.buildVimPlugin {
     pname = "ChatGPT.nvim";
-    version = "2024-01-25";
+    version = "2024-02-21";
     src = pkgs.fetchFromGitHub {
-      owner = "Macsob";
+      owner = "jackMort";
       repo = "ChatGPT.nvim";
-      rev = "feature/fix_concat_tab_val";
-      hash = "sha256-Wu93CngiS/Kyx3ofm/s2xl437Qrx1eV2NTu7rjZuhWo=";
+      rev = "aadb607038d53d97be4da368b07355f65ad3f047";
+      hash = "sha256-nIaOjwXBJJTKooyvtjIQIyoFCvZM0vOxhzwZRwBjLOo=";
     };
-    meta.homepage = "https://github.com/Macsob/ChatGPT.nvim/tree/feature/fix_concat_tab_val";
+    meta.homepage = "https://github.com/jackMort/ChatGPT.nvim";
   };
 
   nvimConfig = pkgs.neovimUtils.makeNeovimConfig {
@@ -118,7 +115,7 @@
       neotest-deno
 
       # ChatGPT-nvim # ChatGPT integration
-      ChatGPT-nvim-with-fix # ChatGPT integration
+      ChatGPT # ChatGPT integration
       nui-nvim # needed for ChatGPT
       oil-nvim # Move/Create/Delete files/directories directly in a vim buffer
       nvim-surround # Deal with pairs of things
