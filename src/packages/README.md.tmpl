@@ -7,6 +7,12 @@ Used to configure all of my machines
 There are currently {{ len (ds "homelab").machines }} machines listed in the [data](./homelab.toml)
 
 {{ range $key, $val := (ds "homelab").machines }}
- - {{ $key }}: {{ $val.description }}
+{{- if has $val "description" }}
+  - {{ $key }}: {{ $val.description }}
+{{- else if has $val "hardwareDescription" }}
+  - `{{ $key }}`
+    - Description: {{ $val.useDescription }}
+    - Hardware: {{ $val.hardwareDescription }}
+{{- end }}
 {{- end }}
 
