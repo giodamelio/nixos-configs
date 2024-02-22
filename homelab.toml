@@ -24,7 +24,7 @@ publicKey = "yYhgMMTtvKJvJ2S31yWlxMmp+MOF5hPSHGKjWPuh0mg="
 
 # Critical Services on Digital Ocean
 [machines.beryllium]
-description = "Critical Services on DigitalOcean"
+description = "(old) Critical Services on DigitalOcean"
 
 [machines.beryllium.deployment]
 targetHost = "128.199.9.59"
@@ -92,6 +92,9 @@ targetUser = "server"
 
 [machines.cesium]
 description = "Linux Developer Experience on Lenovo Chromebook"
+
+[machines.zirconium]
+description = "Critical services running on a DigitalOcean VM"
 
 ## All the networks
 
