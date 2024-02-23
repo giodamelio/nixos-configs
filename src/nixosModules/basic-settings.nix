@@ -10,6 +10,12 @@ _: {
     trusted-users = ["root" "@wheel"];
   };
   security.sudo.wheelNeedsPassword = false;
-  services.openssh.enable = true;
   security.pam.services.swaylock = {};
+  services.openssh = {
+    enable = true;
+    settings = {
+      PermitRootLogin = "no";
+      PasswordAuthentication = false;
+    };
+  };
 }

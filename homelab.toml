@@ -96,6 +96,10 @@ description = "Linux Developer Experience on Lenovo Chromebook"
 [machines.zirconium]
 description = "Critical services running on a DigitalOcean VM"
 
+[machines.zirconium.deployment]
+targetHost = "zirconium.gio.ninja"
+targetUser = "server"
+
 ## All the networks
 
 # Normal home LAN managed by Ubiquiti hardware
