@@ -4,18 +4,25 @@ Used to configure all of my machines
 
 # Machines
 
-There are currently 9 machines listed in the [data](./homelab.toml)
+There are currently 6 machines listed in the [data](./homelab.toml)
 
 
-  - beryllium: (old) Critical Services on DigitalOcean
-  - cadmium: Main Linux Machine
-  - calcium: WSL2 Distribution running on Cadmium
+  - `cadmium`
+    - Description: Main development machine
+    - Hardware: Desktop machine under my desk
+  - `calcium`
+    - Description: Light development work while booted into windows
+    - Hardware: WSL2 VM running on cadmium windows install
   - `carbon`
-    - Description: Hosting damelio.net and other web services
+    - Description: Hosting damelio.net and other web services on local network
     - Hardware: HP EliteDesk Mini Computer in the closet
-  - cesium: Linux Developer Experience on Lenovo Chromebook
-  - gio-pixel-7: My current phone
-  - testing: Testing NixOS VM running in HyperV on Cadmium
-  - windows: Testing NixOS VM running in HyperV on Cadmium
-  - zirconium: Critical services running on a DigitalOcean VM
+  - `cesium`
+    - Description: Light development work on the go
+    - Hardware: Lenovo Chromebook Linux Developer Container
+  - `gio-pixel-7`
+    - Description: My Phone
+    - Hardware: Pixel 7 Pro
+  - `zirconium`
+    - Description: Critical services running on a DigitalOcean VM
+    - Hardware: VM Running in Hetzner Cloud
 

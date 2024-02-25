@@ -1,119 +1,48 @@
 ## Some SSH public keys to add to the hosts
-ssh_keys = [
-  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKaKx5hPY3/SHy+xezxd5IsCmDoFTMIbqxTonmVVC0GB giodamelio@DESKTOP-LP2IMU5",
-  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAZF+j6HGldFqQdp+CaPaYKGMsFpUsk49jqhb7VtdUvn giodamelio@cadmium",
-  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFbUQ/gUuzZbOtBPseVWL1GVrjP08JqdNwHdndQgH+Am giodamelio@penguin",
-  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG8PqtBQIDBUs5fzhblKQpcWLJWPWgZ01bNmhZuw03il server@testing",
-  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOKmSxFyT9n91A9dOpSCfl9kJj80KWFA6UvCtguT4S5b giodamelio@cadmium"
-]
 
-## Age public keys to encrypt bootstrap information with
-bootstrap_keys = [
-  "age1d063kvuzcuhr0jfd42c4ppez6hdv7acnpfmczmf2e8sdlenzepvsccevsg" # Calcium
+ssh_keys = [
+  # Cadmium NixOS
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOKmSxFyT9n91A9dOpSCfl9kJj80KWFA6UvCtguT4S5b giodamelio@cadmium"
 ]
 
 ## All the machines
 
-# My Pixel 7
 [machines.gio-pixel-7]
-description = "My current phone"
+hardwareDescription = "Pixel 7 Pro"
+useDescription = "My Phone"
 
-[machines.gio-pixel-7.wireguard.rescue]
-address = ["10.99.0.2/32"]
-publicKey = "yYhgMMTtvKJvJ2S31yWlxMmp+MOF5hPSHGKjWPuh0mg="
-
-# Critical Services on Digital Ocean
-[machines.beryllium]
-description = "(old) Critical Services on DigitalOcean"
-
-[machines.beryllium.deployment]
-targetHost = "128.199.9.59"
-targetUser = "server"
-
-[machines.beryllium.wireguard.rescue]
-address = ["10.99.0.1/32"]
-publicKey = "nTGFAv9loCw2Jdon46eT6GOlNpm+Wnsrh30W4UP32Ws="
-endpoint = "beryllium.gio.ninja"
-persistentKeepalive = 60
-interface = "wg99"
-port = 51821
-
-# VM running on Cadmium
 [machines.cadmium]
-description = "Main Linux Machine"
+hardwareDescription = "Desktop machine under my desk"
+useDescription = "Main development machine"
 
 [machines.cadmium.deployment]
 allowLocalDeployment = true
 
-# VM running on Cadmium
-[machines.testing]
-description = "Testing NixOS VM running in HyperV on Cadmium"
-
-[machines.testing.deployment]
-targetHost = "10.0.128.171"
-targetUser = "server"
-allowLocalDeployment = true
-
-[machines.testing.wireguard.rescue]
-address = ["10.99.0.3/32"]
-publicKey = "dY/n06ZCLjvjXSQgJfX2mdFylURdt0hXxJWp84PcO0Y="
-interface = "wg99"
-port = 51821
-
-# VM running on Cadmium
-[machines.windows]
-description = "Testing NixOS VM running in HyperV on Cadmium"
-
-[machines.windows.deployment]
-targetHost = "10.0.128.178"
-targetUser = "server"
-
 [machines.calcium]
-description = "WSL2 Distribution running on Cadmium"
+hardwareDescription = "WSL2 VM running on cadmium windows install"
+useDescription = "Light development work while booted into windows"
 
 [machines.calcium.deployment]
 targetHost = "172.21.201.219" # Not sure how stable this is
 targetUser = "giodamelio"
 allowLocalDeployment = true
 
-# [machines.testing.wireguard.rescue]
-# address = ["10.99.0.3/32"]
-# publicKey = "dY/n06ZCLjvjXSQgJfX2mdFylURdt0hXxJWp84PcO0Y="
-# interface = "wg99"
-# port = 51821
-
 [machines.carbon]
 hardwareDescription = "HP EliteDesk Mini Computer in the closet"
-useDescription = "Hosting damelio.net and other web services"
+useDescription = "Hosting damelio.net and other web services on local network"
 
 [machines.carbon.deployment]
 targetHost = "10.0.128.207"
 targetUser = "server"
 
 [machines.cesium]
-description = "Linux Developer Experience on Lenovo Chromebook"
+hardwareDescription = "Lenovo Chromebook Linux Developer Container"
+useDescription = "Light development work on the go"
 
 [machines.zirconium]
-description = "Critical services running on a DigitalOcean VM"
+hardwareDescription = "VM Running in Hetzner Cloud"
+useDescription = "Critical services running on a DigitalOcean VM"
 
 [machines.zirconium.deployment]
 targetHost = "zirconium.gio.ninja"
 targetUser = "server"
-
-## All the networks
-
-# Normal home LAN managed by Ubiquiti hardware
-[networks.home-lan]
-cidr = "10.0.0.1/16"
-
-# Homelab servers hosted in my closet
-[networks.homelab-lan]
-cidr = "10.1.0.1/16"
-
-# Homelab servers hosted on public VPSs
-[networks.homelab-vps]
-cidr = "10.2.0.1/16"
-
-# Rescue network
-[networks.rescue]
-cidr = "10.99.0.1/16"
