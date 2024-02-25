@@ -18,15 +18,15 @@ inputs.nixpkgs.lib.nixosSystem {
     root.disko.systems.carbon
 
     # Boot with systemd-boot
-    root.nixosModules.core-bootloader-systemd-boot
-    root.nixosModules.core-bootloader-zfs
+    root.nixosModules.core.bootloader-systemd-boot
+    root.nixosModules.core.bootloader-zfs
 
     # Basic packages I want on every system
     root.nixosModules.basic-packages
     root.nixosModules.basic-settings
 
     # Autosnapshot with Sanoid
-    root.nixosModules.services-sanoid
+    root.nixosModules.services.sanoid
     (_: {
       gio.services.zfs_backup = {
         enable = true;
@@ -39,7 +39,7 @@ inputs.nixpkgs.lib.nixosSystem {
     })
 
     # Add server user
-    root.nixosModules.users-server
+    root.nixosModules.users.server
 
     ({pkgs, ...}: {
       networking.hostId = "3a06cc0b";

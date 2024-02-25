@@ -11,17 +11,12 @@
     # Static data about our homelab
     homelab = builtins.fromTOML (builtins.readFile ./homelab.toml);
 
-    # Some utility functions
-    util = import ./util.nix {inherit (inputs) nixpkgs;};
-
     # Load all of our source file
-    # Flatten the modules under ./src/nixosModules
     lib = inputs.haumea.lib.load {
       src = ./src;
-      inputs = {inherit inputs homelab debug;};
-      transformer = [
-        (util.subtreeTransformer ["nixosModules"] util.flattenTransformer)
-      ];
+      inputs = {
+        inherit inputs homelab debug;
+      };
     };
   in
     flake-parts.lib.mkFlake {inherit inputs;} {

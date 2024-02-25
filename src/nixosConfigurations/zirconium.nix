@@ -14,17 +14,17 @@ inputs.nixpkgs.lib.nixosSystem {
 
   modules = [
     # Hardware
-    root.nixosModules.systems-hardware-zirconium
+    root.nixosModules.systems.hardware.zirconium
 
     # Basic packages I want on every system
     root.nixosModules.basic-packages
     root.nixosModules.basic-settings
 
     # Add server user
-    root.nixosModules.users-server
+    root.nixosModules.users.server
 
     # Add Kanidm identity server
-    root.nixosModules.services-kanidm
+    root.nixosModules.services.kanidm
 
     (_: {
       networking.hostId = "54544019";

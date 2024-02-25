@@ -18,22 +18,22 @@ inputs.nixpkgs.lib.nixosSystem {
     root.disko.systems.cadmium
 
     # Hardware
-    root.nixosModules.systems-hardware-cadmium
+    root.nixosModules.systems.hardware.cadmium
 
     # Boot with grub
-    root.nixosModules.core-bootloader-grub
+    root.nixosModules.core.bootloader-grub
 
     # Basic packages I want on every system
     root.nixosModules.basic-packages
     root.nixosModules.basic-packages-desktop
     root.nixosModules.basic-settings
 
-    root.nixosModules.services-greetd # Minimal Login Manager
-    root.nixosModules.services-firefox # Setup Firefox
-    root.nixosModules.services-keyd # Easy key rebinding
+    root.nixosModules.services.greetd # Minimal Login Manager
+    root.nixosModules.services.firefox # Setup Firefox
+    root.nixosModules.services.keyd # Easy key rebinding
 
     # Autosnapshot with Sanoid
-    root.nixosModules.services-sanoid
+    root.nixosModules.services.sanoid
     (_: {
       gio.services.zfs_backup = {
         enable = true;
@@ -46,7 +46,7 @@ inputs.nixpkgs.lib.nixosSystem {
     })
 
     # Add giodamelio user with Home Manager config
-    root.nixosModules.users-giodamelio
+    root.nixosModules.users.giodamelio
     inputs.home-manager.nixosModules.home-manager
     (_: {
       home-manager.useGlobalPkgs = true;
@@ -62,13 +62,13 @@ inputs.nixpkgs.lib.nixosSystem {
     })
 
     # Add Hyprland WM
-    root.nixosModules.services-hyprland
+    root.nixosModules.services.hyprland
 
     # Experimental COSMIC DE
-    root.nixosModules.services-cosmic
+    root.nixosModules.services.cosmic
 
     # Start some services
-    root.nixosModules.services-tailscale
+    root.nixosModules.services.tailscale
 
     (_: {
       networking.hostId = "3c510ad9";
