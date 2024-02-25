@@ -23,6 +23,9 @@ inputs.nixpkgs.lib.nixosSystem {
     # Add server user
     root.nixosModules.users-server
 
+    # Add Kanidm identity server
+    root.nixosModules.services-kanidm
+
     (_: {
       networking.hostId = "54544019";
 

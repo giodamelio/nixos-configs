@@ -3,23 +3,20 @@ _: {
   config,
   ...
 }: {
-  age.secrets.cert_idm_gio_ninja.file = ../../../secrets/cert_cloudflare_gio_ninja.age;
-
   # Get HTTPS certificates from LetsEncrypt for Kanidm
   security.acme = {
     acceptTerms = true;
     defaults.email = "gio@damelio.net";
 
-    certs."idm.gio.ninja" = {
-      dnsProvider = "cloudflare";
-      credentialsFile = config.age.secrets.cert_idm_gio_ninja.path;
+    certs."login.gio.ninja" = {
+      listenHTTP = ":8080";
     };
   };
 
   # Load the LetsEncrypt certs as SystemD credentials
   systemd.services.kanidm = {
     serviceConfig = let
-      cert_dir = config.security.acme.certs."idm.gio.ninja".directory;
+      cert_dir = config.security.acme.certs."login.gio.ninja".directory;
     in {
       LoadCredential = [
         "certs:${cert_dir}"
@@ -35,8 +32,8 @@ _: {
     serverSettings = {
       bindaddress = "0.0.0.0:8443";
 
-      origin = "https://idm.gio.ninja";
-      domain = "idm.gio.ninja";
+      origin = "https://login.gio.ninja";
+      domain = "login.gio.ninja";
 
       # Certificates from the security.acme module
       # TODO: these should really be referencing the $CREDENTIALS_DIRECTORY not hardcoded
@@ -54,7 +51,7 @@ _: {
 
     enableClient = true;
     clientSettings = {
-      uri = "https://idm.gio.ninja";
+      uri = "https://login.gio.ninja";
     };
   };
 
@@ -63,8 +60,8 @@ _: {
     enable = true;
     group = "acme";
 
-    virtualHosts."https://idm.gio.ninja" = {
-      useACMEHost = "idm.gio.ninja";
+    virtualHosts."https://login.gio.ninja" = {
+      useACMEHost = "login.gio.ninja";
       extraConfig = ''
         reverse_proxy https://localhost:8443 {
           transport http {
@@ -73,11 +70,17 @@ _: {
         }
       '';
     };
+
+    virtualHosts."http://login.gio.ninja" = {
+      extraConfig = ''
+        reverse_proxy http://localhost:8080
+      '';
+    };
   };
 
   # Open up firewall port
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [443];
+    allowedTCPPorts = [80 443];
   };
 }
