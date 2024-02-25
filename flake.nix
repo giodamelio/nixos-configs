@@ -1,48 +1,5 @@
 {
-  description = "";
-  inputs = {
-    nixpkgs.url = "flake:nixpkgs/nixpkgs-unstable";
-    flake-parts.url = "github:hercules-ci/flake-parts";
-    treefmt-nix.url = "github:numtide/treefmt-nix";
-    nixos-generators.url = "github:nix-community/nixos-generators";
-    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
-    colmena = {
-      url = "github:zhaofengli/colmena";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    disko = {
-      url = "github:nix-community/disko";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nixos-wsl = {
-      url = "github:nix-community/NixOS-WSL";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nuenv = {
-      url = "github:giodamelio/nuenv/mkCommand";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    haumea = {
-      url = "github:nix-community/haumea/v0.2.2";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    ragenix = {
-      url = "github:yaxitech/ragenix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-  };
-
-  # Programs
-  inputs = {
-    little_boxes = {
-      url = "github:giodamelio/little_boxes";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-  };
+  description = "My Personal Nix Configs";
 
   outputs = inputs @ {
     self,
@@ -131,4 +88,53 @@
           // builtins.mapAttrs (name: value: {imports = value._module.args.modules;}) lib.nixosConfigurations;
       };
     };
+
+  inputs = {
+    # Nixpkgs unstable channel
+    nixpkgs.url = "flake:nixpkgs/nixpkgs-unstable";
+
+    # Flake authoring framework
+    flake-parts.url = "github:hercules-ci/flake-parts";
+
+    # Format all the things
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+
+    # Build NixOS images
+    nixos-generators.url = "github:nix-community/nixos-generators";
+
+    # NixOS modules for specific hardware
+    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
+
+    # Stateless NixOS deployment tool written in Rust
+    colmena.url = "github:zhaofengli/colmena";
+    colmena.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Declarative disk partitioning
+    disko.url = "github:nix-community/disko";
+    disko.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Use NixOS in WSL2
+    nixos-wsl.url = "github:nix-community/NixOS-WSL";
+    nixos-wsl.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Nushell builder environment for NixOS
+    nuenv.url = "github:giodamelio/nuenv/mkCommand";
+    nuenv.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Filesystem based importing for Nix
+    haumea.url = "github:nix-community/haumea/v0.2.2";
+    haumea.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Manage user environments with Nix
+    home-manager.url = "github:nix-community/home-manager";
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Use Age encrypted secrets inside Nix
+    ragenix.url = "github:yaxitech/ragenix";
+    ragenix.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Print pretty boxes around things in your shell scripts
+    little_boxes.url = "github:giodamelio/little_boxes";
+    little_boxes.inputs.nixpkgs.follows = "nixpkgs";
+  };
 }
