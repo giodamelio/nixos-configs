@@ -89,7 +89,6 @@
 
         packages = let
           scripts = lib.packages.scripts {inherit pkgs;};
-          installers = lib.packages.installers {inherit system self;};
           system-info = lib.packages.system-info {inherit pkgs;};
         in
           {
@@ -100,7 +99,6 @@
             scripts-zdeploy = scripts.zdeploy;
             wallpaper-epic-downloader = scripts.wallpaper-epic-downloader;
           }
-          // installers
           // system-info;
 
         treefmt = {
