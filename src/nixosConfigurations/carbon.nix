@@ -45,7 +45,7 @@ inputs.nixpkgs.lib.nixosSystem {
       networking.hostId = "3a06cc0b";
 
       # Load the deployment config from our homelab.toml
-      deployment = homelab.machines.carbon.deployment;
+      inherit (homelab.machines.carbon) deployment;
 
       # Setup a PostgreSQL db
       environment.systemPackages = [pkgs.pgcli];

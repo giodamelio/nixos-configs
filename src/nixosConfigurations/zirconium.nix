@@ -30,7 +30,7 @@ inputs.nixpkgs.lib.nixosSystem {
       networking.hostId = "54544019";
 
       # Load the deployment config from our homelab.toml
-      deployment = homelab.machines.zirconium.deployment;
+      inherit (homelab.machines.zirconium) deployment;
     })
   ];
 }

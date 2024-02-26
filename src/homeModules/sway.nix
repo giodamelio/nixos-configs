@@ -1,5 +1,5 @@
-{...}: {pkgs, ...}: let
-  lib = pkgs.lib;
+_: {pkgs, ...}: let
+  inherit (pkgs) lib;
 in {
   wayland.windowManager.sway = {
     enable = true;

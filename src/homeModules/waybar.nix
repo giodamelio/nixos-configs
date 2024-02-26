@@ -1,4 +1,4 @@
-{...}: {pkgs, ...}: {
+_: _: {
   programs.waybar = {
     enable = true;
 

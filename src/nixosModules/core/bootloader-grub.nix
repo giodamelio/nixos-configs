@@ -1,5 +1,5 @@
 {inputs, ...}: _: let
-  lib = inputs.nixpkgs.lib;
+  inherit (inputs.nixpkgs) lib;
 in {
   boot.loader = {
     grub = {

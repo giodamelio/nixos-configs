@@ -74,7 +74,7 @@ inputs.nixpkgs.lib.nixosSystem {
       networking.hostId = "3c510ad9";
 
       # Load the deployment config from our homelab.toml
-      deployment = homelab.machines.cadmium.deployment;
+      inherit (homelab.machines.cadmium) deployment;
     })
   ];
 }

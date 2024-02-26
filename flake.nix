@@ -35,8 +35,8 @@
       }: let
         lib = libLoader {inherit pkgs inputs' config;};
       in {
+        inherit (lib) packages;
         devenv.shells.default = lib.devShells.deploy;
-        packages = lib.packages;
 
         treefmt = {
           projectRootFile = ".git/config";

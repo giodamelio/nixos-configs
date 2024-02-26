@@ -1,9 +1,5 @@
-{
-  root,
-  debug,
-  ...
-}: {pkgs, ...}: let
-  wallpaper-epic-downloader = (root.packages.scripts {inherit pkgs;}).wallpaper-epic-downloader;
+{root, ...}: {pkgs, ...}: let
+  inherit (root.packages.scripts {inherit pkgs;}) wallpaper-epic-downloader;
 in {
   systemd.user.services.update-wallpaper = {
     Unit = {
