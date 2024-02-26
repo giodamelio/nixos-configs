@@ -1,7 +1,9 @@
-{lib, ...}: {
+{
+  lib,
   pkgs,
   inputs',
   config,
+  ...
 }: {
   languages.nix.enable = true;
   languages.lua.enable = true;
@@ -9,24 +11,33 @@
   packages = [
     inputs'.colmena.packages.colmena
     inputs'.little_boxes.packages.default
-    inputs'.ragenix.packages.ragenix
 
-    config.packages.scripts-deploy
-    config.packages.scripts-zdeploy
+    config.packages.deploy
 
-    pkgs.lefthook
     pkgs.nurl
-    pkgs.just
     pkgs.nushell
     pkgs.rage
     pkgs.pwgen
   ];
 
-  enterShell = ''
-    ${pkgs.lefthook}/bin/lefthook install
+  pre-commit = {
+    default_stages = ["commit" "push"];
 
-    just
-  '';
+    hooks = {
+      # Nix
+      alejandra.enable = true;
+      deadnix.enable = true;
+      statix.enable = true;
+
+      # Lua
+      stylua.enable = true;
+      luacheck.enable = true;
+    };
+
+    settings = {
+      statix.ignore = [".direnv/*"];
+    };
+  };
 
   # Stop errors since we are not using containers
   # See: https://github.com/cachix/devenv/issues/528

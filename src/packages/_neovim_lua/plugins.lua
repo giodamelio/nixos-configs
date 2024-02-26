@@ -52,9 +52,7 @@ vim.opt.showtabline = 1
 
 -- Git Status in Gutter
 local gs = require('gitsigns')
-local gsa = require('gitsigns.actions')
 local gl = require('gitlinker')
-local gla = require('gitlinker.actions')
 local neogit = require('neogit')
 
 gs.setup({

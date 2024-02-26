@@ -1,10 +1,4 @@
-{debug, ...}: {pkgs, ...}: let
-  inherit (pkgs) lib;
-
-  # Load all the files in the neovim-lua/ directory
-  # luaFiles = lib.filesystem.listFilesRecursive ./neovim-lua;
-  # loadLuaConfigs = builtins.concatStringsSep "\n" (map (path: "luafile ${path}") luaFiles);
-
+{pkgs, ...}: let
   rainbowDelimitersNvim = pkgs.vimUtils.buildVimPlugin {
     pname = "rainbow-delimiters.nvim";
     version = "2023-12-15";
@@ -128,11 +122,11 @@
     ];
 
     customRC = "
-      luafile ${./neovim-lua/basic.lua}
-      luafile ${./neovim-lua/lsp.lua}
-      luafile ${./neovim-lua/treesitter.lua}
-      luafile ${./neovim-lua/plugins.lua}
-      luafile ${./neovim-lua/keybinds.lua}
+      luafile ${./_neovim_lua/basic.lua}
+      luafile ${./_neovim_lua/lsp.lua}
+      luafile ${./_neovim_lua/treesitter.lua}
+      luafile ${./_neovim_lua/plugins.lua}
+      luafile ${./_neovim_lua/keybinds.lua}
     ";
   };
 in

@@ -1,8 +1,6 @@
 local wk = require('which-key')
 
-local telescope = require('telescope')
 local tb = require('telescope.builtin')
-local trouble = require('trouble.providers.telescope')
 local neotest = require('neotest')
 
 wk.register({
@@ -64,7 +62,7 @@ wk.register({
 local gs = require('gitsigns')
 local gsa = require('gitsigns.actions')
 local gl = require('gitlinker')
-local gla = require('gitlinker.actions')
+-- local gla = require('gitlinker.actions')
 
 wk.register({
   g = {
