@@ -16,12 +16,14 @@
       src = ./src;
       inputs = {
         inherit inputs homelab debug;
+        inherit (inputs.nixpkgs) lib;
       };
     };
   in
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         inputs.treefmt-nix.flakeModule
+        inputs.devenv.flakeModule
       ];
 
       systems = ["x86_64-linux" "aarch64-linux"];
@@ -34,10 +36,7 @@
         system,
         ...
       }: {
-        devShells = rec {
-          deploy = lib.devShells.deploy {inherit pkgs inputs' config;};
-          default = deploy;
-        };
+        devenv.shells.default = lib.devShells.deploy {inherit pkgs inputs' config;};
 
         packages = let
           scripts = lib.packages.scripts {inherit pkgs;};
@@ -131,5 +130,8 @@
     # Print pretty boxes around things in your shell scripts
     little_boxes.url = "github:giodamelio/little_boxes";
     little_boxes.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Easy Dev Shells
+    devenv.url = "github:cachix/devenv";
   };
 }

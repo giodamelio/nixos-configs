@@ -1,16 +1,10 @@
-{
-  root,
-  debug,
-  ...
-}: {
+{lib, ...}: {
   pkgs,
   inputs',
   config,
-}:
-pkgs.mkShell {
-  nativeBuildInputs = [
-    config.treefmt.build.wrapper
-  ];
+}: {
+  languages.nix.enable = true;
+  languages.lua.enable = true;
 
   packages = [
     inputs'.colmena.packages.colmena
@@ -26,15 +20,15 @@ pkgs.mkShell {
     pkgs.nushell
     pkgs.rage
     pkgs.pwgen
-
-    # Language servers
-    pkgs.lua-language-server # Lua
-    pkgs.nil # Nix
   ];
 
-  shellHook = ''
+  enterShell = ''
     ${pkgs.lefthook}/bin/lefthook install
 
     just
   '';
+
+  # Stop errors since we are not using containers
+  # See: https://github.com/cachix/devenv/issues/528
+  containers = lib.mkForce {};
 }
