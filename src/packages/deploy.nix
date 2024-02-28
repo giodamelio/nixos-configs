@@ -3,6 +3,10 @@ pkgs.writeScriptBin "deploy"
 ''
   #!${pkgs.nushell}/bin/nu
 
+  def hosts [] {
+    nix eval .#nixosConfigurations --apply builtins.attrNames --json | from json
+  }
+
   # Deploy all hosts
   def "main all" [] {
     colmena apply
@@ -10,7 +14,7 @@ pkgs.writeScriptBin "deploy"
 
   # Interactivaly choose a host and deploy to it
   def "main" [
-    host?:string
+    host?: string@hosts
     --verbose (-v): bool # Disable Colmena spinners and print the whole build log
   ] {
     # If no node is passed, interactivaly pick one
