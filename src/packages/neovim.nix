@@ -1,4 +1,4 @@
-{pkgs, ...}: let
+_: {pkgs, ...}: let
   rainbowDelimitersNvim = pkgs.vimUtils.buildVimPlugin {
     pname = "rainbow-delimiters.nvim";
     version = "2023-12-15";

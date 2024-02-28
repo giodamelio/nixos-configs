@@ -2,22 +2,19 @@
   description = "My Personal Nix Configs";
 
   outputs = inputs @ {flake-parts, ...}: let
+    inherit (inputs.nixpkgs.lib) debug;
+
     # Static data about our homelab
     homelab = builtins.fromTOML (builtins.readFile ./homelab.toml);
 
     # Load all of our source file
-    haumea = inputs.haumea.lib;
-    libLoader = extraInputs:
-      haumea.load {
-        src = ./src;
-        inputs =
-          {
-            inherit inputs homelab;
-            inherit (inputs.nixpkgs) lib;
-            inherit (inputs.nixpkgs.lib) debug;
-          }
-          // extraInputs;
+    lib = inputs.haumea.lib.load {
+      src = ./src;
+      inputs = {
+        inherit inputs homelab debug;
+        inherit (inputs.nixpkgs) lib;
       };
+    };
   in
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
@@ -33,10 +30,12 @@
         config,
         ...
       }: let
-        lib = libLoader {inherit pkgs inputs' config;};
+        sys = {inherit pkgs inputs' config;};
       in {
-        inherit (lib) packages;
-        devenv.shells.default = lib.devShells.deploy;
+        # Pass the per system attributes to each package
+        packages = builtins.mapAttrs (_: pkg: pkg sys) lib.packages;
+
+        devenv.shells.default = lib.devShells.deploy sys;
 
         treefmt = {
           projectRootFile = ".git/config";
@@ -47,9 +46,7 @@
         };
       };
 
-      flake = let
-        lib = libLoader {};
-      in {
+      flake = {
         # Export our modules and configurations
         inherit (lib) nixosModules;
         inherit (lib) nixosConfigurations;

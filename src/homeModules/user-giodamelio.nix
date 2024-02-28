@@ -15,7 +15,6 @@
     root.homeModules.waybar
 
     root.homeModules.nix-index
-    root.homeModules.earth-desktop-background
   ];
 
   home = {

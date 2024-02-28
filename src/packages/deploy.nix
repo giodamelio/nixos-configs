@@ -1,4 +1,4 @@
-{pkgs, ...}:
+_: {pkgs, ...}:
 pkgs.writeScriptBin "deploy"
 ''
   #!${pkgs.nushell}/bin/nu
