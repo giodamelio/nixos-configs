@@ -3,9 +3,12 @@
     root.homeModules.modern-coreutils
     root.homeModules.git
     root.homeModules.neovim
-    root.homeModules.zsh
     root.homeModules.kitty
     root.homeModules.helix
+
+    root.homeModules.starship
+    root.homeModules.zsh
+    root.homeModules.nushell
 
     # Window Managers
     root.homeModules.hyprland
