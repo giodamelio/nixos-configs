@@ -2,7 +2,78 @@ _: {
   pkgs,
   config,
   ...
-}: {
+}: let
+  basePath = "/var/lib/x-acme";
+  email = "gio@damelio.net";
+  domain = "testing.gio.ninja";
+in {
+  systemd.services.obtain-certificate = {
+    description = "Obtain a certificate";
+    wantedBy = ["default.target"];
+    serviceConfig = {
+      Type = "oneshot";
+      ImportCredential = "CLOUDFLARE_API_TOKEN";
+    };
+    unitConfig = {
+      # Note negation of the path
+      ConditionPathExists = "!${basePath}/certificates/${domain}.json";
+      # TODO: why doesn't this work?
+      # AssertCredential = "test-cred";
+    };
+    environment = {
+      LEGO_PATH = basePath;
+      CLOUDFLARE_DNS_API_TOKEN_FILE = "%d/CLOUDFLARE_API_TOKEN";
+    };
+    script = ''
+      ${pkgs.lego}/bin/lego \
+        --server=https://acme-staging-v02.api.letsencrypt.org/directory \
+        --email ${email} \
+        --accept-tos \
+        --dns cloudflare \
+        --domains ${domain} \
+        run
+    '';
+  };
+
+  systemd.services.renew-certificate = {
+    description = "Renew a certificate";
+    wantedBy = ["default.target"];
+    after = ["obtain-certificate.service"];
+    serviceConfig = {
+      Type = "oneshot";
+      ImportCredential = "CLOUDFLARE_API_TOKEN";
+    };
+    unitConfig = {
+      ConditionPathExists = "${basePath}/certificates/${domain}.json";
+      # TODO: why doesn't this work?
+      # AssertCredential = "test-cred";
+    };
+    environment = {
+      LEGO_PATH = basePath;
+      CLOUDFLARE_DNS_API_TOKEN_FILE = "%d/CLOUDFLARE_API_TOKEN";
+    };
+    script = ''
+      ${pkgs.lego}/bin/lego \
+        --server=https://acme-staging-v02.api.letsencrypt.org/directory \
+        --email ${email} \
+        --accept-tos \
+        --dns cloudflare \
+        --domains ${domain} \
+        renew \
+        --days 30
+    '';
+  };
+
+  systemd.timers.renew-certificate = {
+    description = "Try to renew certificate every day";
+    wantedBy = ["timers.target"];
+    timerConfig = {
+      OnCalendar = "daily";
+      Persistent = "true";
+      RandomizedDelaySec = 3600; # 1 hour
+    };
+  };
+
   # Get HTTPS certificates from LetsEncrypt for Kanidm
   security.acme = {
     acceptTerms = true;
