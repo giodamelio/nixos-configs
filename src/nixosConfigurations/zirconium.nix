@@ -20,6 +20,9 @@ inputs.nixpkgs.lib.nixosSystem {
     root.nixosModules.basic-packages
     root.nixosModules.basic-settings
 
+    # Custom modules
+    root.nixosModules.services.lego
+
     # Add server user
     root.nixosModules.users.server
 
