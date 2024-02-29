@@ -32,11 +32,6 @@ in {
   options.security.lego = {
     enable = lib.mkEnableOption "lego acme security fetcher";
 
-    acceptTerms = lib.mkOption {
-      type = lib.types.bool;
-      default = false;
-    };
-
     email = lib.mkOption {
       type = lib.types.str;
     };

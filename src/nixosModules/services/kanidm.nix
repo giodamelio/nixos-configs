@@ -9,6 +9,16 @@ _: {config, ...}: {
     certs."testing4.gio.ninja" = {};
   };
 
+  services.acme-redirect = {
+    enable = true;
+    acceptTerms = true;
+    email = "gio@damelio.net";
+
+    certs."testing21.gio.ninja" = {};
+    certs."testing22.gio.ninja" = {};
+    certs."testing23.gio.ninja" = {};
+  };
+
   # Get HTTPS certificates from LetsEncrypt for Kanidm
   security.acme = {
     acceptTerms = true;
