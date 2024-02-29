@@ -14,6 +14,7 @@
     config.packages.deploy
 
     pkgs.nurl
+    pkgs.nix-init
     pkgs.nushell
     pkgs.rage
     pkgs.pwgen
