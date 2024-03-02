@@ -29,6 +29,9 @@ inputs.nixpkgs.lib.nixosSystem {
     # Add Kanidm identity server
     root.nixosModules.services.kanidm
 
+    # Add OpenZiti mesh network
+    root.nixosModules.services.ziti
+
     (_: {
       networking.hostId = "54544019";
 
