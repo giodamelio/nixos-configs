@@ -1,9 +1,4 @@
-{root, ...}: {
-  config,
-  lib,
-  pkgs,
-  ...
-}: let
+{root, ...}: {pkgs, ...}: let
   customNeovim = root.packages.neovim {inherit pkgs;};
 in {
   environment = {
@@ -18,6 +13,9 @@ in {
 
       # My custom wrapped Neovim with configs/plugins
       customNeovim
+
+      # Install Kitty everywhere so the kitty terminfo is available
+      kitty
 
       # Internet fetchers
       curl
