@@ -48,3 +48,8 @@ useDescription = "Critical services running on a DigitalOcean VM"
 [machines.zirconium.deployment]
 targetHost = "zirconium.gio.ninja"
 targetUser = "server"
+
+## Networks
+
+[networks.nebula-homelab]
+cidr = "10.101.0.1/16"

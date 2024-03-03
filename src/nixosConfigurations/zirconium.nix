@@ -32,6 +32,9 @@ inputs.nixpkgs.lib.nixosSystem {
     # Add OpenZiti mesh network
     root.nixosModules.services.ziti
 
+    # Add Nebula mesh network
+    root.nixosModules.services.nebula
+
     (_: {
       networking.hostId = "54544019";
 
