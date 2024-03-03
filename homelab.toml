@@ -2,7 +2,9 @@
 
 ssh_keys = [
   # Cadmium NixOS
-  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOKmSxFyT9n91A9dOpSCfl9kJj80KWFA6UvCtguT4S5b giodamelio@cadmium"
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOKmSxFyT9n91A9dOpSCfl9kJj80KWFA6UvCtguT4S5b giodamelio@cadmium",
+  # Chromebook Developer Container
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAHlH3cxSO186g1bcZ3I3xSX3Fi2E094XnzvTFnW5/G1 giodamelio@cesium"
 ]
 
 ## All the machines
