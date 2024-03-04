@@ -50,4 +50,7 @@ _: {
       ];
     };
   };
+
+  # Allow all traffic over the Nebula network
+  networking.firewall.trustedInterfaces = ["nebula.homelab"];
 }
