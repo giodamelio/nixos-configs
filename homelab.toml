@@ -17,9 +17,6 @@ useDescription = "My Phone"
 hardwareDescription = "Desktop machine under my desk"
 useDescription = "Main development machine"
 
-[machines.cadmium.networks.nebula-homelab]
-ip = "10.101.0.2"
-
 [machines.cadmium.deployment]
 allowLocalDeployment = true
 
@@ -48,9 +45,6 @@ useDescription = "Light development work on the go"
 hardwareDescription = "VM Running in Hetzner Cloud"
 useDescription = "Critical services running on a DigitalOcean VM"
 
-[machines.zirconium.networks.nebula-homelab]
-ip = "10.101.0.1"
-
 [machines.zirconium.deployment]
 targetHost = "zirconium.gio.ninja"
 targetUser = "server"
@@ -59,3 +53,7 @@ targetUser = "server"
 
 [networks.nebula-homelab]
 cidr = "10.101.0.1/16"
+
+[networks.nebula-homelab.members]
+zirconium = "10.101.0.1"
+gios-pixel-7 = "10.101.0.2"
