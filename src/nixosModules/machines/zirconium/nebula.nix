@@ -8,17 +8,17 @@ _: {
 
   # Setup secrets
   age.secrets.nebula-ca-cert = {
-    file = ../../../secrets/nebula-ca.crt.age;
+    file = ../../../../secrets/nebula-ca.crt.age;
     owner = "nebula-homelab";
     group = "nebula-homelab";
   };
   age.secrets.nebula-zirconium-cert = {
-    file = ../../../secrets/nebula-zirconium.crt.age;
+    file = ../../../../secrets/nebula-zirconium.crt.age;
     owner = "nebula-homelab";
     group = "nebula-homelab";
   };
   age.secrets.nebula-zirconium-key = {
-    file = ../../../secrets/nebula-zirconium.key.age;
+    file = ../../../../secrets/nebula-zirconium.key.age;
     owner = "nebula-homelab";
     group = "nebula-homelab";
   };

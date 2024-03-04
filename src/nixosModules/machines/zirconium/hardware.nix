@@ -1,7 +1,5 @@
 _: {
-  config,
   lib,
-  pkgs,
   modulesPath,
   ...
 }: {
