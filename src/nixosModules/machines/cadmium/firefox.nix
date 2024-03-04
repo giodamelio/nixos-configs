@@ -1,9 +1,4 @@
-_: {
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+_: {pkgs, ...}: {
   environment = {
     systemPackages = with pkgs; [
       firefox

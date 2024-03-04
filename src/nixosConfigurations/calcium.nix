@@ -26,7 +26,7 @@ inputs.nixpkgs.lib.nixosSystem {
     root.nixosModules.systems.calcium
 
     # Enable some services
-    root.nixosModules.services.tailscale
+    # root.nixosModules.services.tailscale
 
     # Load the deployment config from our homelab.toml
     (_: {

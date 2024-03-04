@@ -1,9 +1,4 @@
-_: {
-  pkgs,
-  lib,
-  config,
-  ...
-}: {
+_: _: {
   services.keyd = {
     enable = true;
 
