@@ -13,6 +13,9 @@ inputs.nixpkgs.lib.nixosSystem {
   ];
 
   modules = [
+    # Encrypted Secrets
+    inputs.ragenix.nixosModules.default
+
     # Hardware
     root.nixosModules.systems.hardware.zirconium
 

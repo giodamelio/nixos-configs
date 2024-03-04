@@ -110,5 +110,9 @@
 
     # Easy Dev Shells
     devenv.url = "github:cachix/devenv";
+
+    # Encrypted Secrets
+    ragenix.url = "github:yaxitech/ragenix";
+    ragenix.inputs.nixpkgs.follows = "nixpkgs";
   };
 }

@@ -1,6 +1,27 @@
-_: {pkgs, ...}: {
+_: {
+  pkgs,
+  config,
+  ...
+}: {
   # Add the Nebula to the system for management
   environment.systemPackages = with pkgs; [nebula qrtool];
+
+  # Setup secrets
+  age.secrets.nebula-ca-cert = {
+    file = ../../../secrets/nebula-ca.crt.age;
+    owner = "nebula-homelab";
+    group = "nebula-homelab";
+  };
+  age.secrets.nebula-zirconium-cert = {
+    file = ../../../secrets/nebula-zirconium.crt.age;
+    owner = "nebula-homelab";
+    group = "nebula-homelab";
+  };
+  age.secrets.nebula-zirconium-key = {
+    file = ../../../secrets/nebula-zirconium.key.age;
+    owner = "nebula-homelab";
+    group = "nebula-homelab";
+  };
 
   services.nebula.networks.homelab = {
     enable = true;
@@ -8,9 +29,9 @@ _: {pkgs, ...}: {
     isLighthouse = true;
     isRelay = true;
 
-    ca = "/var/lib/nebula/ca.crt";
-    cert = "/var/lib/nebula/zirconium.crt";
-    key = "/var/lib/nebula/zirconium.key";
+    ca = config.age.secrets.nebula-ca-cert.path;
+    cert = config.age.secrets.nebula-zirconium-cert.path;
+    key = config.age.secrets.nebula-zirconium-key.path;
 
     firewall = {
       outbound = [

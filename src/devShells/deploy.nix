@@ -10,6 +10,7 @@
   packages = [
     inputs'.colmena.packages.colmena
     inputs'.little_boxes.packages.default
+    inputs'.ragenix.packages.default
 
     config.packages.deploy
 
