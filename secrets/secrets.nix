@@ -4,7 +4,8 @@ let
   users = [giodamelio-cadmium giodamelio-cesium];
 
   zirconium = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIECR2kS4hXBLqvqK21Ko+4CborL0Uo64/ZvtrISCsKPS";
-  systems = [zirconium];
+  cadmium = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFyDOEgsO9wykdbqhUOBWpSIXJ7Kd9D0Pl7W0dnxDn/m";
+  systems = [zirconium cadmium];
 in {
   # Nebula CA Cert
   "nebula-ca.crt.age".publicKeys = users ++ systems;
@@ -12,4 +13,8 @@ in {
   # Nebula Cert/Key for zirconium
   "nebula-zirconium.crt.age".publicKeys = users ++ [zirconium];
   "nebula-zirconium.key.age".publicKeys = users ++ [zirconium];
+
+  # Nebula Cert/Key for cadmium
+  "nebula-cadmium.crt.age".publicKeys = users ++ [cadmium];
+  "nebula-cadmium.key.age".publicKeys = users ++ [cadmium];
 }

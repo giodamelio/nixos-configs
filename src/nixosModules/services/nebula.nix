@@ -21,11 +21,13 @@ in {
     isLighthouse = lib.mkOption {
       description = "Is this device a Lighthosue";
       type = lib.types.bool;
+      default = false;
     };
 
     isRelay = lib.mkOption {
       description = "Is this device a Relay";
       type = lib.types.bool;
+      default = false;
     };
   };
 
@@ -40,29 +42,45 @@ in {
       group = "nebula-homelab";
     };
 
-    services.nebula.networks.homelab = {
-      enable = true;
-      ca = config.age.secrets.nebula-ca-cert.path;
+    services.nebula.networks.homelab = lib.mkMerge [
+      {
+        enable = true;
+        ca = config.age.secrets.nebula-ca-cert.path;
 
-      inherit (cfg) cert key isLighthouse isRelay;
+        inherit (cfg) cert key isLighthouse isRelay;
 
-      firewall = {
-        outbound = [
-          {
-            host = "any";
-            port = "any";
-            proto = "any";
-          }
+        firewall = {
+          outbound = [
+            {
+              host = "any";
+              port = "any";
+              proto = "any";
+            }
+          ];
+          inbound = [
+            {
+              host = "any";
+              port = "any";
+              proto = "any";
+            }
+          ];
+        };
+      }
+
+      # Configure lighthouses on non lighthouse nodes
+      (lib.mkIf (!cfg.isLighthouse) {
+        lighthouses = [
+          "10.101.0.1" # zirconium
         ];
-        inbound = [
-          {
-            host = "any";
-            port = "any";
-            proto = "any";
-          }
-        ];
-      };
-    };
+
+        staticHostMap = {
+          # zirconium
+          "10.101.0.1" = [
+            "zirconium.gio.ninja:4242"
+          ];
+        };
+      })
+    ];
 
     # Allow all traffic over the Nebula network
     networking.firewall.trustedInterfaces = ["nebula.homelab"];

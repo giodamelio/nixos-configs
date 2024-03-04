@@ -2,9 +2,13 @@
   root,
   super,
   homelab,
+  inputs,
   ...
 }: _: {
   imports = [
+    # Encrypted Secrets
+    inputs.ragenix.nixosModules.default
+
     # Disk layout
     super.disko
 
@@ -28,6 +32,7 @@
     super.hyprland # Hyperland WM
     super.cosmic # Experimental COSMIC DE
     super.sanoid # Autosnapshot ZFS with sanoid
+    super.nebula # Nebula mesh network
 
     (_: {
       services.tailscale = {

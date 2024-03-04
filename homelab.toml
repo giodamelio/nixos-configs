@@ -57,3 +57,4 @@ cidr = "10.101.0.1/16"
 [networks.nebula-homelab.members]
 zirconium = "10.101.0.1"
 gios-pixel-7 = "10.101.0.2"
+cadmium = "10.101.0.3"
