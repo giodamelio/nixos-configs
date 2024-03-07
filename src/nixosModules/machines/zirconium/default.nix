@@ -25,6 +25,9 @@
     # Setup this node as a Nebula lighthouse
     super.nebula
 
+    # Wireguard Mesh Network
+    super.headscale
+
     # Serve DNS records for the Nebula nodes
     super.coredns
 
