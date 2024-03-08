@@ -6,6 +6,9 @@
   ...
 }: _: {
   imports = [
+    # Hardware configs
+    super.disko
+
     # Encrypted Secrets
     inputs.ragenix.nixosModules.default
 
@@ -16,22 +19,11 @@
     # Add server user
     root.nixosModules.users.server
 
-    # Generated hardware config
-    super.hardware
-
-    # Setup the Kanidm identity server
-    super.kanidm
-
-    # Setup this node as a Nebula lighthouse
-    super.nebula
-
-    # Wireguard Mesh Network
-    super.headscale
-
-    # Serve DNS records for the Nebula nodes
-    super.coredns
+    # Netbird Wireguard Mesh
+    super.netbird
 
     (_: {
+      networking.hostName = "zirconium";
       networking.hostId = "54544019";
 
       # Load the deployment config from our homelab.toml
