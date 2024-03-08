@@ -22,6 +22,9 @@
     # Netbird Wireguard Mesh
     super.netbird
 
+    # Monitoring with Grafana/Prometheus/Loki
+    super.monitoring
+
     (_: {
       networking.hostName = "zirconium";
       networking.hostId = "54544019";
