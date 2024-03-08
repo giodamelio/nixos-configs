@@ -19,6 +19,7 @@
     pkgs.nushell
     pkgs.rage
     pkgs.pwgen
+    pkgs.dogdns
   ];
 
   pre-commit = {
