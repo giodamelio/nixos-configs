@@ -35,9 +35,6 @@
     super.netbird # Wireguard mesh network
 
     (_: {
-      services.tailscale = {
-        enable = true;
-      };
       virtualisation.docker = {
         enable = true;
       };
