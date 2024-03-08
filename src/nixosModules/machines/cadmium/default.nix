@@ -32,7 +32,7 @@
     super.hyprland # Hyperland WM
     super.cosmic # Experimental COSMIC DE
     super.sanoid # Autosnapshot ZFS with sanoid
-    super.nebula # Nebula mesh network
+    super.netbird # Wireguard mesh network
 
     (_: {
       services.tailscale = {
