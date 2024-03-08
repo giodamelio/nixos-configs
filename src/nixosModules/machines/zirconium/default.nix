@@ -7,7 +7,7 @@
 }: _: {
   imports = [
     # Hardware configs
-    super.disko
+    super.hardware
 
     # Encrypted Secrets
     inputs.ragenix.nixosModules.default
