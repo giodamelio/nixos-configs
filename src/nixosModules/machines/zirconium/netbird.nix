@@ -1,4 +1,6 @@
-_: _: {
+_: {pkgs, ...}: {
+  environment.systemPackages = [pkgs.dogdns];
+
   services.netbird = {
     enable = true;
 
@@ -8,10 +10,10 @@ _: _: {
   services.coredns = {
     enable = true;
     config = ''
-      nb.gio.ninja {
+      n.gio.ninja {
         log
-        rewrite name suffix .nb.gio.ninja .netbird.cloud answer auto
-        forward netbird.cloud 100.121.200.48
+        rewrite name suffix .n.gio.ninja .netbird.cloud answer auto
+        forward netbird.cloud 100.121.152.171
       }
 
       . {
