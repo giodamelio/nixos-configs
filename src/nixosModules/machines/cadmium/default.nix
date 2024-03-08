@@ -33,6 +33,7 @@
     super.cosmic # Experimental COSMIC DE
     super.sanoid # Autosnapshot ZFS with sanoid
     super.netbird # Wireguard mesh network
+    super.monitoring # Export metrics
 
     (_: {
       virtualisation.docker = {

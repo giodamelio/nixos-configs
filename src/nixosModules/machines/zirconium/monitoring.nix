@@ -58,7 +58,15 @@ _: _: {
               "localhost:9100"
             ];
             labels = {
-              alias = "zirconium.gio.ninja";
+              alias = "zirconium";
+            };
+          }
+          {
+            targets = [
+              "cadmium.n.gio.ninja:9100"
+            ];
+            labels = {
+              alias = "cadmium";
             };
           }
         ];
