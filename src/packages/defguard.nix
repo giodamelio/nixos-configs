@@ -27,10 +27,22 @@
 
       # Allow access to $out even though it was not defined here
       # shellcheck disable=SC2154
-      mv app/web/dist/ "$out"
+      mkdir -p "$out/web/"
+
+      # Allow access to $out even though it was not defined here
+      # shellcheck disable=SC2154
+      mv app/web/dist/ "$out/web/"
     '';
   };
-in {
+  coreVersion = "0.9.0";
+  coreSrc = pkgs.fetchFromGitHub {
+    owner = "DefGuard";
+    repo = "defguard";
+    rev = "v${coreVersion}";
+    hash = "sha256-RWNR+wf70lASEt+mJgkpCpr4cfgqVixPuUWEm8RRXiQ=";
+    fetchSubmodules = true;
+  };
+in rec {
   # This is a unholy thing that extracts the files we want
   # directly from a docker image layer fetched from ghcr.io
   # Here Be Dragons
@@ -44,19 +56,13 @@ in {
 
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
-    outputHash = "sha256-45Czgy5AK2On16sYxpjybbQXJIX/Imp2s3gqyfPCIBM=";
+    outputHash = "sha256-cari72NzwPMzyfoS+Wif1uYUKDEh6CG4oo7Kci8jt8E=";
   };
-  core = pkgs.rustPlatform.buildRustPackage rec {
+  core = pkgs.rustPlatform.buildRustPackage {
     pname = "defguard";
-    version = "0.9.0";
+    version = coreVersion;
 
-    src = pkgs.fetchFromGitHub {
-      owner = "DefGuard";
-      repo = "defguard";
-      rev = "v${version}";
-      hash = "sha256-RWNR+wf70lASEt+mJgkpCpr4cfgqVixPuUWEm8RRXiQ=";
-      fetchSubmodules = true;
-    };
+    src = coreSrc;
 
     cargoHash = "sha256-BzWw+rnXshXyxhERIT8XJRhhY2iJftAqy+3SmIFCT/0=";
 
@@ -89,6 +95,18 @@ in {
       maintainers = with maintainers; [giodamelio];
       mainProgram = "defguard";
     };
+  };
+  # The core binary bundled with the WebUI and supporting files
+  core-bundled = pkgs.symlinkJoin {
+    name = "defguard-core-bundled";
+    paths = [
+      # Main bin
+      "${core}/bin/" # Main bin
+      # Supporting File
+      (lib.sources.sourceByRegex coreSrc ["user_agent_header_regexes.yaml"])
+      # Compiled WebUI
+      ui
+    ];
   };
   gateway = pkgs.rustPlatform.buildRustPackage rec {
     pname = "defguard-gateway";
