@@ -3,17 +3,19 @@ _: {
   lib,
   ...
 }: let
+  defguardVersion = "0.9.0";
+  defguardSource = pkgs.fetchFromGitHub {
+    owner = "DefGuard";
+    repo = "defguard";
+    rev = "v${defguardVersion}";
+    hash = "sha256-RWNR+wf70lASEt+mJgkpCpr4cfgqVixPuUWEm8RRXiQ=";
+    fetchSubmodules = true;
+  };
   defguard = pkgs.rustPlatform.buildRustPackage rec {
     pname = "defguard";
-    version = "0.9.0";
+    version = defguardVersion;
 
-    src = pkgs.fetchFromGitHub {
-      owner = "DefGuard";
-      repo = "defguard";
-      rev = "v${version}";
-      hash = "sha256-RWNR+wf70lASEt+mJgkpCpr4cfgqVixPuUWEm8RRXiQ=";
-      fetchSubmodules = true;
-    };
+    src = defguardSource;
 
     cargoHash = "sha256-BzWw+rnXshXyxhERIT8XJRhhY2iJftAqy+3SmIFCT/0=";
 
@@ -38,6 +40,25 @@ _: {
         darwin.apple_sdk.frameworks.Security
         darwin.apple_sdk.frameworks.SystemConfiguration
       ];
+
+    meta = with lib; {
+      description = "Enterprise, fast, secure VPN & SSO platform with hardware keys, 2FA/MFA";
+      homepage = "https://github.com/DefGuard/defguard";
+      license = licenses.asl20;
+      maintainers = with maintainers; [giodamelio];
+      mainProgram = "defguard";
+    };
+  };
+  defguardUI = pkgs.buildNpmPackage rec {
+    pname = "defguard-ui";
+    version = defguardVersion;
+
+    src = "${defguardSource}/web";
+
+    npmDepsHash = lib.fakeHash;
+
+    # The prepack script runs the build script, which we'd rather do in the build phase.
+    npmPackFlags = ["--ignore-scripts"];
 
     meta = with lib; {
       description = "Enterprise, fast, secure VPN & SSO platform with hardware keys, 2FA/MFA";
@@ -89,6 +110,8 @@ in {
     script = ''
       # Download file needed at runtime
       ${pkgs.wget}/bin/wget https://github.com/DefGuard/defguard/raw/main/user_agent_header_regexes.yaml
+
+      echo ${defguardUI}
 
       ${defguard}/bin/defguard
     '';
