@@ -22,6 +22,9 @@
     # Netbird Wireguard Mesh
     super.netbird
 
+    # Security Platform (Identity/Overlay Network)
+    super.defguard
+
     # Monitoring with Grafana/Prometheus/Loki
     super.monitoring
 
