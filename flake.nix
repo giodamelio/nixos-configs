@@ -33,7 +33,25 @@
         sys = {inherit pkgs inputs' config;};
       in {
         # Pass the per system attributes to each package
-        packages = builtins.mapAttrs (_: pkg: pkg sys) lib.packages;
+        # Allow either a packge or attrset of packages in each file
+        # If it is an atterset, each package within has the filename prefixed
+        packages =
+          pkgs.lib.attrsets.concatMapAttrs
+          (
+            name: pkgFn: let
+              inherit (pkgs.lib) attrsets;
+              pkg = pkgFn sys;
+            in
+              if (attrsets.isDerivation pkg)
+              then {"${name}" = pkg;}
+              else
+                attrsets.mapAttrs' (
+                  subName: subPkg:
+                    attrsets.nameValuePair "${name}-${subName}" subPkg
+                )
+                pkg
+          )
+          lib.packages;
 
         devenv.shells.default = lib.devShells.deploy sys;
 

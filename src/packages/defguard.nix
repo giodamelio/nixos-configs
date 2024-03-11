@@ -33,8 +33,8 @@ _: {pkgs, ...}: let
       mv app/web/dist/ "$out"
     '';
   };
-in
-  pkgs.stdenv.mkDerivation rec {
+in {
+  ui = pkgs.stdenv.mkDerivation rec {
     pname = "defguard-ui";
     version = "f5e89529eba2786c8eab0b9e24ac1a5935299fab38286d34f8090f613b63e160"; # Blob digest
     src = ./.;
@@ -45,4 +45,5 @@ in
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
     outputHash = "sha256-45Czgy5AK2On16sYxpjybbQXJIX/Imp2s3gqyfPCIBM=";
-  }
+  };
+}
