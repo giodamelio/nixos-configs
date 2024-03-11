@@ -3,30 +3,33 @@ _: {pkgs, ...}: {
     pgcli
   ];
 
-  # Create PostgreSQL DB
-  services.postgresql = {
-    enable = true;
-
-    ensureDatabases = [
-      "defguard"
+  # Run PostgreSQL in a container
+  virtualisation.oci-containers.containers.defguard-pg = {
+    image = "docker.io/postgres:15-alpine";
+    autoStart = true;
+    volumes = [
+      "pg-socket:/run/postgresql"
     ];
-    ensureUsers = [
-      {
-        name = "defguard";
-        ensureDBOwnership = true;
-      }
-    ];
+    environment = {
+      POSTGRES_USER = "defguard";
+      POSTGRES_DB = "defguard";
+      # Trust connections without a password
+      # We don't open any ports and just access via Unix socket,
+      # so this should be secure
+      POSTGRES_HOST_AUTH_METHOD = "trust";
+    };
   };
 
   # Run Defguard Core
   virtualisation.oci-containers.containers.defguard-core = {
     image = "ghcr.io/defguard/defguard:0.9.1";
     autoStart = true;
+    dependsOn = ["defguard-pg"];
     ports = [
       "8000:8000" # WebUI
     ];
     volumes = [
-      "/run/postgresql:/run/postgresql"
+      "pg-socket:/run/postgresql"
     ];
     environment = {
       DEFGUARD_SECRET_KEY = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
