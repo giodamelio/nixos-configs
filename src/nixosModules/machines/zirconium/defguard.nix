@@ -49,16 +49,25 @@ _: {
       mainProgram = "defguard";
     };
   };
-  defguardUI = pkgs.buildNpmPackage rec {
+  defguardUI = pkgs.buildNpmPackage {
     pname = "defguard-ui";
     version = defguardVersion;
 
     src = "${defguardSource}/web";
 
-    npmDepsHash = lib.fakeHash;
+    npmDepsHash = "sha256-xLQakloAjO/HToFKQ+OZCl01GKwqIn674yxHwfWiYnA=";
 
     # The prepack script runs the build script, which we'd rather do in the build phase.
     npmPackFlags = ["--ignore-scripts"];
+
+    # pnpm building story is bad, so I just generated a npm lock for the project
+    postPatch = ''
+      cp ${./defguard-core-package-lock.json} package-lock.json
+    '';
+
+    preBuild = ''
+      npm run generate-translation-types
+    '';
 
     meta = with lib; {
       description = "Enterprise, fast, secure VPN & SSO platform with hardware keys, 2FA/MFA";
@@ -74,6 +83,12 @@ in {
     defguard
   ];
 
+  # Create defguard user
+  # users.users.defguard = {
+  #   isNormalUser = true;
+  #   home = "/var/lib/defguard";
+  # };
+
   # Create PostgreSQL DB
   services.postgresql = {
     enable = true;
@@ -87,6 +102,32 @@ in {
         ensureDBOwnership = true;
       }
     ];
+  };
+
+  # Run Defguard Core
+  # virtualisation.oci-containers.containers.defguard-core = {
+  #   image = "ghcr.io/defguard/defguard:0.9.1";
+  #   autoStart = true;
+  #   ports = [
+  #     "8000:8000" # WebUI
+  #   ];
+  #   volumes = [
+  #     "/run/postgresql:/run/postgresql"
+  #   ];
+  #   environment = {
+  #     DEFGUARD_SECRET_KEY = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  #     DEFGUARD_AUTH_SECRET = "defguard-auth-secret";
+  #     DEFGUARD_GATEWAY_SECRET = "defguard-gateway-secret";
+  #     DEFGUARD_YUBIBRIDGE_SECRET = "defguard-yubibridge-secret";
+  #     DEFGUARD_DB_HOST = "/run/postgresql";
+  #   };
+  # };
+
+  # Override Defguard SystemD user
+  systemd.services.podman-defguard-core = {
+    serviceConfig = {
+      User = "defguard";
+    };
   };
 
   # Run DefGuard Core
@@ -114,26 +155,6 @@ in {
       echo ${defguardUI}
 
       ${defguard}/bin/defguard
-    '';
-  };
-
-  # Create DB password if one doesn't already exist
-  systemd.services.defguard-db-generate-password = let
-    passwordPath = "/var/lib/defguard_db_password";
-  in {
-    description = "Generate a DB password for defguard";
-    wantedBy = ["default.target"];
-    before = ["postgresql.service"];
-    serviceConfig = {
-      Type = "oneshot";
-    };
-    unitConfig = {
-      # Note negation of the path
-      ConditionPathExists = "!${passwordPath}";
-    };
-    script = ''
-      umask 077 # Make rw by just creating user
-      ${pkgs.pwgen}/bin/pwgen 16 1 > ${passwordPath}
     '';
   };
 }
