@@ -1,7 +1,4 @@
-# This is a unholy thing that extracts the files we want
-# directly from a docker image layer fetched from ghcr.io
-# Here Be Dragons
-_: {pkgs, ...}: let
+{lib, ...}: {pkgs, ...}: let
   downloadScript = version:
     pkgs.writeShellApplication {
       name = "download-layer";
@@ -34,6 +31,9 @@ _: {pkgs, ...}: let
     '';
   };
 in {
+  # This is a unholy thing that extracts the files we want
+  # directly from a docker image layer fetched from ghcr.io
+  # Here Be Dragons
   ui = pkgs.stdenv.mkDerivation rec {
     pname = "defguard-ui";
     version = "f5e89529eba2786c8eab0b9e24ac1a5935299fab38286d34f8090f613b63e160"; # Blob digest
@@ -45,5 +45,84 @@ in {
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
     outputHash = "sha256-45Czgy5AK2On16sYxpjybbQXJIX/Imp2s3gqyfPCIBM=";
+  };
+  core = pkgs.rustPlatform.buildRustPackage rec {
+    pname = "defguard";
+    version = "0.9.0";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "DefGuard";
+      repo = "defguard";
+      rev = "v${version}";
+      hash = "sha256-RWNR+wf70lASEt+mJgkpCpr4cfgqVixPuUWEm8RRXiQ=";
+      fetchSubmodules = true;
+    };
+
+    cargoHash = "sha256-BzWw+rnXshXyxhERIT8XJRhhY2iJftAqy+3SmIFCT/0=";
+
+    nativeBuildInputs = with pkgs; [
+      pkg-config
+      protobuf
+    ];
+
+    # Force SqlX offline mode so we don't need a DB to build
+    SQLX_OFFLINE = true;
+
+    # Don't run the tests
+    doCheck = false;
+
+    buildInputs = with pkgs;
+      [
+        openssl
+        sqlite
+      ]
+      ++ lib.optionals stdenv.isDarwin [
+        darwin.apple_sdk.frameworks.CoreFoundation
+        darwin.apple_sdk.frameworks.Security
+        darwin.apple_sdk.frameworks.SystemConfiguration
+      ];
+
+    meta = with lib; {
+      description = "Enterprise, fast, secure VPN & SSO platform with hardware keys, 2FA/MFA";
+      homepage = "https://github.com/DefGuard/defguard";
+      license = licenses.asl20;
+      maintainers = with maintainers; [giodamelio];
+      mainProgram = "defguard";
+    };
+  };
+  gateway = pkgs.rustPlatform.buildRustPackage rec {
+    pname = "defguard-gateway";
+    version = "0.6.2";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "DefGuard";
+      repo = "gateway";
+      rev = "v${version}";
+      hash = "sha256-Mi0qZxDlh2DIoIJtNKL/E2hL+s4Tr62rpz+9FJXOSzE=";
+      fetchSubmodules = true;
+    };
+
+    cargoLock = {
+      lockFile = ./Cargo.lock;
+      outputHashes = {
+        "defguard_wireguard_rs-0.4.2" = "sha256-GmutcOHlhh5NbPwaDI66H03tAQ0ze9lZqRZUwK2YYEE=";
+      };
+    };
+
+    nativeBuildInputs = with pkgs; [
+      protobuf
+    ];
+
+    buildInputs = lib.optionals pkgs.stdenv.isDarwin [
+      pkgs.darwin.apple_sdk.frameworks.Security
+    ];
+
+    meta = with lib; {
+      description = "Defguard gateway";
+      homepage = "https://github.com/DefGuard/gateway";
+      license = licenses.asl20;
+      maintainers = with maintainers; [giodamelio];
+      mainProgram = "defguard-gateway";
+    };
   };
 }
