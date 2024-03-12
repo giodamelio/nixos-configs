@@ -51,10 +51,9 @@ targetUser = "server"
 
 ## Networks
 
-[networks.nebula-homelab]
-cidr = "10.101.0.1/16"
+[networks.homelab-defguard]
+cidr = "10.111.0.0/16"
 
-[networks.nebula-homelab.members]
-zirconium = "10.101.0.1"
-gios-pixel-7 = "10.101.0.2"
-cadmium = "10.101.0.3"
+[networks.homelab-defguard.members]
+zirconium = "10.111.0.1"
+gios-pixel-7 = "10.111.0.2"
