@@ -20,6 +20,7 @@
     pkgs.rage
     pkgs.pwgen
     pkgs.dogdns
+    pkgs.terraform
   ];
 
   pre-commit = {

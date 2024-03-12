@@ -28,10 +28,17 @@
         pkgs,
         inputs',
         config,
+        system,
         ...
       }: let
         sys = {inherit pkgs inputs' config;};
       in {
+        # Allow unfree packages
+        _module.args.pkgs = import inputs.nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
+
         # Pass the per system attributes to each package
         # Allow either a packge or attrset of packages in each file
         # If it is an atterset, each package within has the filename prefixed
