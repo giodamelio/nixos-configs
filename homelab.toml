@@ -34,7 +34,7 @@ hardwareDescription = "HP EliteDesk Mini Computer in the closet"
 useDescription = "Hosting damelio.net and other web services on local network"
 
 [machines.carbon.deployment]
-targetHost = "10.0.128.207"
+targetHost = "10.0.128.210"
 targetUser = "server"
 
 [machines.cesium]
