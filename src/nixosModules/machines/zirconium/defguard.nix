@@ -1,42 +1,98 @@
-_: {pkgs, ...}: {
+{root, ...}: {pkgs, ...}: let
+  defguardPkgs = root.packages.defguard {inherit pkgs;};
+  defguardCore = defguardPkgs.core-bundled;
+  defguardGateway = defguardPkgs.gateway;
+in {
   environment.systemPackages = with pkgs; [
     pgcli
   ];
 
-  # Run PostgreSQL in a container
-  virtualisation.oci-containers.containers.defguard-pg = {
-    image = "docker.io/postgres:15-alpine";
-    autoStart = true;
-    volumes = [
-      "pg-socket:/run/postgresql"
+  # Create PostgreSQL DB
+  services.postgresql = {
+    enable = true;
+
+    ensureDatabases = [
+      "defguard"
     ];
-    environment = {
-      POSTGRES_USER = "defguard";
-      POSTGRES_DB = "defguard";
-      # Trust connections without a password
-      # We don't open any ports and just access via Unix socket,
-      # so this should be secure
-      POSTGRES_HOST_AUTH_METHOD = "trust";
-    };
+    ensureUsers = [
+      {
+        name = "defguard";
+        ensureDBOwnership = true;
+      }
+    ];
   };
 
-  # Run Defguard Core
-  virtualisation.oci-containers.containers.defguard-core = {
-    image = "ghcr.io/defguard/defguard:0.9.1";
-    autoStart = true;
-    dependsOn = ["defguard-pg"];
-    ports = [
-      "8000:8000" # WebUI
-    ];
-    volumes = [
-      "pg-socket:/run/postgresql"
-    ];
+  # Defguard Core
+  systemd.services.defguard-core = {
+    description = "DefGuard Core";
+    wantedBy = ["default.target"];
+    serviceConfig = {
+      Type = "simple";
+      DynamicUser = true;
+      User = "defguard";
+      StateDirectory = "defguard";
+      # Set working dir so executable can find UI and supporting files
+      WorkingDirectory = defguardCore;
+      EnvironmentFile = "/var/lib/defguard/env";
+    };
     environment = {
-      DEFGUARD_SECRET_KEY = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-      DEFGUARD_AUTH_SECRET = "defguard-auth-secret";
-      DEFGUARD_GATEWAY_SECRET = "defguard-gateway-secret";
-      DEFGUARD_YUBIBRIDGE_SECRET = "defguard-yubibridge-secret";
       DEFGUARD_DB_HOST = "/run/postgresql";
     };
+    script = ''
+      ${defguardCore}/defguard
+    '';
+  };
+
+  # Run DefGuard Gateway
+  systemd.services.defguard-gateway = {
+    description = "DefGuard Gateway";
+    wantedBy = ["default.target"];
+    serviceConfig = {
+      Type = "simple";
+      DynamicUser = true;
+      User = "defguard";
+      StateDirectory = "defguard";
+      WorkingDirectory = "/var/lib/defguard";
+      EnvironmentFile = "/var/lib/defguard/env";
+      AmbientCapabilities = "CAP_NET_ADMIN";
+    };
+    environment = {
+      DEFGUARD_GRPC_URL = "http://localhost:50055";
+    };
+    script = ''
+      ${defguardGateway}/bin/defguard-gateway
+    '';
+  };
+
+  # Generate secrets for DefGuard in the form of a envfile
+  systemd.services.defguard-db-generate-password = let
+    envFile = "/var/lib/defguard/env";
+  in {
+    description = "Generate Secrets for DefGuard";
+    wantedBy = ["default.target"];
+    before = ["defguard-core.service"];
+    serviceConfig = {
+      Type = "oneshot";
+      DynamicUser = true;
+      User = "defguard";
+      StateDirectory = "defguard";
+    };
+    unitConfig = {
+      # Note negation of the path
+      ConditionPathExists = "!${envFile}";
+    };
+    script = ''
+      umask 077 # Make rw by just creating user
+
+      printf "DEFGUARD_SECRET_KEY=%s" $(${pkgs.pwgen}/bin/pwgen 64 1) >> ${envFile}
+    '';
+  };
+
+  networking.firewall = {
+    enable = true;
+    allowedUDPPorts = [50051];
+  };
+  networking.firewall.interfaces."wg0" = {
+    allowedTCPPorts = [8000];
   };
 }
