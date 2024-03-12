@@ -19,9 +19,6 @@
     # Add server user
     root.nixosModules.users.server
 
-    # Netbird Wireguard Mesh
-    super.netbird
-
     # Security Platform (Identity/Overlay Network)
     super.defguard
 
