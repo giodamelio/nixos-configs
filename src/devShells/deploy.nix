@@ -6,6 +6,7 @@
 }: {
   languages.nix.enable = true;
   languages.lua.enable = true;
+  languages.terraform.enable = true;
 
   packages = [
     inputs'.colmena.packages.colmena
@@ -35,6 +36,10 @@
       # Lua
       stylua.enable = true;
       luacheck.enable = true;
+
+      # Terraform
+      terraform-format.enable = true;
+      tflint.enable = true;
     };
 
     settings = {
