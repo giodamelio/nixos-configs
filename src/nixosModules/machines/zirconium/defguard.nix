@@ -26,6 +26,8 @@ in {
   systemd.services.defguard-core = {
     description = "DefGuard Core";
     wantedBy = ["default.target"];
+    requires = ["postgres-ready.service"];
+    after = ["postgres-ready.service"];
     serviceConfig = {
       Type = "simple";
       DynamicUser = true;
@@ -47,6 +49,7 @@ in {
   systemd.services.defguard-gateway = {
     description = "DefGuard Gateway";
     wantedBy = ["default.target"];
+    requires = ["defguard-core.service"];
     serviceConfig = {
       Type = "simple";
       DynamicUser = true;
@@ -61,6 +64,23 @@ in {
     };
     script = ''
       ${defguardGateway}/bin/defguard-gateway
+    '';
+  };
+
+  # Wait for PostgreSQL to be ready
+  systemd.services.postgres-ready = {
+    description = "Wait for PostgreSQL to be ready";
+    wantedBy = ["default.target"];
+    requires = ["postgresql.service"];
+    serviceConfig = {
+      Type = "oneshot";
+    };
+    script = ''
+      while ! ${pkgs.postgresql}/bin/pg_isready
+      do
+        echo "$(date) - waiting for database to start"
+        sleep 0.25
+      done
     '';
   };
 
