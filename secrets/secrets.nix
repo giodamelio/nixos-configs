@@ -3,9 +3,10 @@ let
   giodamelio-cesium = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAHlH3cxSO186g1bcZ3I3xSX3Fi2E094XnzvTFnW5/G1 giodamelio@cesium";
   users = [giodamelio-cadmium giodamelio-cesium];
 
-  zirconium = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIECR2kS4hXBLqvqK21Ko+4CborL0Uo64/ZvtrISCsKPS";
+  zirconium = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG3O4mziNw2k53SE3WTX2jbMx38tqngSaoB3TsXM9UlH";
   cadmium = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFyDOEgsO9wykdbqhUOBWpSIXJ7Kd9D0Pl7W0dnxDn/m";
-  systems = [zirconium cadmium];
+  carbon = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIX5P0ZXB1SUbiDrm42t19GEsz80dw+yI0GoO0tYlJsn";
+  systems = [zirconium cadmium carbon];
 in {
   # Nebula CA Cert
   "nebula-ca.crt.age".publicKeys = users ++ systems;
