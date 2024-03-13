@@ -22,6 +22,9 @@
     # Security Platform (Identity/Overlay Network)
     super.defguard
 
+    # Wireguard Mesh
+    super.wireguard-mesh
+
     # Monitoring with Grafana/Prometheus/Loki
     super.monitoring
 
