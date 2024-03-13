@@ -17,5 +17,15 @@ _: _: {
   networking.firewall = {
     enable = true;
     allowedUDPPorts = [34567];
+    extraCommands = ''
+      iptables -A FORWARD -i wg9 -o wg0 -j ACCEPT
+      iptables -A FORWARD -i wg0 -o wg9 -j ACCEPT
+    '';
+  };
+
+  # Forward traffic over IPv4 and IPv^
+  boot.kernel.sysctl = {
+    "net.ipv4.conf.all.forwarding" = true;
+    "net.ipv6.conf.all.forwarding" = true;
   };
 }
