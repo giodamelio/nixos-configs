@@ -21,6 +21,9 @@ in {
         {
           command = "${pkgs.waybar}/bin/waybar";
         }
+        {
+          command = "${pkgs.networkmanagerapplet}/bin/nm-applet";
+        }
       ];
 
       # Don't make the window focus follow the mouse
