@@ -14,6 +14,7 @@ _: {
   boot.extraModulePackages = [];
 
   networking.useDHCP = lib.mkDefault true;
+  networking.networkmanager.enable = true;
 
   # Make hardware clock compatable with Windows
   time.hardwareClockInLocalTime = true;
