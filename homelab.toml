@@ -46,7 +46,7 @@ hardwareDescription = "VM Running in Hetzner Cloud"
 useDescription = "Critical services running on a DigitalOcean VM"
 
 [machines.zirconium.deployment]
-targetHost = "zirconium.gio.ninja"
+targetHost = "zirconium.pub.gio.ninja"
 targetUser = "server"
 
 ## Networks
