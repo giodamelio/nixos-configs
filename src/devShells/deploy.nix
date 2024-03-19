@@ -6,7 +6,7 @@
 }: {
   languages.nix.enable = true;
   languages.lua.enable = true;
-  languages.terraform.enable = true;
+  # languages.terraform.enable = true;
 
   packages = [
     inputs'.colmena.packages.colmena
@@ -21,7 +21,7 @@
     pkgs.rage
     pkgs.pwgen
     pkgs.dogdns
-    pkgs.terraform
+    pkgs.opentofu
   ];
 
   pre-commit = {
