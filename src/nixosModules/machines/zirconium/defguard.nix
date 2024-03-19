@@ -1,4 +1,8 @@
-{root, ...}: {pkgs, ...}: let
+{root, ...}: {
+  pkgs,
+  config,
+  ...
+}: let
   defguardPkgs = root.packages.defguard {inherit pkgs;};
   defguardCore = defguardPkgs.core-bundled;
   defguardGateway = defguardPkgs.gateway;
@@ -106,6 +110,22 @@ in {
 
       printf "DEFGUARD_SECRET_KEY=%s" $(${pkgs.pwgen}/bin/pwgen 64 1) >> ${envFile}
     '';
+  };
+
+  # Cloudflare Token Secret
+  age.secrets.cloudflare-token.file = ../../../../secrets/cloudflare-token.age;
+
+  # Get HTTPS Certificate from LetsEncrypt
+  security.acme = {
+    acceptTerms = true;
+
+    certs."defguard.gio.ninja" = {
+      email = "gio@damelio.net";
+      dnsProvider = "cloudflare";
+      credentialFiles = {
+        CLOUDFLARE_DNS_API_TOKEN_FILE = config.age.secrets.cloudflare-token.path;
+      };
+    };
   };
 
   networking.firewall = {

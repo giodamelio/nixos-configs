@@ -18,4 +18,6 @@ in {
   # Nebula Cert/Key for cadmium
   "nebula-cadmium.crt.age".publicKeys = users ++ [cadmium];
   "nebula-cadmium.key.age".publicKeys = users ++ [cadmium];
+
+  "cloudflare-token.age".publicKeys = users ++ [zirconium];
 }
