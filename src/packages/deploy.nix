@@ -15,7 +15,7 @@ pkgs.writeScriptBin "deploy"
   # Interactivaly choose a host and deploy to it
   def "main" [
     host?: string@hosts
-    --verbose (-v): bool # Disable Colmena spinners and print the whole build log
+    --verbose (-v) # Disable Colmena spinners and print the whole build log
   ] {
     # If no node is passed, interactivaly pick one
     let node = (if ($host == null) {
