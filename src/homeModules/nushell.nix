@@ -1,4 +1,4 @@
-_: _: {
+_: {config, ...}: {
   programs.nushell = {
     enable = true;
 
@@ -7,6 +7,8 @@ _: _: {
         show_banner: false,
       }
     '';
+
+    inherit (config.home) shellAliases;
   };
 
   programs.atuin = {
