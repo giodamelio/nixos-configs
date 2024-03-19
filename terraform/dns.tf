@@ -1,5 +1,5 @@
-resource "cloudflare_record" "machine-zirconium" {
-  name    = "zirconium"
+resource "cloudflare_record" "machine-zirconium-pub" {
+  name    = "zirconium.pub"
   proxied = false
   ttl     = 1
   type    = "A"

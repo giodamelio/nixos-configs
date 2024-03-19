@@ -10,7 +10,7 @@ _: _: {
       {
         publicKey = "YB2jjh7LJZjKYRIMle+LFkK5t1W72OCE39zWSIqSfiY=";
         allowedIPs = ["10.112.0.1/32" "10.111.0.0/16"];
-        endpoint = "zirconium.gio.ninja:34567";
+        endpoint = "zirconium.pub.gio.ninja:34567";
         persistentKeepalive = 30;
       }
     ];
