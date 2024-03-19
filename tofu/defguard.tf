@@ -8,7 +8,7 @@ resource "cloudflare_record" "defguard" {
 }
 
 resource "cloudflare_record" "defguard-enroll" {
-  name    = "defguard-enroll"
+  name    = "enroll.defguard"
   proxied = false
   ttl     = 1
   type    = "CNAME"
