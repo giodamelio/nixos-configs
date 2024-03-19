@@ -1,8 +1,4 @@
-{
-  root,
-  debug,
-  ...
-}: {pkgs, ...}: {
+_: {pkgs, ...}: {
   home.packages = [
     # find
     pkgs.fd
@@ -27,7 +23,9 @@
     # ls
     eza = {
       enable = true;
-      enableAliases = true;
+      enableBashIntegration = true;
+      enableZshIntegration = true;
+      enableNushellIntegration = true;
     };
 
     # grep
