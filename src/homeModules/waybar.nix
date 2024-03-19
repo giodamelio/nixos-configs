@@ -27,6 +27,18 @@ _: _: {
           on-scroll-down = "shift_down";
         };
       };
+      defaultNetwork = {
+        format-ethernet = "{ifname} {ipaddr} 󰛳";
+        format-linked = "{ifname} 󰅛";
+        format-disconnected = "{ifname} 󰅛";
+        format-alt = "{ifname}: {ipaddr}/{cidr}";
+        tooltip-format = ''
+          {ifname} {ipaddr}/{cidr}
+
+          Down: {bandwidthDownBytes}
+          Up:   {bandwidthUpBytes}
+        '';
+      };
     in {
       main = {
         layer = "top";
@@ -37,23 +49,21 @@ _: _: {
         # modules-center = ["hyprland/window"];
         modules-left = ["sway/mode" "sway/workspaces"];
         modules-center = ["sway/window"];
-        modules-right = ["network" "cpu" "memory" "tray" "clock"];
+        modules-right = ["network#wg0" "network" "cpu" "memory" "tray" "clock"];
 
         inherit clock;
 
-        network = {
-          interface = "enp0*";
-          format-ethernet = "{ipaddr}/{cidr} 󰛳";
-          format-linked = "{ifname} 󰅛";
-          format-disconnected = "{ifname} 󰅛";
-          format-alt = "{ifname}: {ipaddr}/{cidr}";
-          tooltip-format = ''
-            {ipaddr}/{cidr}
+        network =
+          defaultNetwork
+          // {
+            interface = "enp0*";
+          };
 
-            Down: {bandwidthDownBytes}
-            Up:   {bandwidthUpBytes}
-          '';
-        };
+        "network#wg0" =
+          defaultNetwork
+          // {
+            interface = "wg0";
+          };
 
         cpu = {
           format = "{icon0}{icon1}{icon2}{icon3}{icon4}{icon5}{icon6}{icon7}{icon8}{icon9}{icon10}{icon11} {usage}% ";
