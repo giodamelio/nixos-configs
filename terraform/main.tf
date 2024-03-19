@@ -4,6 +4,10 @@ terraform {
       source  = "cloudflare/cloudflare"
       version = "~> 4.0"
     }
+    toml = {
+      source  = "Tobotimus/toml"
+      version = "0.1.0"
+    }
   }
 }
 
