@@ -43,6 +43,7 @@ in {
     };
     environment = {
       DEFGUARD_DB_HOST = "/run/postgresql";
+      DEFGUARD_URL = "https://defguard.gio.ninja";
     };
     script = ''
       ${defguardCore}/defguard
@@ -128,11 +129,23 @@ in {
     };
   };
 
+  # Use Caddy as a reverse proxy
+  services.caddy = {
+    enable = true;
+
+    virtualHosts."https://defguard.gio.ninja" = {
+      useACMEHost = "defguard.gio.ninja";
+      extraConfig = ''
+        reverse_proxy localhost:8000
+      '';
+    };
+  };
+
   networking.firewall = {
     enable = true;
     allowedUDPPorts = [50051];
   };
   networking.firewall.interfaces."wg0" = {
-    allowedTCPPorts = [8000];
+    allowedTCPPorts = [8000 443 80];
   };
 }
