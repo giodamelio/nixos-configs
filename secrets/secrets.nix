@@ -9,4 +9,6 @@ let
   systems = [zirconium cadmium carbon];
 in {
   "cloudflare-token.age".publicKeys = users ++ [zirconium];
+  "grafana-defguard-oauth-client-id.age".publicKeys = users ++ [zirconium];
+  "grafana-defguard-oauth-client-secret.age".publicKeys = users ++ [zirconium];
 }

@@ -1,10 +1,43 @@
-_: _: {
+_: {config, ...}: {
+  # Grafana -> Defguard OAuth secrets
+  age.secrets.grafana-defguard-oauth-client-id= {
+    file = ../../../../secrets/grafana-defguard-oauth-client-id.age;
+    owner = "grafana";
+    group = "grafana";
+  };
+  age.secrets.grafana-defguard-oauth-client-secret = {
+    file = ../../../../secrets/grafana-defguard-oauth-client-secret.age;
+    owner = "grafana";
+    group = "grafana";
+  };
+
   # Pretty Metrics/Logs UI
   services.grafana = {
     enable = true;
     settings = {
-      server.http_addr = "0.0.0.0";
+      server.http_addr = "127.0.0.1";
       server.http_port = 3000;
+      server.root_url = "https://grafana.gio.ninja";
+
+      # Hide Username/Password login
+      auth.disable_login_form = true;
+
+      # Enable Login with DefGuard
+      "auth.generic_oauth" = {
+        name = "DefGuard";
+        icon = "signin";
+        enabled = true;
+        scopes = "openid profile email";
+        empty_scopes = false;
+        allow_sign_up = true;
+
+        auth_url = "https://defguard.gio.ninja/api/v1/oauth/authorize";
+        token_url = "https://defguard.gio.ninja/api/v1/oauth/token";
+        api_url = "https://defguard.gio.ninja/api/v1/oauth/userinfo";
+
+        client_id = "$__file{${config.age.secrets.grafana-defguard-oauth-client-id.path}}";
+        client_secret = "$__file{${config.age.secrets.grafana-defguard-oauth-client-secret.path}}";
+      };
     };
     provision.datasources.settings.datasources = [
       {
@@ -61,14 +94,14 @@ _: _: {
               alias = "zirconium";
             };
           }
-          {
-            targets = [
-              "cadmium.n.gio.ninja:9100"
-            ];
-            labels = {
-              alias = "cadmium";
-            };
-          }
+          # {
+          #   targets = [
+          #     "cadmium.n.gio.ninja:9100"
+          #   ];
+          #   labels = {
+          #     alias = "cadmium";
+          #   };
+          # }
         ];
       }
     ];
@@ -178,9 +211,31 @@ _: _: {
   #   '';
   # };
 
-  # Allow traffic from within the Netbird network
-  networking.firewall.interfaces.wt0.allowedTCPPorts = [
-    9090 # Prometheus
-    3000 # Grafana
-  ];
+  # Cloudflare Token Secret
+  age.secrets.cloudflare-token.file = ../../../../secrets/cloudflare-token.age;
+
+  # Get HTTPS Certificate from LetsEncrypt
+  security.acme = {
+    acceptTerms = true;
+
+    certs."grafana.gio.ninja" = {
+      email = "gio@damelio.net";
+      dnsProvider = "cloudflare";
+      credentialFiles = {
+        CLOUDFLARE_DNS_API_TOKEN_FILE = config.age.secrets.cloudflare-token.path;
+      };
+    };
+  };
+
+  # Use Caddy as a reverse proxy
+  services.caddy = {
+    enable = true;
+
+    virtualHosts."https://grafana.gio.ninja" = {
+      useACMEHost = "grafana.gio.ninja";
+      extraConfig = ''
+        reverse_proxy localhost:3000
+      '';
+    };
+  };
 }
