@@ -8,16 +8,5 @@ let
   carbon = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIX5P0ZXB1SUbiDrm42t19GEsz80dw+yI0GoO0tYlJsn";
   systems = [zirconium cadmium carbon];
 in {
-  # Nebula CA Cert
-  "nebula-ca.crt.age".publicKeys = users ++ systems;
-
-  # Nebula Cert/Key for zirconium
-  "nebula-zirconium.crt.age".publicKeys = users ++ [zirconium];
-  "nebula-zirconium.key.age".publicKeys = users ++ [zirconium];
-
-  # Nebula Cert/Key for cadmium
-  "nebula-cadmium.crt.age".publicKeys = users ++ [cadmium];
-  "nebula-cadmium.key.age".publicKeys = users ++ [cadmium];
-
   "cloudflare-token.age".publicKeys = users ++ [zirconium];
 }
