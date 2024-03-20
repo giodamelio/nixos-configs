@@ -107,6 +107,11 @@ _: {config, ...}: {
     ];
   };
 
+  # InfluxDB
+  services.influxdb2 = {
+    enable = true;
+  };
+
   # # Log indexing
   # services.loki = {
   #   enable = true;
@@ -225,6 +230,13 @@ _: {config, ...}: {
         CLOUDFLARE_DNS_API_TOKEN_FILE = config.age.secrets.cloudflare-token.path;
       };
     };
+    certs."influx.gio.ninja" = {
+      email = "gio@damelio.net";
+      dnsProvider = "cloudflare";
+      credentialFiles = {
+        CLOUDFLARE_DNS_API_TOKEN_FILE = config.age.secrets.cloudflare-token.path;
+      };
+    };
   };
 
   # Use Caddy as a reverse proxy
@@ -235,6 +247,13 @@ _: {config, ...}: {
       useACMEHost = "grafana.gio.ninja";
       extraConfig = ''
         reverse_proxy localhost:3000
+      '';
+    };
+
+    virtualHosts."https://influx.gio.ninja" = {
+      useACMEHost = "influx.gio.ninja";
+      extraConfig = ''
+        reverse_proxy localhost:8086
       '';
     };
   };
