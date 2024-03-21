@@ -1,12 +1,9 @@
-{
-  root,
-  debug,
-  ...
-}: {pkgs, ...}: let
+{root, ...}: {pkgs, ...}: let
   neovimPackage = root.packages.neovim {inherit pkgs;};
 in {
   home.packages = [
     neovimPackage
+    pkgs.wl-clipboard
   ];
 
   # Set Neovim as the default editor manually.
