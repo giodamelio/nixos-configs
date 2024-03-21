@@ -16,7 +16,7 @@ in {
       inherit modifier;
 
       # Use rofi as our launcher
-      menu = "${pkgs.wofi}/bin/wofi -show=drun --allow-images";
+      menu = "${pkgs.wofi}/bin/wofi --show=drun --allow-images";
 
       # Use Kitty as our terminal
       terminal = "${pkgs.kitty}/bin/kitty";
