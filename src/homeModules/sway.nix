@@ -74,6 +74,7 @@ in {
       # Add some keybindings
       keybindings = lib.mkOptionDefault {
         "${modifier}+Tab" = "exec ${pkgs.swayr}/bin/swayr switch-to-urgent-or-lru-window";
+        "${modifier}+v" = "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.wofi}/bin/wofi --show=dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
       };
     };
   };
@@ -115,6 +116,8 @@ in {
     name = "Lock Screen";
     exec = "swaylock";
   };
+
+  services.cliphist.enable = true;
 
   # Turn the screen off after awhile
   services.swayidle = {
