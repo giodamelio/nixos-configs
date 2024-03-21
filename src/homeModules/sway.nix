@@ -5,6 +5,7 @@ _: {pkgs, ...}: let
     middle = "DP-1";
     right = "DP-2";
   };
+  modifier = "Mod4";
 in {
   wayland.windowManager.sway = {
     enable = true;
@@ -12,10 +13,10 @@ in {
 
     config = {
       # Use the Windows/Apple key as our main modifier
-      modifier = "Mod4";
+      inherit modifier;
 
       # Use rofi as our launcher
-      menu = "rofi -show drun";
+      menu = "${pkgs.wofi}/bin/wofi -show=drun --allow-images";
 
       # Use Kitty as our terminal
       terminal = "${pkgs.kitty}/bin/kitty";
@@ -56,10 +57,45 @@ in {
 
       # Pin workspaces to monitors
       workspaceOutputAssign = [
-        { workspace = "1"; output = monitor.middle; }
-        { workspace = "2"; output = monitor.right; }
-        { workspace = "3"; output = monitor.left; }
+        {
+          workspace = "1";
+          output = monitor.middle;
+        }
+        {
+          workspace = "2";
+          output = monitor.right;
+        }
+        {
+          workspace = "3";
+          output = monitor.left;
+        }
       ];
+
+      # Add some keybindings
+      keybindings = lib.mkOptionDefault {
+        "${modifier}+Tab" = "exec ${pkgs.swayr}/bin/swayr switch-to-urgent-or-lru-window";
+      };
+    };
+  };
+
+  programs.swayr = {
+    enable = true;
+    systemd.enable = true;
+
+    settings = {
+      menu = {
+        executable = "${pkgs.wofi}/bin/wofi";
+        args = [
+          "--show=dmenu"
+          "--allow-markup"
+          "--allow-images"
+          "--insensitive"
+          "--cache-file=/dev/null"
+          "--parse-search"
+          "--height=40%"
+          "--prompt={prompt}"
+        ];
+      };
     };
   };
 
