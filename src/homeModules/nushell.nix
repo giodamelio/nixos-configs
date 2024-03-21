@@ -9,6 +9,10 @@ _: {config, ...}: {
     '';
 
     inherit (config.home) shellAliases;
+
+    environmentVariables = {
+      EDITOR = "nvim";
+    };
   };
 
   programs.atuin = {
