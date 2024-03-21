@@ -1,6 +1,6 @@
 _: {config, ...}: {
   # Grafana -> Defguard OAuth secrets
-  age.secrets.grafana-defguard-oauth-client-id= {
+  age.secrets.grafana-defguard-oauth-client-id = {
     file = ../../../../secrets/grafana-defguard-oauth-client-id.age;
     owner = "grafana";
     group = "grafana";
