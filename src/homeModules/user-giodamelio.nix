@@ -18,6 +18,7 @@
     root.homeModules.waybar
 
     root.homeModules.nix-index
+    root.homeModules.syncthing
   ];
 
   home = {
