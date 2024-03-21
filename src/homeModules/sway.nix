@@ -1,5 +1,10 @@
 _: {pkgs, ...}: let
   inherit (pkgs) lib;
+  monitor = {
+    left = "DP-3";
+    middle = "DP-1";
+    right = "DP-2";
+  };
 in {
   wayland.windowManager.sway = {
     enable = true;
@@ -37,17 +42,24 @@ in {
         };
       in
         lib.attrsets.mapAttrs (_: attr: attr // shared) {
-          DP-1 = {
+          "${monitor.middle}" = {
             position = "1080 560";
           };
-          DP-2 = {
+          "${monitor.right}" = {
             position = "3000 560";
           };
-          DP-3 = {
+          "${monitor.left}" = {
             position = "0 0";
             transform = "270";
           };
         };
+
+      # Pin workspaces to monitors
+      workspaceOutputAssign = [
+        { workspace = "1"; output = monitor.middle; }
+        { workspace = "2"; output = monitor.right; }
+        { workspace = "3"; output = monitor.left; }
+      ];
     };
   };
 
