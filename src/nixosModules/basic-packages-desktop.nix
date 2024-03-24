@@ -1,13 +1,4 @@
-_: {
-  pkgs,
-  lib,
-  ...
-}: {
-  nixpkgs.config = {
-    allowUnfreePredicate = pkg: (builtins.elem (lib.getName pkg) [
-      "obsidian"
-    ]);
-  };
+_: {pkgs, ...}: {
   environment = {
     systemPackages = with pkgs; [
       bitwarden-cli
