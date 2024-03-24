@@ -33,6 +33,7 @@
     super.cosmic # Experimental COSMIC DE
     super.sanoid # Autosnapshot ZFS with sanoid
     super.monitoring # Export metrics
+    super.jetbrains # Jetbrains IDEs
 
     (_: {
       virtualisation.docker = {
@@ -41,6 +42,8 @@
       programs.ssh.startAgent = true;
 
       networking.hostId = "3c510ad9";
+
+      nixpkgs.config.allowUnfree = true;
 
       # Load the deployment config from our homelab.toml
       inherit (homelab.machines.cadmium) deployment;
