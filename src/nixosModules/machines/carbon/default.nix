@@ -22,6 +22,9 @@
     # Wireguard Mesh
     super.wireguard-mesh
 
+    # Miniflux Feed Reader
+    super.miniflux
+
     # Autosnapshot with Sanoid
     root.nixosModules.services.sanoid
     (_: {
