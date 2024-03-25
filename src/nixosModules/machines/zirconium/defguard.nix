@@ -146,6 +146,9 @@ in {
     allowedUDPPorts = [50051];
   };
   networking.firewall.interfaces."wg0" = {
-    allowedTCPPorts = [8000 443 80];
+    allowedTCPPorts = [443 80];
+  };
+  networking.firewall.interfaces."wg9" = {
+    allowedTCPPorts = [443 80];
   };
 }
