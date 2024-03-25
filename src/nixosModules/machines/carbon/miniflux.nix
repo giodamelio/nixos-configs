@@ -18,6 +18,7 @@ in {
     adminCredentialsFile = adminPasswordFile;
 
     config = {
+      BASE_URL = "https://miniflux.gio.ninja";
       OAUTH2_PROVIDER = "oidc";
       OAUTH2_REDIRECT_URL = "https://miniflux.gio.ninja/oauth2/oidc/callback";
       OAUTH2_OIDC_DISCOVERY_ENDPOINT = "https://defguard.gio.ninja/";
