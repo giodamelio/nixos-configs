@@ -25,6 +25,9 @@
     # Miniflux Feed Reader
     super.miniflux
 
+    # Homelab Dashboard
+    super.homer
+
     # Autosnapshot with Sanoid
     root.nixosModules.services.sanoid
     (_: {
