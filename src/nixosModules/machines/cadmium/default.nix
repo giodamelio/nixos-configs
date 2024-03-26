@@ -26,6 +26,9 @@
     root.nixosModules.basic-packages-desktop
     root.nixosModules.basic-settings
 
+    # Software Development tools
+    super.development
+
     super.greetd # Minimal Login Manager
     super.firefox # Setup Firefox
     super.keyd # Easy key rebinding
@@ -33,7 +36,6 @@
     super.cosmic # Experimental COSMIC DE
     super.sanoid # Autosnapshot ZFS with sanoid
     super.monitoring # Export metrics
-    super.jetbrains # Jetbrains IDEs
 
     (_: {
       virtualisation.docker = {
