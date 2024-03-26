@@ -36,6 +36,7 @@
     super.cosmic # Experimental COSMIC DE
     super.sanoid # Autosnapshot ZFS with sanoid
     super.monitoring # Export metrics
+    super.streamdeck # StreamDeck stuff
 
     (_: {
       virtualisation.docker = {
