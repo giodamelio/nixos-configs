@@ -1,4 +1,4 @@
-_: _: {
+_: {pkgs, ...}: {
   programs.waybar = {
     enable = true;
 
@@ -49,7 +49,7 @@ _: _: {
         # modules-center = ["hyprland/window"];
         modules-left = ["sway/mode" "sway/workspaces"];
         modules-center = ["sway/window"];
-        modules-right = ["network#wg0" "network" "cpu" "memory" "tray" "clock"];
+        modules-right = ["network#wg0" "network" "cpu" "memory" "pulseaudio" "tray" "clock"];
 
         inherit clock;
 
@@ -82,6 +82,16 @@ _: _: {
 
         memory = {
           format = "{percentage}% ({used}GiB) ";
+        };
+
+        pulseaudio = {
+          format = "{volume}% {icon}";
+          format-icons = {
+            headphone = "";
+            default = ["" ""];
+          };
+          on-click = "pavucontrol";
+          on-click-right = "${pkgs.pw-volume}/bin/pw-volume mute toggle";
         };
       };
 

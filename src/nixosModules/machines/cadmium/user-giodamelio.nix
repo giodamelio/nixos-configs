@@ -14,7 +14,7 @@
 
   config = {
     users.users.giodamelio = {
-      extraGroups = ["wheel" "docker"];
+      extraGroups = ["wheel" "docker" "sound"];
       isNormalUser = true;
       shell = pkgs.zsh;
       openssh.authorizedKeys.keys = homelab.ssh_keys;

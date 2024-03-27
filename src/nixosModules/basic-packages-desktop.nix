@@ -5,6 +5,7 @@ _: {pkgs, ...}: {
       bitwarden-menu
       thunderbird
       obsidian
+      pavucontrol
     ];
     sessionVariables = {
       NIXOS_OZONE_WL = "1";
