@@ -28,6 +28,9 @@
     # Homelab Dashboard
     super.homer
 
+    # Paperless Document Storage
+    super.paperless
+
     # Autosnapshot with Sanoid
     root.nixosModules.services.sanoid
     (_: {

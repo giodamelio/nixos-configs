@@ -36,7 +36,13 @@ _: {
             name = "Miniflux";
             subtitle = "RSS Reader";
             url = "https://miniflux.gio.ninja";
-            logo = "https://miniflux.gio.ninja/icon/icon-192.png";
+            logo = "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/miniflux.png";
+          }
+          {
+            name = "PaperlessNGX";
+            subtitle = "Document Organizer/Archiver";
+            url = "https://paperless.gio.ninja";
+            logo = "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/paperless-ngx.png";
           }
         ];
       }
