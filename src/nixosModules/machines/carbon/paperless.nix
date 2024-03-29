@@ -6,8 +6,14 @@ _: {config, ...}: {
 
     settings = {
       PAPERLESS_URL = "https://paperless.gio.ninja";
+
+      # OIDC Login setup
+      PAPERLESS_APPS = "allauth.socialaccount.providers.openid_connect";
     };
   };
+
+  age.secrets.paperless-oauth-config.file = ../../../../secrets/paperless-oauth-config.age;
+  systemd.services.paperless-web.serviceConfig.EnvironmentFile = config.age.secrets.paperless-oauth-config.path;
 
   # Cloudflare Token Secret
   age.secrets.cloudflare-token.file = ../../../../secrets/cloudflare-token.age;
