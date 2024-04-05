@@ -73,8 +73,20 @@ in {
 
       # Add some keybindings
       keybindings = lib.mkOptionDefault {
+        # Switch to the last focused windows
         "${modifier}+Tab" = "exec ${pkgs.swayr}/bin/swayr switch-to-urgent-or-lru-window";
+
+        # Clipboard History
         "${modifier}+v" = "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.wofi}/bin/wofi --show=dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
+
+        # Make media buttons work
+        "XF86AudioRaiseVolume" = "exec ${pkgs.pw-volume}/bin/pw-volume change +2.5%";
+        "XF86AudioLowerVolume" = "exec ${pkgs.pw-volume}/bin/pw-volume change -2.5%";
+        "XF86AudioMute" = "exec ${pkgs.pw-volume}/bin/pw-volume mute toggle'";
+        "XF86AudioPlay" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
+        "XF86Launch6" = "exec ${pkgs.playerctl}/bin/playerctl previous";
+        "XF86Launch7" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
+        "XF86Launch8" = "exec ${pkgs.playerctl}/bin/playerctl next";
       };
     };
   };
