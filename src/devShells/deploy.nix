@@ -4,6 +4,10 @@
   config,
   ...
 }: {
+  # Temporary hack
+  # See: https://github.com/cachix/devenv/pull/1018
+  devenv.root = "/home/giodamelio/nixos-configs";
+
   languages.nix.enable = true;
   languages.lua.enable = true;
   # languages.terraform.enable = true;
