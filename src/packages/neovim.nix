@@ -103,6 +103,7 @@ _: {pkgs, ...}: let
 
       # Test running
       neotest
+      nvim-nio # Needed dependency
       neotest-rust
       neotest-elixir
       neotest-go
