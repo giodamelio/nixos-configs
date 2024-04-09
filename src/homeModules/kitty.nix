@@ -8,9 +8,5 @@ _: _: {
     };
 
     shellIntegration.enableZshIntegration = true;
-
-    settings = {
-      shell = "nu";
-    };
   };
 }
