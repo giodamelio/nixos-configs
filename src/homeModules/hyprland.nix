@@ -16,7 +16,7 @@ _: {pkgs, ...}: {
         "$mainMod, d, exec, ${pkgs.wofi}/bin/wofi --show=drun --allow-images"
 
         # Exit Hyprland
-        "$mainMod, M, exit"
+        "$mainMod SHIFT, E, exit"
 
         # Move focus with HJKL
         "$mainMod, h, movefocus, l"
