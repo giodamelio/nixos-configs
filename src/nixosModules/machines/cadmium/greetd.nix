@@ -3,7 +3,7 @@ _: {pkgs, ...}: {
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd sway --sessions 'sway,Hyprland,zsh'";
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland --sessions 'sway,Hyprland,zsh'";
         user = "greeter";
       };
     };
