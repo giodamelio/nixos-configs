@@ -45,10 +45,8 @@ _: {pkgs, ...}: {
         position = "top";
         output = ["DP-1"];
 
-        # modules-left = ["hyprland/workspaces" "hyprland/submap"];
-        # modules-center = ["hyprland/window"];
-        modules-left = ["sway/mode" "sway/workspaces"];
-        modules-center = ["sway/window"];
+        modules-left = ["sway/mode" "sway/workspaces" "hyprland/workspaces" "hyprland/submap"];
+        modules-center = [];
         modules-right = ["network#wg0" "network" "cpu" "memory" "pulseaudio" "tray" "clock"];
 
         inherit clock;
@@ -100,8 +98,7 @@ _: {pkgs, ...}: {
         position = "top";
         output = ["DP-2" "DP-3"];
 
-        # modules-left = ["hyprland/workspaces"];
-        modules-left = ["sway/workspaces"];
+        modules-left = ["sway/workspaces" "hyprland/workspaces"];
         modules-right = ["clock"];
 
         inherit clock;
