@@ -1,4 +1,4 @@
-{root, ...}: {pkgs, ...}: let
+_: {pkgs, ...}: let
   inherit (pkgs) lib;
   monitor = {
     left = "DP-3";
@@ -6,7 +6,6 @@
     right = "DP-2";
   };
   modifier = "Mod4";
-  spotify-qute = root.packages.spotify-qute {inherit pkgs;};
 in {
   wayland.windowManager.sway = {
     enable = true;
@@ -37,7 +36,7 @@ in {
           command = "${pkgs.thunderbird}/bin/thunderbird";
         }
         {
-          command = "${spotify-qute}/bin/spotify-qute";
+          command = "${pkgs.spotify}/bin/spotify";
         }
       ];
 
@@ -106,7 +105,6 @@ in {
       assigns = {
         "10" = [
           {app_id = "thunderbird";}
-          {app_id = "qutebrowser-spotify";}
         ];
       };
     };
