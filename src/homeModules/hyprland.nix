@@ -1,8 +1,5 @@
 _: {pkgs, ...}: {
-  home.packages = with pkgs; [
-    rofi-wayland
-    swww
-  ];
+  # home.packages = with pkgs; [];
 
   wayland.windowManager.hyprland = {
     enable = true;
@@ -16,8 +13,7 @@ _: {pkgs, ...}: {
         "$mainMod, Return, exec, kitty"
 
         # Launch programs with Rofi
-        "$mainMod, d, exec, rofi -show drun"
-        "$mainMod SHIFT, d, exec, rofi -show run"
+        "$mainMod, d, exec, ${pkgs.wofi}/bin/wofi --show=drun --allow-images"
 
         # Exit Hyprland
         "$mainMod, M, exit"
@@ -69,15 +65,8 @@ _: {pkgs, ...}: {
       exec-once = [
         "waybar"
         "dunst"
-        "swww init"
-        "swww img /tmp/epic_latest_annotated.png --transition-type none --resize no"
       ];
     };
-  };
-
-  programs.rofi = {
-    enable = true;
-    package = pkgs.rofi-wayland;
   };
 
   services.dunst = {
