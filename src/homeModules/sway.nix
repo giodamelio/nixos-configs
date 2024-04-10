@@ -1,4 +1,4 @@
-_: {pkgs, ...}: let
+{root, ...}: {pkgs, ...}: let
   inherit (pkgs) lib;
   monitor = {
     left = "DP-3";
@@ -6,6 +6,7 @@ _: {pkgs, ...}: let
     right = "DP-2";
   };
   modifier = "Mod4";
+  spotify-qute = root.packages.spotify-qute {inherit pkgs;};
 in {
   wayland.windowManager.sway = {
     enable = true;
@@ -23,12 +24,20 @@ in {
 
       # Replace the built in bars with Waybar
       bars = [];
+
+      # Start some programs automatically
       startup = [
         {
           command = "${pkgs.waybar}/bin/waybar";
         }
         {
           command = "${pkgs.networkmanagerapplet}/bin/nm-applet";
+        }
+        {
+          command = "${pkgs.thunderbird}/bin/thunderbird";
+        }
+        {
+          command = "${spotify-qute}/bin/spotify-qute";
         }
       ];
 
@@ -69,6 +78,10 @@ in {
           workspace = "3";
           output = monitor.left;
         }
+        {
+          workspace = "10";
+          output = monitor.middle;
+        }
       ];
 
       # Add some keybindings
@@ -87,6 +100,14 @@ in {
         "XF86Launch6" = "exec ${pkgs.playerctl}/bin/playerctl previous";
         "XF86Launch7" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
         "XF86Launch8" = "exec ${pkgs.playerctl}/bin/playerctl next";
+      };
+
+      # Assign certin programs to certin workspaces
+      assigns = {
+        "10" = [
+          {app_id = "thunderbird";}
+          {app_id = "qutebrowser-spotify";}
+        ];
       };
     };
   };
