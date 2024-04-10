@@ -6,6 +6,7 @@ _: {pkgs, ...}: {
       thunderbird
       obsidian
       pavucontrol
+      qutebrowser
     ];
     sessionVariables = {
       NIXOS_OZONE_WL = "1";
