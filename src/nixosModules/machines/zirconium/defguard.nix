@@ -5,23 +5,10 @@
 }: let
   defguardPkgs = root.packages.defguard {inherit pkgs;};
 in {
-  environment.systemPackages = with pkgs; [
-    pgcli
-  ];
-
-  # Create PostgreSQL DB
-  services.postgresql = {
+  # Setup database
+  gio.services.postgres = {
     enable = true;
-
-    ensureDatabases = [
-      "defguard"
-    ];
-    ensureUsers = [
-      {
-        name = "defguard";
-        ensureDBOwnership = true;
-      }
-    ];
+    databases = ["defguard"];
   };
 
   # Defguard Core
@@ -67,23 +54,6 @@ in {
     };
     script = ''
       ${defguardPkgs.gateway}/bin/defguard-gateway
-    '';
-  };
-
-  # Wait for PostgreSQL to be ready
-  systemd.services.postgres-ready = {
-    description = "Wait for PostgreSQL to be ready";
-    wantedBy = ["default.target"];
-    requires = ["postgresql.service"];
-    serviceConfig = {
-      Type = "oneshot";
-    };
-    script = ''
-      while ! ${pkgs.postgresql}/bin/pg_isready
-      do
-        echo "$(date) - waiting for database to start"
-        sleep 0.25
-      done
     '';
   };
 

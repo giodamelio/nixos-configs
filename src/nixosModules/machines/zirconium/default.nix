@@ -19,6 +19,9 @@
     # Add server user
     root.nixosModules.users.server
 
+    # Setup PostgreSQL on the server
+    root.nixosModules.core.postgres
+
     # Security Platform (Identity/Overlay Network)
     super.defguard
 
