@@ -18,6 +18,9 @@ _: {pkgs, ...}: {
         # Exit Hyprland
         "$mainMod SHIFT, E, exit"
 
+        # Exit active window
+        "$mainMod SHIFT, Q, killactive"
+
         # Move focus with HJKL
         "$mainMod, h, movefocus, l"
         "$mainMod, j, movefocus, d"
@@ -40,6 +43,7 @@ _: {pkgs, ...}: {
         "$mainMod, 7, workspace, 7"
         "$mainMod, 8, workspace, 8"
         "$mainMod, 9, workspace, 9"
+        "$mainMod, 0, workspace, 10"
 
         # Move active window to workspace
         "$mainMod SHIFT, 1, movetoworkspace, 1"
@@ -51,6 +55,7 @@ _: {pkgs, ...}: {
         "$mainMod SHIFT, 7, movetoworkspace, 7"
         "$mainMod SHIFT, 8, movetoworkspace, 8"
         "$mainMod SHIFT, 9, movetoworkspace, 9"
+        "$mainMod SHIFT, 0, movetoworkspace, 10"
       ];
 
       # Cadmium monitors
@@ -62,9 +67,17 @@ _: {pkgs, ...}: {
         "DP-3,transform,1"
       ];
 
+      windowrulev2 = [
+        # Keep Thunderbird and Spotify in the 10 workspace
+        "workspace 10 silent, class:(thunderbird)"
+        "workspace 10 silent, initialtitle:(Spotify Premium)"
+      ];
+
       exec-once = [
         "waybar"
         "dunst"
+        "thunderbird"
+        "spotify"
       ];
     };
   };
