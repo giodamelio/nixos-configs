@@ -31,6 +31,9 @@
     # Monitoring with Grafana/Prometheus/Loki
     super.monitoring
 
+    # Health Dashboard/Monitoring
+    super.gatus
+
     (_: {
       networking.hostName = "zirconium";
       networking.hostId = "54544019";

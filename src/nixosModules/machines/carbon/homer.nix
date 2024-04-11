@@ -56,6 +56,12 @@ _: {
             url = "https://defguard.gio.ninja";
             logo = "https://github.com/DefGuard/defguard/raw/main/web/src/shared/images/svg/defguad-nav-logo-collapsed.svg";
           }
+          {
+            name = "Gatus";
+            subtitle = "Status Page";
+            url = "https://status.gio.ninja";
+            logo = "https://status.gio.ninja/logo-512x512.png";
+          }
         ];
       }
     ];
