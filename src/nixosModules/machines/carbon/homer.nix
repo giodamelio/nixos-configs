@@ -23,7 +23,9 @@ _: {
     name = "homer-config.yml";
     text = builtins.toJSON homerConfig;
   };
-  homerConfig = {
+  homerConfig = let
+    dashboardLogo = name: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/${name}.png";
+  in {
     title = "Gio's Homelab";
     subtitle = "";
 
@@ -36,13 +38,13 @@ _: {
             name = "Miniflux";
             subtitle = "RSS Reader";
             url = "https://miniflux.gio.ninja";
-            logo = "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/miniflux.png";
+            logo = dashboardLogo "miniflux";
           }
           {
             name = "PaperlessNGX";
             subtitle = "Document Organizer/Archiver";
             url = "https://paperless.gio.ninja";
-            logo = "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/paperless-ngx.png";
+            logo = dashboardLogo "paperless-ngx";
           }
         ];
       }
@@ -61,6 +63,18 @@ _: {
             subtitle = "Status Page";
             url = "https://status.gio.ninja";
             logo = "https://status.gio.ninja/logo-512x512.png";
+          }
+          {
+            name = "Unifi Controller";
+            subtitle = "LAN Admin UI";
+            url = "https://10.0.0.2:8443";
+            logo = dashboardLogo "unifi";
+          }
+          {
+            name = "TrueNAS";
+            subtitle = "Network Attached Storage";
+            url = "https://10.0.128.167:2443";
+            logo = dashboardLogo "truenas";
           }
         ];
       }
