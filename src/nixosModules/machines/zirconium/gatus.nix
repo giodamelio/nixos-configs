@@ -1,5 +1,6 @@
 _: {
   pkgs,
+  lib,
   config,
   ...
 }: {
@@ -20,19 +21,52 @@ _: {
     };
 
     endpoints = let
+      # Generate the Gatus key for an endpoint
+      slugify = str: (
+        builtins.replaceStrings
+        [" " "/" "_" "," "."]
+        ["-" "-" "-" "-" "-"]
+        (lib.strings.toLower str)
+      );
+      makeKey = group: name: "${slugify group}_${slugify name}";
+
+      # Make the alerts for an endpoint
+      makeAlerts = group: name: url: [
+        {
+          type = "pushover";
+          failure-threshold = 3;
+          success-threshold = 5;
+          send-on-resolved = true;
+          description = ''
+            Healthcheck Failed
+
+            Status URL:
+            https://status.gio.ninja/endpoints/${makeKey group name}
+
+            Service URL:
+            ${url}
+          '';
+        }
+      ];
+
+      # Helper to make HTTPS endpoints
       http5m = group: name: url: {
         inherit group name url;
         interval = "5m";
         conditions = [
           "[STATUS] == 200"
         ];
+        alerts = makeAlerts group name url;
       };
+
+      # Helper to make ping endpoints
       ping1m = group: name: url: {
         inherit group name url;
         interval = "1m";
         conditions = [
           "[CONNECTED] == true"
         ];
+        alerts = makeAlerts group name url;
       };
     in [
       # Our services
@@ -51,7 +85,17 @@ _: {
       (http5m "External Internet" "HTTP Google" "https://google.com")
       (ping1m "External Internet" "Ping Google" "icmp://google.com")
     ];
+
+    alerting = {
+      pushover = {
+        application-token = "$PUSHOVER_APPLICATION_TOKEN";
+        user-key = "$PUSHOVER_USER_KEY";
+      };
+    };
   };
+
+  # Load the pushover credentials
+  age.secrets.pushover-tokens.file = ../../../../secrets/pushover-tokens.age;
 
   # Gatus
   systemd.services.gatus = {
@@ -65,6 +109,7 @@ _: {
       User = "gatus";
       StateDirectory = "gatus";
       ExecStart = "${pkgs.gatus}/bin/gatus";
+      EnvironmentFile = config.age.secrets.pushover-tokens.path;
 
       # Allow Gatus to do pings
       CapabilityBoundingSet = "CAP_NET_RAW";
