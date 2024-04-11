@@ -4,8 +4,6 @@
   ...
 }: let
   defguardPkgs = root.packages.defguard {inherit pkgs;};
-  defguardCore = defguardPkgs.core-bundled;
-  defguardGateway = defguardPkgs.gateway;
 in {
   environment.systemPackages = with pkgs; [
     pgcli
@@ -37,8 +35,8 @@ in {
       DynamicUser = true;
       User = "defguard";
       StateDirectory = "defguard";
-      # Set working dir so executable can find UI and supporting files
-      WorkingDirectory = defguardCore;
+      # Set working dir so executable can the supporting files
+      WorkingDirectory = defguardPkgs.core;
       EnvironmentFile = "/var/lib/defguard/env";
     };
     environment = {
@@ -46,7 +44,7 @@ in {
       DEFGUARD_URL = "https://defguard.gio.ninja";
     };
     script = ''
-      ${defguardCore}/defguard
+      ${defguardPkgs.core}/bin/defguard
     '';
   };
 
@@ -68,7 +66,7 @@ in {
       DEFGUARD_GRPC_URL = "http://localhost:50055";
     };
     script = ''
-      ${defguardGateway}/bin/defguard-gateway
+      ${defguardPkgs.gateway}/bin/defguard-gateway
     '';
   };
 
@@ -136,7 +134,12 @@ in {
     virtualHosts."https://defguard.gio.ninja" = {
       useACMEHost = "defguard.gio.ninja";
       extraConfig = ''
-        reverse_proxy localhost:8000
+        handle /api/* {
+          reverse_proxy localhost:8000
+        }
+
+        root * ${defguardPkgs.ui}
+        file_server
       '';
     };
   };

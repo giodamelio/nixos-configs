@@ -1,62 +1,40 @@
 {lib, ...}: {pkgs, ...}: let
-  downloadScript = version:
-    pkgs.writeShellApplication {
-      name = "download-layer";
-
-      runtimeInputs = with pkgs; [curl jq cacert];
-
-      text = ''
-        # Make curl work with SSL
-        export SSL_CERT_FILE="${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
-
-        # Get token so we can download layer
-        token_url="https://ghcr.io/token?service=ghcr.io&scope=repository%3Adefguard%2Fdefguard%3Apull"
-        token=$(curl "$token_url" | jq -r .token)
-
-        # Download layer
-        curl --fail --location --output layer.tar.gz "https://ghcr.io/v2/defguard/defguard/blobs/sha256:${version}" -H "authorization: Bearer $token"
-      '';
-    };
-  extractScript = pkgs.writeShellApplication {
-    name = "extract-layer";
-
-    runtimeInputs = with pkgs; [gzip];
-
-    text = ''
-      tar xzfv layer.tar.gz
-
-      # Allow access to $out even though it was not defined here
-      # shellcheck disable=SC2154
-      mkdir -p "$out/web/"
-
-      # Allow access to $out even though it was not defined here
-      # shellcheck disable=SC2154
-      mv app/web/dist/ "$out/web/"
-    '';
-  };
-  coreVersion = "0.9.0";
+  coreVersion = "0.10.0";
   coreSrc = pkgs.fetchFromGitHub {
     owner = "DefGuard";
     repo = "defguard";
     rev = "v${coreVersion}";
-    hash = "sha256-RWNR+wf70lASEt+mJgkpCpr4cfgqVixPuUWEm8RRXiQ=";
+    hash = "sha256-W0Sz02wfIbPt6FaE9gsiAGG6efqWjX0jWjJU+NVIt6E=";
     fetchSubmodules = true;
   };
-in rec {
+in {
   # This is a unholy thing that extracts the files we want
   # directly from a docker image layer fetched from ghcr.io
   # Here Be Dragons
   ui = pkgs.stdenv.mkDerivation rec {
-    pname = "defguard-ui";
-    version = "f5e89529eba2786c8eab0b9e24ac1a5935299fab38286d34f8090f613b63e160"; # Blob digest
-    src = ./.;
+    pname = "defguard-docker-image";
+    version = "sha256:6a918ab950ee8623532940b03cc991494de2e42f74ed7292e6d734193d3f2c71"; # Image Digest
 
-    buildPhase = "${downloadScript version}/bin/download-layer";
-    installPhase = "${extractScript}/bin/extract-layer";
+    # We don't have a source, so don't unpack it
+    dontUnpack = true;
+
+    # Download the image contents with skopeo
+    installPhase = ''
+      mkdir $out image/ tmp/
+      ${pkgs.skopeo}/bin/skopeo --insecure-policy copy docker://ghcr.io/defguard/defguard@${version} dir:image
+
+      # Unpack some layers
+      tar xzfv image/0450d7b8e96ca65e77ca9b13c805b36c85d54649c4ae9b25f763dea3e8ba23bb -C tmp/
+      tar xzfv image/e13343b5b9997a2b56ea40746ddf1c6b3a783904b019a7ca4873240b78244f94 -C tmp/
+
+      # Copy the files we want
+      cp -R tmp/app/web/dist/* $out/
+      cp -R tmp/app/web/src/shared/images/svg/ $out/
+    '';
 
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
-    outputHash = "sha256-cari72NzwPMzyfoS+Wif1uYUKDEh6CG4oo7Kci8jt8E=";
+    outputHash = "sha256-QVxnUmcakQ+NZGtukJVEb5JT8EuBv725nqBe0iEDOkc=";
   };
   core = pkgs.rustPlatform.buildRustPackage {
     pname = "defguard";
@@ -64,7 +42,7 @@ in rec {
 
     src = coreSrc;
 
-    cargoHash = "sha256-BzWw+rnXshXyxhERIT8XJRhhY2iJftAqy+3SmIFCT/0=";
+    cargoHash = "sha256-uQ7OouPrjUzF2CbX8ipgf01tmxdNSrSxjoISrpIWCgU=";
 
     nativeBuildInputs = with pkgs; [
       pkg-config
@@ -88,6 +66,10 @@ in rec {
         darwin.apple_sdk.frameworks.SystemConfiguration
       ];
 
+    postInstall = ''
+      cp ${coreSrc}/user_agent_header_regexes.yaml $out/
+    '';
+
     meta = with lib; {
       description = "Enterprise, fast, secure VPN & SSO platform with hardware keys, 2FA/MFA";
       homepage = "https://github.com/DefGuard/defguard";
@@ -95,18 +77,6 @@ in rec {
       maintainers = with maintainers; [giodamelio];
       mainProgram = "defguard";
     };
-  };
-  # The core binary bundled with the WebUI and supporting files
-  core-bundled = pkgs.symlinkJoin {
-    name = "defguard-core-bundled";
-    paths = [
-      # Main bin
-      "${core}/bin/" # Main bin
-      # Supporting File
-      (lib.sources.sourceByRegex coreSrc ["user_agent_header_regexes.yaml"])
-      # Compiled WebUI
-      ui
-    ];
   };
   gateway = pkgs.rustPlatform.buildRustPackage rec {
     pname = "defguard-gateway";
