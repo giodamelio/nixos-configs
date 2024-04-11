@@ -28,7 +28,7 @@
     # Wireguard Mesh
     super.wireguard-mesh
 
-    # Monitoring with Grafana/Prometheus/Loki
+    # Monitoring with OpenObserve
     super.monitoring
 
     # Health Dashboard/Monitoring
