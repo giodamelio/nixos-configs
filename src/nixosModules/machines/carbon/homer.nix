@@ -76,11 +76,6 @@ _: {
             url = "https://10.0.128.167:2443";
             logo = dashboardLogo "truenas";
           }
-          {
-            name = "OpenObserve";
-            subtitle = "Observability Platform";
-            url = "https://o2.gio.ninja";
-          }
         ];
       }
     ];

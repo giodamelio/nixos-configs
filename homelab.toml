@@ -73,7 +73,6 @@ carbon = "10.112.0.2"
 [networks.homelab-mesh.aliases]
 defguard = "zirconium.gio.ninja"
 "enroll.defguard" = "zirconium.pub.gio.ninja"
-o2 = "zirconium.gio.ninja"
 status = "zirconium.gio.ninja"
 miniflux = "carbon.gio.ninja"
 home = "carbon.gio.ninja"
