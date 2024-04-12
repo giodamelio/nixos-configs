@@ -65,6 +65,12 @@ _: {
             logo = "https://status.gio.ninja/logo-512x512.png";
           }
           {
+            name = "Grafana";
+            subtitle = "Obervability UI";
+            url = "https://grafana.gio.ninja";
+            logo = dashboardLogo "grafana";
+          }
+          {
             name = "Unifi Controller";
             subtitle = "LAN Admin UI";
             url = "https://10.0.0.2:8443";
