@@ -23,6 +23,7 @@ in {
     enable = true;
     extraConfig = {
       inputs = {
+        # System Stats
         cpu = {};
         disk = {};
         diskio = {};
@@ -42,6 +43,11 @@ in {
           {unittype = "timer";}
         ];
         zfs = {};
+
+        # Monitor PostgreSQL
+        postgresql = {
+          address = "host=/run/postgresql user=${db_name} sslmode=disable";
+        };
       };
       outputs.postgresql = {
         connection = "host=/run/postgresql dbname=${db_name} user=${db_name} sslmode=disable";
