@@ -30,7 +30,13 @@ in {
         kernel = {};
         linux_sysctl_fs = {};
         mem = {};
+        net = {
+          # Setting this to false is deprecated
+          # See: https://github.com/influxdata/telegraf/blob/master/plugins/inputs/net/README.md
+          ignore_protocol_stats = true;
+        };
         netstat = {};
+        nstat = {};
         processes = {};
         smart = {
           path_smartctl = "${pkgs.smartmontools}/bin/smartctl";
@@ -48,6 +54,9 @@ in {
         postgresql = {
           address = "host=/run/postgresql user=${db_name} sslmode=disable";
         };
+
+        # Monitor Wireguard
+        wireguard = {};
       };
       outputs.postgresql = {
         connection = "host=/run/postgresql dbname=${db_name} user=${db_name} sslmode=disable";
@@ -61,5 +70,11 @@ in {
         ];
       };
     };
+  };
+
+  # Give Telegraf CAP_NET_ADMIN so it can talk to Wireguard via netlink
+  systemd.services.telegraf.serviceConfig = {
+    CapabilityBoundingSet = "CAP_NET_ADMIN";
+    AmbientCapabilities = "CAP_NET_ADMIN";
   };
 }
