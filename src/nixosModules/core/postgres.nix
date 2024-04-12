@@ -9,6 +9,10 @@ in {
   options = with lib; {
     gio.services.postgres = {
       enable = mkEnableOption (lib.mdDoc "PostgreSQL with Create DB and Users");
+      timescaledb = mkOption {
+        type = types.bool;
+        default = false;
+      };
       databases = mkOption {
         type = types.listOf types.str;
       };
@@ -17,16 +21,26 @@ in {
 
   # Ensure there is a database created for each item in cfg.databases
   # Also create a user with the same name that is the databases owner
-  config.services.postgresql = lib.mkIf cfg.enable {
-    enable = true;
-    ensureDatabases = cfg.databases;
-    ensureUsers =
-      builtins.map (name: {
-        inherit name;
-        ensureDBOwnership = true;
-      })
-      cfg.databases;
-  };
+  config.services.postgresql = lib.mkIf cfg.enable (lib.mkMerge [
+    {
+      enable = true;
+      package = pkgs.postgresql_15;
+
+      ensureDatabases = cfg.databases;
+      ensureUsers =
+        builtins.map (name: {
+          inherit name;
+          ensureDBOwnership = true;
+        })
+        cfg.databases;
+    }
+
+    # TimescaleDB
+    (lib.mkIf cfg.timescaledb {
+      extraPlugins = [pkgs.postgresql15Packages.timescaledb];
+      settings.shared_preload_libraries = "timescaledb";
+    })
+  ]);
 
   # Simple service that waits until PostgreSQL is ready
   # Intended so other services can wait to start until they can access the db
