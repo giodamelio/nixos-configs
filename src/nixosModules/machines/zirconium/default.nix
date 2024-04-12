@@ -28,7 +28,7 @@
     # Wireguard Mesh
     super.wireguard-mesh
 
-    # Monitoring with OpenObserve
+    # Monitoring with Telegraf + TimescaleDB + Grafana
     super.monitoring
 
     # Health Dashboard/Monitoring
