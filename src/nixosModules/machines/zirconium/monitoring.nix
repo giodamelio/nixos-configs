@@ -1,4 +1,4 @@
-_: _: let
+_: {pkgs, ...}: let
   db_name = "tsdb";
 in {
   # Setup TimescaleDB database
@@ -24,6 +24,24 @@ in {
     extraConfig = {
       inputs = {
         cpu = {};
+        disk = {};
+        diskio = {};
+        kernel = {};
+        linux_sysctl_fs = {};
+        mem = {};
+        netstat = {};
+        processes = {};
+        smart = {
+          path_smartctl = "${pkgs.smartmontools}/bin/smartctl";
+          path_nvme = "${pkgs.nvme-cli}/bin/nvme";
+        };
+        swap = {};
+        system = {};
+        systemd_units = [
+          {unittype = "service";}
+          {unittype = "timer";}
+        ];
+        zfs = {};
       };
       outputs.postgresql = {
         connection = "host=/run/postgresql dbname=${db_name} user=${db_name} sslmode=disable";
