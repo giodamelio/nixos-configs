@@ -76,6 +76,7 @@ _: {
       (http5m "Services" "Paperless" "https://paperless.gio.ninja")
       (http5m "Services" "Defguard" "https://defguard.gio.ninja")
       (http5m "Services" "Grafana" "https://grafana.gio.ninja")
+      (http5m "Services" "Prometheus" "https://prometheus.gio.ninja")
 
       # Ping the hosts
       (ping1m "Hosts" "Ping Zirconium" "icmp://zirconium.gio.ninja")

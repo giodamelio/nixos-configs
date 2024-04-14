@@ -6,6 +6,38 @@ _: {
   db_name = "tsdb";
   user_name = db_name;
 in {
+  # Setup Prometheus
+  services.prometheus = {
+    enable = true;
+    listenAddress = "127.0.0.1";
+
+    # Start some exporters
+    exporters = {
+      node = {
+        enable = true;
+        enabledCollectors = ["systemd"];
+        listenAddress = "127.0.0.1";
+      };
+    };
+
+    # Scrape those exporters
+    scrapeConfigs = [
+      {
+        job_name = "node_exporter";
+        static_configs = [
+          {
+            targets = [
+              "127.0.0.1:${toString config.services.prometheus.exporters.node.port}"
+            ];
+            labels = {
+              host = "zirconium";
+            };
+          }
+        ];
+      }
+    ];
+  };
+
   # Setup TimescaleDB database
   gio.services.postgres = {
     enable = true;
@@ -142,6 +174,13 @@ in {
         CLOUDFLARE_DNS_API_TOKEN_FILE = config.age.secrets.cloudflare-token.path;
       };
     };
+    certs."prometheus.gio.ninja" = {
+      email = "gio@damelio.net";
+      dnsProvider = "cloudflare";
+      credentialFiles = {
+        CLOUDFLARE_DNS_API_TOKEN_FILE = config.age.secrets.cloudflare-token.path;
+      };
+    };
   };
 
   # Use Caddy as a reverse proxy
@@ -152,6 +191,12 @@ in {
       useACMEHost = "grafana.gio.ninja";
       extraConfig = ''
         reverse_proxy localhost:3000
+      '';
+    };
+    virtualHosts."https://prometheus.gio.ninja" = {
+      useACMEHost = "prometheus.gio.ninja";
+      extraConfig = ''
+        reverse_proxy localhost:9090
       '';
     };
   };

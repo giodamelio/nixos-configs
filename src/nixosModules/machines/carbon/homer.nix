@@ -71,6 +71,12 @@ _: {
             logo = dashboardLogo "grafana";
           }
           {
+            name = "Prometheus";
+            subtitle = "Metrics Aggregator";
+            url = "https://prometheus.gio.ninja";
+            logo = dashboardLogo "prometheus";
+          }
+          {
             name = "Unifi Controller";
             subtitle = "LAN Admin UI";
             url = "https://10.0.0.2:8443";
