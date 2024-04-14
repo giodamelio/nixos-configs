@@ -4,6 +4,7 @@ _: {
   ...
 }: let
   db_name = "tsdb";
+  user_name = db_name;
 in {
   # Setup TimescaleDB database
   gio.services.postgres = {
@@ -15,10 +16,13 @@ in {
   services.postgresql = {
     authentication = ''
       # Allow unix socket connections with a username map for tsdb
-      local tsdb ${db_name} peer map=tsdb
+      local ${db_name} ${user_name} peer map=tsdb
+
+      # Allow local access to only tsdb without a password
+      host ${db_name} grafana samehost trust
     '';
     identMap = ''
-      tsdb telegraf ${db_name}
+      tsdb telegraf ${user_name}
     '';
   };
 
