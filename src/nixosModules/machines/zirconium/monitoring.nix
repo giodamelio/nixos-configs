@@ -20,6 +20,7 @@ in {
         static_configs = [
           (makeNodeExporterConfig "zirconium" "127.0.0.1")
           (makeNodeExporterConfig "carbon" "carbon.gio.ninja")
+          (makeNodeExporterConfig "gallium" "gallium.gio.ninja")
         ];
       }
       {

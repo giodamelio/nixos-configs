@@ -84,6 +84,7 @@ _: {
       (ping1m "Hosts" "Ping Zirconium" "icmp://zirconium.gio.ninja")
       (ping1m "Hosts" "Ping Zirconium Public IP" "icmp://zirconium.pub.gio.ninja")
       (ping1m "Hosts" "Ping Carbon" "icmp://carbon.gio.ninja")
+      (ping1m "Hosts" "Ping Gallium" "icmp://gallium.gio.ninja")
 
       # Check the external internet is working
       (http5m "External Internet" "HTTP Google" "https://google.com")
