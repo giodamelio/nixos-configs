@@ -28,6 +28,20 @@ _: {config, ...}: {
           }
         ];
       }
+      {
+        job_name = "gatus";
+        scheme = "https";
+        static_configs = [
+          {
+            targets = [
+              "status.gio.ninja"
+            ];
+            labels = {
+              host = "zirconium";
+            };
+          }
+        ];
+      }
     ];
   };
 

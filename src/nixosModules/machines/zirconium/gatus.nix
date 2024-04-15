@@ -14,6 +14,8 @@ _: {
   environment.etc."gatus/config.yml".text = builtins.toJSON {
     web.address = "127.0.0.1";
 
+    metrics = true;
+
     storage = {
       type = "postgres";
       # Connect over the Unix socket
