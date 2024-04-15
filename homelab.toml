@@ -41,6 +41,14 @@ targetUser = "server"
 hardwareDescription = "Lenovo Chromebook Linux Developer Container"
 useDescription = "Light development work on the go"
 
+[machines.gallium]
+hardwareDescription = "QNAP NAS TS-462-2G"
+useDescription = "Main NAS in the closet"
+
+[machines.gallium.deployment]
+targetHost = "10.0.128.214"
+targetUser = "server"
+
 [machines.zirconium]
 hardwareDescription = "VM Running in Hetzner Cloud"
 useDescription = "Critical services running on a DigitalOcean VM"

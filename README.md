@@ -4,7 +4,7 @@ Used to configure all of my machines
 
 # Machines
 
-There are currently 6 machines listed in the [data](./homelab.toml)
+There are currently 7 machines listed in the [data](./homelab.toml)
 
 
   - `cadmium`
@@ -19,6 +19,9 @@ There are currently 6 machines listed in the [data](./homelab.toml)
   - `cesium`
     - Description: Light development work on the go
     - Hardware: Lenovo Chromebook Linux Developer Container
+  - `gallium`
+    - Description: Main NAS in the closet
+    - Hardware: QNAP NAS TS-462-2G
   - `gio-pixel-7`
     - Description: My Phone
     - Hardware: Pixel 7 Pro
