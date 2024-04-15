@@ -20,6 +20,7 @@ in {
       ripgrep # Better grep
       fd # Better find
       htop # Better top
+      tree # I always want this...
 
       git
       file
