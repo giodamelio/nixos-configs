@@ -1,8 +1,4 @@
-_: {
-  pkgs,
-  config,
-  ...
-}: let
+_: {pkgs, ...}: let
   homer = pkgs.stdenv.mkDerivation rec {
     pname = "homer";
     version = "24.02.1";
@@ -93,28 +89,9 @@ _: {
     ];
   };
 in {
-  # Cloudflare Token Secret
-  age.secrets.cloudflare-token.file = ../../../../secrets/cloudflare-token.age;
-
-  # Get HTTPS Certificate from LetsEncrypt
-  security.acme = {
-    acceptTerms = true;
-
-    certs."home.gio.ninja" = {
-      email = "gio@damelio.net";
-      dnsProvider = "cloudflare";
-      credentialFiles = {
-        CLOUDFLARE_DNS_API_TOKEN_FILE = config.age.secrets.cloudflare-token.path;
-      };
-    };
-  };
-
   # Use Caddy as a reverse proxy
   services.caddy = {
-    enable = true;
-
     virtualHosts."https://home.gio.ninja" = {
-      useACMEHost = "home.gio.ninja";
       extraConfig = ''
         root * ${homer}
         file_server

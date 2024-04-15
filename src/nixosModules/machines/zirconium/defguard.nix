@@ -1,8 +1,4 @@
-{root, ...}: {
-  pkgs,
-  config,
-  ...
-}: let
+{root, ...}: {pkgs, ...}: let
   defguardPkgs = root.packages.defguard {inherit pkgs;};
 in {
   # Setup database
@@ -81,28 +77,9 @@ in {
     '';
   };
 
-  # Cloudflare Token Secret
-  age.secrets.cloudflare-token.file = ../../../../secrets/cloudflare-token.age;
-
-  # Get HTTPS Certificate from LetsEncrypt
-  security.acme = {
-    acceptTerms = true;
-
-    certs."defguard.gio.ninja" = {
-      email = "gio@damelio.net";
-      dnsProvider = "cloudflare";
-      credentialFiles = {
-        CLOUDFLARE_DNS_API_TOKEN_FILE = config.age.secrets.cloudflare-token.path;
-      };
-    };
-  };
-
   # Use Caddy as a reverse proxy
   services.caddy = {
-    enable = true;
-
     virtualHosts."https://defguard.gio.ninja" = {
-      useACMEHost = "defguard.gio.ninja";
       extraConfig = ''
         handle /api/* {
           reverse_proxy localhost:8000
@@ -117,11 +94,5 @@ in {
   networking.firewall = {
     enable = true;
     allowedUDPPorts = [50051];
-  };
-  networking.firewall.interfaces."wg0" = {
-    allowedTCPPorts = [443 80];
-  };
-  networking.firewall.interfaces."wg9" = {
-    allowedTCPPorts = [443 80];
   };
 }

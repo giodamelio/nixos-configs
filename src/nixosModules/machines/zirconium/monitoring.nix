@@ -81,51 +81,17 @@ in {
     };
   };
 
-  # Cloudflare Token Secret
-  age.secrets.cloudflare-token.file = ../../../../secrets/cloudflare-token.age;
-
-  # Get HTTPS Certificate from LetsEncrypt
-  security.acme = {
-    acceptTerms = true;
-
-    certs."grafana.gio.ninja" = {
-      email = "gio@damelio.net";
-      dnsProvider = "cloudflare";
-      credentialFiles = {
-        CLOUDFLARE_DNS_API_TOKEN_FILE = config.age.secrets.cloudflare-token.path;
-      };
-    };
-    certs."prometheus.gio.ninja" = {
-      email = "gio@damelio.net";
-      dnsProvider = "cloudflare";
-      credentialFiles = {
-        CLOUDFLARE_DNS_API_TOKEN_FILE = config.age.secrets.cloudflare-token.path;
-      };
-    };
-  };
-
   # Use Caddy as a reverse proxy
   services.caddy = {
-    enable = true;
-
     virtualHosts."https://grafana.gio.ninja" = {
-      useACMEHost = "grafana.gio.ninja";
       extraConfig = ''
         reverse_proxy localhost:3000
       '';
     };
     virtualHosts."https://prometheus.gio.ninja" = {
-      useACMEHost = "prometheus.gio.ninja";
       extraConfig = ''
         reverse_proxy localhost:9090
       '';
     };
-  };
-
-  networking.firewall.interfaces."wg0" = {
-    allowedTCPPorts = [443 80];
-  };
-  networking.firewall.interfaces."wg9" = {
-    allowedTCPPorts = [443 80];
   };
 }

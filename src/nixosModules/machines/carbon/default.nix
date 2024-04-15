@@ -19,6 +19,9 @@
     root.nixosModules.basic-packages
     root.nixosModules.basic-settings
 
+    # Setup Caddy
+    root.nixosModules.core.caddy
+
     # Wireguard Mesh
     super.wireguard-mesh
 

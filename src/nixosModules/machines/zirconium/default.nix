@@ -22,6 +22,9 @@
     # Setup PostgreSQL on the server
     root.nixosModules.core.postgres
 
+    # Setup Caddy
+    root.nixosModules.core.caddy
+
     # Security Platform (Identity/Overlay Network)
     super.defguard
 

@@ -124,38 +124,12 @@ _: {
     };
   };
 
-  # Cloudflare Token Secret
-  age.secrets.cloudflare-token.file = ../../../../secrets/cloudflare-token.age;
-
-  # Get HTTPS Certificate from LetsEncrypt
-  security.acme = {
-    acceptTerms = true;
-
-    certs."status.gio.ninja" = {
-      email = "gio@damelio.net";
-      dnsProvider = "cloudflare";
-      credentialFiles = {
-        CLOUDFLARE_DNS_API_TOKEN_FILE = config.age.secrets.cloudflare-token.path;
-      };
-    };
-  };
-
   # Use Caddy as a reverse proxy
   services.caddy = {
-    enable = true;
-
     virtualHosts."https://status.gio.ninja" = {
-      useACMEHost = "status.gio.ninja";
       extraConfig = ''
         reverse_proxy localhost:8080
       '';
     };
-  };
-
-  networking.firewall.interfaces."wg0" = {
-    allowedTCPPorts = [443 80];
-  };
-  networking.firewall.interfaces."wg9" = {
-    allowedTCPPorts = [443 80];
   };
 }
