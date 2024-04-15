@@ -1,31 +1,25 @@
-_: {config, ...}: {
+_: {config, ...}: let
+  makeNodeExporterConfig = host: address: {
+    targets = [
+      "${address}:${toString config.services.prometheus.exporters.node.port}"
+    ];
+    labels = {
+      inherit host;
+    };
+  };
+in {
   # Setup Prometheus
   services.prometheus = {
     enable = true;
     listenAddress = "127.0.0.1";
-
-    # Start some exporters
-    exporters = {
-      node = {
-        enable = true;
-        enabledCollectors = ["systemd"];
-        listenAddress = "127.0.0.1";
-      };
-    };
 
     # Scrape those exporters
     scrapeConfigs = [
       {
         job_name = "node_exporter";
         static_configs = [
-          {
-            targets = [
-              "127.0.0.1:${toString config.services.prometheus.exporters.node.port}"
-            ];
-            labels = {
-              host = "zirconium";
-            };
-          }
+          (makeNodeExporterConfig "zirconium" "127.0.0.1")
+          (makeNodeExporterConfig "carbon" "carbon.gio.ninja")
         ];
       }
       {

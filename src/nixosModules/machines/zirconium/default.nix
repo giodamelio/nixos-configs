@@ -28,8 +28,9 @@
     # Wireguard Mesh
     super.wireguard-mesh
 
-    # Monitoring with Telegraf + TimescaleDB + Grafana
+    # Monitoring with Prometheus + Grafana
     super.monitoring
+    root.nixosModules.core.monitoring # Expose monitoring
 
     # Health Dashboard/Monitoring
     super.gatus

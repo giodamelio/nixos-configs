@@ -22,6 +22,9 @@
     # Wireguard Mesh
     super.wireguard-mesh
 
+    # Expose Monitoring
+    root.nixosModules.core.monitoring
+
     # Miniflux Feed Reader
     super.miniflux
 
