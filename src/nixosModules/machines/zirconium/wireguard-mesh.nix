@@ -11,6 +11,11 @@ _: _: {
         publicKey = "8yTqjUzffR0TJ7VUy0e6Gc3BGWqflpvQr8cvlCbXmEE=";
         allowedIPs = ["10.112.0.2/32"];
       }
+      # Gallium
+      {
+        publicKey = "KRiOgigaPraooSECV6+mWQMyOL6y/JGpprQl/rtKTB4=";
+        allowedIPs = ["10.112.0.3/32"];
+      }
     ];
   };
 

@@ -19,6 +19,9 @@
     root.nixosModules.basic-packages
     root.nixosModules.basic-settings
 
+    # Wireguard Mesh
+    super.wireguard-mesh
+
     # Add server user
     root.nixosModules.users.server
 
