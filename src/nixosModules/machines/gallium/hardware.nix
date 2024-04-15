@@ -23,7 +23,8 @@ _: {
 
     efi.canTouchEfiVariables = true;
   };
-  boot.zfs.forceImportRoot = false;
+  boot.zfs.forceImportRoot = true;
+  boot.zfs.extraPools = ["boot"];
   boot.supportedFilesystems = ["zfs"];
   boot.initrd.supportedFilesystems = ["zfs"];
 
