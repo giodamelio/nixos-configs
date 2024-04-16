@@ -37,6 +37,20 @@ in {
           }
         ];
       }
+      {
+        job_name = "garage";
+        scheme = "https";
+        static_configs = [
+          {
+            targets = [
+              "garage-admin.gio.ninja"
+            ];
+            labels = {
+              host = "gallium";
+            };
+          }
+        ];
+      }
     ];
   };
 

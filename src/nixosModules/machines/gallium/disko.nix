@@ -127,6 +127,13 @@
                 mountpoint = "legacy";
               };
             };
+            garage = {
+              type = "zfs_fs";
+              mountpoint = "/tank/garage";
+              options = {
+                mountpoint = "legacy";
+              };
+            };
           };
         };
       };

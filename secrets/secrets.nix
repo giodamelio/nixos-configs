@@ -5,14 +5,17 @@ let
 
   zirconium = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG3O4mziNw2k53SE3WTX2jbMx38tqngSaoB3TsXM9UlH";
   carbon = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIX5P0ZXB1SUbiDrm42t19GEsz80dw+yI0GoO0tYlJsn";
+  gallium = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEAhvuXblbZsAFxCs/tWLV8gNgSQ3Axyud8jx298UmbE";
   # cadmium = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFyDOEgsO9wykdbqhUOBWpSIXJ7Kd9D0Pl7W0dnxDn/m";
   # systems = [zirconium cadmium carbon];
 in {
-  "cloudflare-token.age".publicKeys = users ++ [zirconium carbon];
+  "cloudflare-token.age".publicKeys = users ++ [zirconium carbon gallium];
 
   "grafana-defguard-oauth-client-id.age".publicKeys = users ++ [zirconium];
   "grafana-defguard-oauth-client-secret.age".publicKeys = users ++ [zirconium];
   "pushover-tokens.age".publicKeys = users ++ [zirconium];
 
   "paperless-oauth-config.age".publicKeys = users ++ [carbon];
+
+  "garage-envfile.age".publicKeys = users ++ [gallium];
 }
