@@ -1,4 +1,8 @@
-{lib, ...}: {
+{
+  lib,
+  root,
+  ...
+}: {
   pkgs,
   inputs',
   config,
@@ -26,6 +30,8 @@
     pkgs.pwgen
     pkgs.dogdns
     pkgs.opentofu
+
+    (root.packages.agedit {inherit pkgs;})
   ];
 
   pre-commit = {
