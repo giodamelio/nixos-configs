@@ -1,18 +1,30 @@
+#!/usr/bin/env nix-shell
+#! nix-shell -i nu -p nushell
+
 def main [
   host: string # The host to deploy secrets to
 ] {
-  echo $"Deploying secrets to ($host)"
-  echo
+  print $"Deploying secrets to ($host)"
+  print
 
-  let secret_files = (ls *.age)
+  ssh $host "sudo mkdir -p /usr/lib/credstore.encrypted"
+
+  let secret_files = (glob $"($host)/*.age") 
   for file in $secret_files {
-    let parsed_file = ($file.name | path parse)
+    let parsed_file = ($file | path parse)
 
-    echo $"Deploying ($file.name) to /usr/lib/credstore.encrypted/($parsed_file.stem)"
+    print $"Deploying ($parsed_file.stem) to /usr/lib/credstore.encrypted/($parsed_file.stem)"
     (
-      cat $file.name
+      cat $file
       | rage --decrypt -i ./key -
       | ssh $host $"sudo systemd-creds encrypt - /usr/lib/credstore.encrypted/($parsed_file.stem)"
     )
   }
+}
+
+# Edit an encrypted file
+def "main edit" [
+  file: string # A file to edit
+] {
+  agedit --identity-file ./key $file
 }
