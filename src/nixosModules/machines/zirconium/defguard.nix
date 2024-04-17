@@ -81,7 +81,11 @@ in {
   services.caddy = {
     virtualHosts."https://defguard.gio.ninja" = {
       extraConfig = ''
-        handle /api/* {
+        @api {
+          path /api/*
+          path /.well-known/*
+        }
+        handle @api {
           reverse_proxy localhost:8000
         }
 
