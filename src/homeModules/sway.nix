@@ -18,8 +18,8 @@ in {
       # Use rofi as our launcher
       menu = "${pkgs.wofi}/bin/wofi --show=drun --allow-images";
 
-      # Use Kitty as our terminal
-      terminal = "${pkgs.kitty}/bin/kitty";
+      # Use Wezterm as our terminal
+      terminal = "${pkgs.wezterm}/bin/wezterm";
 
       # Replace the built in bars with Waybar
       bars = [];
