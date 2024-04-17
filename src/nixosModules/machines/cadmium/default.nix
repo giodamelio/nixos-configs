@@ -26,6 +26,19 @@
     root.nixosModules.basic-packages-desktop
     root.nixosModules.basic-settings
 
+    # Autosnapshot ZFS and send to NAS
+    root.nixosModules.core.zfs-backup
+    (_: {
+      gio.services.zfs_backup = {
+        enable = true;
+        datasets = [
+          "tank/home"
+          "tank/nix"
+          "tank/root"
+        ];
+      };
+    })
+
     # Software Development tools
     super.development
 
@@ -34,7 +47,6 @@
     super.keyd # Easy key rebinding
     super.hyprland # Hyperland WM
     super.cosmic # Experimental COSMIC DE
-    super.sanoid # Autosnapshot ZFS with sanoid
     super.monitoring # Export metrics
     super.streamdeck # StreamDeck stuff
 

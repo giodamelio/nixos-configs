@@ -15,6 +15,19 @@
     root.nixosModules.basic-packages
     root.nixosModules.basic-settings
 
+    # Autosnapshot ZFS and send to NAS
+    root.nixosModules.core.zfs-backup
+    (_: {
+      gio.services.zfs_backup = {
+        enable = true;
+        datasets = [
+          "tank/home"
+          "tank/nix"
+          "tank/root"
+        ];
+      };
+    })
+
     # Setup Caddy
     root.nixosModules.core.caddy
 
@@ -32,19 +45,6 @@
 
     # Paperless Document Storage
     super.paperless
-
-    # Autosnapshot with Sanoid
-    root.nixosModules.services.sanoid
-    (_: {
-      gio.services.zfs_backup = {
-        enable = true;
-        datasets = [
-          "tank/home"
-          "tank/nix"
-          "tank/root"
-        ];
-      };
-    })
 
     # Add server user
     root.nixosModules.users.server
