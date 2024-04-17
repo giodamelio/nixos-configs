@@ -7,6 +7,7 @@ _: {pkgs, ...}: {
       obsidian
       pavucontrol
       qutebrowser
+      xdg-utils
     ];
     sessionVariables = {
       NIXOS_OZONE_WL = "1";
