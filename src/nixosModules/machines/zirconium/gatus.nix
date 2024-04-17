@@ -1,7 +1,6 @@
 _: {
   pkgs,
   lib,
-  config,
   ...
 }: {
   # Setup database
@@ -91,17 +90,7 @@ _: {
       (http5m "External Internet" "HTTP Google" "https://google.com")
       (ping1m "External Internet" "Ping Google" "icmp://google.com")
     ];
-
-    alerting = {
-      pushover = {
-        application-token = "$PUSHOVER_APPLICATION_TOKEN";
-        user-key = "$PUSHOVER_USER_KEY";
-      };
-    };
   };
-
-  # Load the pushover credentials
-  age.secrets.pushover-tokens.file = ../../../../secrets/pushover-tokens.age;
 
   # Gatus
   systemd.services.gatus = {
@@ -115,7 +104,10 @@ _: {
       User = "gatus";
       StateDirectory = "gatus";
       ExecStart = "${pkgs.gatus}/bin/gatus";
-      EnvironmentFile = config.age.secrets.pushover-tokens.path;
+
+      # Bind mount in our secrets
+      LoadCredentialEncrypted = "gatus-config";
+      BindReadOnlyPaths = "%d/gatus-config:/etc/gatus/secrets.yml";
 
       # Allow Gatus to do pings
       CapabilityBoundingSet = "CAP_NET_RAW";

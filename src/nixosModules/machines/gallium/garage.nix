@@ -1,14 +1,13 @@
-_: {
-  pkgs,
-  config,
-  ...
-}: {
-  age.secrets.garage-envfile.file = ../../../../secrets/garage-envfile.age;
-
+_: {pkgs, ...}: {
   services.garage = {
     enable = true;
     package = pkgs.garage_0_9_3;
-    environmentFile = config.age.secrets.garage-envfile.path;
+    extraEnvironment = {
+      # Our secrets are bind mounted by SystemD so they are not exposed
+      GARAGE_ALLOW_WORLD_READABLE_SECRETS = "true";
+      GARAGE_RPC_SECRET_FILE = "%d/garage-rpc-secret";
+      GARAGE_ADMIN_TOKEN_FILE = "%d/garage-admin-token";
+    };
 
     settings = {
       data_dir = "/tank/garage";
@@ -27,6 +26,12 @@ _: {
       };
     };
   };
+
+  # Load SystemD secrets
+  systemd.services.garage.serviceConfig.LoadCredentialEncrypted = [
+    "garage-rpc-secret"
+    "garage-admin-token"
+  ];
 
   # Use Caddy as a reverse proxy
   services.caddy = {

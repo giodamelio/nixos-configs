@@ -26,5 +26,12 @@ def main [
 def "main edit" [
   file: string # A file to edit
 ] {
+  if not ($file | path exists) {
+    print $"Creating new file: ($file)"
+
+    let recipient = (rage-keygen -y ./key)
+    echo "" | rage -r $recipient | save $file
+  }
+
   agedit --identity-file ./key $file
 }

@@ -55,16 +55,10 @@ in {
   };
 
   # Load the OAuth id/secret for Grafana
-  age.secrets.grafana-defguard-oauth-client-id = {
-    file = ../../../../secrets/grafana-defguard-oauth-client-id.age;
-    owner = "grafana";
-    group = "grafana";
-  };
-  age.secrets.grafana-defguard-oauth-client-secret = {
-    file = ../../../../secrets/grafana-defguard-oauth-client-secret.age;
-    owner = "grafana";
-    group = "grafana";
-  };
+  systemd.services.grafana.serviceConfig.LoadCredentialEncrypted = [
+    "grafana-defguard-oauth-client-id"
+    "grafana-defguard-oauth-client-secret"
+  ];
 
   # Setup Grafana
   services.grafana = {
@@ -90,8 +84,9 @@ in {
         # Map rules from OAuth groups
         role_attribute_path = "contains(groups[*], 'grafana-admin') && 'Admin' || contains(groups[*], 'grafana-editor') && 'Editor' || 'Viewer'";
 
-        client_id = "$__file{${config.age.secrets.grafana-defguard-oauth-client-id.path}}";
-        client_secret = "$__file{${config.age.secrets.grafana-defguard-oauth-client-secret.path}}";
+        # FIXME: I know you are not supposed to hardcode these
+        client_id = "$__file{/run/credentials/grafana.service/grafana-defguard-oauth-client-id}";
+        client_secret = "$__file{/run/credentials/grafana.service/grafana-defguard-oauth-client-secret}";
       };
     };
   };

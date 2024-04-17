@@ -1,4 +1,4 @@
-_: {config, ...}: {
+_: _: {
   services.paperless = {
     enable = true;
 
@@ -10,8 +10,16 @@ _: {config, ...}: {
     };
   };
 
-  age.secrets.paperless-oauth-config.file = ../../../../secrets/paperless-oauth-config.age;
-  systemd.services.paperless-web.serviceConfig.EnvironmentFile = config.age.secrets.paperless-oauth-config.path;
+  # The NixOS module sets configs by ENV, so we can load private settings from SystemD creds
+  systemd.services.paperless-web = {
+    serviceConfig = {
+      LoadCredentialEncrypted = "paperless-config";
+    };
+
+    environment = {
+      PAPERLESS_CONFIGURATION_PATH = "%d/paperless-config";
+    };
+  };
 
   services.caddy = {
     virtualHosts."https://paperless.gio.ninja" = {

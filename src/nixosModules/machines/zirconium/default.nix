@@ -1,6 +1,5 @@
 {
   root,
-  inputs,
   homelab,
   super,
   ...
@@ -8,9 +7,6 @@
   imports = [
     # Hardware configs
     super.hardware
-
-    # Encrypted Secrets
-    inputs.ragenix.nixosModules.default
 
     # Basic packages I want on every system
     root.nixosModules.basic-packages
