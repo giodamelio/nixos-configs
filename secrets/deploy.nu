@@ -35,3 +35,10 @@ def "main edit" [
 
   agedit --identity-file ./key $file
 }
+
+# Print an encrypted file
+def "main cat" [
+  file: string # A file to print
+] {
+  cat $file | rage --decrypt --identity ./key
+}
