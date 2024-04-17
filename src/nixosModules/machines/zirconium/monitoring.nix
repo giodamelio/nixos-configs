@@ -7,6 +7,14 @@ _: {config, ...}: let
       inherit host;
     };
   };
+  makeZfsExporterConfig = host: address: {
+    targets = [
+      "${address}:${toString config.services.prometheus.exporters.zfs.port}"
+    ];
+    labels = {
+      inherit host;
+    };
+  };
 in {
   # Setup Prometheus
   services.prometheus = {
@@ -21,6 +29,13 @@ in {
           (makeNodeExporterConfig "zirconium" "127.0.0.1")
           (makeNodeExporterConfig "carbon" "carbon.gio.ninja")
           (makeNodeExporterConfig "gallium" "gallium.gio.ninja")
+        ];
+      }
+      {
+        job_name = "zfs";
+        static_configs = [
+          (makeZfsExporterConfig "carbon" "carbon.gio.ninja")
+          (makeZfsExporterConfig "gallium" "gallium.gio.ninja")
         ];
       }
       {
