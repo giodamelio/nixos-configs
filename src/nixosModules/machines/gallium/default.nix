@@ -15,6 +15,24 @@
     root.nixosModules.basic-packages
     root.nixosModules.basic-settings
 
+    # Autosnapshot ZFS and send to NAS
+    root.nixosModules.core.zfs-backup
+    (_: {
+      gio.services.zfs_backup = {
+        enable = true;
+        makeRecvUser = true;
+        datasets = [
+          "boot/home"
+          "boot/nix"
+          "boot/root"
+          "tank/garage"
+          "tank/isos"
+          "tank/photos-dump"
+          "tank/syncthing"
+        ];
+      };
+    })
+
     # Setup Caddy
     root.nixosModules.core.caddy
 

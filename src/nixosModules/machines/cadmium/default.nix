@@ -31,6 +31,7 @@
     (_: {
       gio.services.zfs_backup = {
         enable = true;
+        syncToGallium = true;
         datasets = [
           "tank/home"
           "tank/nix"

@@ -1,6 +1,7 @@
 _: {
   lib,
   config,
+  pkgs,
   ...
 }: let
   cfg = config.gio.services.zfs_backup;
@@ -11,6 +12,22 @@ in {
       default = false;
       description = ''
         Small module to allow easy auto creation/pushing of ZFS snapshots
+      '';
+    };
+
+    syncToGallium = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Sync the backups to gallium
+      '';
+    };
+
+    makeRecvUser = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Make a user to recieve the syncs
       '';
     };
 
@@ -38,6 +55,42 @@ in {
       enable = true;
 
       datasets = lib.attrsets.genAttrs cfg.datasets (_: default_schedule);
+    };
+
+    services.syncoid = lib.mkIf cfg.syncToGallium {
+      enable = true;
+
+      # Load the SSH key from a SystemD credential
+      service = {
+        serviceConfig.LoadCredentialEncrypted = "syncoid-ssh-key";
+      };
+
+      commonArgs = [
+        "--sshoption"
+        "StrictHostKeyChecking=no"
+      ];
+
+      commands = lib.attrsets.genAttrs cfg.datasets (dataset: {
+        target = "syncoid-recv@gallium.gio.ninja:tank/backup/${config.networking.hostName}/${dataset}";
+        sshKey = "\${CREDENTIALS_DIRECTORY}/syncoid-ssh-key";
+      });
+    };
+
+    environment.systemPackages = lib.mkIf cfg.makeRecvUser [pkgs.mbuffer pkgs.lzop];
+    users = lib.mkIf cfg.makeRecvUser {
+      users.syncoid-recv = {
+        isSystemUser = true;
+        group = "syncoid-recv";
+        extraGroups = [
+          "wheel"
+        ];
+        shell = pkgs.bashInteractive;
+        openssh.authorizedKeys.keys = [
+          # Private half is in secrets/common/syncoid-ssh-key.age
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMglSONdnmfp0s3fgWmPKdLD7gnhdRmMI0Grgzac77u5"
+        ];
+      };
+      groups.syncoid-recv = {};
     };
   };
 }
