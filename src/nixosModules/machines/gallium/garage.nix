@@ -10,7 +10,6 @@ _: {pkgs, ...}: {
     };
 
     settings = {
-      data_dir = "/tank/garage";
       replication_mode = 1;
       db_engine = "sqlite";
 
