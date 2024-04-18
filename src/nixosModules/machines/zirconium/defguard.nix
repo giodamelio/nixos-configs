@@ -11,8 +11,8 @@ in {
   systemd.services.defguard-core = {
     description = "DefGuard Core";
     wantedBy = ["default.target"];
-    requires = ["postgres-ready.service"];
-    after = ["postgres-ready.service"];
+    requires = ["postgresql-ready.target"];
+    after = ["postgresql-ready.target"];
     serviceConfig = {
       Type = "simple";
       DynamicUser = true;

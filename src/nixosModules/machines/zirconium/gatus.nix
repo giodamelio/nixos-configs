@@ -96,8 +96,8 @@ _: {
   systemd.services.gatus = {
     description = "Gatus health dashboard/alerting";
     wantedBy = ["default.target"];
-    requires = ["postgres-ready.service"];
-    after = ["postgres-ready.service"];
+    requires = ["postgresql-ready.target"];
+    after = ["postgresql-ready.target"];
     serviceConfig = {
       Type = "simple";
       DynamicUser = true;
