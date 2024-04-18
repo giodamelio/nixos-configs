@@ -1,4 +1,8 @@
-_: {config, ...}: let
+_: {
+  config,
+  pkgs,
+  ...
+}: let
   makeNodeExporterConfig = host: address: {
     targets = [
       "${address}:${toString config.services.prometheus.exporters.node.port}"
@@ -28,6 +32,97 @@ in {
           CREATE EXTENSION IF NOT EXISTS timescaledb;
         '';
       };
+      create-telegraf-user = {
+        database = "metrics";
+        script = ''
+          -- Create the user only if it does not exist
+          -- I know there could be a race condition here, I dont care though
+          DO $$
+            BEGIN
+              IF NOT EXISTS (SELECT * FROM pg_user WHERE usename = 'telegraf') THEN
+                CREATE USER telegraf;
+              END IF;
+            END
+          $$;
+
+          -- Give access to the db
+          GRANT ALL ON SCHEMA public TO telegraf;
+
+          -- Give user access to all future tables
+          ALTER DEFAULT PRIVILEGES IN SCHEMA public
+          GRANT ALL ON TABLES TO telegraf;
+
+          -- Give user access to all future sequences
+          ALTER DEFAULT PRIVILEGES IN SCHEMA public
+          GRANT ALL ON SEQUENCES TO telegraf;
+        '';
+      };
+    };
+  };
+
+  # Configure Telegraf to send stats to to TSDB
+  services.telegraf = {
+    enable = true;
+    extraConfig = {
+      inputs = {
+        # System Stats
+        cpu = {};
+        disk = {};
+        diskio = {};
+        kernel = {};
+        linux_sysctl_fs = {};
+        mem = {};
+        net = {
+          # Setting this to false is deprecated
+          # See: https://github.com/influxdata/telegraf/blob/master/plugins/inputs/net/README.md
+          ignore_protocol_stats = true;
+        };
+        netstat = {};
+        nstat = {};
+        processes = {};
+        smart = {
+          path_smartctl = "${pkgs.smartmontools}/bin/smartctl";
+          path_nvme = "${pkgs.nvme-cli}/bin/nvme";
+        };
+        swap = {};
+        system = {};
+        systemd_units = [
+          {unittype = "service";}
+          {unittype = "timer";}
+        ];
+        zfs = {};
+
+        # TODO: Fix this, what are the minimum permissions it needs to function
+        # Monitor PostgreSQL
+        # postgresql = {
+        #   address = "host=/run/postgresql user=telegraf sslmode=disable";
+        # };
+
+        # Monitor Wireguard
+        wireguard = {};
+      };
+      outputs.postgresql = {
+        connection = "host=/run/postgresql dbname=metrics user=telegraf sslmode=disable";
+
+        # Make it work with TSDB
+        tags_as_foreign_keys = true;
+        create_templates = [
+          "CREATE TABLE {{ .table }} ({{ .columns }})"
+          "SELECT create_hypertable({{ .table|quoteLiteral }}, by_range('time', INTERVAL '1 week'), if_not_exists := true)"
+        ];
+      };
+    };
+  };
+
+  systemd.services.telegraf = {
+    # Don't start Telegraf until PostgreSQL is ready for it
+    requires = ["postgresql-ready.target"];
+    after = ["postgresql-ready.target"];
+
+    # Give Telegraf CAP_NET_ADMIN so it can talk to Wireguard via netlink
+    serviceConfig = {
+      CapabilityBoundingSet = "CAP_NET_ADMIN";
+      AmbientCapabilities = "CAP_NET_ADMIN";
     };
   };
 
