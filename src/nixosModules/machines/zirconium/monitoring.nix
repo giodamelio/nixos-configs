@@ -125,7 +125,10 @@ in {
           {unittype = "service";}
           {unittype = "timer";}
         ];
-        zfs = {};
+        zfs = {
+          poolMetrics = true;
+          datasetMetrics = true;
+        };
 
         # TODO: Fix this, what are the minimum permissions it needs to function
         # Monitor PostgreSQL
