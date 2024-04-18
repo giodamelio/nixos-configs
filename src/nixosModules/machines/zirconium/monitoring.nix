@@ -16,6 +16,21 @@ _: {config, ...}: let
     };
   };
 in {
+  # Run TimescaleDB
+  gio.services.postgres = {
+    enable = true;
+    timescaledb = true;
+    databases = ["metrics"];
+    startupScripts = {
+      setup-timescaledb = {
+        database = "metrics";
+        script = ''
+          CREATE EXTENSION IF NOT EXISTS timescaledb;
+        '';
+      };
+    };
+  };
+
   # Setup Prometheus
   services.prometheus = {
     enable = true;

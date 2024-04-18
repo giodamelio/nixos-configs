@@ -5,6 +5,55 @@ _: {
   ...
 }: let
   cfg = config.gio.services.postgres;
+
+  startupScriptType = with lib;
+    types.submodule {
+      options = {
+        database = mkOption {
+          type = types.string;
+        };
+        script = mkOption {
+          type = types.lines;
+        };
+      };
+    };
+
+  # Build a SystemD service for a startup script
+  buildStartupScriptService = name: {
+    database,
+    script,
+  }: let
+    scriptName = "postgresql-startup-script-${database}-${name}";
+    scriptFile = pkgs.writeText "${scriptName}.sql" script;
+  in
+    lib.attrsets.nameValuePair
+    scriptName
+    {
+      description = "PostgreSQL startup script '${name}' for database '${database}'";
+
+      # Must finish before the DB is ready
+      requiredBy = ["postgresql-ready.target"];
+      before = ["postgresql-ready.target"];
+
+      # The db must be ready to accept connections before this runs
+      requires = ["postgresql-ready.service"];
+      after = ["postgresql-ready.service"];
+
+      serviceConfig = {
+        Type = "oneshot";
+        User = "postgres";
+      };
+
+      script = ''
+        ${cfg.package}/bin/psql \
+          --dbname=${database} \
+          --echo-queries \
+          --file=${scriptFile}
+      '';
+    };
+
+  # Build the SystemD services for the startup scripts
+  startupScriptServices = lib.attrsets.mapAttrs' buildStartupScriptService cfg.startupScripts;
 in {
   options = with lib; {
     gio.services.postgres = {
@@ -19,6 +68,10 @@ in {
       };
       databases = mkOption {
         type = types.listOf types.str;
+      };
+      startupScripts = mkOption {
+        type = types.attrsOf startupScriptType;
+        default = {};
       };
     };
   };
@@ -58,23 +111,25 @@ in {
       };
     };
 
-    services = {
-      postgresql-ready = {
-        description = "Wait for PostgreSQL to be ready";
-        wantedBy = ["default.target"];
-        requires = ["postgresql.service"];
-        serviceConfig = {
-          Type = "oneshot";
+    services =
+      {
+        postgresql-ready = {
+          description = "Wait for PostgreSQL to be ready";
+          wantedBy = ["default.target"];
+          requires = ["postgresql.service"];
+          serviceConfig = {
+            Type = "oneshot";
+          };
+          script = ''
+            while ! ${cfg.package}/bin/pg_isready
+            do
+              echo "$(date) - waiting for database to start"
+              sleep 0.25
+            done
+          '';
         };
-        script = ''
-          while ! ${cfg.package}/bin/pg_isready
-          do
-            echo "$(date) - waiting for database to start"
-            sleep 0.25
-          done
-        '';
-      };
-    };
+      }
+      // startupScriptServices;
   };
 
   # Backup database with Restic
