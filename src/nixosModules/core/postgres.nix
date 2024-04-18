@@ -60,6 +60,33 @@ in {
     '';
   };
 
+  # Backup database with Restic
+  config.systemd.services.postgres-backup = {
+    description = "Backup postgres";
+    requires = ["postgresql.service"];
+    after = ["postgres-ready.service"];
+    serviceConfig = {
+      Type = "oneshot";
+      LoadCredentialEncrypted = [
+        "postgres-backup-restic"
+        "postgres-backup-restic-password"
+      ];
+      User = "postgres";
+    };
+    script = ''
+      # ${pkgs.restic}/bin/restic init
+      set -o pipefail
+      ${pkgs.postgresql}/bin/pg_dumpall | ${pkgs.restic}/bin/restic backup --stdin --stdin-filename="${config.networking.hostName}.sql"
+    '';
+    environment = {
+      RESTIC_REPOSITORY = "s3:garage.gio.ninja/backup-postgres";
+      RESTIC_PASSWORD_FILE = "%d/postgres-backup-restic-password";
+
+      AWS_DEFAULT_REGION = "garage";
+      AWS_SHARED_CREDENTIALS_FILE = "%d/postgres-backup-restic";
+    };
+  };
+
   # Add pgcli the nicer CLI to the system
   config.environment.systemPackages = lib.mkIf cfg.enable [
     pkgs.pgcli
