@@ -1,6 +1,7 @@
 _: {
   config,
   pkgs,
+  lib,
   ...
 }: let
   makeNodeExporterConfig = host: address: {
@@ -57,8 +58,42 @@ in {
           GRANT ALL ON SEQUENCES TO telegraf;
         '';
       };
+      create-grafana-user = {
+        database = "metrics";
+        script = ''
+          -- Create the user only if it does not exist
+          -- I know there could be a race condition here, I dont care though
+          DO $$
+            BEGIN
+              IF NOT EXISTS (SELECT * FROM pg_user WHERE usename = 'grafana') THEN
+                CREATE USER grafana;
+              END IF;
+            END
+          $$;
+
+          -- Give access to the db
+          GRANT SELECT ON ALL TABLES IN SCHEMA public TO grafana;
+          GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO grafana;
+
+          -- Give user access to all future tables
+          ALTER DEFAULT PRIVILEGES IN SCHEMA public
+          GRANT SELECT ON TABLES TO grafana;
+
+          -- Give user access to all future sequences
+          ALTER DEFAULT PRIVILEGES IN SCHEMA public
+          GRANT SELECT ON SEQUENCES TO grafana;
+        '';
+      };
     };
   };
+
+  # Allow PostgreSQL to be accessed from the Wireguard Mesh
+  networking.firewall.interfaces.wg9.allowedTCPPorts = [5432];
+
+  # Allow access to the metrics database from the local network
+  services.postgresql.authentication = lib.mkAfter ''
+    host metrics grafana samehost scram-sha-256
+  '';
 
   # Configure Telegraf to send stats to to TSDB
   services.telegraf = {
