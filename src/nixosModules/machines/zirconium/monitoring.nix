@@ -1,6 +1,5 @@
 _: {
   config,
-  pkgs,
   lib,
   ...
 }: let
@@ -115,10 +114,11 @@ in {
         netstat = {};
         nstat = {};
         processes = {};
-        smart = {
-          path_smartctl = "${pkgs.smartmontools}/bin/smartctl";
-          path_nvme = "${pkgs.nvme-cli}/bin/nvme";
-        };
+        # TODO: fix this
+        # smart = {
+        #   path_smartctl = "${pkgs.smartmontools}/bin/smartctl";
+        #   path_nvme = "${pkgs.nvme-cli}/bin/nvme";
+        # };
         swap = {};
         system = {};
         systemd_units = [
