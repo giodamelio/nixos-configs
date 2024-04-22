@@ -1,10 +1,13 @@
-_: {
+{root, ...}: {
   config,
   lib,
   pkgs,
   ...
 }: let
   cfg = config.gio.services.postgres;
+
+  impostare = root.packages.impostare {inherit pkgs;};
+  settingsFormat = pkgs.formats.toml {};
 
   startupScriptType = with lib;
     types.submodule {
@@ -73,6 +76,10 @@ in {
         type = types.attrsOf startupScriptType;
         default = {};
       };
+      impostare = mkOption {
+        inherit (settingsFormat) type;
+        default = {};
+      };
     };
   };
 
@@ -103,6 +110,7 @@ in {
       # After this target, PostgreSQL is ready for applications to access it
       # Setup scripts have run and it is listening for connections
       postgresql-ready = let
+        # waitFor = ["postgresql-ready.service" "impostare.service"];
         waitFor = ["postgresql-ready.service"];
       in {
         description = "PostgreSQL ready for applications";
@@ -126,6 +134,31 @@ in {
               echo "$(date) - waiting for database to start"
               sleep 0.25
             done
+          '';
+        };
+        impostare = let
+          connectionFile =
+            pkgs.writeText
+            "connection-details"
+            "host=/run/postgresql user=postgres";
+          configFile = settingsFormat.generate "db.toml" cfg.impostare;
+        in {
+          enable = false;
+          description = "PostgreSQL provisioning tool";
+          # requires = ["postgresql-ready.service"];
+          # after = ["postgresql-ready.service"];
+
+          serviceConfig = {
+            Type = "oneshot";
+            User = "postgres";
+            LoadCredentialEncrypted = [
+              "grafana_postgres_password"
+              "telegraf-postgres-password"
+            ];
+          };
+
+          script = ''
+            ${impostare}/bin/impostare ${connectionFile} ${configFile}
           '';
         };
       }

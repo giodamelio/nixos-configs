@@ -22,7 +22,7 @@ in
     meta = with lib; {
       description = "";
       homepage = "https://github.com/giodamelio/impostare";
-      license = licenses.unfree; # FIXME: nix-init did not found a license
+      license = licenses.mit;
       maintainers = with maintainers; [giodamelio];
       mainProgram = "impostare";
     };

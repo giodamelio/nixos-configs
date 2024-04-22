@@ -25,64 +25,56 @@ in {
     enable = true;
     timescaledb = true;
     databases = ["metrics"];
-    startupScripts = {
-      setup-timescaledb = {
-        database = "metrics";
-        script = ''
-          CREATE EXTENSION IF NOT EXISTS timescaledb;
-        '';
-      };
-      create-telegraf-user = {
-        database = "metrics";
-        script = ''
-          -- Create the user only if it does not exist
-          -- I know there could be a race condition here, I dont care though
-          DO $$
-            BEGIN
-              IF NOT EXISTS (SELECT * FROM pg_user WHERE usename = 'telegraf') THEN
-                CREATE USER telegraf;
-              END IF;
-            END
-          $$;
-
-          -- Give access to the db
-          GRANT ALL ON SCHEMA public TO telegraf;
-
-          -- Give user access to all future tables
-          ALTER DEFAULT PRIVILEGES IN SCHEMA public
-          GRANT ALL ON TABLES TO telegraf;
-
-          -- Give user access to all future sequences
-          ALTER DEFAULT PRIVILEGES IN SCHEMA public
-          GRANT ALL ON SEQUENCES TO telegraf;
-        '';
-      };
-      create-grafana-user = {
-        database = "metrics";
-        script = ''
-          -- Create the user only if it does not exist
-          -- I know there could be a race condition here, I dont care though
-          DO $$
-            BEGIN
-              IF NOT EXISTS (SELECT * FROM pg_user WHERE usename = 'grafana') THEN
-                CREATE USER grafana;
-              END IF;
-            END
-          $$;
-
-          -- Give access to the db
-          GRANT SELECT ON ALL TABLES IN SCHEMA public TO grafana;
-          GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO grafana;
-
-          -- Give user access to all future tables
-          ALTER DEFAULT PRIVILEGES IN SCHEMA public
-          GRANT SELECT ON TABLES TO grafana;
-
-          -- Give user access to all future sequences
-          ALTER DEFAULT PRIVILEGES IN SCHEMA public
-          GRANT SELECT ON SEQUENCES TO grafana;
-        '';
-      };
+    impostare = {
+      databases = [{name = "metrics";}];
+      extensions = [
+        {
+          name = "timescaledb";
+          database = "metrics";
+        }
+      ];
+      users = [
+        {
+          name = "grafana";
+          systemd_password_credential = "grafana_postgres_password";
+        }
+        {
+          name = "telegraf";
+          systemd_password_credential = "telegraf-postgres-password";
+        }
+      ];
+      database_permissions = [
+        {
+          role = "telegraf";
+          permissions = ["CONNECT"];
+          databases = ["metrics"];
+        }
+      ];
+      schema_permissions = [
+        {
+          role = "telegraf";
+          permissions = ["CREATE"];
+          database = "metrics";
+          schemas = ["public"];
+          make_default = true;
+        }
+      ];
+      table_permissions = [
+        {
+          role = "telegraf";
+          permissions = ["ALL"];
+          database = "metrics";
+          tables = "ALL";
+          make_default = true;
+        }
+        {
+          role = "grafana";
+          permissions = ["SELECT"];
+          database = "metrics";
+          tables = "ALL";
+          make_default = true;
+        }
+      ];
     };
   };
 
@@ -93,6 +85,10 @@ in {
   services.postgresql.authentication = lib.mkAfter ''
     host metrics grafana samehost scram-sha-256
   '';
+  # services.postgresql.authentication = lib.mkAfter ''
+  #   host metrics grafana samehost scram-sha-256
+  #   host metrics telegraf samenet scram-sha-256
+  # '';
 
   # Configure Telegraf to send stats to to TSDB
   services.telegraf = {
