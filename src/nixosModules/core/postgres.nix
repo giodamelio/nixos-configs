@@ -110,7 +110,6 @@ in {
       # After this target, PostgreSQL is ready for applications to access it
       # Setup scripts have run and it is listening for connections
       postgresql-ready = let
-        # waitFor = ["postgresql-ready.service" "impostare.service"];
         waitFor = ["postgresql-ready.service"];
       in {
         description = "PostgreSQL ready for applications";
@@ -143,10 +142,12 @@ in {
             "host=/run/postgresql user=postgres";
           configFile = settingsFormat.generate "db.toml" cfg.impostare;
         in {
-          enable = false;
+          enable = true;
           description = "PostgreSQL provisioning tool";
-          # requires = ["postgresql-ready.service"];
-          # after = ["postgresql-ready.service"];
+          requires = ["postgresql-ready.service"];
+          after = ["postgresql-ready.service"];
+          requiredBy = ["postgresql-ready.target"];
+          before = ["postgresql-ready.target"];
 
           serviceConfig = {
             Type = "oneshot";
