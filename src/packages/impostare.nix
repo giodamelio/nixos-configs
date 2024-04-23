@@ -3,16 +3,16 @@ _: {pkgs, ...}: let
 in
   pkgs.rustPlatform.buildRustPackage rec {
     pname = "impostare";
-    version = "0.1.0";
+    version = "0.2.0";
 
     src = pkgs.fetchFromGitHub {
       owner = "giodamelio";
       repo = "impostare";
       rev = "v${version}";
-      hash = "sha256-uXCUp7feIqdn3a/59ueHBY4erfbCMy/gMFFAKeRRPIg=";
+      hash = "sha256-+b7dBz7LQ5djXtUj/0/lu49FBK1iy7YCRVEawnkJMrE=";
     };
 
-    cargoHash = "sha256-+GCZM0YoRM+0XqlX9cZwY1LjWTBWD2zW4AQgst86jck=";
+    cargoHash = "sha256-b96NNGhQbqcUkMp2NkI7pglSP3RArcFnbnX+KoxPDvA=";
 
     buildInputs = lib.optionals pkgs.stdenv.isDarwin [
       pkgs.darwin.apple_sdk.frameworks.CoreFoundation
