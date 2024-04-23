@@ -24,6 +24,9 @@
     # Security Platform (Identity/Overlay Network)
     super.defguard
 
+    # Our Certificate Authority
+    super.step-ca
+
     # Wireguard Mesh
     super.wireguard-mesh
 
