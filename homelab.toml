@@ -85,8 +85,11 @@ defguard = "zirconium.gio.ninja"
 status = "zirconium.gio.ninja"
 grafana = "zirconium.gio.ninja"
 prometheus = "zirconium.gio.ninja"
+ca = "zirconium.gio.ninja"
+
 miniflux = "carbon.gio.ninja"
 home = "carbon.gio.ninja"
 paperless = "carbon.gio.ninja"
+
 garage = "gallium.gio.ninja"
 garage-admin = "gallium.gio.ninja"
