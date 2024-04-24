@@ -28,6 +28,9 @@ _: {
         cpu = {};
         disk = {};
         diskio = {};
+        internet_speed = {
+          interval = "60m";
+        };
         kernel = {};
         linux_sysctl_fs = {};
         mem = {};
