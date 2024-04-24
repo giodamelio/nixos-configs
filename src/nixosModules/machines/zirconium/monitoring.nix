@@ -80,15 +80,17 @@ in {
 
   # Allow PostgreSQL to be accessed from the Wireguard Mesh
   networking.firewall.interfaces.wg9.allowedTCPPorts = [5432];
+  networking.firewall.interfaces.wg0.allowedTCPPorts = [5432];
 
-  # Allow access to the metrics database from the local network
-  services.postgresql.authentication = lib.mkAfter ''
-    host metrics grafana samehost scram-sha-256
-  '';
-  # services.postgresql.authentication = lib.mkAfter ''
-  #   host metrics grafana samehost scram-sha-256
-  #   host metrics telegraf samenet scram-sha-256
-  # '';
+  services.postgresql = {
+    enableTCPIP = true;
+
+    # Allow access to the metrics database from the local network
+    authentication = lib.mkAfter ''
+      host metrics grafana samehost scram-sha-256
+      host metrics telegraf samenet scram-sha-256
+    '';
+  };
 
   # Configure Telegraf to send stats to to TSDB
   services.telegraf = {
@@ -136,7 +138,7 @@ in {
         wireguard = {};
       };
       outputs.postgresql = {
-        connection = "host=/run/postgresql dbname=metrics user=telegraf sslmode=disable";
+        connection = "host=zirconium.gio.ninja user=telegraf dbname=metrics sslmode=disable";
 
         # Make it work with TSDB
         tags_as_foreign_keys = true;
@@ -157,6 +159,11 @@ in {
     serviceConfig = {
       CapabilityBoundingSet = "CAP_NET_ADMIN";
       AmbientCapabilities = "CAP_NET_ADMIN";
+      LoadCredentialEncrypted = "telegraf-postgres-passfile";
+    };
+
+    environment = {
+      PGPASSFILE = "%d/telegraf-postgres-passfile";
     };
   };
 
