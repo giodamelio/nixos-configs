@@ -22,7 +22,7 @@
         inputs.devenv.flakeModule
       ];
 
-      systems = ["x86_64-linux" "aarch64-linux"];
+      systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
 
       perSystem = {
         pkgs,
@@ -75,6 +75,7 @@
         # Export our modules and configurations
         inherit (lib) nixosModules;
         inherit (lib) nixosConfigurations;
+        inherit (lib) darwinConfigurations;
         inherit (lib) homeModules;
 
         # Deploy with Colmena
@@ -94,8 +95,13 @@
     };
 
   inputs = {
-    # Nixpkgs unstable channel
+    # Nixpkgs
     nixpkgs.url = "flake:nixpkgs/nixpkgs-unstable";
+    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-23.11-darwin";
+
+    # Configure MacOS via Nix
+    nix-darwin.url = "github:LnL7/nix-darwin";
+    nix-darwin.inputs.nixpkgs.follows = "nixpkgs-darwin";
 
     # Flake authoring framework
     flake-parts.url = "github:hercules-ci/flake-parts";
