@@ -97,11 +97,10 @@
   inputs = {
     # Nixpkgs
     nixpkgs.url = "flake:nixpkgs/nixpkgs-unstable";
-    nixpkgs-darwin.url = "github:NixOS/nixpkgs/nixpkgs-23.11-darwin";
 
     # Configure MacOS via Nix
     nix-darwin.url = "github:LnL7/nix-darwin";
-    nix-darwin.inputs.nixpkgs.follows = "nixpkgs-darwin";
+    nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
     # Flake authoring framework
     flake-parts.url = "github:hercules-ci/flake-parts";
