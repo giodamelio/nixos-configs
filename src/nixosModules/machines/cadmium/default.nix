@@ -19,7 +19,7 @@
     root.nixosModules.core.bootloader-grub
 
     # Add giodamelio user with Home Manager config
-    super.user-giodamelio
+    super.home-manager
 
     # Basic packages I want on every system
     root.nixosModules.basic-packages

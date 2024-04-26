@@ -23,6 +23,6 @@
 
     home-manager.useGlobalPkgs = true;
     home-manager.useUserPackages = true;
-    home-manager.users.giodamelio = root.homeModules.user-giodamelio;
+    home-manager.users.giodamelio = root.homeModules.users.giodamelio-linux;
   };
 }

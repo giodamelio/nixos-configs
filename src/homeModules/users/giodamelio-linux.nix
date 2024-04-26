@@ -1,5 +1,7 @@
-{root, ...}: {pkgs, ...}: {
+{root, ...}: _: {
   imports = [
+    root.homeModules.users.giodamelio
+
     root.homeModules.modern-coreutils
     root.homeModules.git
     root.homeModules.neovim
@@ -23,27 +25,7 @@
   ];
 
   home = {
-    username = "giodamelio";
     homeDirectory = "/home/giodamelio";
     stateVersion = "24.05";
   };
-
-  programs.home-manager.enable = true;
-
-  # Setup fonts
-  fonts = {
-    fontconfig.enable = true;
-  };
-  home.packages = [
-    # Ubuntu default font
-    pkgs.ubuntu_font_family
-
-    # Jetbrains Mono
-    pkgs.jetbrains-mono
-
-    # Add Inconsolata Nerdfont
-    (pkgs.nerdfonts.override {
-      fonts = ["Inconsolata" "JetBrainsMono"];
-    })
-  ];
 }
