@@ -32,6 +32,10 @@ in {
           name = "timescaledb";
           database = "metrics";
         }
+        {
+          name = "timescaledb_toolkit";
+          database = "metrics";
+        }
       ];
       users = [
         {

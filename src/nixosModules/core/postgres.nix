@@ -100,8 +100,11 @@ in {
 
     # TimescaleDB
     (lib.mkIf cfg.timescaledb {
-      extraPlugins = [pkgs.postgresql15Packages.timescaledb];
-      settings.shared_preload_libraries = "timescaledb";
+      extraPlugins = [
+        pkgs.postgresql15Packages.timescaledb
+        pkgs.postgresql15Packages.timescaledb_toolkit
+      ];
+      settings.shared_preload_libraries = "timescaledb,timescaledb_toolkit";
     })
   ]);
 
