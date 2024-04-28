@@ -26,6 +26,9 @@
     root.nixosModules.basic-packages-desktop
     root.nixosModules.basic-settings
 
+    # Thunar File Browser
+    root.nixosModules.core.thunar
+
     # Autosnapshot ZFS and send to NAS
     root.nixosModules.core.zfs-backup
     (_: {
