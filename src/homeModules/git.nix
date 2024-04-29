@@ -5,8 +5,8 @@ _: _: {
     userName = "Giovanni d'Amelio";
     userEmail = "gio@damelio.net";
 
-    # Use delta for diffing
-    delta.enable = true;
+    # Use Difftastic for language aware diffing powered by Treesitter
+    difftastic.enable = true;
 
     # Add some global gitignores
     ignores = [
