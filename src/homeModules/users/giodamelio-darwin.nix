@@ -18,7 +18,6 @@
   };
 
   home.packages = [
-    pkgs.raycast
     pkgs.kitty
     pkgs.rectangle
   ];
