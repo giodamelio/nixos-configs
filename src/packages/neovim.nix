@@ -90,6 +90,7 @@ _: {pkgs, ...}: let
       # AST for hightlighting, formatting, etc
       nvim-treesitter.withAllGrammars
       rainbowDelimitersNvim # Rainbow parens
+      nvim-treesitter-parsers.hurl
 
       # Status bar
       lualine-nvim

@@ -32,3 +32,10 @@ rainbowsetup({
     'RainbowDelimiterCyan',
   },
 })
+
+-- Enable Hurl
+vim.filetype.add({
+  extension = {
+    hurl = 'hurl',
+  },
+})
