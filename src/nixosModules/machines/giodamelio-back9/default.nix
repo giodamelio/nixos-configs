@@ -1,6 +1,7 @@
 {super, ...}: _: {
   imports = [
     super.home-manager
+    super.ruby
 
     (_: {
       # Allow unfree software
