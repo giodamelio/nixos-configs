@@ -6,6 +6,7 @@
     root.homeModules.git
     root.homeModules.neovim
     root.homeModules.kitty
+    root.homeModules.wezterm
 
     root.homeModules.starship
     root.homeModules.zsh
