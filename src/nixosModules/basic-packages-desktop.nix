@@ -8,6 +8,7 @@ _: {pkgs, ...}: {
       pavucontrol
       qutebrowser
       xdg-utils
+      vlc
     ];
     sessionVariables = {
       NIXOS_OZONE_WL = "1";
