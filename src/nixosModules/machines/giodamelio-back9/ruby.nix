@@ -4,5 +4,6 @@ _: {pkgs, ...}: {
     file
     hurl
     xh
+    devenv
   ];
 }

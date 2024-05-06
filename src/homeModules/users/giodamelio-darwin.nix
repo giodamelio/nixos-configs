@@ -11,6 +11,13 @@
     root.homeModules.starship
     root.homeModules.zsh
     root.homeModules.nushell
+
+    # This is only necessary until I get the setup working and add it per repo
+    (_: {
+      programs.git.ignores = [
+        "/.devenv*"
+      ];
+    })
   ];
 
   home = {
