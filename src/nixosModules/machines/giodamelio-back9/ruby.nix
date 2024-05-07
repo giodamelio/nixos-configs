@@ -5,5 +5,6 @@ _: {pkgs, ...}: {
     hurl
     xh
     devenv
+    age
   ];
 }
