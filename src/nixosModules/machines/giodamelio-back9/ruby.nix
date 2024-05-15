@@ -1,4 +1,6 @@
-_: {pkgs, ...}: {
+{root, ...}: {pkgs, ...}: let
+  aider = root.packages.aider {inherit pkgs;};
+in {
   environment.systemPackages = with pkgs; [
     ruby_3_2
     file
@@ -8,5 +10,6 @@ _: {pkgs, ...}: {
     age
     opentofu
     heroku
+    aider
   ];
 }

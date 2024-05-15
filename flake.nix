@@ -144,5 +144,9 @@
     # Encrypted Secrets
     ragenix.url = "github:yaxitech/ragenix";
     ragenix.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Simplified nix packaging for various programming language ecosystems
+    dream2nix.url = "github:nix-community/dream2nix";
+    dream2nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 }

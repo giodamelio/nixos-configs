@@ -12,6 +12,7 @@ _: _: {
     ignores = [
       "tmp/"
       ".direnv/"
+      ".aider*"
     ];
 
     aliases = {
