@@ -6,5 +6,7 @@ _: {pkgs, ...}: {
     xh
     devenv
     age
+    opentofu
+    heroku
   ];
 }
