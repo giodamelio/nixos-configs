@@ -31,7 +31,7 @@
         system,
         ...
       }: let
-        sys = {inherit pkgs inputs' config;};
+        sys = {inherit pkgs inputs' config system;};
       in {
         # Allow unfree packages
         _module.args.pkgs = import inputs.nixpkgs {
@@ -148,5 +148,9 @@
     # Simplified nix packaging for various programming language ecosystems
     dream2nix.url = "github:nix-community/dream2nix";
     dream2nix.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Neovim Config Framework
+    nixvim.url = "github:nix-community/nixvim";
+    nixvim.inputs.nixpkgs.follows = "nixpkgs";
   };
 }
