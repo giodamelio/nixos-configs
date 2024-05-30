@@ -10,14 +10,14 @@ inputs.dream2nix.lib.evalModules {
         };
 
         name = "aider";
-        version = "0.35.0";
+        version = "0.36.0";
 
         mkDerivation = {
           src = pkgs.fetchFromGitHub {
             owner = "paul-gauthier";
             repo = "aider";
             rev = "v${version}";
-            hash = "sha256-oDBPji2PBhsjzX+7OjtUY27DyBFVvwMEooNNIS6Cy3g=";
+            hash = "sha256-v5/QQsKy4bwu0/12ExxqWaSh2Ktj76MlqSDifAWDHhM=";
           };
         };
 
