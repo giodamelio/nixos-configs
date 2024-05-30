@@ -12,6 +12,8 @@
     root.homeModules.zsh
     root.homeModules.nushell
 
+    root.homeModules.nix-index
+
     # This is only necessary until I get the setup working and add it per repo
     (_: {
       programs.git.ignores = [
