@@ -11,9 +11,10 @@ wk.register({
   f = {
     name = 'Find',
     f = { function() tb.find_files() end, 'Find file' },
+    h = { function() tb.find_files({ hidden = true }) end, 'Find file (including hidden)' },
     g = { function() tb.live_grep() end, 'Find line in file' },
     b = { function() tb.buffers() end, 'Find buffer' },
-    h = { function() tb.help_tags() end, 'Find buffer' },
+    ['?'] = { function() tb.help_tags() end, 'Find help tags' },
     r = { function() tb.oldfiles() end, 'Find recent files' },
     m = { function() tb.marks() end, 'Find marks' },
   },
