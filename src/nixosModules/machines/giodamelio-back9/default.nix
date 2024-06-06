@@ -2,6 +2,7 @@
   imports = [
     super.home-manager
     super.ruby
+    super.homebrew
 
     (_: {
       # Allow unfree software
