@@ -19,5 +19,8 @@ in {
 
     # AWS ECS TUI that allows easy console access
     ecsplorer
+
+    # Quickly click without my mouse
+    shortcat
   ];
 }
