@@ -21,6 +21,7 @@ in {
       fd # Better find
       htop # Better top
       tree # I always want this...
+      zellij # Kinda like Tmux
 
       git
       file

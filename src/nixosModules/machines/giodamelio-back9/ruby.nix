@@ -12,6 +12,7 @@ in {
     opentofu
     heroku
     aider
+    zellij
 
     # AWS cli
     awscli2
