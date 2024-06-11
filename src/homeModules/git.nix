@@ -8,6 +8,9 @@ _: _: {
     # Use Difftastic for language aware diffing powered by Treesitter
     difftastic.enable = true;
 
+    # Setup Git Large File Storage
+    lfs.enable = true;
+
     # Add some global gitignores
     ignores = [
       "tmp/"
