@@ -47,6 +47,21 @@ _: {pkgs, ...}: let
     meta.homepage = "https://github.com/jackMort/ChatGPT.nvim";
   };
 
+  zellijNav = pkgs.vimUtils.buildVimPlugin {
+    pname = "zellij-nav";
+    version = "unstable-2024-01-29";
+    src = pkgs.fetchFromGitHub {
+      owner = "swaits";
+      repo = "zellij-nav.nvim";
+      rev = "25930804397ef540bd2de62f9897bc2db61f9baa";
+      hash = "sha256-TUhA6UGwpZuYWDU4j430LMnHVD8cggwrAzQ+HlT5ox8=";
+    };
+    meta = {
+      description = "Seamless navigation between Neovim windows and Zellij panes";
+      homepage = "https://github.com/swaits/zellij-nav.nvim";
+    };
+  };
+
   nvimConfig = pkgs.neovimUtils.makeNeovimConfig {
     withPython3 = true;
     vimAlias = true;
@@ -121,6 +136,7 @@ _: {pkgs, ...}: let
       bufdelete-nvim # Better behaved :Bedelete (keeps splits etc...)
       stayCentered # Keep the cursor line centered vertically as much as possible
       vim-startuptime # Keep on top of Neovim startup time
+      zellijNav # Easy navigating between Neovim and Zellij panes
     ];
 
     customRC = "
