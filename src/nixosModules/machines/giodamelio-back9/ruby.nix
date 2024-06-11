@@ -13,6 +13,7 @@ in {
     heroku
     aider
     zellij
+    git-lfs
 
     # AWS cli
     awscli2
