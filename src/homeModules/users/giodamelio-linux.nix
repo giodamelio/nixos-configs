@@ -26,6 +26,6 @@
 
   home = {
     homeDirectory = "/home/giodamelio";
-    stateVersion = "24.05";
+    stateVersion = "24.11";
   };
 }
