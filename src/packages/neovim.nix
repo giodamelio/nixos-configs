@@ -1,24 +1,12 @@
 _: {pkgs, ...}: let
-  rainbowDelimitersNvim = pkgs.vimUtils.buildVimPlugin {
-    pname = "rainbow-delimiters.nvim";
-    version = "2023-12-15";
-    src = pkgs.fetchFromGitLab {
-      owner = "HiPhish";
-      repo = "rainbow-delimiters.nvim";
-      rev = "0b4c1ab6724062f3582746c6a5a8c0636bf7ed81";
-      hash = "sha256-LV/kFqq0e4/208cN6B2R+ECvpGG4MUsfPIZsk/up53c=";
-    };
-    meta.homepage = "https://github.com/hiphish/rainbow-delimiters.nvim";
-  };
-
   gitlinker = pkgs.vimUtils.buildVimPlugin {
     pname = "gitlinker.nvim";
     version = "2023-12-15";
     src = pkgs.fetchFromGitHub {
       owner = "linrongbin16";
       repo = "gitlinker.nvim";
-      rev = "bc1c6801b4771d6768c6ec6727d0e7669e6aac5f"; # Latest on branch master as of 2023-12-15
-      hash = "sha256-GnqXK9PW4dxWVvQnOerPMQ+XKZzGL8ozlYs1/3PWFjc=";
+      rev = "542f51784f20107ef9ecdadc47825204837efed5"; # Latest on branch master as of 2024-06-26
+      hash = "sha256-OnlJf31dTzLOJ1tlDKH7slPnQGMZUloavEAtd/FxK0U=";
     };
     meta.homepage = "https://github.com/linrongbin16/gitlinker.nvim";
   };
@@ -29,37 +17,10 @@ _: {pkgs, ...}: let
     src = pkgs.fetchFromGitHub {
       owner = "arnamak";
       repo = "stay-centered.nvim";
-      rev = "0715638e7110362f95ead35c290fcd040c2d2735"; # Latest on branch master as of 2023-12-15
-      hash = "sha256-iaaWmXtgTPr3zecWD94D5PVB1yanpEb+oH4R2ukTT+A=";
+      rev = "91113bd82ac34f25c53d53e7c1545cb5c022ade8"; # Latest on branch main as of 2024-06-26
+      hash = "sha256-DDhF/a8S7Z1aR1Hg8UVgttl3je0hhn/OpZoakOeMHQw=";
     };
-    meta.homepage = "https://github.com/linrongbin16/gitlinker.nvim";
-  };
-
-  ChatGPT = pkgs.vimUtils.buildVimPlugin {
-    pname = "ChatGPT.nvim";
-    version = "2024-02-21";
-    src = pkgs.fetchFromGitHub {
-      owner = "jackMort";
-      repo = "ChatGPT.nvim";
-      rev = "aadb607038d53d97be4da368b07355f65ad3f047";
-      hash = "sha256-nIaOjwXBJJTKooyvtjIQIyoFCvZM0vOxhzwZRwBjLOo=";
-    };
-    meta.homepage = "https://github.com/jackMort/ChatGPT.nvim";
-  };
-
-  zellijNav = pkgs.vimUtils.buildVimPlugin {
-    pname = "zellij-nav";
-    version = "unstable-2024-01-29";
-    src = pkgs.fetchFromGitHub {
-      owner = "swaits";
-      repo = "zellij-nav.nvim";
-      rev = "25930804397ef540bd2de62f9897bc2db61f9baa";
-      hash = "sha256-TUhA6UGwpZuYWDU4j430LMnHVD8cggwrAzQ+HlT5ox8=";
-    };
-    meta = {
-      description = "Seamless navigation between Neovim windows and Zellij panes";
-      homepage = "https://github.com/swaits/zellij-nav.nvim";
-    };
+    meta.homepage = "https://github.com/arnamak/stay-centered.nvim";
   };
 
   nvimConfig = pkgs.neovimUtils.makeNeovimConfig {
@@ -104,7 +65,7 @@ _: {pkgs, ...}: let
 
       # AST for hightlighting, formatting, etc
       nvim-treesitter.withAllGrammars
-      rainbowDelimitersNvim # Rainbow parens
+      rainbow-delimiters-nvim # Rainbow parens
       nvim-treesitter-parsers.hurl
 
       # Status bar
@@ -126,7 +87,7 @@ _: {pkgs, ...}: let
       neotest-deno
 
       # ChatGPT-nvim # ChatGPT integration
-      ChatGPT # ChatGPT integration
+      ChatGPT-nvim # ChatGPT integration
       nui-nvim # needed for ChatGPT
       oil-nvim # Move/Create/Delete files/directories directly in a vim buffer
       nvim-surround # Deal with pairs of things
@@ -136,7 +97,6 @@ _: {pkgs, ...}: let
       bufdelete-nvim # Better behaved :Bedelete (keeps splits etc...)
       stayCentered # Keep the cursor line centered vertically as much as possible
       vim-startuptime # Keep on top of Neovim startup time
-      zellijNav # Easy navigating between Neovim and Zellij panes
     ];
 
     customRC = "
