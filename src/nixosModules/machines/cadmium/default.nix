@@ -46,7 +46,6 @@
     # Software Development tools
     super.development
 
-    super.greetd # Minimal Login Manager
     super.firefox # Setup Firefox
     super.keyd # Easy key rebinding
     super.hyprland # Hyperland WM
