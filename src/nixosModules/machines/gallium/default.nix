@@ -48,8 +48,46 @@
     # Garage distributed block storage
     super.garage
 
-    (_: {
+    ({pkgs,...}: {
       networking.hostId = "8425e349";
+
+      services.samba = {
+        enable = true;
+        package = pkgs.samba4Full;
+        openFirewall = true;
+
+        extraConfig = ''
+          server smb encrypt = required
+          server min protocol = SMB3_00
+        '';
+
+        shares = {
+          hard-drive-dumping-zone = {
+            path = "/mnt/hard-drive-dumping-zone";
+            comment = "Dumping zone for data from old hard drives";
+            browseable = "yes";
+            writable = "yes";
+            "force user" = "samba-guest";
+          };
+        };
+      };
+
+      services.samba-wsdd = {
+        enable = true;
+        openFirewall = true;
+      };
+
+      users = {
+        groups.samba-guest = {};
+        users.samba-guest = {
+          isSystemUser = true;
+          description = "Samba guest users";
+          group = "samba-guest";
+          home = "/var/empty";
+          createHome = false;
+          shell = pkgs.shadow;
+        };
+      };
 
       # Load the deployment config from our homelab.toml
       inherit (homelab.machines.gallium) deployment;
