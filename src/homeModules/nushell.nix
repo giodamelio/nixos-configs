@@ -15,10 +15,6 @@ _: {config, ...}: {
     };
   };
 
-  programs.atuin = {
-    enableNushellIntegration = true;
-  };
-
   programs.zoxide = {
     enableNushellIntegration = true;
   };

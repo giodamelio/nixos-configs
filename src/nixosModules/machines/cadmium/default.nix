@@ -18,8 +18,9 @@
     # Boot with grub
     root.nixosModules.core.bootloader-grub
 
-    # Add giodamelio user with Home Manager config
+    # Setup user programs/services
     super.home-manager
+    root.nixosModules.services.atuin # Shell History Search
 
     # Basic packages I want on every system
     root.nixosModules.basic-packages
