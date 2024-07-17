@@ -1,4 +1,5 @@
 _: {
+  pkgs,
   config,
   lib,
   modulesPath,
@@ -9,8 +10,8 @@ _: {
   ];
 
   boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod"];
-  boot.initrd.kernelModules = [];
-  boot.kernelModules = ["kvm-intel"];
+  boot.initrd.kernelModules = ["amdgpu"];
+  boot.kernelModules = ["kvm-intel" "amdgpu" "iwlwifi"];
   boot.extraModulePackages = [];
 
   networking.useDHCP = lib.mkDefault true;
@@ -32,6 +33,16 @@ _: {
     pulse.enable = true;
     jack.enable = true;
   };
+  hardware.pulseaudio.enable = false;
+
+  # Udev Rules for game controllers
+  services.udev.packages = [ pkgs.game-devices-udev-rules ];
+
+  # Enable Bluetooth
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
+  hardware.enableAllFirmware = true;
+  services.blueman.enable = true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
