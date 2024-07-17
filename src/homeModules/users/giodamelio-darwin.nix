@@ -2,7 +2,6 @@
   imports = [
     root.homeModules.users.giodamelio
 
-    root.homeModules.modern-coreutils
     root.homeModules.git
     root.homeModules.neovim
     root.homeModules.kitty

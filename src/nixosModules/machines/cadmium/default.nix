@@ -20,6 +20,7 @@
 
     # Setup user programs/services
     super.home-manager
+    root.nixosModules.core.modern-coreutils-replacements # Fancy versions of some coreutils
     root.nixosModules.services.atuin # Shell History Search
 
     # Basic packages I want on every system
