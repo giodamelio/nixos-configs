@@ -1,4 +1,4 @@
-_: _: {
+_: {pkgs, ...}: {
   programs.zsh = {
     enable = true;
     enableCompletion = true;
@@ -9,6 +9,18 @@ _: _: {
     enableZshIntegration = true;
     settings = {
       filter_mode_shell_up_key_binding = "session";
+      daemon.enabled = true;
+    };
+  };
+
+  systemd.user.services.atuind = {
+    Install = {
+      After = [ "network.target" ];
+      WantedBy = [ "default.target" ];
+    };
+    Service = {
+      ExecStart = "${pkgs.atuin}/bin/atuin daemon";
+      Environment = "ATUIN_LOG=info";
     };
   };
 
