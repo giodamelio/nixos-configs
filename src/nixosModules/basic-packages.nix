@@ -22,6 +22,7 @@ in {
       htop # Better top
       tree # I always want this...
       zellij # Kinda like Tmux
+      usbutils # For lsusb command
 
       git
       file
