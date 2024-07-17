@@ -4,7 +4,8 @@ _: {pkgs, ...}: {
       bitwarden-cli
       bitwarden-menu
       thunderbird
-      obsidian
+      # Currently broken
+      # obsidian
       pavucontrol
       qutebrowser
       xdg-utils
