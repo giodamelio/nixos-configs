@@ -138,9 +138,9 @@ lspconfig.rubocop.setup({})
 lspconfig.emmet_ls.setup({
   filetypes = { 'css', 'html', 'javascript', 'heex' },
 })
-lspconfig.elixirls.setup({
-  cmd = { os.getenv('ELIXIRLS_CMD') },
-})
+-- lspconfig.elixirls.setup({
+--   cmd = { os.getenv('ELIXIRLS_CMD') },
+-- })
 lspconfig.rust_analyzer.setup({
   settings = {
     ['rust-analyzer'] = {

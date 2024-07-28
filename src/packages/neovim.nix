@@ -98,6 +98,7 @@ _: {pkgs, ...}: let
       bufdelete-nvim # Better behaved :Bedelete (keeps splits etc...)
       stayCentered # Keep the cursor line centered vertically as much as possible
       vim-startuptime # Keep on top of Neovim startup time
+      elixir-tools-nvim # Elixir tooling
     ];
 
     customRC = "

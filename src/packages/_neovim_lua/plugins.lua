@@ -103,6 +103,13 @@ require('neotest').setup({
   },
 })
 
+-- Elixir Tools
+require('elixir').setup({
+  nextls = { enable = true },
+  elixirls = { enable = false },
+  projectionist = { enable = true },
+})
+
 require('nvim-surround').setup()
 require('Comment').setup()
 require('stay-centered').setup()
