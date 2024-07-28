@@ -59,6 +59,17 @@ wk.register({
   },
 })
 
+-- Navigate to other files
+wk.register({
+  ['<leader>o'] = {
+    name = 'Other files',
+    o = { '<cmd>Other<cr>', 'Open the the other file' },
+    s = { '<cmd>OtherSplit<cr>', 'Open the the other file in a horizontal split' },
+    v = { '<cmd>OtherVSplit<cr>', 'Open the the other file in a vertical split' },
+    c = { '<cmd>OtherClear<cr>', 'Clear the internal reference to other file' },
+  },
+})
+
 -- Git keybindings
 local gs = require('gitsigns')
 local gsa = require('gitsigns.actions')

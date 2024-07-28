@@ -110,6 +110,30 @@ require('elixir').setup({
   projectionist = { enable = true },
 })
 
+-- Other
+require('other-nvim').setup({
+  mappings = {
+    'rails',
+    'golang',
+    -- Elixir + Phoenix Mappings
+
+    -- Go from controller to places
+    {
+      pattern = '/lib/(.+)_web/controllers/(.+)_controller.ex',
+      target = {
+        { context = 'test', target = '/test/%1_web/controllers/%2_controller_test.exs' }
+      }
+    },
+    -- Go from test to places
+    {
+      pattern = '/test/(.+)_web/controllers/(.+)_controller_test.exs',
+      target = {
+        { context = 'controller', target = '/lib/%1_web/controllers/%2_controller.ex' }
+      }
+    }
+  },
+})
+
 require('nvim-surround').setup()
 require('Comment').setup()
 require('stay-centered').setup()
