@@ -55,6 +55,34 @@
     super.monitoring # Export metrics
     super.streamdeck # StreamDeck stuff
 
+    ({pkgs, ...}: {
+      programs.sway.enable = true;
+      services.displayManager = {
+        sessionPackages = [
+          pkgs.sway
+        ];
+      };
+      services.xserver = {
+        enable = true;
+        # displayManager.gdm.enable = true;
+        desktopManager.gnome.enable = true;
+        videoDrivers = [
+          "amdgpu"
+          "modesetting"
+          "fbdev"
+        ];
+      };
+
+      # Gaming
+      programs.steam = {
+        enable = true;
+      };
+      environment.systemPackages = with pkgs; [
+        discord
+        gnomeExtensions.pop-shell
+      ];
+    })
+
     (_: {
       virtualisation.docker = {
         enable = true;
