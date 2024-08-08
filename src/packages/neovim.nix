@@ -77,6 +77,7 @@ _: {pkgs, ...}: let
       gitsigns-nvim # Git status in the gutter
       gitlinker # Easily link to specific file locations
       neogit # Git ui
+      diffview-nvim # Better diffs
 
       # Test running
       neotest
