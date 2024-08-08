@@ -36,7 +36,7 @@ _: {
   hardware.pulseaudio.enable = false;
 
   # Udev Rules for game controllers
-  services.udev.packages = [ pkgs.game-devices-udev-rules ];
+  services.udev.packages = [pkgs.game-devices-udev-rules];
 
   # Enable Bluetooth
   hardware.bluetooth.enable = true;

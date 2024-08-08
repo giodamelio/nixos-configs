@@ -1,9 +1,9 @@
-_: { pkgs, ...} : {
+_: {pkgs, ...}: {
   # Run Atuin daemon
   systemd.user.services.atuind = {
     enable = true;
-    after = [ "network.target" ];
-    wantedBy = [ "default.target" ];
+    after = ["network.target"];
+    wantedBy = ["default.target"];
     serviceConfig = {
       ExecStart = "${pkgs.atuin}/bin/atuin daemon";
     };
@@ -12,7 +12,7 @@ _: { pkgs, ...} : {
     };
   };
 
-  home-manager.users.giodamelio =  { pkgs, ... }: {
+  home-manager.users.giodamelio = {pkgs, ...}: {
     # Enable Atuin in daemon mode
     programs.atuin = {
       enable = true;

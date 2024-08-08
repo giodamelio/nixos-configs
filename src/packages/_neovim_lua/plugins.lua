@@ -121,29 +121,29 @@ require('other-nvim').setup({
     {
       pattern = '/lib/(.+)_web/controllers/(.+)_controller.ex',
       target = {
-        { context = 'test', target = '/test/%1_web/controllers/%2_controller_test.exs' }
-      }
+        { context = 'test', target = '/test/%1_web/controllers/%2_controller_test.exs' },
+      },
     },
     -- Go from controller test to places
     {
       pattern = '/test/(.+)_web/controllers/(.+)_controller_test.exs',
       target = {
-        { context = 'controller', target = '/lib/%1_web/controllers/%2_controller.ex' }
-      }
+        { context = 'controller', target = '/lib/%1_web/controllers/%2_controller.ex' },
+      },
     },
     -- Go from context to places
     {
       pattern = '/lib/(.+)/(.+).ex',
       target = {
-        { context = 'test', target = '/test/%1/%2_test.exs' }
-      }
+        { context = 'test', target = '/test/%1/%2_test.exs' },
+      },
     },
     -- Go from context test to places
     {
       pattern = '/test/(.+)/(.+)_test.exs',
       target = {
-        { context = 'context', target = '/lib/%1/%2.ex' }
-      }
+        { context = 'context', target = '/lib/%1/%2.ex' },
+      },
     },
   },
 })

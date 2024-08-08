@@ -48,7 +48,7 @@
     # Garage distributed block storage
     super.garage
 
-    ({pkgs,...}: {
+    ({pkgs, ...}: {
       networking.hostId = "8425e349";
 
       services.samba = {

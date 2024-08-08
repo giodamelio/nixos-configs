@@ -1,12 +1,12 @@
 _: {pkgs, ...}: {
   environment.systemPackages = with pkgs; [
-      fd # find
-      procs # ps
-      sd # sed
-      du-dust # du
+    fd # find
+    procs # ps
+    sd # sed
+    du-dust # du
   ];
 
-  home-manager.users.giodamelio =  { pkgs, ... }: {
+  home-manager.users.giodamelio = {pkgs, ...}: {
     home.shellAliases = {
       tree = "eza --tree";
       du = "dust";
