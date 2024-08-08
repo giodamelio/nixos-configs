@@ -12,7 +12,7 @@ _: {pkgs, ...}: {
     };
   };
 
-  home-manager.users.giodamelio = {pkgs, ...}: {
+  home-manager.users.giodamelio = _: {
     # Enable Atuin in daemon mode
     programs.atuin = {
       enable = true;

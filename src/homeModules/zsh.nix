@@ -1,4 +1,4 @@
-_: {pkgs, ...}: {
+_: _: {
   programs.zsh = {
     enable = true;
     enableCompletion = true;

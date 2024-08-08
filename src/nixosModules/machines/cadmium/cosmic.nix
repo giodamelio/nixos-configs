@@ -1,4 +1,4 @@
-{inputs, ...}: {pkgs, ...}: {
+{inputs, ...}: _: {
   imports = [
     inputs.nixos-cosmic.nixosModules.default
   ];

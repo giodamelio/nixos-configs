@@ -6,7 +6,7 @@ _: {pkgs, ...}: {
     du-dust # du
   ];
 
-  home-manager.users.giodamelio = {pkgs, ...}: {
+  home-manager.users.giodamelio = _: {
     home.shellAliases = {
       tree = "eza --tree";
       du = "dust";
