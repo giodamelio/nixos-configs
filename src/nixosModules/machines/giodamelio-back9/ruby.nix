@@ -24,5 +24,8 @@ in {
 
     # Quickly click without my mouse
     shortcat
+
+    # Quick easy linux VMs
+    lima-bin
   ];
 }
