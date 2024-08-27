@@ -148,6 +148,18 @@ require('other-nvim').setup({
   },
 })
 
+-- Parrot
+require('parrot').setup({
+  providers = {
+    openai = {
+      api_key = os.getenv('OPENAI_API_KEY'),
+    },
+    anthropic = {
+      api_key = os.getenv('ANTHROPIC_API_KEY'),
+    },
+  },
+})
+
 require('nvim-surround').setup()
 require('Comment').setup()
 require('stay-centered').setup()
