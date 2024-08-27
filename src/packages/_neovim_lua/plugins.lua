@@ -161,6 +161,8 @@ require('parrot').setup({
       api_key = { '/usr/bin/security', 'find-generic-password', '-a', 'anthropic', '-s', 'api-key-neovim', '-w' },
     },
   },
+
+  chat_shortcut_respond = { modes = { 'n', 'i', 'v', 'x' }, shortcut = '<C-Enter>' },
 })
 
 require('nvim-surround').setup()
