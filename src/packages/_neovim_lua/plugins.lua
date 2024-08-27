@@ -148,6 +148,9 @@ require('other-nvim').setup({
   },
 })
 
+-- FZF Lua
+require('fzf-lua').setup({ 'default' })
+
 -- Parrot
 require('parrot').setup({
   providers = {

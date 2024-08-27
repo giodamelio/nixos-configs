@@ -59,6 +59,7 @@ _: {pkgs, ...}: let
       # Fuzzy find things
       telescope-nvim
       plenary-nvim # Needed dependency
+      fzf-lua # Needed dependency
 
       # Language Server
       nvim-lspconfig
@@ -128,4 +129,14 @@ _: {pkgs, ...}: let
     ";
   };
 in
-  pkgs.wrapNeovimUnstable pkgs.neovim-unwrapped nvimConfig
+  pkgs.symlinkJoin {
+    name = "nvim";
+    paths = [
+      # Custom Neovim
+      (pkgs.wrapNeovimUnstable pkgs.neovim-unwrapped nvimConfig)
+
+      # Some random dependencies
+      pkgs.fzf # Fuzzy finder needed from fzf-lua plugin
+      pkgs.skim # Fuzzy finder needed from fzf-lua plugin
+    ];
+  }
