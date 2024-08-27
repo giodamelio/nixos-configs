@@ -116,6 +116,7 @@ _: {pkgs, ...}: let
       vim-startuptime # Keep on top of Neovim startup time
       elixir-tools-nvim # Elixir tooling
       other-nvim # Easily switch to related file types
+      nvim-notify # Pretty notifications
     ];
 
     customRC = "
