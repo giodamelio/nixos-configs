@@ -1,8 +1,15 @@
-{super, ...}: _: {
+{
+  super,
+  root,
+  ...
+}: _: {
   imports = [
     super.home-manager
     super.ruby
     super.homebrew
+
+    root.nixosModules.core.modern-coreutils-replacements
+    root.nixosModules.services.atuin
 
     (_: {
       # Allow unfree software
