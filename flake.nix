@@ -153,7 +153,12 @@
     nix-index-database.url = "github:nix-community/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
+    # Experimental DE from System76
     nixos-cosmic.url = "github:lilyinstarlight/nixos-cosmic";
     nixos-cosmic.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Nix on my phone
+    nix-on-droid.url = "github:nix-community/nix-on-droid/master";
+    nix-on-droid.inputs.nixpkgs.follows = "nixpkgs";
   };
 }
