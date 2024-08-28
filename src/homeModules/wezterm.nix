@@ -11,6 +11,10 @@ _: _: {
 
         hide_tab_bar_if_only_one_tab = true,
 
+        -- Work around
+        -- See: https://github.com/NixOS/nixpkgs/issues/336069
+        front_end = 'WebGpu',
+
         -- Minimize padding
         window_padding = {
           left = 0,
