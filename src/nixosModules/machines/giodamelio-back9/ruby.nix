@@ -27,5 +27,8 @@ in {
 
     # Quick easy linux VMs
     lima-bin
+
+    # Language Servers
+    yaml-language-server
   ];
 }

@@ -135,6 +135,15 @@ lspconfig.gopls.setup({})
 lspconfig.terraformls.setup({})
 lspconfig.ruby_lsp.setup({})
 lspconfig.rubocop.setup({})
+lspconfig.yamlls.setup({
+  settings = {
+    yaml = {
+      format = {
+        enable = true,
+      },
+    },
+  },
+})
 lspconfig.emmet_ls.setup({
   filetypes = { 'css', 'html', 'javascript', 'heex' },
 })
