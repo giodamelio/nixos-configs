@@ -51,7 +51,7 @@
     super.firefox # Setup Firefox
     super.keyd # Easy key rebinding
     super.hyprland # Hyperland WM
-    super.cosmic # Experimental COSMIC DE
+    # super.cosmic # Experimental COSMIC DE
     super.monitoring # Export metrics
     super.streamdeck # StreamDeck stuff
 
