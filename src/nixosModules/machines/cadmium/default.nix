@@ -61,6 +61,7 @@
         sessionPackages = [
           pkgs.sway
         ];
+        ly.enable = true;
       };
       services.xserver = {
         enable = true;
