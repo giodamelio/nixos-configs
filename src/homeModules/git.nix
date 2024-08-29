@@ -41,6 +41,7 @@ _: _: {
       "up" = "pull --rebase --autostash";
       "ignored" = "status --ignored";
       "fixup" = "commit --amend -C HEAD";
+      "pcb" = "!git push origin $(git rev-parse --abbrev-ref HEAD)";
     };
   };
 }
