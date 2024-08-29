@@ -17,6 +17,10 @@ _: {
 in {
   programs.qutebrowser = {
     enable = true;
-    package = wrappedQutebrowser;
+    # Use totally unrelated package because qutebrowser package is broken on Mac. I am using the brew installed version
+    package =
+      if pkgs.stdenv.hostPlatform.isLinux
+      then wrappedQutebrowser
+      else pkgs.git;
   };
 }
