@@ -130,7 +130,15 @@ local lua_ls_config = function()
   }
 end
 lspconfig.lua_ls.setup(lua_ls_config()) -- Lua
-lspconfig.nil_ls.setup({})
+lspconfig.nil_ls.setup({
+  settings = {
+    ['nil'] = {
+      formatting = {
+        command = { "alejandra" },
+      },
+    },
+  },
+})
 lspconfig.gopls.setup({})
 lspconfig.terraformls.setup({})
 lspconfig.ruby_lsp.setup({})
