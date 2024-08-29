@@ -6,7 +6,6 @@
     root.homeModules.neovim
     root.homeModules.kitty
     root.homeModules.wezterm
-    root.homeModules.qutebrowser
 
     root.homeModules.starship
     root.homeModules.zsh
