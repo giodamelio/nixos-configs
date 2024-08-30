@@ -22,5 +22,54 @@ in {
       if pkgs.stdenv.hostPlatform.isLinux
       then wrappedQutebrowser
       else pkgs.git;
+
+    settings = let
+      mkPadding = bottom: left: right: top: {
+        __isDict = true;
+        inherit bottom left right top;
+      };
+    in {
+      colors.webpage.darkmode.enabled = true;
+      fonts.default_size = "14pt";
+      hints = {
+        mode = "letter";
+        padding = mkPadding 3 3 3 3;
+        scatter = true;
+        uppercase = false;
+      };
+      tabs = {
+        padding = mkPadding 1 5 5 1;
+        position = "top";
+        show = "always";
+      };
+    };
+
+    searchEngines = {
+      DEFAULT = "https://duckduckgo.com/?q={}";
+
+      # Nix stuff
+      nix-home-manager = "https://home-manager-options.extranix.com/?query={}&release=master";
+      nix-options = "https://search.nixos.org/options?channel=unstable&type=packages&query={}";
+      nix-packages = "https://search.nixos.org/packages?channel=unstable&type=packages&query={}";
+    };
+
+    quickmarks = {
+      # Back9 Repos
+      "github back9 infrastructure" = "https://github.com/back9ins/infrastructure";
+      "github back9 boss" = "https://github.com/back9ins/boss";
+      "github back9 fairway" = "https://github.com/back9ins/fairway";
+      "github back9 conv" = "https://github.com/back9ins/conv";
+      "github back9 compulife" = "https://github.com/back9ins/compulife";
+      "github back9 actions" = "https://github.com/back9ins/actions";
+      "github back9 av" = "https://github.com/back9ins/av";
+      "github back9 quote and apply" = "https://github.com/back9ins/quote-and-apply";
+
+      # AWS Console Pages
+      "aws ecs" = "https://us-east-1.console.aws.amazon.com/ecs/v2/clusters?region=us-east-1";
+      "aws ecr registry" = "https://us-east-1.console.aws.amazon.com/ecr/private-registry/repositories?region=us-east-1";
+      "aws rds database" = "https://us-east-1.console.aws.amazon.com/rds/home?region=us-east-1#databases:";
+      "aws elasticache redis" = "https://us-east-1.console.aws.amazon.com/elasticache/home?region=us-east-1#/redis";
+      "aws secrets manager" = "https://us-east-1.console.aws.amazon.com/secretsmanager/listsecrets?region=us-east-1";
+    };
   };
 }
