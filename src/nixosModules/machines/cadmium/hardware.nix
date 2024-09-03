@@ -35,8 +35,13 @@ _: {
   };
   hardware.pulseaudio.enable = false;
 
-  # Udev Rules for game controllers
-  services.udev.packages = [pkgs.game-devices-udev-rules];
+  services.udev.packages = [
+    # Udev Rules for game controllers
+    pkgs.game-devices-udev-rules
+
+    # Udev rules for Teensy development
+    pkgs.teensy-udev-rules
+  ];
 
   # Enable Bluetooth
   hardware.bluetooth.enable = true;
