@@ -134,10 +134,6 @@
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-    # Print pretty boxes around things in your shell scripts
-    little_boxes.url = "github:giodamelio/little_boxes";
-    little_boxes.inputs.nixpkgs.follows = "nixpkgs";
-
     # Easy Dev Shells
     devenv.url = "github:cachix/devenv";
 

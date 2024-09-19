@@ -18,7 +18,6 @@
 
   packages = [
     inputs'.colmena.packages.colmena
-    inputs'.little_boxes.packages.default
     inputs'.ragenix.packages.default
 
     config.packages.deploy
@@ -30,6 +29,7 @@
     pkgs.pwgen
     pkgs.dogdns
     pkgs.opentofu
+    pkgs.little_boxes
 
     (root.packages.agedit {inherit pkgs;})
   ];
