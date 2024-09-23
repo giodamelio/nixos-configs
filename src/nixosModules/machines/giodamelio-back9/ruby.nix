@@ -1,5 +1,4 @@
 {root, ...}: {pkgs, ...}: let
-  aider = root.packages.aider {inherit pkgs;};
   ecsplorer = root.packages.ecsplorer {inherit pkgs;};
 in {
   environment.systemPackages = with pkgs; [
@@ -11,7 +10,7 @@ in {
     age
     opentofu
     heroku
-    aider
+    aider-chat
     zellij
     git-lfs
 
