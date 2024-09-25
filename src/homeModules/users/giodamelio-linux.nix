@@ -8,6 +8,7 @@
     root.homeModules.wezterm
     root.homeModules.helix
     root.homeModules.qutebrowser
+    root.homeModules.zellij
 
     root.homeModules.starship
     root.homeModules.zsh

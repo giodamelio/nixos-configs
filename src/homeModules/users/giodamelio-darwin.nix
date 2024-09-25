@@ -7,6 +7,7 @@
     root.homeModules.kitty
     root.homeModules.wezterm
     root.homeModules.qutebrowser
+    root.homeModules.zellij
 
     root.homeModules.starship
     root.homeModules.zsh
