@@ -40,6 +40,7 @@ _: {pkgs, ...}: let
 
   nvimConfig = pkgs.neovimUtils.makeNeovimConfig {
     withPython3 = true;
+    withRuby = false;
     vimAlias = true;
     viAlias = true;
 
@@ -102,6 +103,7 @@ _: {pkgs, ...}: let
       neotest-elixir
       neotest-go
       neotest-deno
+      neotest-rspec
 
       # ChatGPT-nvim # ChatGPT integration
       ChatGPT-nvim # ChatGPT integration

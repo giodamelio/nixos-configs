@@ -2,7 +2,6 @@
   ecsplorer = root.packages.ecsplorer {inherit pkgs;};
 in {
   environment.systemPackages = with pkgs; [
-    ruby_3_2
     file
     hurl
     xh
