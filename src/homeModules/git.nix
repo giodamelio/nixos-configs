@@ -1,4 +1,4 @@
-_: _: {
+_: {pkgs, ...}: {
   programs.git = {
     enable = true;
 
@@ -44,4 +44,8 @@ _: _: {
       "pcb" = "!git push origin $(git rev-parse --abbrev-ref HEAD)";
     };
   };
+
+  home.packages = [
+    pkgs.git-absorb
+  ];
 }
