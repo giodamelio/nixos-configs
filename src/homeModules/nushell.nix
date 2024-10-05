@@ -13,7 +13,7 @@ _: {config, ...}: {
     # inherit (config.home) shellAliases;
 
     environmentVariables = {
-      EDITOR = "nvim";
+      EDITOR = "'nvim'";
     };
   };
 

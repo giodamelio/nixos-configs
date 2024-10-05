@@ -19,7 +19,6 @@ _: {pkgs, ...}: {
         enable = true;
         enableBashIntegration = true;
         enableZshIntegration = true;
-        enableNushellIntegration = true;
       };
 
       ripgrep.enable = true; # grep
