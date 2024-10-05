@@ -8,7 +8,9 @@ _: {config, ...}: {
       }
     '';
 
-    inherit (config.home) shellAliases;
+    # TODO: re-enable
+    # There are extra ones getting in here somehow
+    # inherit (config.home) shellAliases;
 
     environmentVariables = {
       EDITOR = "nvim";
