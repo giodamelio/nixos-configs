@@ -1,7 +1,7 @@
 _: {pkgs, ...}: {
   services.garage = {
     enable = true;
-    package = pkgs.garage_0_9_3;
+    package = pkgs.garage_0_9_4;
     extraEnvironment = {
       # Our secrets are bind mounted by SystemD so they are not exposed
       GARAGE_ALLOW_WORLD_READABLE_SECRETS = "true";
@@ -10,7 +10,6 @@ _: {pkgs, ...}: {
     };
 
     settings = {
-      replication_mode = 1;
       db_engine = "sqlite";
 
       rpc_bind_addr = "127.0.0.1:3901";

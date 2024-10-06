@@ -56,10 +56,11 @@
         package = pkgs.samba4Full;
         openFirewall = true;
 
-        extraConfig = ''
-          server smb encrypt = required
-          server min protocol = SMB3_00
-        '';
+        # Replace this with services.samba.settings
+        # extraConfig = ''
+        #   server smb encrypt = required
+        #   server min protocol = SMB3_00
+        # '';
 
         shares = {
           hard-drive-dumping-zone = {
