@@ -27,12 +27,6 @@ in {
       # Start some programs automatically
       startup = [
         {
-          command = "${pkgs.waybar}/bin/waybar";
-        }
-        {
-          command = "${pkgs.networkmanagerapplet}/bin/nm-applet";
-        }
-        {
           command = "${pkgs.thunderbird}/bin/thunderbird";
         }
         {
@@ -108,6 +102,21 @@ in {
         ];
       };
     };
+  };
+
+  # Start Network Manager Applet
+  services.network-manager-applet.enable = true;
+
+  # XDG Portal
+  xdg.portal = {
+    enable = true;
+    xdgOpenUsePortal = true;
+    config = {
+      common.default = "*";
+    };
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk
+    ];
   };
 
   programs.swayr = {

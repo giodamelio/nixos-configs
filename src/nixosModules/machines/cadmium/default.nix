@@ -50,29 +50,40 @@
 
     super.firefox # Setup Firefox
     super.keyd # Easy key rebinding
-    super.hyprland # Hyperland WM
+    # super.hyprland # Hyperland WM
     # super.cosmic # Experimental COSMIC DE
     super.monitoring # Export metrics
     super.streamdeck # StreamDeck stuff
 
     ({pkgs, ...}: {
-      programs.sway.enable = true;
+      programs.sway = {
+        enable = true;
+        wrapperFeatures.gtk = true;
+      };
+      services.dbus.enable = true;
+      xdg.portal = {
+        enable = true;
+        wlr.enable = true;
+        extraPortals = with pkgs; [
+          xdg-desktop-portal-gtk
+        ];
+      };
       services.displayManager = {
         sessionPackages = [
           pkgs.sway
         ];
         ly.enable = true;
       };
-      services.xserver = {
-        enable = true;
-        # displayManager.gdm.enable = true;
-        desktopManager.gnome.enable = true;
-        videoDrivers = [
-          "amdgpu"
-          "modesetting"
-          "fbdev"
-        ];
-      };
+      # services.xserver = {
+      #   enable = true;
+      #   # displayManager.gdm.enable = true;
+      #   desktopManager.gnome.enable = true;
+      #   videoDrivers = [
+      #     "amdgpu"
+      #     "modesetting"
+      #     "fbdev"
+      #   ];
+      # };
 
       # Gaming
       programs.steam = {
@@ -80,7 +91,7 @@
       };
       environment.systemPackages = with pkgs; [
         discord
-        gnomeExtensions.pop-shell
+        # gnomeExtensions.pop-shell
       ];
     })
 

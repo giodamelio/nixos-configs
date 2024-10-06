@@ -54,6 +54,8 @@
               mountpoint = "/";
               options = {
                 mountpoint = "legacy";
+                acltype = "posixacl";
+                xattr = "sa";
               };
               postCreateHook = "zfs snapshot tank/root@blank";
             };
