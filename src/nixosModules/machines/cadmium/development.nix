@@ -3,5 +3,6 @@ _: {pkgs, ...}: {
     devenv
     jetbrains.datagrip
     spotify
+    aider-chat
   ];
 }
