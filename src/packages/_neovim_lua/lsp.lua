@@ -158,6 +158,9 @@ lspconfig.emmet_ls.setup({
 -- lspconfig.elixirls.setup({
 --   cmd = { os.getenv('ELIXIRLS_CMD') },
 -- })
+-- lspconfig.nextls.setup({
+--   cmd = { os.getenv('NEXTLS_CMD'), '--stdio' },
+-- })
 lspconfig.rust_analyzer.setup({
   settings = {
     ['rust-analyzer'] = {

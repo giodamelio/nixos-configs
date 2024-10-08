@@ -106,7 +106,17 @@ require('neotest').setup({
 
 -- Elixir Tools
 require('elixir').setup({
-  nextls = { enable = true },
+  nextls = {
+    enable = true,
+    cmd = os.getenv('NEXTLS_CMD'),
+    init_options = {
+      experimental = {
+        completions = {
+          enable = true,
+        },
+      },
+    },
+  },
   elixirls = { enable = false },
   projectionist = { enable = true },
 })
