@@ -1,9 +1,6 @@
-{root, ...}: {pkgs, ...}: let
-  caddyDnsCloudflare = root.packages.caddy-dns-cloudflare {inherit pkgs;};
-in {
+_: _: {
   services.caddy = {
     enable = true;
-    package = caddyDnsCloudflare;
 
     globalConfig = ''
       email admin@gio.ninja
