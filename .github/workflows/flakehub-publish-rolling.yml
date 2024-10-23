@@ -16,5 +16,5 @@ jobs:
         with:
           name: "giodamelio/nixos-configs"
           rolling: true
-          visibility: "Public"
+          visibility: public
           include-output-paths: true
