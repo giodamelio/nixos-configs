@@ -156,5 +156,9 @@
     # Nix on my phone
     nix-on-droid.url = "github:nix-community/nix-on-droid/master";
     nix-on-droid.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Nice CLI for deploying Nix on Darwin
+    morlana.url = "github:ryanccn/morlana";
+    morlana.inputs.nixpkgs.follows = "nixpkgs";
   };
 }

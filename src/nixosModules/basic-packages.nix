@@ -1,4 +1,8 @@
-{root, ...}: {pkgs, ...}: let
+{root, ...}: {
+  pkgs,
+  lib,
+  ...
+}: let
   customNeovim = root.packages.neovim {inherit pkgs;};
   open-ports = pkgs.writeShellApplication {
     name = "open-ports";
@@ -22,7 +26,7 @@ in {
       htop # Better top
       tree # I always want this...
       zellij # Kinda like Tmux
-      usbutils # For lsusb command
+      # usbutils # For lsusb command
 
       git
       file
@@ -43,12 +47,7 @@ in {
 
       rage # Easy encryption
       cachix # Nix binary caching
+      devenv # Easy development environment management
     ];
-  };
-
-  programs.neovim = {
-    enable = true;
-    vimAlias = true;
-    viAlias = true;
   };
 }

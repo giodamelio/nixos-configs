@@ -19,9 +19,11 @@
   packages = [
     inputs'.colmena.packages.colmena
     inputs'.ragenix.packages.default
+    inputs'.morlana.packages.default
 
     config.packages.deploy
 
+    pkgs.git
     pkgs.nurl
     pkgs.nix-init
     pkgs.nushell
@@ -32,6 +34,7 @@
     pkgs.little_boxes
 
     (root.packages.agedit {inherit pkgs;})
+    (root.packages.neovim {inherit pkgs;})
   ];
 
   pre-commit = {

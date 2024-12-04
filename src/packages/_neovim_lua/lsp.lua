@@ -50,7 +50,7 @@ cmp.setup({
   sources = cmp.config.sources({
     { name = 'path' },
     { name = 'nvim_lsp', keyword_length = 2 },
-    { name = 'luasnip', keyword_length = 3 },
+    { name = 'luasnip',  keyword_length = 3 },
   }, {
     { name = 'buffer', keyword_length = 4 },
   }),
@@ -79,7 +79,7 @@ cmp.setup.cmdline(':', {
 -- Set the default capabilities
 local lsp_defaults = lspconfig.util.default_config
 lsp_defaults.capabilities =
-  vim.tbl_deep_extend('force', lsp_defaults.capabilities, require('cmp_nvim_lsp').default_capabilities())
+    vim.tbl_deep_extend('force', lsp_defaults.capabilities, require('cmp_nvim_lsp').default_capabilities())
 
 -- Attach navic
 lsp_defaults.on_attach = function(client, bufnr)
@@ -153,7 +153,7 @@ lspconfig.yamlls.setup({
   },
 })
 lspconfig.emmet_ls.setup({
-  filetypes = { 'css', 'html', 'javascript', 'heex' },
+  filetypes = { 'css', 'html', 'javascript', 'heex', 'htmldjango' },
 })
 -- lspconfig.elixirls.setup({
 --   cmd = { os.getenv('ELIXIRLS_CMD') },
@@ -169,4 +169,12 @@ lspconfig.rust_analyzer.setup({
       },
     },
   },
+})
+
+-- Setup html language server
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.textDocument.completion.completionItem.snippetSupport = true
+require 'lspconfig'.html.setup({
+  capabilities = capabilities,
+  filetypes = { 'html', 'heex', 'htmldjango', 'templ' },
 })

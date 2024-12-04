@@ -15,6 +15,17 @@
 
     root.homeModules.nix-index
 
+    # Setup ssh with the secure enclave
+    (_: {
+      programs.ssh = {
+        enable = true;
+        extraConfig = ''
+          AddKeysToAgent yes
+          UseKeychain yes
+        '';
+      };
+    })
+
     # This is only necessary until I get the setup working and add it per repo
     (_: {
       programs.git.ignores = [
