@@ -49,6 +49,14 @@ useDescription = "Main NAS in the closet"
 targetHost = "10.0.128.214"
 targetUser = "server"
 
+[machines.manganese]
+hardwareDescription = ""
+useDescription = "Handling all our monitoring as reliably as possible"
+
+[machines.carbon.deployment]
+targetHost = "10.0.246.179"
+targetUser = "server"
+
 [machines.zirconium]
 hardwareDescription = "VM Running in Hetzner Cloud"
 useDescription = "Critical services running on a DigitalOcean VM"
