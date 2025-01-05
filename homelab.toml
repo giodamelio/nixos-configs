@@ -53,7 +53,7 @@ targetUser = "server"
 hardwareDescription = ""
 useDescription = "Handling all our monitoring as reliably as possible"
 
-[machines.carbon.deployment]
+[machines.manganese.deployment]
 targetHost = "10.0.246.179"
 targetUser = "server"
 
