@@ -23,20 +23,20 @@ _: {pkgs, ...}: let
     meta.homepage = "https://github.com/arnamak/stay-centered.nvim";
   };
 
-  parrot = let
-    version = "0.6.0";
-  in
-    pkgs.vimUtils.buildVimPlugin {
-      pname = "parrot.nvim";
-      inherit version;
-      src = pkgs.fetchFromGitHub {
-        owner = "frankroeder";
-        repo = "parrot.nvim";
-        rev = "v${version}";
-        hash = "sha256-jZFnC1GA4xBRqdcSTzWGu0C0McFKro3To/gxgZayTZU=";
-      };
-      meta.homepage = "https://github.com/frankroeder/parrot.nvim";
-    };
+  # parrot = let
+  #   version = "0.6.0";
+  # in
+  #   pkgs.vimUtils.buildVimPlugin {
+  #     pname = "parrot.nvim";
+  #     inherit version;
+  #     src = pkgs.fetchFromGitHub {
+  #       owner = "frankroeder";
+  #       repo = "parrot.nvim";
+  #       rev = "v${version}";
+  #       hash = "sha256-jZFnC1GA4xBRqdcSTzWGu0C0McFKro3To/gxgZayTZU=";
+  #     };
+  #     meta.homepage = "https://github.com/frankroeder/parrot.nvim";
+  #   };
 
   nvimConfig = pkgs.neovimUtils.makeNeovimConfig {
     withPython3 = true;
@@ -107,7 +107,7 @@ _: {pkgs, ...}: let
 
       # ChatGPT-nvim # ChatGPT integration
       ChatGPT-nvim # ChatGPT integration
-      parrot # GenAI Integration
+      # parrot # GenAI Integration
       nui-nvim # needed for ChatGPT
       oil-nvim # Move/Create/Delete files/directories directly in a vim buffer
       nvim-surround # Deal with pairs of things

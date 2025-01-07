@@ -163,18 +163,18 @@ require('other-nvim').setup({
 require('fzf-lua').setup({ 'default' })
 
 -- Parrot
-require('parrot').setup({
-  providers = {
-    openai = {
-      api_key = { '/usr/bin/security', 'find-generic-password', '-a', 'openai', '-s', 'api-key-neovim', '-w' },
-    },
-    anthropic = {
-      api_key = { '/usr/bin/security', 'find-generic-password', '-a', 'anthropic', '-s', 'api-key-neovim', '-w' },
-    },
-  },
-
-  chat_shortcut_respond = { modes = { 'n', 'i', 'v', 'x' }, shortcut = '<C-Enter>' },
-})
+-- require('parrot').setup({
+--   providers = {
+--     openai = {
+--       api_key = os.getenv("OPENAI_API_KEY"),
+--     },
+--     anthropic = {
+--       api_key = os.getenv("ANTHROPIC_API_KEY"),
+--     },
+--   },
+--
+--   chat_shortcut_respond = { modes = { 'n', 'i', 'v', 'x' }, shortcut = '<C-Enter>' },
+-- })
 
 require('nvim-surround').setup()
 require('Comment').setup()
