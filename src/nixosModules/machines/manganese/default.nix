@@ -19,18 +19,28 @@
     root.nixosModules.users.server
 
     # Autosnapshot ZFS and send to NAS
-    # root.nixosModules.core.zfs-backup
-    # (_: {
-    #   gio.services.zfs_backup = {
-    #     enable = true;
-    #     syncToGallium = true;
-    #     datasets = [
-    #       "tank/home"
-    #       "tank/nix"
-    #       "tank/root"
-    #     ];
-    #   };
-    # })
+    (_: {
+      # Automatically create ZFS snapshots
+      services.sanoid = {
+        enable = true;
+
+        datasets = let
+          defaultSnapshotSettings = {
+            hourly = 48;
+            daily = 32;
+            monthly = 8;
+            yearly = 8;
+
+            autosnap = true;
+            autoprune = true;
+          };
+        in {
+          "tank/root" = defaultSnapshotSettings;
+          "tank/nix" = defaultSnapshotSettings;
+          "tank/home" = defaultSnapshotSettings;
+        };
+      };
+    })
 
     ({pkgs, ...}: {
       networking.hostId = "cf399625";
