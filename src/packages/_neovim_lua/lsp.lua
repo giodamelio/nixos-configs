@@ -143,6 +143,7 @@ lspconfig.gopls.setup({})
 lspconfig.terraformls.setup({})
 lspconfig.ruby_lsp.setup({})
 lspconfig.rubocop.setup({})
+lspconfig.gleam.setup({})
 lspconfig.yamlls.setup({
   settings = {
     yaml = {
