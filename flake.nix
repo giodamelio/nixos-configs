@@ -76,6 +76,7 @@
               pkgs.dogdns
               pkgs.opentofu
               pkgs.little_boxes
+              pkgs.nil
 
               (lib.packages.agedit {inherit pkgs;})
               (lib.packages.neovim {inherit pkgs;})
