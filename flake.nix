@@ -19,7 +19,6 @@
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         inputs.treefmt-nix.flakeModule
-        inputs.devenv.flakeModule
       ];
 
       systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
@@ -60,7 +59,31 @@
           )
           lib.packages;
 
-        devenv.shells.default = lib.devShells.deploy sys;
+        devShells.default = pkgs.mkShell {
+          buildInputs =
+            [
+              inputs'.colmena.packages.colmena
+              inputs'.ragenix.packages.default
+
+              config.packages.deploy
+
+              pkgs.git
+              pkgs.nurl
+              pkgs.nix-init
+              pkgs.nushell
+              pkgs.rage
+              pkgs.pwgen
+              pkgs.dogdns
+              pkgs.opentofu
+              pkgs.little_boxes
+
+              (lib.packages.agedit {inherit pkgs;})
+              (lib.packages.neovim {inherit pkgs;})
+            ]
+            ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
+              inputs'.morlana.packages.default
+            ];
+        };
 
         treefmt = {
           projectRootFile = ".git/config";
@@ -133,9 +156,6 @@
     # Manage user environments with Nix
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-
-    # Easy Dev Shells
-    devenv.url = "github:cachix/devenv";
 
     # Encrypted Secrets
     ragenix.url = "github:yaxitech/ragenix";
