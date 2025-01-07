@@ -1,8 +1,4 @@
-{root, ...}: {
-  pkgs,
-  lib,
-  ...
-}: let
+{root, ...}: {pkgs, ...}: let
   myQutebrowser = root.packages.qutebrowser-tree-tabs {inherit pkgs;};
 in {
   programs.qutebrowser = {
@@ -13,22 +9,18 @@ in {
       then myQutebrowser
       else pkgs.git;
 
-    settings = let
-      mkPadding = bottom: left: right: top: {
-        __isDict = true;
-        inherit bottom left right top;
-      };
-    in {
-      colors.webpage.darkmode.enabled = true;
+    settings = {
+      # This doesn't just set the preference...
+      colors.webpage.darkmode.enabled = false;
       fonts.default_size = "14pt";
       hints = {
         mode = "letter";
-        padding = mkPadding 3 3 3 3;
+        # padding = mkPadding 3 3 3 3;
         scatter = true;
         uppercase = false;
       };
       tabs = {
-        padding = mkPadding 1 5 5 1;
+        # padding = mkPadding 1 5 5 1;
         position = "right";
         show = "always";
 
@@ -67,4 +59,11 @@ in {
       "aws secrets manager" = "https://us-east-1.console.aws.amazon.com/secretsmanager/listsecrets?region=us-east-1";
     };
   };
+
+  # Install some dependencies for userscripts
+  home.packages = with pkgs; [
+    # For qute-bitwarden
+    keyutils # To manipulate clipboard
+    wofi # For fuzzy selection
+  ];
 }
