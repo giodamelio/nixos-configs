@@ -17,8 +17,7 @@ _: {pkgs, ...}: {
     pkgs.jetbrains-mono
 
     # Add Inconsolata Nerdfont
-    (pkgs.nerdfonts.override {
-      fonts = ["Inconsolata" "JetBrainsMono"];
-    })
+    pkgs.nerd-fonts.inconsolata
+    pkgs.nerd-fonts.jetbrains-mono
   ];
 }
