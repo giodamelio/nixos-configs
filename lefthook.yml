@@ -1,9 +1,0 @@
-pre-commit:
-  commands:
-    treefmt:
-      glob: "*.{nix,lua}"
-      run: treefmt --fail-on-change
-pre-push:
-  commands:
-    nix-check:
-      run: nix flake check
