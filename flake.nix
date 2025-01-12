@@ -10,6 +10,9 @@
       root = ./nix;
       namespace = "giodamelio";
     };
+
+    # Alias the default shell
+    alias.shells.default = "development";
   };
 
   inputs = {
