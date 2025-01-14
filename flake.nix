@@ -17,25 +17,10 @@
 
       # Setup Treefmt as the formatter
       outputs-builder = channels: let
-        treefmtConfig = {pkgs, ...}: {
-          projectRootFile = "flake.nix";
-
-          # Exclude some files from formatting
-          settings.excludes = [
-            ".envrc"
-            "flake.lock"
-            ".gitignore"
-            "homelab.toml"
-          ];
-
-          programs = {
-            alejandra.enable = true;
-            stylua.enable = true;
-          };
-        };
-        treefmtEval = inputs.treefmt-nix.lib.evalModule (channels.nixpkgs) treefmtConfig;
+        treefmtEval = inputs.treefmt-nix.lib.evalModule (channels.nixpkgs) ./treefmt.nix;
       in {
         formatter = treefmtEval.config.build.wrapper;
+        checks.treefmt = treefmtEval.config.build.check inputs.self;
       };
     };
 
