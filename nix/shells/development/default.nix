@@ -1,4 +1,5 @@
-{ pkgs, ... }: pkgs.mkShell {
+{pkgs, ...}:
+pkgs.mkShell {
   packages = with pkgs; [
     nil # Nix Language Server
     nushell # Powerfull Rust based shell

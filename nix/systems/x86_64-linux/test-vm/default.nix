@@ -1,4 +1,8 @@
-{ pkgs, modulesPath, ... }: {
+{
+  pkgs,
+  modulesPath,
+  ...
+}: {
   imports = [
     "${modulesPath}/virtualisation/qemu-vm.nix"
   ];
@@ -24,7 +28,11 @@
 
   # Forward ssh port
   virtualisation.forwardPorts = [
-    { from = "host"; host.port = 2222; guest.port = 22; }
+    {
+      from = "host";
+      host.port = 2222;
+      guest.port = 22;
+    }
   ];
 
   networking = {
