@@ -13,6 +13,20 @@
 
     # Alias the default shell
     alias.shells.default = "development";
+
+    # Setup Treefmt as the formatter
+    outputs-builder = channels: let
+      treefmtConfig = { pkgs, ... }: {
+        projectRootFile = "flake.nix";
+
+        programs = {
+          alejandra.enable = true;
+        };
+      };
+      treefmtEval = inputs.treefmt-nix.lib.evalModule (channels.nixpkgs) treefmtConfig;
+    in {
+      formatter = treefmtEval.config.build.wrapper;
+    };
   };
 
   inputs = {
@@ -26,5 +40,9 @@
     # Manage user environments with Nix
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Single command formatting for all languages
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 }
