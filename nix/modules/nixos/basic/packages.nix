@@ -1,8 +1,4 @@
-{
-  pkgs,
-  lib,
-  ...
-}: let
+{pkgs, ...}: let
   open-ports = pkgs.writeShellApplication {
     name = "open-ports";
     runtimeInputs = with pkgs; [lsof ripgrep];
