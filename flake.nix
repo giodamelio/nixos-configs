@@ -17,7 +17,7 @@
 
       # Setup Treefmt as the formatter
       outputs-builder = channels: let
-        treefmtEval = inputs.treefmt-nix.lib.evalModule (channels.nixpkgs) ./treefmt.nix;
+        treefmtEval = inputs.treefmt-nix.lib.evalModule channels.nixpkgs ./treefmt.nix;
       in {
         formatter = treefmtEval.config.build.wrapper;
         checks.treefmt = treefmtEval.config.build.check inputs.self;
