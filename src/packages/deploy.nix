@@ -29,9 +29,9 @@ pkgs.writeScriptBin "deploy"
 
     printf "Running 'colmena apply --on %s'\n\n" $node
     if ($verbose != null) {
-      colmena apply --verbose --on $node
+      colmena apply --verbose --on $node --experimental-flake-eval
     } else {
-      colmena apply --on $node
+      colmena apply --on $node --experimental-flake-eval
     }
   }
 ''

@@ -1,7 +1,7 @@
 {
   description = "My Personal Nix Configs";
 
-  outputs = inputs @ {flake-parts, ...}: let
+  outputs = inputs @ {self, flake-parts, ...}: let
     inherit (inputs.nixpkgs.lib) debug;
 
     # Static data about our homelab
@@ -103,6 +103,7 @@
         inherit (lib) homeModules;
 
         # Deploy with Colmena
+        colmenaHive = inputs.colmena.lib.makeHive self.outputs.colmena;
         colmena =
           {
             meta = {
