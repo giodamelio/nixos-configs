@@ -54,7 +54,7 @@
     # super.cosmic # Experimental COSMIC DE
     super.monitoring # Export metrics
     super.streamdeck # StreamDeck stuff
-    super.x3d-printing # 3D printing stuff
+    # super.x3d-printing # 3D printing stuff
 
     ({pkgs, ...}: {
       programs.sway = {
