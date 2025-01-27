@@ -1,7 +1,7 @@
-_: {pkgs, ...}:
+{pkgs, nushell, skim, ...}:
 pkgs.writeScriptBin "deploy"
 ''
-  #!${pkgs.nushell}/bin/nu
+  #!${nushell}/bin/nu
 
   def hosts [] {
     nix eval .#nixosConfigurations --apply builtins.attrNames --json | from json
@@ -22,7 +22,7 @@ pkgs.writeScriptBin "deploy"
       let nodes = (
         nix eval .#nixosConfigurations --apply builtins.attrNames --json
       )
-      ($nodes | from json | to text | ${pkgs.skim}/bin/sk)
+      ($nodes | from json | to text | ${skim}/bin/sk)
     } else {
       $host
     })

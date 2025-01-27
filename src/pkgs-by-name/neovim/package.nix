@@ -1,4 +1,4 @@
-_: {pkgs, ...}: let
+{pkgs, ...}: let
   gitlinker = pkgs.vimUtils.buildVimPlugin {
     pname = "gitlinker.nvim";
     version = "2023-12-15";
@@ -123,11 +123,11 @@ _: {pkgs, ...}: let
     ];
 
     customRC = "
-      luafile ${./_neovim_lua/basic.lua}
-      luafile ${./_neovim_lua/lsp.lua}
-      luafile ${./_neovim_lua/treesitter.lua}
-      luafile ${./_neovim_lua/plugins.lua}
-      luafile ${./_neovim_lua/keybinds.lua}
+      luafile ${./lua/basic.lua}
+      luafile ${./lua/lsp.lua}
+      luafile ${./lua/treesitter.lua}
+      luafile ${./lua/plugins.lua}
+      luafile ${./lua/keybinds.lua}
     ";
   };
 in

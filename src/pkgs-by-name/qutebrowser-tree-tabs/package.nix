@@ -1,4 +1,4 @@
-_: {pkgs, ...}:
+{pkgs, ...}:
 pkgs.qutebrowser.overrideAttrs (_: prev: {
   # Override source to be from the `tree-tabs-integration` branch
   src = pkgs.fetchFromGitHub {

@@ -1,7 +1,5 @@
-_: {pkgs, ...}: let
-  inherit (pkgs) lib;
-in
-  pkgs.rustPlatform.buildRustPackage rec {
+{pkgs, lib, ...}:
+pkgs.rustPlatform.buildRustPackage rec {
     pname = "impostare";
     version = "0.2.0";
 

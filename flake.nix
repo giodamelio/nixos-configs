@@ -19,6 +19,7 @@
     flake-parts.lib.mkFlake {inherit inputs;} {
       imports = [
         inputs.treefmt-nix.flakeModule
+        inputs.pkgs-by-name-for-flake-parts.flakeModule
       ];
 
       systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
@@ -38,27 +39,10 @@
           config.allowUnfree = true;
         };
 
-        # Pass the per system attributes to each package
-        # Allow either a packge or attrset of packages in each file
-        # If it is an atterset, each package within has the filename prefixed
-        packages =
-          pkgs.lib.attrsets.concatMapAttrs
-          (
-            name: pkgFn: let
-              inherit (pkgs.lib) attrsets;
-              pkg = pkgFn sys;
-            in
-              if (attrsets.isDerivation pkg)
-              then {"${name}" = pkg;}
-              else
-                attrsets.mapAttrs' (
-                  subName: subPkg:
-                    attrsets.nameValuePair "${name}-${subName}" subPkg
-                )
-                pkg
-          )
-          lib.packages;
+        # Load packages from directories
+        pkgsDirectory = ./src/pkgs-by-name;
 
+        # Create basic devshell with some basic tools
         devShells.default = pkgs.mkShell {
           buildInputs =
             [
@@ -66,6 +50,8 @@
               inputs'.ragenix.packages.default
 
               config.packages.deploy
+              config.packages.neovim
+              config.packages.agedit
 
               pkgs.git
               pkgs.nurl
@@ -77,9 +63,6 @@
               pkgs.opentofu
               pkgs.little_boxes
               pkgs.nil
-
-              (lib.packages.agedit {inherit pkgs;})
-              (lib.packages.neovim {inherit pkgs;})
             ]
             ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
               inputs'.morlana.packages.default
@@ -129,6 +112,9 @@
 
     # Flake authoring framework
     flake-parts.url = "github:hercules-ci/flake-parts";
+
+    # Easy package definition
+    pkgs-by-name-for-flake-parts.url = "github:drupol/pkgs-by-name-for-flake-parts";
 
     # Format all the things
     treefmt-nix.url = "github:numtide/treefmt-nix";
