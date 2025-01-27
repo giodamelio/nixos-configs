@@ -1,5 +1,5 @@
-{root, ...}: {pkgs, ...}: let
-  neovimPackage = root.packages.neovim {inherit pkgs;};
+{inputs, ...}: {pkgs, ...}: let
+  neovimPackage = inputs.self.packages.${pkgs.stdenv.system}.neovim;
 in {
   home.packages = [
     neovimPackage

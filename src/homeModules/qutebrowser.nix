@@ -1,5 +1,5 @@
-{root, ...}: {pkgs, ...}: let
-  myQutebrowser = root.packages.qutebrowser-tree-tabs {inherit pkgs;};
+{inputs, ...}: {pkgs, ...}: let
+  myQutebrowser = inputs.self.packages.${pkgs.stdenv.system}.qutebrowser-tree-tabs;
 in {
   programs.qutebrowser = {
     enable = true;

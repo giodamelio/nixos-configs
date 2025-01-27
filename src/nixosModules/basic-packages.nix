@@ -1,9 +1,9 @@
-{root, ...}: {
+{inputs, ...}: {
   pkgs,
   lib,
   ...
 }: let
-  customNeovim = root.packages.neovim {inherit pkgs;};
+  customNeovim = inputs.self.packages.${pkgs.stdenv.system}.neovim;
   open-ports = pkgs.writeShellApplication {
     name = "open-ports";
     runtimeInputs = with pkgs; [lsof ripgrep];
