@@ -20,9 +20,21 @@
       imports = [
         inputs.treefmt-nix.flakeModule
         inputs.pkgs-by-name-for-flake-parts.flakeModule
+        inputs.ez-configs.flakeModule
       ];
 
       systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin"];
+
+      # Load configs from nix directory
+      ezConfigs = {
+        root = ./nix;
+        globalArgs = {
+          inherit inputs;
+          myPkgs = self.packages;
+        };
+
+        nixos.hosts.test-vm.userHomeModules = ["server"];
+      };
 
       perSystem = {
         pkgs,
@@ -115,6 +127,11 @@
 
     # Easy package definition
     pkgs-by-name-for-flake-parts.url = "github:drupol/pkgs-by-name-for-flake-parts";
+
+    # Easy config organization
+    ez-configs.url = "github:ehllie/ez-configs";
+    ez-configs.inputs.nixpkgs.follows = "nixpkgs";
+    ez-configs.inputs.flake-parts.follows = "flake-parts";
 
     # Format all the things
     treefmt-nix.url = "github:numtide/treefmt-nix";

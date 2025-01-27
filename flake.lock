@@ -106,6 +106,29 @@
         "type": "github"
       }
     },
+    "ez-configs": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1737481314,
+        "narHash": "sha256-z9IfbGyKfrinOwDMEf4tffC2rLPNuzQZzB8WQ6o5Z9o=",
+        "owner": "ehllie",
+        "repo": "ez-configs",
+        "rev": "b92cd0f807613afe2ebdcdd777edadbd839dde4e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ehllie",
+        "repo": "ez-configs",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -720,6 +743,7 @@
       "inputs": {
         "colmena": "colmena",
         "disko": "disko",
+        "ez-configs": "ez-configs",
         "flake-parts": "flake-parts",
         "haumea": "haumea",
         "home-manager": "home-manager",
