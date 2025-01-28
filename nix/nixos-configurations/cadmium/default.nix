@@ -15,8 +15,6 @@
     ./hardware.nix
     ./bootloader.nix
 
-    # super.home-manager
-
     # Create giodamelio user
     ({ pkgs, ... }: {
       users.users.giodamelio = {
