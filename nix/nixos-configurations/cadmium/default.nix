@@ -107,6 +107,8 @@
       networking.hostId = "3c510ad9";
 
       nixpkgs.config.allowUnfree = true;
+
+      system.stateVersion = "25.05";
     })
   ];
 }
