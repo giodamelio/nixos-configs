@@ -76,6 +76,8 @@
               pkgs.opentofu
               pkgs.little_boxes
               pkgs.nil
+              pkgs.nvd
+              pkgs.nix-diff
             ]
             ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
               inputs'.morlana.packages.default
