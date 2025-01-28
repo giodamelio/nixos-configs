@@ -4,6 +4,12 @@
   ];
 
   programs.git = {
+    enable = true;
+
+    userName = "Giovanni d'Amelio";
+    userEmail = "gio@damelio.net";
+
+
     # Use Difftastic for language aware diffing powered by Treesitter
     difftastic.enable = true;
 

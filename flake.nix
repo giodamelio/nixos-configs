@@ -29,11 +29,12 @@
       ezConfigs = {
         root = ./nix;
         globalArgs = {
-          inherit inputs;
+          inherit inputs self homelab;
           myPkgs = self.packages;
         };
 
         nixos.hosts.test-vm.userHomeModules = ["server"];
+        nixos.hosts.cadmium.userHomeModules = ["giodamelio"];
       };
 
       perSystem = {
