@@ -37,6 +37,7 @@
     # Setup user programs/services
     ezModules.modern-coreutils-replacements
     ezModules.programs-atuind
+    ./3d-printing.nix
 
     # Autosnapshot ZFS and send to NAS
     ezModules.zfs-backup
