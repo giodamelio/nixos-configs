@@ -1,4 +1,4 @@
-{ lib, config, ... }: let 
+{ config, ... }: let 
   makeNodeExporterConfig = host: address: {
     targets = [
       "${address}:${toString config.services.prometheus.exporters.node.port}"
@@ -25,32 +25,17 @@ in {
         job_name = "node_exporter";
         static_configs = [
           (makeNodeExporterConfig "manganese" "127.0.0.1")
+          (makeNodeExporterConfig "cadmium" "10.0.128.125")
         ];
       }
       {
         job_name = "zfs";
         static_configs = [
           (makeZfsExporterConfig "manganese" "127.0.0.1")
+          (makeZfsExporterConfig "cadmium" "10.0.128.125")
         ];
       }
     ];
-  };
-
-  # Export some stats
-  services.prometheus = {
-    exporters = {
-      node = {
-        enable = true;
-        enabledCollectors = ["systemd"];
-        listenAddress = "127.0.0.1";
-      };
-
-      # Enable the ZFS exporter if zfs is used in the system
-      # TODO: think of a better way to check if ZFS is used
-      zfs = lib.mkIf (builtins.hasAttr "zfs" config.boot.supportedFilesystems) {
-        enable = true;
-      };
-    };
   };
 
   networking.firewall.allowedTCPPorts = [9090];
