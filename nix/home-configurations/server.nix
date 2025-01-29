@@ -2,6 +2,8 @@
 {
   imports = [
     ezModules.git
+    ezModules.neovim
+    ezModules.zsh
   ];
 
   home = {

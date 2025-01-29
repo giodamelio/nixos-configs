@@ -35,6 +35,7 @@
 
         nixos.hosts.test-vm.userHomeModules = ["server"];
         nixos.hosts.cadmium.userHomeModules = ["giodamelio"];
+        nixos.hosts.manganese.userHomeModules = ["server"];
       };
 
       perSystem = {
