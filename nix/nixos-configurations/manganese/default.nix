@@ -6,6 +6,7 @@
 
     ./disko.nix
     ./hardware.nix
+    ./prometheus.nix
 
     ezModules.basic-packages
     ezModules.basic-settings
