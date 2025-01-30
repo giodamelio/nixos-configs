@@ -10,6 +10,9 @@
       # TODO: think of a better way to check if ZFS is used
       zfs = lib.mkIf (builtins.hasAttr "zfs" config.boot.supportedFilesystems) {
         enable = true;
+        extraFlags = [
+          "--collector.dataset-snapshot"
+        ];
       };
     };
   };
