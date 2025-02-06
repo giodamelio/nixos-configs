@@ -1,8 +1,4 @@
-{
-  pkgs,
-  lib,
-  ...
-}:
+{pkgs, ...}:
 pkgs.buildGoModule rec {
   pname = "agedit";
   version = "0.2.1";
@@ -17,7 +13,7 @@ pkgs.buildGoModule rec {
 
   ldflags = ["-s" "-w"];
 
-  meta = with lib; {
+  meta = with pkgs.lib; {
     description = "Easily edit age encrypted files";
     homepage = "https://git.burning.moe/celediel/agedit";
     license = licenses.agpl3Only;

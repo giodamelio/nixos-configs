@@ -1,8 +1,4 @@
-{
-  pkgs,
-  lib,
-  ...
-}:
+{pkgs, ...}:
 pkgs.rustPlatform.buildRustPackage rec {
   pname = "impostare";
   version = "0.2.0";
@@ -16,12 +12,12 @@ pkgs.rustPlatform.buildRustPackage rec {
 
   cargoHash = "sha256-b96NNGhQbqcUkMp2NkI7pglSP3RArcFnbnX+KoxPDvA=";
 
-  buildInputs = lib.optionals pkgs.stdenv.isDarwin [
+  buildInputs = pkgs.lib.optionals pkgs.stdenv.isDarwin [
     pkgs.darwin.apple_sdk.frameworks.CoreFoundation
     pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
   ];
 
-  meta = with lib; {
+  meta = with pkgs.lib; {
     description = "";
     homepage = "https://github.com/giodamelio/impostare";
     license = licenses.mit;
