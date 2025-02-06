@@ -1,4 +1,8 @@
-{pkgs, self, ...}: let
+{
+  pkgs,
+  self,
+  ...
+}: let
   myQutebrowser = self.packages.${pkgs.stdenv.system}.qutebrowser-tree-tabs;
 in {
   programs.qutebrowser = {

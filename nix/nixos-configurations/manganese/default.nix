@@ -1,4 +1,10 @@
-{ pkgs, inputs, homelab, ezModules, ... }: {
+{
+  pkgs,
+  inputs,
+  homelab,
+  ezModules,
+  ...
+}: {
   imports = [
     inputs.colmena.nixosModules.deploymentOptions
     inputs.home-manager.nixosModules.home-manager
@@ -12,7 +18,7 @@
     ezModules.basic-settings
 
     # Create server user
-    ({ pkgs, ... }: {
+    ({pkgs, ...}: {
       users.users.server = {
         extraGroups = ["wheel" "docker" "sound"];
         isNormalUser = true;

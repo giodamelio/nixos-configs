@@ -1,9 +1,4 @@
-_: {
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+_: _: {
   environment.etc."issue.d/ip.issue".text = "\\4{eth0}\n";
   nix.settings = {
     experimental-features = ["nix-command" "flakes"];

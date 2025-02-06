@@ -3,12 +3,7 @@
   root,
   inputs,
   ...
-}: {
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+}: {config, ...}: {
   imports = [
     # Software for a minimal installer
     "${inputs.nixpkgs}/nixos/modules/profiles/base.nix"

@@ -1,4 +1,9 @@
-{pkgs, nushell, skim, ...}:
+{
+  pkgs,
+  nushell,
+  skim,
+  ...
+}:
 pkgs.writeScriptBin "deploy"
 ''
   #!${nushell}/bin/nu

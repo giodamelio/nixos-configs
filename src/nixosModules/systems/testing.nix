@@ -1,6 +1,5 @@
 _: {
   config,
-  lib,
   pkgs,
   ...
 }: {

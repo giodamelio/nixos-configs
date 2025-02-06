@@ -1,4 +1,8 @@
-{pkgs, lib, ...}:
+{
+  pkgs,
+  lib,
+  ...
+}:
 pkgs.stdenv.mkDerivation {
   name = "generate-readme";
 

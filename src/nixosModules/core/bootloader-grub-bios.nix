@@ -1,4 +1,4 @@
-{inputs, ...}: _: {
+_: _: {
   boot.loader.grub = {
     enable = true;
   };

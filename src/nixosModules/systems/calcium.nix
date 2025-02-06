@@ -1,6 +1,5 @@
-{root, ...}: {
+_: {
   config,
-  lib,
   pkgs,
   ...
 }: {

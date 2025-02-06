@@ -1,12 +1,4 @@
-{
-  root,
-  debug,
-  ...
-}: {
-  pkgs,
-  config,
-  ...
-}: let
+_: {config, ...}: let
   baseDomain = "headscale.gio.ninja";
   port = 8010;
 in {

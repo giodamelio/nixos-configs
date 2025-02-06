@@ -1,4 +1,8 @@
-{ config, lib, ... }: {
+{
+  config,
+  lib,
+  ...
+}: {
   boot = {
     kernelModules = ["kvm-intel"];
     extraModulePackages = [];

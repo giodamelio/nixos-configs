@@ -1,14 +1,8 @@
 {
   root,
-  inputs,
   homelab,
   ...
-}: {
-  config,
-  lib,
-  pkgs,
-  ...
-}: {
+}: {config, ...}: {
   imports = [
     root.nixosModules.partitions-windows
     root.nixosModules.basic-packages

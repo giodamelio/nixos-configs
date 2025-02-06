@@ -1,7 +1,6 @@
 {
   pkgs,
   myPkgs,
-  lib,
   ...
 }: let
   customNeovim = myPkgs.${pkgs.stdenv.system}.neovim;

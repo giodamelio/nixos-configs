@@ -1,13 +1,8 @@
-{
-  root,
-  debug,
-  ...
-}: {
+_: {
   pkgs,
   config,
   ...
 }: let
-  inherit (pkgs) lib;
   baseDomain = "netbird.gio.ninja";
 in {
   # Load our secrets

@@ -1,4 +1,8 @@
-{pkgs, lib, ...}: let
+{
+  pkgs,
+  lib,
+  ...
+}: let
   monitor = {
     left = "DP-3";
     middle = "DP-1";

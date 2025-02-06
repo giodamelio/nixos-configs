@@ -1,6 +1,6 @@
 # TODO: backup data
 # currently that is the postgresql database `lldap` and `/var/lib/lldap/server_key`
-{inputs, ...}: {
+_: {
   pkgs,
   config,
   ...

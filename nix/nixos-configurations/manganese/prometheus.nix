@@ -1,4 +1,4 @@
-{ config, ... }: let 
+{config, ...}: let
   makeNodeExporterConfig = host: address: {
     targets = [
       "${address}:${toString config.services.prometheus.exporters.node.port}"

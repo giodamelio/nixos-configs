@@ -1,4 +1,8 @@
-{pkgs, lib, ...}:
+{
+  pkgs,
+  lib,
+  ...
+}:
 pkgs.buildGoModule rec {
   pname = "agedit";
   version = "0.2.1";

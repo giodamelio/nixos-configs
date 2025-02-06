@@ -1,8 +1,4 @@
-{
-  root,
-  debug,
-  ...
-}: {
+{root, ...}: {
   pkgs,
   config,
   ...

@@ -1,8 +1,4 @@
-_: {
-  pkgs,
-  config,
-  ...
-}: {
+_: {config, ...}: {
   age.secrets.service_authelia_jwt_secret = {
     file = ../../../secrets/service_authelia_jwt_secret.age;
     owner = config.services.authelia.instances.main.user;

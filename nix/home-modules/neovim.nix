@@ -1,4 +1,8 @@
-{pkgs, self, ...}: let
+{
+  pkgs,
+  self,
+  ...
+}: let
   customNeovim = self.packages.${pkgs.stdenv.system}.neovim;
 in {
   home.packages = [

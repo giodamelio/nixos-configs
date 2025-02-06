@@ -1,8 +1,4 @@
-{inputs, ...}: {
-  pkgs,
-  lib,
-  ...
-}: let
+{inputs, ...}: {pkgs, ...}: let
   customNeovim = inputs.self.packages.${pkgs.stdenv.system}.neovim;
   open-ports = pkgs.writeShellApplication {
     name = "open-ports";

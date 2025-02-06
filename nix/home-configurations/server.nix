@@ -1,5 +1,4 @@
-{ ezModules, ... }:
-{
+{ezModules, ...}: {
   imports = [
     ezModules.git
     ezModules.neovim

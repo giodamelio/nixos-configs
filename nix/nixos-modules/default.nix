@@ -7,4 +7,3 @@ _: {
     (import ../overlays/wezterm.nix)
   ];
 }
-

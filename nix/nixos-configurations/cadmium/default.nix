@@ -1,6 +1,5 @@
 {
   inputs,
-  self,
   homelab,
   ezModules,
   ...
@@ -16,7 +15,7 @@
     ./bootloader.nix
 
     # Create giodamelio user
-    ({ pkgs, ... }: {
+    ({pkgs, ...}: {
       users.users.giodamelio = {
         extraGroups = ["wheel" "docker" "sound"];
         isNormalUser = true;

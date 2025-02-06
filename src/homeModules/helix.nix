@@ -1,8 +1,4 @@
-{
-  root,
-  debug,
-  ...
-}: {pkgs, ...}: {
+_: _: {
   programs.helix = {
     enable = true;
     settings = {

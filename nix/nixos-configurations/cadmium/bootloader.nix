@@ -1,4 +1,4 @@
-{ lib, ... }: {
+{lib, ...}: {
   boot.loader = {
     grub = {
       enable = lib.mkDefault true;

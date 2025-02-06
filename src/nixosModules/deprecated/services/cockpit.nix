@@ -1,8 +1,4 @@
-_: {
-  pkgs,
-  config,
-  ...
-}: let
+_: _: let
   port = 9090;
 in {
   services.cockpit = {

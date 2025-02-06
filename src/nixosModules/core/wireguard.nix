@@ -1,8 +1,4 @@
-{
-  homelab,
-  debug,
-  ...
-}: {
+{homelab, ...}: {
   pkgs,
   config,
   ...
