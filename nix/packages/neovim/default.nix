@@ -1,4 +1,4 @@
-{pkgs, ...}: let
+{ pkgs, ... }: let
   gitlinker = pkgs.vimUtils.buildVimPlugin {
     pname = "gitlinker.nvim";
     version = "2023-12-15";
