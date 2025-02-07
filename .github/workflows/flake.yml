@@ -8,8 +8,13 @@ jobs:
     name: Run the flake checks
     runs-on: ubuntu-latest
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Run flake check
         run: nix flake check
 
@@ -17,7 +22,8 @@ jobs:
     name: Check Flake Health
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Check Nix flake inputs
         uses: DeterminateSystems/flake-checker-action@v4
 
@@ -30,6 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
       - uses: DeterminateSystems/flakehub-push@main
         env:
           NIXPKGS_ALLOW_UNFREE: 1
