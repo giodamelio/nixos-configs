@@ -25,6 +25,7 @@ pkgs.mkShell {
       pkgs.nil
       pkgs.nvd
       pkgs.nix-diff
+      pkgs.nix-output-monitor
     ]
     ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
       perSystem.morlana.default
