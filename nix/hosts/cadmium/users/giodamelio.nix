@@ -1,22 +1,22 @@
 {
   pkgs,
-  ezModules,
+  flake,
   ...
 }: {
   imports = [
-    ezModules.git
-    ezModules.neovim
-    ezModules.wezterm
-    ezModules.qutebrowser
-    ezModules.zellij
-    ezModules.starship
-    ezModules.zsh
-    ezModules.nushell
-    ezModules.hyprland
-    ezModules.sway
-    ezModules.waybar
-    ezModules.nix-index
-    ezModules.syncthing
+    flake.homeModules.git
+    flake.homeModules.neovim
+    flake.homeModules.wezterm
+    flake.homeModules.qutebrowser
+    flake.homeModules.zellij
+    flake.homeModules.starship
+    flake.homeModules.zsh
+    flake.homeModules.nushell
+    flake.homeModules.hyprland
+    flake.homeModules.sway
+    flake.homeModules.waybar
+    flake.homeModules.nix-index
+    flake.homeModules.syncthing
   ];
 
   home = {

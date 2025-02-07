@@ -1,9 +1,9 @@
 {
   pkgs,
-  self,
+  flake,
   ...
 }: let
-  myQutebrowser = self.packages.${pkgs.stdenv.system}.qutebrowser-tree-tabs;
+  myQutebrowser = flake.packages.${pkgs.stdenv.system}.qutebrowser-tree-tabs;
 in {
   programs.qutebrowser = {
     enable = true;

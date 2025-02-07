@@ -1,9 +1,6 @@
-{
-  inputs,
-  homelab,
-  ezModules,
-  ...
-}: {
+{ inputs, flake, ... }: let
+  homelab = builtins.fromTOML (builtins.readFile ../../../homelab.toml);
+in {
   imports = [
     inputs.colmena.nixosModules.deploymentOptions
     inputs.home-manager.nixosModules.home-manager
@@ -23,23 +20,21 @@
         openssh.authorizedKeys.keys = homelab.ssh_keys;
       };
       programs.zsh.enable = true;
-
-      home-manager.useGlobalPkgs = true;
-      home-manager.useUserPackages = true;
     })
 
     # Basic packages I want on every system
-    ezModules.basic-packages
-    ezModules.basic-packages-desktop
-    ezModules.basic-settings
+    flake.nixosModules.basic-packages
+    flake.nixosModules.basic-packages-desktop
+    flake.nixosModules.basic-settings
 
     # Setup user programs/services
-    ezModules.modern-coreutils-replacements
-    ezModules.programs-atuind
+    flake.nixosModules.modern-coreutils-replacements
+    flake.nixosModules.programs-atuind
+    flake.nixosModules.monitoring
     ./3d-printing.nix
 
     # Autosnapshot ZFS and send to NAS
-    ezModules.zfs-backup
+    flake.nixosModules.zfs-backup
     (_: {
       gio.services.zfs_backup = {
         enable = true;
@@ -53,10 +48,10 @@
     })
 
     # Software Development tools
-    ezModules.software-development
+    flake.nixosModules.software-development
 
     # Easy key rebinding
-    ezModules.keyd
+    flake.nixosModules.keyd
 
     ({pkgs, ...}: {
       programs.sway = {

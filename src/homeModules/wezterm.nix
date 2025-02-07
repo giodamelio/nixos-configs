@@ -1,7 +1,9 @@
-_: _: {
+{ perSystem }: {
   programs.wezterm = {
     enable = true;
     enableZshIntegration = true;
+
+    package = perSystem.self.wezterm-patched;
 
     extraConfig = ''
       return {
