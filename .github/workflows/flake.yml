@@ -1,0 +1,40 @@
+name: Flake Build
+on:
+  push:
+    branches:
+      - "main"
+jobs:
+  flake-check:
+    name: Run the flake checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - name: Run flake check
+        run: nix flake check
+
+  flake-health-checker:
+    name: Check Flake Health
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check Nix flake inputs
+        uses: DeterminateSystems/flake-checker-action@v4
+
+  flakehub-publish:
+    name: Publish every Git push to main to FlakeHub
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/flakehub-push@main
+        env:
+          NIXPKGS_ALLOW_UNFREE: 1
+        with:
+          name: giodamelio/nixos-configs
+          rolling: true
+          visibility: public
+          include-output-paths: true
