@@ -1,9 +1,5 @@
-{
-  pkgs,
-  self,
-  ...
-}: let
-  customNeovim = self.packages.${pkgs.stdenv.system}.neovim;
+{ pkgs, flake, ... }: let
+  customNeovim = flake.packages.${pkgs.stdenv.system}.neovim;
 in {
   home.packages = [
     customNeovim

@@ -1,8 +1,8 @@
-{ezModules, ...}: {
+{ flake, ...}: {
   imports = [
-    ezModules.git
-    ezModules.neovim
-    ezModules.zsh
+    flake.homeModules.git
+    flake.homeModules.neovim
+    flake.homeModules.zsh
   ];
 
   home = {

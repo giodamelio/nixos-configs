@@ -1,9 +1,5 @@
-{
-  pkgs,
-  myPkgs,
-  ...
-}: let
-  customNeovim = myPkgs.${pkgs.stdenv.system}.neovim;
+{ pkgs, flake, ... }: let
+  customNeovim = flake.packages.${pkgs.stdenv.system}.neovim;
   open-ports = pkgs.writeShellApplication {
     name = "open-ports";
     runtimeInputs = with pkgs; [lsof ripgrep];

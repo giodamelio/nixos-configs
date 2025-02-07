@@ -1,10 +1,6 @@
-{
-  pkgs,
-  inputs,
-  homelab,
-  ezModules,
-  ...
-}: {
+{ pkgs, inputs, flake, ... }: let
+  homelab = builtins.fromTOML (builtins.readFile ../../../homelab.toml);
+in {
   imports = [
     inputs.colmena.nixosModules.deploymentOptions
     inputs.home-manager.nixosModules.home-manager
@@ -14,8 +10,9 @@
     ./hardware.nix
     ./prometheus.nix
 
-    ezModules.basic-packages
-    ezModules.basic-settings
+    flake.nixosModules.basic-packages
+    flake.nixosModules.basic-settings
+    flake.nixosModules.monitoring
 
     # Create server user
     ({pkgs, ...}: {
@@ -27,13 +24,10 @@
       };
       security.sudo.wheelNeedsPassword = false;
       programs.zsh.enable = true;
-
-      home-manager.useGlobalPkgs = true;
-      home-manager.useUserPackages = true;
     })
 
     # Autosnapshot ZFS and send to NAS
-    ezModules.zfs-backup
+    flake.nixosModules.zfs-backup
     (_: {
       gio.services.zfs_backup = {
         enable = true;
