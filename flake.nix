@@ -25,6 +25,7 @@
 
     # Build NixOS images
     nixos-generators.url = "github:nix-community/nixos-generators";
+    nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
 
     # NixOS modules for specific hardware
     nixos-hardware.url = "github:NixOS/nixos-hardware/master";
