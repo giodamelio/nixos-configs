@@ -1,4 +1,8 @@
-{ pkgs, flake, ... }: let
+{
+  pkgs,
+  flake,
+  ...
+}: let
   customNeovim = flake.packages.${pkgs.stdenv.system}.neovim;
 in {
   home.packages = [

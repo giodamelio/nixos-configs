@@ -1,4 +1,4 @@
-{ flake, ...}: {
+{flake, ...}: {
   imports = [
     flake.homeModules.git
     flake.homeModules.neovim

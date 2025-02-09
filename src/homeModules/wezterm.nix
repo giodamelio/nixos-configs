@@ -1,4 +1,4 @@
-{ perSystem }: {
+{perSystem}: {
   programs.wezterm = {
     enable = true;
     enableZshIntegration = true;

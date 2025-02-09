@@ -1,4 +1,8 @@
-{ pkgs, flake, ... }: let
+{
+  pkgs,
+  flake,
+  ...
+}: let
   customNeovim = flake.packages.${pkgs.stdenv.system}.neovim;
   open-ports = pkgs.writeShellApplication {
     name = "open-ports";

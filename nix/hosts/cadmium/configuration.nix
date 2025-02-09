@@ -1,4 +1,8 @@
-{ inputs, flake, ... }: let
+{
+  inputs,
+  flake,
+  ...
+}: let
   homelab = builtins.fromTOML (builtins.readFile ../../../homelab.toml);
 in {
   imports = [

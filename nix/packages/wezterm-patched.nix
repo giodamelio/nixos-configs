@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{pkgs, ...}:
 pkgs.wezterm.overrideAttrs (_: prev: {
   patches =
     prev.patches

@@ -1,4 +1,8 @@
-{ pkgs, lib, ... }: {
+{
+  pkgs,
+  lib,
+  ...
+}: {
   home-manager.users.giodamelio = _:
     lib.mkMerge [
       # Launch Daemon for SystemD
