@@ -13,6 +13,10 @@ jobs:
         with:
           tool-cache: true
       - uses: actions/checkout@v4
+      - uses: cachix/cachix-action@v14
+        with:
+          name: nixos-configs
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - uses: DeterminateSystems/nix-installer-action@main
       - name: Run flake check
         run: nix flake check
