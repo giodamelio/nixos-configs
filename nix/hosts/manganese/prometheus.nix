@@ -24,15 +24,16 @@ in {
       {
         job_name = "node_exporter";
         static_configs = [
-          (makeNodeExporterConfig "manganese" "127.0.0.1")
-          (makeNodeExporterConfig "cadmium" "10.0.128.125")
+          (makeNodeExporterConfig "manganese" "manganese.h.gio.ninja")
+          (makeNodeExporterConfig "cadmium" "cadmium.h.gio.ninja")
+          (makeNodeExporterConfig "lithium1" "lithium1.h.gio.ninja")
         ];
       }
       {
         job_name = "zfs";
         static_configs = [
-          (makeZfsExporterConfig "manganese" "127.0.0.1")
-          (makeZfsExporterConfig "cadmium" "10.0.128.125")
+          (makeZfsExporterConfig "manganese" "manganese.h.gio.ninja")
+          (makeZfsExporterConfig "cadmium" "cadmium.h.gio.ninja")
         ];
       }
     ];

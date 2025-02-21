@@ -15,6 +15,7 @@ in {
 
     flake.nixosModules.basic-packages
     flake.nixosModules.basic-settings
+    flake.nixosModules.monitoring
 
     # Create server user
     ({pkgs, ...}: {
