@@ -51,6 +51,46 @@ in {
         enable = true;
       };
     })
+
+    # Simple Status Page
+    ({
+      services.gatus = {
+        enable = true;
+        openFirewall = true;
+        settings = {
+          metrics = true;
+          endpoints = [
+            {
+              name = "Headscale";
+              url = "https://headscale.gio.ninja/health";
+              interval = "5m";
+              conditions = [
+                "[STATUS] == 200"
+                "[BODY].status == pass"
+                "[RESPONSE_TIME] < 300"
+              ];
+            }
+            {
+              name = "Prometheus";
+              url = "http://manganese.h.gio.ninja:9090/-/healthy";
+              interval = "5m";
+              conditions = [
+                "[STATUS] == 200"
+                "[RESPONSE_TIME] < 300"
+              ];
+            }
+            {
+              name = "Google";
+              url = "https://google.com";
+              interval = "10m";
+              conditions = [
+                "[STATUS] == 200"
+              ];
+            }
+          ];
+        };
+      };
+    })
   ];
 
   # ZFS snapshot browsing

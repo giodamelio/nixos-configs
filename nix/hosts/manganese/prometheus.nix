@@ -36,6 +36,16 @@ in {
           (makeZfsExporterConfig "cadmium" "cadmium.h.gio.ninja")
         ];
       }
+      {
+        job_name = "gatus";
+        static_configs = [
+          {
+            targets = [
+              "manganese.h.gio.ninja:8080"
+            ];
+          }
+        ];
+      }
     ];
   };
 
