@@ -59,6 +59,10 @@ in {
         openFirewall = true;
         settings = {
           metrics = true;
+          storage = {
+            type = "sqlite";
+            path = "/var/lib/gatus/data.db";
+          };
           endpoints = [
             {
               name = "Headscale";
