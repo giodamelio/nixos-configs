@@ -44,6 +44,13 @@ in {
         ];
       };
     })
+
+    # Connect to our self hosted Headscale instance
+    ({
+      services.tailscale = {
+        enable = true;
+      };
+    })
   ];
 
   # ZFS snapshot browsing
