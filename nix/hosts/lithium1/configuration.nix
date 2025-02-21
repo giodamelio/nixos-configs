@@ -28,36 +28,25 @@ in {
       programs.zsh.enable = true;
     })
 
-    # Run Nebula lighthouse connected to defined.net
-    # Use dnclient insead of the open source Nebula package
-    # Stolen from: https://gitlab.com/savysound/libraries/nix/dnclient
-    ({pkgs, ...}: let
-      dnclientPackage = flake.packages.${pkgs.stdenv.system}.dnclient;
-    in {
-      environment.systemPackages = [dnclientPackage];
+    # Run Headscale for easy networking
+    ({
+      networking.firewall.allowedTCPPorts = [80 443];
 
-      networking.firewall.allowedUDPPorts = [4242];
-
-      systemd.services.dnclient = {
+      services.headscale = {
         enable = true;
-        description = "Defined Networks' dnclient network configuration tool";
-        after = ["network.target"];
+        address = "0.0.0.0";
+        port = 443;
 
-        preStart = ''
-          mkdir -p /var/lib/defined
-        '';
+        settings = {
+          server_url = "https://headscale.gio.ninja:443";
 
-        startLimitIntervalSec = 5;
-        serviceConfig = {
-          StartLimitBurst = 10;
-          Type = "notify";
-          NotifyAccess = "main";
-          ExecStart = "${dnclientPackage}/bin/dnclient run -config /var/lib/defined -server https://api.defined.net";
-          Restart = "always";
-          RestartSec = 120;
+          tls_letsencrypt_hostname = "headscale.gio.ninja";
+
+          dns = {
+            magic_dns = true;
+            base_domain = "h.gio.ninja";
+          };
         };
-
-        wantedBy = ["multi-user.target"];
       };
     })
   ];
