@@ -58,11 +58,11 @@ in {
     flake.nixosModules.keyd
 
     # Connect to our self hosted Headscale instance
-    ({
+    {
       services.tailscale = {
         enable = true;
       };
-    })
+    }
 
     ({pkgs, ...}: {
       programs.sway = {

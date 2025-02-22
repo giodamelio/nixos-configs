@@ -46,14 +46,14 @@ in {
     })
 
     # Connect to our self hosted Headscale instance
-    ({
+    {
       services.tailscale = {
         enable = true;
       };
-    })
+    }
 
     # Simple Status Page
-    ({
+    (_: {
       services.gatus = {
         enable = true;
         openFirewall = true;

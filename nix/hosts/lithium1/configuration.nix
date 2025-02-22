@@ -30,7 +30,7 @@ in {
     })
 
     # Run Headscale for easy networking
-    ({
+    {
       networking.firewall.allowedTCPPorts = [80 443];
 
       services.headscale = {
@@ -53,7 +53,7 @@ in {
       services.tailscale = {
         enable = true;
       };
-    })
+    }
   ];
 
   system.stateVersion = "25.05";
