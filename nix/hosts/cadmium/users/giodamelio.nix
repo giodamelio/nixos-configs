@@ -17,6 +17,7 @@
     flake.homeModules.waybar
     flake.homeModules.nix-index
     flake.homeModules.syncthing
+    flake.homeModules.atuind
   ];
 
   home = {

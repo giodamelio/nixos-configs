@@ -33,7 +33,6 @@ in {
 
     # Setup user programs/services
     flake.nixosModules.modern-coreutils-replacements
-    flake.nixosModules.programs-atuind
     flake.nixosModules.monitoring
     ./3d-printing.nix
 
