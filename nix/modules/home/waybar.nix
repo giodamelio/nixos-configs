@@ -51,7 +51,7 @@
 
         modules-left = ["sway/mode" "sway/workspaces" "hyprland/workspaces" "hyprland/submap"];
         modules-center = [];
-        modules-right = ["network#wg0" "network" "cpu" "memory" "pulseaudio" "tray" "clock"];
+        modules-right = ["network#tailscale0" "network" "cpu" "memory" "pulseaudio" "tray" "clock"];
 
         inherit clock;
 
@@ -61,10 +61,10 @@
             interface = "enp0*";
           };
 
-        "network#wg0" =
+        "network#tailscale0" =
           defaultNetwork
           // {
-            interface = "wg0";
+            interface = "tailscale0";
           };
 
         cpu = {
