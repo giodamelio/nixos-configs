@@ -63,7 +63,17 @@ in {
             type = "sqlite";
             path = "/var/lib/gatus/data.db";
           };
-          endpoints = [
+          endpoints = let
+            mkPingEndpoint = name: host: {
+              inherit name;
+              group = "Hosts";
+              url = "icmp://${host}";
+              interval = "5m";
+              conditions = [
+                "[CONNECTED] == true"
+              ];
+            };
+          in [
             {
               name = "Headscale";
               url = "https://headscale.gio.ninja/health";
@@ -91,7 +101,18 @@ in {
                 "[STATUS] == 200"
               ];
             }
+            (mkPingEndpoint "cadmium" "cadmium.h.gio.ninja")
+            (mkPingEndpoint "lithium1" "lithium1.h.gio.ninja")
+            (mkPingEndpoint "manganese" "manganese.h.gio.ninja")
           ];
+        };
+      };
+
+      # Allow Gatus to send ICMP traffic
+      systemd.services.gatus = {
+        serviceConfig = {
+          CapabilityBoundingSet = "CAP_NET_RAW";
+          AmbientCapabilities = "CAP_NET_RAW";
         };
       };
     })
