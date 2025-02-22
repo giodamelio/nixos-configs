@@ -3,6 +3,7 @@
     flake.homeModules.git
     flake.homeModules.neovim
     flake.homeModules.zsh
+    flake.homeModules.atuin
   ];
 
   home = {
