@@ -6,9 +6,6 @@
 pkgs.mkShell {
   buildInputs =
     [
-      perSystem.colmena.colmena
-      perSystem.ragenix.default
-
       # config.packages.deploy
       # config.packages.neovim
       # config.packages.agedit

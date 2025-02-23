@@ -1,14 +1,7 @@
-{
-  inputs,
-  flake,
-  ...
-}: let
+{flake, ...}: let
   homelab = builtins.fromTOML (builtins.readFile ../../../homelab.toml);
 in {
   imports = [
-    inputs.colmena.nixosModules.deploymentOptions
-    inputs.ragenix.nixosModules.default
-
     # Setup hardware
     ./disko.nix
     ./hardware.nix

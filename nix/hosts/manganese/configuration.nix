@@ -7,9 +7,7 @@
   homelab = builtins.fromTOML (builtins.readFile ../../../homelab.toml);
 in {
   imports = [
-    inputs.colmena.nixosModules.deploymentOptions
     inputs.home-manager.nixosModules.home-manager
-    inputs.ragenix.nixosModules.default
 
     ./disko.nix
     ./hardware.nix
