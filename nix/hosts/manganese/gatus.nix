@@ -46,7 +46,6 @@
             "[STATUS] == 200"
           ];
         }
-        (mkPingEndpoint "cadmium" "cadmium.h.gio.ninja")
         (mkPingEndpoint "lithium1" "lithium1.h.gio.ninja")
         (mkPingEndpoint "manganese" "manganese.h.gio.ninja")
       ];
