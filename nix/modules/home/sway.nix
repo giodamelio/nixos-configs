@@ -23,7 +23,7 @@ in {
       menu = "${pkgs.wofi}/bin/wofi --show=drun --allow-images";
 
       # Use Wezterm as our terminal
-      terminal = "${perSystem.self.wezterm-patched}/bin/wezterm";
+      terminal = "${pkgs.wezterm}/bin/wezterm";
 
       # Replace the built in bars with Waybar
       bars = [];
