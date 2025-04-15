@@ -51,7 +51,7 @@
 
         modules-left = ["sway/mode" "sway/workspaces" "hyprland/workspaces" "hyprland/submap"];
         modules-center = [];
-        modules-right = ["network#tailscale0" "network" "cpu" "memory" "pulseaudio" "tray" "clock"];
+        modules-right = ["network#tailscale0" "network" "cpu" "memory" "pulseaudio" "tray" "clock" "custom/power"];
 
         inherit clock;
 
@@ -94,6 +94,11 @@
           };
           on-click = "pavucontrol";
           on-click-right = "${pkgs.pw-volume}/bin/pw-volume mute toggle";
+        };
+
+        "custom/power" = {
+          on-click = "${pkgs.sway}/bin/swaynag -t warning -m 'Power Menu Options' -b 'Shutdown' 'systemctl poweroff' -b 'Reboot' 'systemctl reboot' -b 'Reboot into Windows' 'systemctl reboot --boot-loader-entry=windows_11-Pro.conf'";
+          format = " ⏻  ";
         };
       };
 
