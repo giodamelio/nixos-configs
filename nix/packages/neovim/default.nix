@@ -105,10 +105,7 @@
       neotest-deno
       neotest-rspec
 
-      # ChatGPT-nvim # ChatGPT integration
-      ChatGPT-nvim # ChatGPT integration
-      # parrot # GenAI Integration
-      nui-nvim # needed for ChatGPT
+      avante-nvim # GenAI addition
       oil-nvim # Move/Create/Delete files/directories directly in a vim buffer
       nvim-surround # Deal with pairs of things
       comment-nvim # Better comments

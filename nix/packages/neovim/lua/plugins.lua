@@ -65,21 +65,9 @@ gl.setup({
 
 neogit.setup()
 
--- ChatGPT
-require('chatgpt').setup({
-  yank_register = 'C',
-  chat = {
-    keymaps = {
-      close = { '<Esc>' },
-    },
-  },
-  edit_with_instructions = {
-    diff = false,
-    keymaps = {
-      close = '<Esc>',
-    },
-  },
-})
+-- Avante
+require('avante_lib').load()
+require('avante').setup()
 
 -- Oil
 require('oil').setup({
