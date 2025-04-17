@@ -9,7 +9,6 @@ flake.lib.writeNushellApplication pkgs {
   source = ''
     # Get the list of boot entries in JSON format
     let entries = (bootctl --json=short list | from json)
-    print $entries
 
     # Filter to only bootable entries and create a map with id and title
     let entry_map = ($entries | each {|x|
