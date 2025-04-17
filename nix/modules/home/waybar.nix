@@ -1,5 +1,10 @@
-{pkgs, flake, ...}: let
-  audio-output-switcher = flake.packages.${pkgs.stdenv.system}.audio-output-switcher;
+{
+  pkgs,
+  flake,
+  ...
+}: let
+  inherit (flake.packages.${pkgs.stdenv.system}) audio-output-switcher;
+  inherit (flake.packages.${pkgs.stdenv.system}) reboot-into-entry;
 in {
   programs.waybar = {
     enable = true;
@@ -99,7 +104,7 @@ in {
         };
 
         "custom/power" = {
-          on-click = "${pkgs.sway}/bin/swaynag -t warning -m 'Power Menu Options' -b 'Shutdown' 'systemctl poweroff' -b 'Reboot' 'systemctl reboot' -b 'Reboot into Windows' 'systemctl reboot --boot-loader-entry=windows_11-Pro.conf'";
+          on-click = "${reboot-into-entry}/bin/reboot-into-entry";
           format = " ⏻  ";
         };
       };
