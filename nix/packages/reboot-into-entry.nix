@@ -45,6 +45,7 @@ flake.lib.writeNushellApplication pkgs {
     if ($selected | is-empty) == false {
       let selected_id = ($selected | get 0 | get id)
       print $"Rebooting with boot entry: ($clean_title) [($selected_id)]"
+      bootctl set-timeout-oneshot 0
       systemctl reboot --boot-loader-entry=$selected_id
     } else {
       print "No boot entry selected, aborting."
