@@ -1,4 +1,6 @@
-{pkgs, ...}: {
+{pkgs, flake, ...}: let
+  audio-output-switcher = flake.packages.${pkgs.stdenv.system}.audio-output-switcher;
+in {
   programs.waybar = {
     enable = true;
     systemd = {
@@ -92,7 +94,7 @@
             headphone = "";
             default = ["" ""];
           };
-          on-click = "pavucontrol";
+          on-click = "${audio-output-switcher}/bin/audio-output-switcher";
           on-click-right = "${pkgs.pw-volume}/bin/pw-volume mute toggle";
         };
 
