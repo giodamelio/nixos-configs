@@ -27,6 +27,7 @@ in {
           (makeNodeExporterConfig "manganese" "manganese.h.gio.ninja")
           (makeNodeExporterConfig "cadmium" "cadmium.h.gio.ninja")
           (makeNodeExporterConfig "lithium1" "lithium1.h.gio.ninja")
+          (makeNodeExporterConfig "gallium" "gallium.h.gio.ninja")
         ];
       }
       {
@@ -34,6 +35,7 @@ in {
         static_configs = [
           (makeZfsExporterConfig "manganese" "manganese.h.gio.ninja")
           (makeZfsExporterConfig "cadmium" "cadmium.h.gio.ninja")
+          (makeZfsExporterConfig "gallium" "gallium.h.gio.ninja")
         ];
       }
       {

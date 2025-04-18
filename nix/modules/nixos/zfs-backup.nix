@@ -57,7 +57,9 @@ in {
       datasets = lib.attrsets.genAttrs cfg.datasets (_: default_schedule);
     };
 
-    services.syncoid = lib.mkIf cfg.syncToGallium {
+    # Change this once we get backup syncing working again
+    # services.syncoid = lib.mkIf cfg.syncToGallium {
+    services.syncoid = lib.mkIf false {
       enable = true;
 
       # Load the SSH key from a SystemD credential

@@ -48,6 +48,7 @@
         }
         (mkPingEndpoint "lithium1" "lithium1.h.gio.ninja")
         (mkPingEndpoint "manganese" "manganese.h.gio.ninja")
+        (mkPingEndpoint "gallium" "gallium.h.gio.ninja")
       ];
     };
   };
