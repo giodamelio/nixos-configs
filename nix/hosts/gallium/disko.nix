@@ -131,6 +131,13 @@
               type = "zfs_fs";
               # mountpoint = "/var/lib/garage/data";
             };
+            media = {
+              type = "zfs_fs";
+              mountpoint = "/tank/media";
+              options = {
+                mountpoint = "legacy";
+              };
+            };
           };
         };
       };
