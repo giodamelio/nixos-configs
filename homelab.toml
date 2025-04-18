@@ -22,3 +22,11 @@ useDescription = "Main development machine"
 [machines.manganese]
 hardwareDescription = ""
 useDescription = "Handling all our monitoring as reliably as possible"
+
+[machines.lithium1]
+hardwareDescription = "A Vulture VPS"
+useDescription = "Headscale Gateway. Also other networking things that need always online with a public IP"
+
+[machines.gallium]
+hardwareDescription = "QNAP TS-462-2G"
+useDescription = "NAS. Also runs storage based servers (Garage for S3, Syncthing)"
