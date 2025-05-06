@@ -4,6 +4,7 @@
   ...
 }: {
   imports = [
+    flake.homeModules.modern-coreutils-replacements
     flake.homeModules.git
     flake.homeModules.neovim
     flake.homeModules.wezterm
