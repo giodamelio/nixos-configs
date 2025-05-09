@@ -29,6 +29,9 @@ in {
     flake.nixosModules.basic-packages-desktop
     flake.nixosModules.basic-settings
 
+    # Tools for programming with AI
+    flake.nixosModules.code-editing-ai
+
     # Setup user programs/services
     flake.nixosModules.modern-coreutils-replacements
     flake.nixosModules.monitoring
