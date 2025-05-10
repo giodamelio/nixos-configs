@@ -23,21 +23,6 @@
     meta.homepage = "https://github.com/arnamak/stay-centered.nvim";
   };
 
-  # parrot = let
-  #   version = "0.6.0";
-  # in
-  #   pkgs.vimUtils.buildVimPlugin {
-  #     pname = "parrot.nvim";
-  #     inherit version;
-  #     src = pkgs.fetchFromGitHub {
-  #       owner = "frankroeder";
-  #       repo = "parrot.nvim";
-  #       rev = "v${version}";
-  #       hash = "sha256-jZFnC1GA4xBRqdcSTzWGu0C0McFKro3To/gxgZayTZU=";
-  #     };
-  #     meta.homepage = "https://github.com/frankroeder/parrot.nvim";
-  #   };
-
   nvimConfig = pkgs.neovimUtils.makeNeovimConfig {
     withPython3 = true;
     withRuby = false;

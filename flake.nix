@@ -45,5 +45,10 @@
     # Nice CLI for deploying Nix on Darwin
     morlana.url = "github:ryanccn/morlana";
     morlana.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Generate Neovim configuations
+    nixvim.url = "github:nix-community/nixvim";
+    nixvim.inputs.nixpkgs.follows = "nixpkgs";
+    nixvim.inputs.nuschtosSearch.url = "github:giodamelio/empty-flake";
   };
 }
