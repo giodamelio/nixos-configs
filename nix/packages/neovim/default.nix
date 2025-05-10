@@ -115,6 +115,7 @@
 in
   pkgs.symlinkJoin {
     name = "nvim";
+    meta.mainProgram = "nvim";
     paths = [
       # Custom Neovim
       (pkgs.wrapNeovimUnstable pkgs.neovim-unwrapped nvimConfig)

@@ -1,0 +1,28 @@
+name: Build Portable Neovim
+on:
+  push:
+    branches:
+      - "main"
+jobs:
+  build-appimage:
+    name: Build AppImage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: cachix/cachix-action@v14
+        with:
+          name: nixos-configs
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+      - name: Build AppImage
+        run: nix bundle --bundler github:ralismark/nix-appimage .#neovim
+      - name: Upload File
+        uses: actions/upload-artifact@v4
+        with:
+          name: nvim.AppImage
+          path: nvim.AppImage
+          if-no-files-found: error
