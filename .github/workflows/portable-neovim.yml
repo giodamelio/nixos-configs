@@ -20,7 +20,3 @@ jobs:
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Build AppImage
         run: nix bundle --bundler github:ralismark/nix-appimage .#neovim
-      - name: Create Release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "nvim.AppImage"
