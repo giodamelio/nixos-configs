@@ -20,9 +20,7 @@ jobs:
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Build AppImage
         run: nix bundle --bundler github:ralismark/nix-appimage .#neovim
-      - name: Upload File
-        uses: actions/upload-artifact@v4
+      - name: Create Release
+        uses: ncipollo/release-action@v1
         with:
-          name: nvim.AppImage
-          path: nvim.AppImage
-          if-no-files-found: error
+          artifacts: "nvim.AppImage"
