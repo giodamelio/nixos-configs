@@ -239,7 +239,7 @@ in
       oil = {
         enable = true;
         settings = {
-          columns = [ "icon" "permissions" "size" ];
+          columns = ["icon" "permissions" "size"];
         };
       };
 
