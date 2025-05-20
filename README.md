@@ -4,7 +4,7 @@ Used to configure all of my machines
 
 # Machines
 
-There are currently 6 machines listed in the [data](./homelab.toml)
+There are currently 7 machines listed in the [data](./homelab.toml)
 
 
   - `cadmium`
@@ -13,6 +13,9 @@ There are currently 6 machines listed in the [data](./homelab.toml)
   - `calcium`
     - Description: Hacking random projects while on Windows
     - Hardware: WSL2 Distro on Cadmium's Windows 11 install
+  - `cesium`
+    - Description: Super portable travel machine
+    - Hardware: Cheap Lenovo Chromebook
   - `gallium`
     - Description: NAS. Also runs storage based servers (Garage for S3, Syncthing)
     - Hardware: QNAP TS-462-2G

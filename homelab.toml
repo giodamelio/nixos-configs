@@ -34,3 +34,7 @@ useDescription = "NAS. Also runs storage based servers (Garage for S3, Syncthing
 [machines.calcium]
 hardwareDescription = "WSL2 Distro on Cadmium's Windows 11 install"
 useDescription = "Hacking random projects while on Windows"
+
+[machines.cesium]
+hardwareDescription = "Cheap Lenovo Chromebook"
+useDescription = "Super portable travel machine"
