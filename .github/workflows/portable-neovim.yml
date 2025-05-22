@@ -31,7 +31,7 @@ jobs:
           nix run nixpkgs#backblaze-b2 -- file server-side-copy b2://$BUCKET_NAME/$FILE_NAME b2://$BUCKET_NAME/nvim.AppImage
       - name: Generate Run Instructions
         run: |
-          DOWNLOAD_URL=$(b2 file url b2://$BUCKET_NAME/$FILE_NAME)
+          DOWNLOAD_URL=$(nix run nixpkgs#backblaze-b2 -- file url b2://$BUCKET_NAME/$FILE_NAME)
           echo "# Run Custom Neovim Image" >> $GITHUB_STEP_SUMMARY
           echo "    \$ curl -LO $DOWNLOAD_URL" >> $GITHUB_STEP_SUMMARY
           echo "    \$ ./nvim.AppImage" >> $GITHUB_STEP_SUMMARY
