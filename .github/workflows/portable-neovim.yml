@@ -41,5 +41,5 @@ jobs:
         run: |
           echo "# Run Custom Neovim Image" >> $GITHUB_STEP_SUMMARY
           echo "    \$ curl -LO ${{ steps.backblaze-upload.outputs.DOWNLOAD_URL }}" >> $GITHUB_STEP_SUMMARY
-          echo "    \$ chmod +x nvim.AppImage" >> $GITHUB_STEP_SUMMARY
-          echo "    \$ ./nvim.AppImage" >> $GITHUB_STEP_SUMMARY
+          echo "    \$ chmod +x $FILE_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "    \$ ./$FILE_NAME" >> $GITHUB_STEP_SUMMARY
