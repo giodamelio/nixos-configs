@@ -22,6 +22,7 @@ jobs:
       - name: Build AppImage
         run: nix bundle --bundler github:ralismark/nix-appimage .#neovim
       - name: Upload to Backblaze
+        id: backblaze-upload
         env:
           B2_APPLICATION_KEY: ${{ secrets.B2_APPLICATION_KEY }}
           B2_APPLICATION_KEY_ID: ${{ secrets.B2_APPLICATION_KEY_ID }}
@@ -29,9 +30,11 @@ jobs:
           nix run nixpkgs#backblaze-b2 -- file upload $BUCKET_NAME nvim.AppImage $FILE_NAME
           # Always keep a copy of the latest build without it's ref+sha
           nix run nixpkgs#backblaze-b2 -- file server-side-copy b2://$BUCKET_NAME/$FILE_NAME b2://$BUCKET_NAME/nvim.AppImage
+          # Save Download URL
+          DOWNLOAD_URL=$(nix run nixpkgs#backblaze-b2 -- file url b2://$BUCKET_NAME/$FILE_NAME)
+          echo "DOWNLOAD_URL=$DOWNLOAD_URL" >> $GITHUB_OUTPUT
       - name: Generate Run Instructions
         run: |
-          DOWNLOAD_URL=$(nix run nixpkgs#backblaze-b2 -- file url b2://$BUCKET_NAME/$FILE_NAME)
           echo "# Run Custom Neovim Image" >> $GITHUB_STEP_SUMMARY
-          echo "    \$ curl -LO $DOWNLOAD_URL" >> $GITHUB_STEP_SUMMARY
+          echo "    \$ curl -LO ${{ steps.backblaze-upload.outputs.DOWNLOAD_URL }}" >> $GITHUB_STEP_SUMMARY
           echo "    \$ ./nvim.AppImage" >> $GITHUB_STEP_SUMMARY
