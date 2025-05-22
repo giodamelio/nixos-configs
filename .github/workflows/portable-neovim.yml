@@ -3,6 +3,10 @@ on:
   push:
     branches:
       - "main"
+    paths:
+      - "flake.lock"
+      - "nix/packages/neovim/**"
+      - ".github/workflows/portable-neovim.yml"
 jobs:
   build-appimage:
     name: Build AppImage
