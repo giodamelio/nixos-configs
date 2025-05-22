@@ -8,10 +8,8 @@ jobs:
     name: Build AppImage
     runs-on: ubuntu-latest
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
+      - name: Free Up Disk Space for Nix
+        uses: wimpysworld/nothing-but-nix@main
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
       - uses: cachix/cachix-action@v14
@@ -20,3 +18,13 @@ jobs:
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
       - name: Build AppImage
         run: nix bundle --bundler github:ralismark/nix-appimage .#neovim
+      - name: Upload to Backblaze
+        env:
+          B2_APPLICATION_KEY: ${{ secrets.B2_APPLICATION_KEY }}
+          B2_APPLICATION_KEY_ID: ${{ secrets.B2_APPLICATION_KEY_ID }}
+          BUCKET_NAME: gio-neovim-appimages
+          FILE_NAME: nvim.${{ github.head_ref }}.${{ github.sha }}.AppImage
+        run: |
+          nix run nixpkgs#backblaze-b2 -- file upload $BUCKET_NAME nvim.AppImage $FILE_NAME
+          # Always keep a copy of the latest build without it's ref+sha
+          nix run nixpkgs#backblaze-b2 -- file server-side-copy b2://$BUCKET_NAME/$FILE_NAME b2://$BUCKET_NAME/nvim.AppImage

@@ -23,8 +23,13 @@ pkgs.mkShell {
       pkgs.nvd
       pkgs.nix-diff
       pkgs.nix-output-monitor
+      pkgs.backblaze-b2
     ]
     ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
       perSystem.morlana.default
     ];
+
+  shellHook = ''
+    alias b2=backblaze-b2
+  '';
 }
