@@ -8,10 +8,8 @@ jobs:
     name: Run the flake checks
     runs-on: ubuntu-latest
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
+      - name: Free Up Disk Space for Nix
+        uses: wimpysworld/nothing-but-nix@main
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
       - uses: cachix/cachix-action@v14
