@@ -23,7 +23,7 @@ jobs:
           B2_APPLICATION_KEY: ${{ secrets.B2_APPLICATION_KEY }}
           B2_APPLICATION_KEY_ID: ${{ secrets.B2_APPLICATION_KEY_ID }}
           BUCKET_NAME: gio-neovim-appimages
-          FILE_NAME: nvim.${{ github.head_ref }}.${{ github.sha }}.AppImage
+          FILE_NAME: nvim.${{ github.sha }}.AppImage
         run: |
           nix run nixpkgs#backblaze-b2 -- file upload $BUCKET_NAME nvim.AppImage $FILE_NAME
           # Always keep a copy of the latest build without it's ref+sha
