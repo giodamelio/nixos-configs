@@ -9,6 +9,7 @@
     flake.homeModules.nushell
     flake.homeModules.nix-index
     flake.homeModules.atuind
+    flake.homeModules.llm
   ];
 
   home = {
