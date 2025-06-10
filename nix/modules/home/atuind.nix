@@ -22,17 +22,6 @@
       };
     })
 
-    # Launch Daemon for Darwin
-    (lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
-      launchd.agents.atuind = {
-        enable = true;
-        config = {
-          ProgramArguments = ["${pkgs.atuin}/bin/atuin" "daemon"];
-          EnvironmentVariables.ATUIN_LOG = "info";
-        };
-      };
-    })
-
     # Configure enable daemon mode
     {
       programs.atuin = {
