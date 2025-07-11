@@ -19,6 +19,11 @@ useDescription = "My Phone"
 hardwareDescription = "Desktop machine under my desk"
 useDescription = "Main development machine"
 
+[machines.cadmium.monitor-names]
+left = "DP-3"
+middle = "DP-2"
+right = "DP-1"
+
 [machines.manganese]
 hardwareDescription = ""
 useDescription = "Handling all our monitoring as reliably as possible"

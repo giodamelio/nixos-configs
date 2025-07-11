@@ -1,4 +1,5 @@
 _: {
+  homelab = builtins.fromTOML (builtins.readFile ../../homelab.toml);
   writeNushellApplication = pkgs: {
     name,
     source,

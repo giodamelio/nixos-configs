@@ -1,13 +1,10 @@
 {
   pkgs,
   lib,
+  flake,
   ...
 }: let
-  monitor = {
-    left = "DP-3";
-    middle = "DP-1";
-    right = "DP-2";
-  };
+  inherit (flake.lib.homelab.machines.cadmium) monitor-names;
   modifier = "Mod4";
 in {
   wayland.windowManager.sway = {
@@ -48,13 +45,13 @@ in {
         };
       in
         lib.attrsets.mapAttrs (_: attr: attr // shared) {
-          "${monitor.middle}" = {
+          "${monitor-names.middle}" = {
             position = "1080 560";
           };
-          "${monitor.right}" = {
+          "${monitor-names.right}" = {
             position = "3000 560";
           };
-          "${monitor.left}" = {
+          "${monitor-names.left}" = {
             position = "0 0";
             transform = "270";
           };
@@ -64,19 +61,19 @@ in {
       workspaceOutputAssign = [
         {
           workspace = "1";
-          output = monitor.middle;
+          output = monitor-names.middle;
         }
         {
           workspace = "2";
-          output = monitor.right;
+          output = monitor-names.right;
         }
         {
           workspace = "3";
-          output = monitor.left;
+          output = monitor-names.left;
         }
         {
           workspace = "10";
-          output = monitor.middle;
+          output = monitor-names.middle;
         }
       ];
 

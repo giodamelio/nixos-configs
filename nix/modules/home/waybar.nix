@@ -1,10 +1,12 @@
 {
   pkgs,
   flake,
+  lib,
   ...
 }: let
   inherit (flake.packages.${pkgs.stdenv.system}) audio-output-switcher;
   inherit (flake.packages.${pkgs.stdenv.system}) reboot-into-entry;
+  inherit (flake.lib.homelab.machines.cadmium) monitor-names;
 in {
   programs.waybar = {
     enable = true;
@@ -54,11 +56,11 @@ in {
       main = {
         layer = "top";
         position = "top";
-        output = ["DP-1"];
+        output = [monitor-names.middle];
 
         modules-left = ["sway/mode" "sway/workspaces" "hyprland/workspaces" "hyprland/submap"];
         modules-center = [];
-        modules-right = ["network#tailscale0" "network" "cpu" "memory" "pulseaudio" "tray" "clock" "custom/power"];
+        modules-right = ["network#tailscale0" "network#wifi" "network" "cpu" "memory" "pulseaudio" "tray" "clock" "custom/power"];
 
         inherit clock;
 
@@ -66,6 +68,12 @@ in {
           defaultNetwork
           // {
             interface = "enp0*";
+          };
+
+        "network#wifi" =
+          defaultNetwork
+          // {
+            interface = "wlp*";
           };
 
         "network#tailscale0" =
@@ -112,7 +120,7 @@ in {
       secondary = {
         layer = "top";
         position = "top";
-        output = ["DP-2" "DP-3"];
+        output =  [monitor-names.left monitor-names.right];
 
         modules-left = ["sway/workspaces" "hyprland/workspaces"];
         modules-right = ["clock"];
