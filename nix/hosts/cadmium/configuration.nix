@@ -8,6 +8,8 @@ in {
   imports = [
     inputs.home-manager.nixosModules.home-manager
 
+    flake.nixosModules.wifi
+
     # Hardware stuff
     ./disko.nix
     ./hardware.nix
