@@ -54,6 +54,7 @@ wk.add({
   { '<leader>ll', vim.lsp.buf.code_action, desc = 'Show code actions' },
   { '<leader>lr', vim.lsp.buf.references, desc = 'Show references' },
   { '<leader>lt', vim.lsp.buf.type_definition, desc = 'Show type definition' },
+  { '<leader>lf', vim.lsp.buf.format, desc = 'Format buffer' },
 })
 
 -- Navigate to other files
