@@ -120,7 +120,7 @@ in {
       secondary = {
         layer = "top";
         position = "top";
-        output =  [monitor-names.left monitor-names.right];
+        output = [monitor-names.left monitor-names.right];
 
         modules-left = ["sway/workspaces" "hyprland/workspaces"];
         modules-right = ["clock"];
