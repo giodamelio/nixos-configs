@@ -9,7 +9,7 @@
 
   # Manually setup completions and not auto start
   # programs.zellij.enableZshIntegration just adds auto start
-  programs.zsh.initExtra = lib.mkOrder 200 ''
+  programs.zsh.initContent = lib.mkOrder 551 ''
     eval "$(${lib.getExe pkgs.zellij} setup --generate-completion zsh)"
   '';
 
