@@ -76,7 +76,7 @@ in {
           dns = {
             magic_dns = true;
             base_domain = "h.gio.ninja";
-            nameservers.global = ["1.1.1.1" "1.0.0.1"];
+            nameservers.global = ["8.8.8.8" "8.8.4.4"];
           };
 
           oidc = {
