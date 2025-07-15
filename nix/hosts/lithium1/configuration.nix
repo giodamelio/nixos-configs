@@ -139,15 +139,50 @@ in {
     })
 
     # Collect some metrics with Telegraf
-    ({lib, ...}: {
+    ({lib, pkgs, ...}: {
       services.telegraf = {
         enable = true;
         extraConfig = {
           inputs = {
+            # System Stats
             cpu = {
               percpu = true;
               totalcpu = true;
             };
+            disk = {};
+            diskio = {};
+            internet_speed = {
+              interval = "60m";
+            };
+            kernel = {};
+            linux_sysctl_fs = {};
+            mem = {};
+            net = {
+              # Setting this to false is deprecated
+              # See: https://github.com/influxdata/telegraf/blob/master/plugins/inputs/net/README.md
+              ignore_protocol_stats = true;
+            };
+            netstat = {};
+            nstat = {};
+            processes = {};
+            smart = {
+              path_smartctl = "${pkgs.smartmontools}/bin/smartctl";
+              path_nvme = "${pkgs.nvme-cli}/bin/nvme";
+            };
+            swap = {};
+            system = {};
+            systemd_units = [
+              { unittype = "service"; }
+              { unittype = "timer"; }
+            ];
+
+            # Monitor PostgreSQL
+            postgresql = {
+              address = "host=/run/postgresql dbname=telegraf";
+            };
+
+            # Monitor Wireguard
+            wireguard = {};
           };
 
           outputs = {
