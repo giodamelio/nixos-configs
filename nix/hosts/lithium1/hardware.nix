@@ -17,6 +17,7 @@
   # networking.interfaces.ens3.useDHCP = lib.mkDefault true;
 
   networking.hostName = "lithium1";
+  networking.dhcpcd.setHostname = false;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   virtualisation.hypervGuest.enable = true;
