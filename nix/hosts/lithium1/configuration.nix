@@ -202,6 +202,93 @@ in {
         };
       };
     })
+
+    # Active probe based monitoring
+    ({pkgs, ...}: let
+      config = let
+        dns_servers_endpoints = [
+          {
+            name = "cloudflare_primary";
+            ip = "1.1.1.1";
+          }
+          {
+            name = "cloudflare_secondary";
+            ip = "1.0.0.1";
+          }
+          {
+            name = "google_primary";
+            ip = "8.8.8.8";
+          }
+          {
+            name = "google_secondary";
+            ip = "8.8.4.4";
+          }
+        ];
+      in {
+        probe = [
+          {
+            name = "http_google_homepage";
+            type = "HTTP";
+            targets = {
+              host_names = "www.google.com";
+            };
+            http_probe = {
+              protocol = "HTTPS";
+              port = 443;
+            };
+          }
+          {
+            name = "ping_dns_servers";
+            type = "PING";
+            targets = {
+              endpoint = dns_servers_endpoints;
+            };
+          }
+          {
+            name = "dns_basic_resolve";
+            type = "DNS";
+            targets = {
+              endpoint = dns_servers_endpoints;
+            };
+            dns_probe = {
+              query_type = "A";
+              query_class = "IN";
+            };
+          }
+        ];
+
+        surfacer = [
+          {
+            type = "PROMETHEUS";
+            prometheus_surfacer = {
+              metrics_url = "/metrics";
+            };
+          }
+        ];
+      };
+      jsonFormat = pkgs.formats.json {};
+      cloudproberConfigFile = jsonFormat.generate "cloudprober.json" config;
+    in {
+      systemd.services.cloudprober = {
+        description = "Cloudprober monitoring service";
+        wants = [ "network-online.target" ];
+        after = [ "network-online.target" ];
+        wantedBy = [ "multi-user.target" ];
+
+        serviceConfig = {
+          Type = "simple";
+          DynamicUser = true;
+          User = "cloudprober";
+          Group = "cloudprober";
+
+          ExecStart = "${pkgs.cloudprober}/bin/cloudprober -config_file=${cloudproberConfigFile}";
+
+          # Increase capabilities so all the probes work
+          CapabilityBoundingSet = ["CAP_NET_RAW" "CAP_NET_BIND_SERVICE"];
+          AmbientCapabilities = ["CAP_NET_RAW" "CAP_NET_BIND_SERVICE"];
+        };
+      };
+    })
   ];
 
   nixpkgs.config.allowUnfree = true;
