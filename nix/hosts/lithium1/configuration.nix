@@ -42,9 +42,13 @@ in {
 
       # Setup Caddy as a reverse proxy
       systemd.services.caddy.serviceConfig = {
-        LoadCredentialEncrypted = "caddy-tailscale-preauth-key:/var/lib/credstore/caddy-tailscale-preauth-key";
+        LoadCredentialEncrypted = [
+          "caddy-tailscale-preauth-key:/var/lib/credstore/caddy-tailscale-preauth-key"
+          "caddy-cloudflare-api-token:/var/lib/credstore/caddy-cloudflare-api-token"
+        ];
         Environment = [
           "TAILSCALE_PREAUTH_KEY_FILE=%d/caddy-tailscale-preauth-key"
+          "CLOUDFLARE_API_TOKEN_FILE=%d/caddy-cloudflare-api-token"
         ];
       };
       networking.firewall.allowedTCPPorts = [80 443];
@@ -53,15 +57,18 @@ in {
 
         package = pkgs.caddy.withPlugins {
           plugins = [
+            "github.com/caddy-dns/cloudflare@v0.2.1"
             "github.com/tailscale/caddy-tailscale@v0.0.0-20250508175905-642f61fea3cc"
           ];
-          hash = "sha256-K4K3qxN1TQ1Ia3yVLNfIOESXzC/d6HhzgWpC1qkT22k=";
+          hash = "sha256-3nhBsVLFrGqG7JQpVDHtjyfphw2mTcpS3o0gGjydyHc=";
         };
 
         globalConfig = ''
+          email admin@gio.ninja
+
           tailscale {
             auth_key {file.{$TAILSCALE_PREAUTH_KEY_FILE}}
-            control_url https://headscale.gio.ninja
+            control_url http://localhost:8080
             ephemral false
           }
         '';
@@ -78,9 +85,12 @@ in {
           '';
         };
 
-        virtualHosts."http://testing123.h.gio.ninja" = {
+        virtualHosts."https://testing123.h.gio.ninja" = {
           extraConfig = ''
             bind tailscale/testing123
+            tls {
+              dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
+            }
             respond OK
           '';
         };
@@ -108,7 +118,7 @@ in {
           };
 
           oidc = {
-            only_start_if_oidc_is_available = true;
+            only_start_if_oidc_is_available = false;
             issuer = "https://login.gio.ninja";
             client_id = "251934f5-6b41-4665-9a7f-c475ca534c92";
             client_secret_path = "\${CREDENTIALS_DIRECTORY}/headscale-oidc-client-secret";
