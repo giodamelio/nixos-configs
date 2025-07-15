@@ -115,8 +115,9 @@ in {
 
       services.postgresql = {
         enable = true;
-        extensions = [ pkgs.postgresql17Packages.timescaledb ];
-        ensureDatabases = ["metrics"];
+        extensions = with pkgs.postgresql16Packages; [ timescaledb timescaledb_toolkit ];
+        settings.shared_preload_libraries = [ "timescaledb" ];
+        ensureDatabases = ["telegraf"];
         ensureUsers = [
           {
             name = "server";
@@ -127,11 +128,43 @@ in {
           }
           {
             name = "telegraf";
+            ensureDBOwnership = true;
             ensureClauses = {
               login = true;
+              createdb = true;
             };
           }
         ];
+      };
+    })
+
+    # Collect some metrics with Telegraf
+    ({lib, ...}: {
+      services.telegraf = {
+        enable = true;
+        extraConfig = {
+          inputs = {
+            cpu = {
+              percpu = true;
+              totalcpu = true;
+            };
+          };
+
+          outputs = {
+            postgresql = {
+              connection = "host=/run/postgresql dbname=telegraf";
+
+              # Templated statements to execute when creating a new table.
+              # Setup this way for TimescaleDB
+              tags_as_foreign_keys = true;
+              create_templates = [
+                "CREATE TABLE {{ .table }} ({{ .columns }})"
+                "SELECT create_hypertable({{ .table|quoteLiteral }}, 'time', chunk_time_interval => INTERVAL '7d')"
+                "ALTER TABLE {{ .table }} SET (timescaledb.compress, timescaledb.compress_segmentby = 'tag_id')"
+              ];
+            };
+          };
+        };
       };
     })
   ];
