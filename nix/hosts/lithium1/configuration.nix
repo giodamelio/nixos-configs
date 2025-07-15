@@ -224,6 +224,26 @@ in {
             ip = "8.8.4.4";
           }
         ];
+        validators = {
+          status_200 = {
+            name = "status_200";
+            http_validator = {
+              success_status_codes = "200";
+            };
+          };
+          status_204 = {
+            name = "status_204";
+            http_validator = {
+              success_status_codes = "204";
+            };
+          };
+          response_json_status = value: {
+            name = "response_status_pass";
+            json_validator = {
+              jq_filter = ''.status == "${value}"'';
+            };
+          };
+        };
       in {
         probe = [
           {
@@ -236,6 +256,30 @@ in {
               protocol = "HTTPS";
               port = 443;
             };
+          }
+          {
+            name = "http_headscale_health";
+            type = "HTTP";
+            targets = {
+              host_names = "headscale.gio.ninja";
+            };
+            http_probe = {
+              protocol = "HTTPS";
+              relative_url = "/health";
+            };
+            validator = with validators; [ status_200 (response_json_status "pass") ];
+          }
+          {
+            name = "http_pocket_health";
+            type = "HTTP";
+            targets = {
+              host_names = "login.gio.ninja";
+            };
+            http_probe = {
+              protocol = "HTTPS";
+              relative_url = "/healthz";
+            };
+            validator = with validators; [ status_204 ];
           }
           {
             name = "ping_dns_servers";
