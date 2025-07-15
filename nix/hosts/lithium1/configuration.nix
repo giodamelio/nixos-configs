@@ -117,7 +117,7 @@ in {
         enable = true;
         extensions = with pkgs.postgresql16Packages; [ timescaledb timescaledb_toolkit ];
         settings.shared_preload_libraries = [ "timescaledb" ];
-        ensureDatabases = ["telegraf"];
+        ensureDatabases = ["telegraf" "cloudprober"];
         ensureUsers = [
           {
             name = "server";
@@ -128,6 +128,14 @@ in {
           }
           {
             name = "telegraf";
+            ensureDBOwnership = true;
+            ensureClauses = {
+              login = true;
+              createdb = true;
+            };
+          }
+          {
+            name = "cloudprober";
             ensureDBOwnership = true;
             ensureClauses = {
               login = true;
@@ -306,6 +314,18 @@ in {
             type = "PROMETHEUS";
             prometheus_surfacer = {
               metrics_url = "/metrics";
+            };
+          }
+          {
+            type = "POSTGRES";
+            postgres_surfacer = {
+              connection_string = "host=/run/postgresql dbname=cloudprober";
+              # Schema for table:
+              # CREATE TABLE metrics (
+              #   time timestamp, metric_name varchar(80), value float8, labels jsonb
+              # )
+              # ALTER TABLE metrics OWNER TO cloudprober;
+              metrics_table_name = "metrics";
             };
           }
         ];
