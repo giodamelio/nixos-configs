@@ -106,7 +106,36 @@ in {
         enable = true;
       };
     }
+
+    # Setup PostgreSQL with TimescaleDB for metrics collection
+    ({pkgs, ...}: {
+      environment.systemPackages = [
+        pkgs.pgcli
+      ];
+
+      services.postgresql = {
+        enable = true;
+        extensions = [ pkgs.postgresql17Packages.timescaledb ];
+        ensureDatabases = ["metrics"];
+        ensureUsers = [
+          {
+            name = "server";
+            ensureClauses = {
+              login = true;
+              superuser = true;
+            };
+          }
+          {
+            name = "telegraf";
+            ensureClauses = {
+              login = true;
+            };
+          }
+        ];
+      };
+    })
   ];
 
+  nixpkgs.config.allowUnfree = true;
   system.stateVersion = "25.05";
 }
