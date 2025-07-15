@@ -41,9 +41,30 @@ in {
       };
 
       # Setup Caddy as a reverse proxy
+      systemd.services.caddy.serviceConfig = {
+        LoadCredentialEncrypted = "caddy-tailscale-preauth-key:/var/lib/credstore/caddy-tailscale-preauth-key";
+        Environment = [
+          "TAILSCALE_PREAUTH_KEY_FILE=%d/caddy-tailscale-preauth-key"
+        ];
+      };
       networking.firewall.allowedTCPPorts = [80 443];
       services.caddy = {
         enable = true;
+
+        package = pkgs.caddy.withPlugins {
+          plugins = [
+            "github.com/tailscale/caddy-tailscale@v0.0.0-20250508175905-642f61fea3cc"
+          ];
+          hash = "sha256-K4K3qxN1TQ1Ia3yVLNfIOESXzC/d6HhzgWpC1qkT22k=";
+        };
+
+        globalConfig = ''
+          tailscale {
+            auth_key {file.{$TAILSCALE_PREAUTH_KEY_FILE}}
+            control_url https://headscale.gio.ninja
+            ephemral false
+          }
+        '';
 
         virtualHosts."https://login.gio.ninja" = {
           extraConfig = ''
@@ -54,6 +75,13 @@ in {
         virtualHosts."https://headscale.gio.ninja" = {
           extraConfig = ''
             reverse_proxy localhost:8080
+          '';
+        };
+
+        virtualHosts."http://testing123.h.gio.ninja" = {
+          extraConfig = ''
+            bind tailscale/testing123
+            respond OK
           '';
         };
       };
