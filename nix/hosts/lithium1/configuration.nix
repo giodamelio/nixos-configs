@@ -90,8 +90,20 @@ in {
             bind tailscale/testing123
             tls {
               dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
+              resolvers 1.1.1.1
             }
             respond OK
+          '';
+        };
+
+        virtualHosts."https://gatus.h.gio.ninja" = {
+          extraConfig = ''
+            bind tailscale/gatus
+            tls {
+              dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
+              resolvers 1.1.1.1
+            }
+            reverse_proxy localhost:4444
           '';
         };
       };
@@ -391,6 +403,49 @@ in {
         };
       };
     })
+
+    # Gatus Service Status Page
+    {
+      services.gatus = {
+        enable = true;
+        settings = {
+          metrics = true;
+          web.port = 4444;
+          storage = {
+            type = "sqlite";
+            path = "/var/lib/gatus/data.db";
+          };
+          endpoints = [
+            {
+              name = "Headscale";
+              url = "https://headscale.gio.ninja/health";
+              interval = "5m";
+              conditions = [
+                "[STATUS] == 200"
+                "[BODY].status == pass"
+                "[RESPONSE_TIME] < 300"
+              ];
+            }
+            {
+              name = "Pocket ID";
+              url = "https://login.gio.ninja/healthz";
+              interval = "5m";
+              conditions = [
+                "[STATUS] == 204"
+              ];
+            }
+          ];
+        };
+      };
+
+      # Allow Gatus to send ICMP traffic
+      systemd.services.gatus = {
+        serviceConfig = {
+          CapabilityBoundingSet = "CAP_NET_RAW";
+          AmbientCapabilities = "CAP_NET_RAW";
+        };
+      };
+    }
   ];
 
   nixpkgs.config.allowUnfree = true;
