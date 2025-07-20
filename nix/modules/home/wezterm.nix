@@ -11,6 +11,10 @@ _: {
 
         hide_tab_bar_if_only_one_tab = true,
 
+        -- TODO: Update this when there is highlighting support
+        -- See: https://github.com/wezterm/wezterm/issues/4077
+        hyperlink_rules = wezterm.default_hyperlink_rules(),
+
         -- Minimize padding
         window_padding = {
           left = 0,
