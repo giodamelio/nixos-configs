@@ -4,6 +4,8 @@ _: {
     enableZshIntegration = true;
 
     extraConfig = ''
+      local action = wezterm.action
+
       return {
         font = wezterm.font("JetBrainsMono Nerd Font"),
         font_size = 12.0,
@@ -21,6 +23,26 @@ _: {
           right = 0,
           top = 0,
           bottom = 0,
+        },
+
+        -- Show scroll bar
+        enable_scroll_bar = true,
+
+        -- Keep more scrollback lines
+        scrollback_lines = 6000;
+
+        -- Make Mouse scrolling smaller then a page
+        mouse_bindings = {
+          {
+            event = { Down = { streak = 1, button = { WheelUp = 1 } } },
+            mods = 'NONE',
+            action = action.ScrollByLine(-3),
+          },
+          {
+            event = { Down = { streak = 1, button = { WheelDown = 1 } } },
+            mods = 'NONE',
+            action = action.ScrollByLine(3),
+          },
         }
       }
     '';
