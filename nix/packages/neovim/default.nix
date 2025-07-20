@@ -102,6 +102,7 @@
       elixir-tools-nvim # Elixir tooling
       other-nvim # Easily switch to related file types
       nvim-notify # Pretty notifications
+      claude-code-nvim # Integration with Claude Code
     ];
 
     customRC = "

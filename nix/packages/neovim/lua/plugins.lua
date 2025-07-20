@@ -164,6 +164,9 @@ require('fzf-lua').setup({ 'default' })
 --   chat_shortcut_respond = { modes = { 'n', 'i', 'v', 'x' }, shortcut = '<C-Enter>' },
 -- })
 
+-- Claude Code Integration
+require('claude-code').setup()
+
 require('nvim-surround').setup()
 require('Comment').setup()
 require('stay-centered').setup()
