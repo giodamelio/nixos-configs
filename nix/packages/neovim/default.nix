@@ -103,6 +103,7 @@
       other-nvim # Easily switch to related file types
       nvim-notify # Pretty notifications
       claude-code-nvim # Integration with Claude Code
+      smart-splits-nvim # Easy Multiplexer Split Navigation
     ];
 
     customRC = "

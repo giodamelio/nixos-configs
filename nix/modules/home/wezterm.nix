@@ -6,6 +6,7 @@ _: {
     extraConfig = ''
       local action = wezterm.action
       local tabline = wezterm.plugin.require("https://github.com/michaelbrusegard/tabline.wez")
+      local smart_splits = wezterm.plugin.require('https://github.com/mrjones2014/smart-splits.nvim')
 
       local config = wezterm.config_builder()
 
@@ -96,6 +97,14 @@ _: {
       })
 
       tabline.apply_to_config(config)
+
+      smart_splits.apply_to_config(config, {
+        direction_keys = { 'h', 'j', 'k', 'l' },
+        modifiers = {
+          move = 'CTRL',
+          resize = 'META',
+        },
+      })
 
       return config
     '';

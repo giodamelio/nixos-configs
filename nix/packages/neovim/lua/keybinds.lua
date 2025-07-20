@@ -2,10 +2,30 @@ local wk = require('which-key')
 
 local tb = require('telescope.builtin')
 local neotest = require('neotest')
+local smart_split = require('smart-splits')
 
 -- Misc top level bindings
 wk.add({
   { '<leader><Tab>', '<cmd>edit #<cr>', desc = 'Switch to last buffer' },
+
+  -- Pane Navigation with Smart Splits
+  { '<A-h>', smart_split.resize_left },
+  { '<A-j>', smart_split.resize_down },
+  { '<A-k>', smart_split.resize_up },
+  { '<A-l>', smart_split.resize_right },
+
+  -- Moving between splits
+  { '<C-h>', smart_split.move_cursor_left },
+  { '<C-j>', smart_split.move_cursor_down },
+  { '<C-k>', smart_split.move_cursor_up },
+  { '<C-l>', smart_split.move_cursor_right },
+  { '<C-\\>', smart_split.move_cursor_previous },
+
+  -- Swapping buffers between windows
+  { '<leader><leader>h', smart_split.swap_buf_left },
+  { '<leader><leader>j', smart_split.swap_buf_down },
+  { '<leader><leader>k', smart_split.swap_buf_up },
+  { '<leader><leader>l', smart_split.swap_buf_right },
 })
 
 -- Fuzzy Finding
