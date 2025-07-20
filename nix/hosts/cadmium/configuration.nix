@@ -9,6 +9,7 @@ in {
     inputs.home-manager.nixosModules.home-manager
 
     flake.nixosModules.wifi
+    flake.nixosModules.nh
 
     # Hardware stuff
     ./disko.nix
