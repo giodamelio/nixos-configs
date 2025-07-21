@@ -11,7 +11,7 @@
 
       local config = wezterm.config_builder()
 
-      config.window_decorations = 'NONE'
+      -- config.window_decorations = 'NONE'
 
       -- Color Scheme
       config.color_scheme = 'Molokai'
@@ -99,7 +99,7 @@
         extensions = {},
       })
 
-      tabline.apply_to_config(config)
+      -- tabline.apply_to_config(config)
 
       smart_splits.apply_to_config(config, {
         direction_keys = { 'h', 'j', 'k', 'l' },
