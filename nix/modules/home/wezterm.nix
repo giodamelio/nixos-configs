@@ -1,7 +1,8 @@
-_: {
+{ perSystem, ... }: {
   programs.wezterm = {
     enable = true;
     enableZshIntegration = true;
+    package = perSystem.nixpkgs-stable.wezterm;
 
     extraConfig = ''
       local action = wezterm.action
@@ -9,6 +10,8 @@ _: {
       local smart_splits = wezterm.plugin.require('https://github.com/mrjones2014/smart-splits.nvim')
 
       local config = wezterm.config_builder()
+
+      config.window_decorations = 'NONE'
 
       -- Color Scheme
       config.color_scheme = 'Molokai'
