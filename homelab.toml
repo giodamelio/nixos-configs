@@ -34,7 +34,7 @@ useDescription = "Headscale Gateway. Also other networking things that need alwa
 
 [machines.gallium]
 hardwareDescription = "QNAP TS-462-2G"
-useDescription = "NAS. Also runs storage based servers (Garage for S3, Syncthing)"
+useDescription = "NAS running TruNAS Scale. Also runs storage based servers (Garage for S3, Syncthing)"
 
 [machines.calcium]
 hardwareDescription = "WSL2 Distro on Cadmium's Windows 11 install"
