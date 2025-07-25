@@ -24,6 +24,7 @@ pkgs.mkShell {
       pkgs.nix-diff
       pkgs.nix-output-monitor
       pkgs.backblaze-b2
+      pkgs.claude-code
     ]
     ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
       perSystem.morlana.default
