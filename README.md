@@ -1,5 +1,7 @@
 # My Nix and NixOS configs
 
+[![built with garnix](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fgarnix.io%2Fapi%2Fbadges%2Fgiodamelio%2Fnixos-configs%3Fbranch%3Dmain)](https://garnix.io/repo/giodamelio/nixos-configs)
+
 Used to configure all of my machines
 
 # Machines
