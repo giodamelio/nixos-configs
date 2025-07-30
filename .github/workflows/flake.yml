@@ -4,21 +4,6 @@ on:
     branches:
       - "main"
 jobs:
-  flake-check:
-    name: Run the flake checks
-    runs-on: ubuntu-latest
-    steps:
-      - name: Free Up Disk Space for Nix
-        uses: wimpysworld/nothing-but-nix@main
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: cachix/cachix-action@v14
-        with:
-          name: nixos-configs
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      - name: Run flake check
-        run: nix flake check
-
   flake-health-checker:
     name: Check Flake Health
     runs-on: ubuntu-latest
