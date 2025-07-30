@@ -17,7 +17,7 @@
       config.color_scheme = 'Molokai'
 
       -- Font Setup
-      config.font = wezterm.font("JetBrainsMono Nerd Font")
+      config.font = wezterm.font("JetBrainsMono Nerd Font Mono")
       config.font_size = 12.0
       config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' } -- Disable ligature
 

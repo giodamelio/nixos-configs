@@ -38,7 +38,7 @@
     pkgs.ubuntu_font_family
 
     # Jetbrains Mono
-    pkgs.jetbrains-mono
+    # pkgs.jetbrains-mono
 
     # Add Inconsolata Nerdfont
     pkgs.nerd-fonts.inconsolata
