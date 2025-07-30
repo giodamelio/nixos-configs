@@ -22,6 +22,11 @@ in {
       programs.zsh.enable = true;
     })
 
+    # Use Hercules CI
+    {
+      services.hercules-ci-agent.enable = true;
+    }
+
     # Setup Pocket ID
     ({pkgs, ...}: {
       services.pocket-id = {
