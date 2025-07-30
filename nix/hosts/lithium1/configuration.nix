@@ -30,7 +30,11 @@ in {
         settings = {
           APP_URL = "https://login.gio.ninja";
           TRUST_PROXY = true;
-          ENCRYPTION_KEY_FILE = "\${CREDENTIALS_DIRECTORY}/pocket-id-encryption-key";
+          # TODO: hardcoding this is probably a bad idea
+          # See: https://github.com/pocket-id/pocket-id/pull/799#issuecomment-3134806588
+          # Maybe I can use mount path or something to make it work
+          # ENCRYPTION_KEY_FILE = "\${CREDENTIALS_DIRECTORY}/pocket-id-encryption-key";
+          ENCRYPTION_KEY_FILE = "/run/credentials/pocket-id.service/pocket-id-encryption-key";
           ANALYTICS_DISABLED = true;
         };
       };
@@ -165,8 +169,8 @@ in {
 
       services.postgresql = {
         enable = true;
-        extensions = with pkgs.postgresql16Packages; [ timescaledb timescaledb_toolkit ];
-        settings.shared_preload_libraries = [ "timescaledb" ];
+        extensions = with pkgs.postgresql16Packages; [timescaledb timescaledb_toolkit];
+        settings.shared_preload_libraries = ["timescaledb"];
         ensureDatabases = ["telegraf" "cloudprober"];
         ensureUsers = [
           {
@@ -197,7 +201,10 @@ in {
     })
 
     # Collect some metrics with Telegraf
-    ({lib, pkgs, ...}: {
+    ({
+      pkgs,
+      ...
+    }: {
       services.telegraf = {
         enable = true;
         extraConfig = {
@@ -230,8 +237,8 @@ in {
             swap = {};
             system = {};
             systemd_units = [
-              { unittype = "service"; }
-              { unittype = "timer"; }
+              {unittype = "service";}
+              {unittype = "timer";}
             ];
 
             # Monitor PostgreSQL
@@ -325,7 +332,7 @@ in {
               protocol = "HTTPS";
               relative_url = "/health";
             };
-            validator = with validators; [ status_200 (response_json_status "pass") ];
+            validator = with validators; [status_200 (response_json_status "pass")];
           }
           {
             name = "http_pocket_health";
@@ -337,7 +344,7 @@ in {
               protocol = "HTTPS";
               relative_url = "/healthz";
             };
-            validator = with validators; [ status_204 ];
+            validator = with validators; [status_204];
           }
           {
             name = "ping_dns_servers";
@@ -385,9 +392,9 @@ in {
     in {
       systemd.services.cloudprober = {
         description = "Cloudprober monitoring service";
-        wants = [ "network-online.target" ];
-        after = [ "network-online.target" ];
-        wantedBy = [ "multi-user.target" ];
+        wants = ["network-online.target"];
+        after = ["network-online.target"];
+        wantedBy = ["multi-user.target"];
 
         serviceConfig = {
           Type = "simple";
