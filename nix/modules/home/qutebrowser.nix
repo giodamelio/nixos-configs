@@ -1,17 +1,9 @@
 {
   pkgs,
-  flake,
   ...
-}: let
-  myQutebrowser = flake.packages.${pkgs.stdenv.system}.qutebrowser-tree-tabs;
-in {
+}: {
   programs.qutebrowser = {
     enable = true;
-    # Use totally unrelated package because qutebrowser package is broken on Mac. I am using the brew installed version
-    package =
-      if pkgs.stdenv.hostPlatform.isLinux
-      then myQutebrowser
-      else pkgs.git;
 
     settings = {
       # This doesn't just set the preference...
