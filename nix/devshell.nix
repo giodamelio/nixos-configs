@@ -1,6 +1,5 @@
 {
   pkgs,
-  perSystem,
   ...
 }:
 pkgs.mkShell {
@@ -27,9 +26,7 @@ pkgs.mkShell {
       pkgs.claude-code
       pkgs.lua-language-server
     ]
-    ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
-      perSystem.morlana.default
-    ];
+    ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin [];
 
   shellHook = ''
     alias b2=backblaze-b2

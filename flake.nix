@@ -43,10 +43,6 @@
     nix-index-database.url = "github:nix-community/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
-    # Nice CLI for deploying Nix on Darwin
-    morlana.url = "github:ryanccn/morlana";
-    morlana.inputs.nixpkgs.follows = "nixpkgs";
-
     # Generate Neovim configuations
     nixvim.url = "github:nix-community/nixvim";
     nixvim.inputs.nixpkgs.follows = "nixpkgs";
