@@ -22,10 +22,26 @@ require('luasnip.loaders.from_vscode').lazy_load()
 local lualine = require('lualine')
 local default_config = lualine.get_config()
 
+-- Get the current session name
+-- local function get_session_name()
+--   local current_session_path = vim.api.nvim_get_vvar('this_session')
+--   if current_session_path ~= "" then
+--     local session_name = vim.fn.fnamemodify(current_session_path, ':t')
+--     -- Remove file extension if present
+--     session_name = session_name:gsub("%.vim$", "")
+--     return "📁 " .. session_name
+--   end
+--   return ""
+-- end
+
 -- Enable lualine
 local config = vim.tbl_deep_extend('force', default_config, {
   sections = {
     lualine_c = { 'filename', 'lsp_progress' },
+    -- TODO: make this actually work at somepoint
+    -- lualine_y = {
+    --   get_session_name,
+    -- },
   },
   winbar = {
     lualine_c = {
@@ -166,6 +182,14 @@ require('fzf-lua').setup({ 'default' })
 
 -- Claude Code Integration
 require('claudecode').setup()
+
+-- Session management
+require('persisted').setup({
+  autoload = true,
+})
+
+-- Allow searching Persisted sessions with Telescope
+telescope.load_extension('persisted');
 
 require('nvim-surround').setup()
 require('Comment').setup()

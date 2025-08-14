@@ -116,6 +116,7 @@
       nvim-notify # Pretty notifications
       claudecode # Integration with Claude Code
       smart-splits-nvim # Easy Multiplexer Split Navigation
+      persisted-nvim # Session manager
     ];
 
     customRC = "
