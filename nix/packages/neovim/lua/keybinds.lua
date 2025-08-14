@@ -6,9 +6,9 @@ local snacks = require('snacks')
 
 -- Misc top level bindings
 wk.add({
-  { '<leader><Tab>',     '<cmd>edit #<cr>',               desc = 'Switch to last buffer' },
-  { '<leader>/',         snacks.terminal.toggle,          desc = 'Toggle terminal' },
-  { '<leader>/',         snacks.terminal.toggle,          desc = 'Toggle terminal',      mode = 't' },
+  { '<leader><Tab>', '<cmd>edit #<cr>', desc = 'Switch to last buffer' },
+  { '<leader>/', snacks.terminal.toggle, desc = 'Toggle terminal' },
+  { '<leader>/', snacks.terminal.toggle, desc = 'Toggle terminal', mode = 't' },
 
   -- Pane Navigation with Smart Splits
   { '<A-h>', smart_split.resize_left },
@@ -23,6 +23,18 @@ wk.add({
   { '<C-l>', smart_split.move_cursor_right },
   { '<C-\\>', smart_split.move_cursor_previous },
 
+  -- Terminal mode navigation
+  { '<C-h>', smart_split.move_cursor_left, mode = 't' },
+  { '<C-j>', smart_split.move_cursor_down, mode = 't' },
+  { '<C-k>', smart_split.move_cursor_up, mode = 't' },
+  { '<C-l>', smart_split.move_cursor_right, mode = 't' },
+
+  -- Visual mode navigation
+  { '<C-h>', smart_split.move_cursor_left, mode = 'v' },
+  { '<C-j>', smart_split.move_cursor_down, mode = 'v' },
+  { '<C-k>', smart_split.move_cursor_up, mode = 'v' },
+  { '<C-l>', smart_split.move_cursor_right, mode = 'v' },
+
   -- Swapping buffers between windows
   { '<leader><leader>h', smart_split.swap_buf_left },
   { '<leader><leader>j', smart_split.swap_buf_down },
@@ -33,8 +45,8 @@ wk.add({
 -- Fuzzy Finding
 local function files_hidden()
   snacks.picker.files({
-    finder = "files",
-    format = "file",
+    finder = 'files',
+    format = 'file',
     show_empty = true,
     hidden = true,
     ignored = true,
@@ -44,22 +56,22 @@ local function files_hidden()
 end
 
 wk.add({
-  { '<leader>f',  group = 'Find' },
-  { '<leader>f?', snacks.picker.help,               desc = 'Find help tags' },
-  { '<leader>fb', snacks.picker.buffers,            desc = 'Find buffer' },
-  { '<leader>ff', snacks.picker.smart,              desc = 'Find file' },
-  { '<leader>fg', snacks.picker.grep,               desc = 'Find line in file' },
-  { '<leader>fh', files_hidden,                     desc = 'Find file (including hidden)' },
-  { '<leader>fm', snacks.picker.marks,              desc = 'Find marks' },
-  { '<leader>fr', snacks.picker.recent,             desc = 'Find recent files' },
-  { '<leader>fc', snacks.picker.command_history,    desc = 'Find recent commands' },
+  { '<leader>f', group = 'Find' },
+  { '<leader>f?', snacks.picker.help, desc = 'Find help tags' },
+  { '<leader>fb', snacks.picker.buffers, desc = 'Find buffer' },
+  { '<leader>ff', snacks.picker.smart, desc = 'Find file' },
+  { '<leader>fg', snacks.picker.grep, desc = 'Find line in file' },
+  { '<leader>fh', files_hidden, desc = 'Find file (including hidden)' },
+  { '<leader>fm', snacks.picker.marks, desc = 'Find marks' },
+  { '<leader>fr', snacks.picker.recent, desc = 'Find recent files' },
+  { '<leader>fc', snacks.picker.command_history, desc = 'Find recent commands' },
   { '<leader>fd', snacks.picker.diagnostics_buffer, desc = 'Find buffer diagnostics' },
-  { '<leader>fD', snacks.picker.diagnostics,        desc = 'Find all diagnostics' },
-  { '<leader>fu', snacks.picker.undo,               desc = 'Find undo history' },
-  { '<leader>fr', snacks.picker.registers,          desc = 'Find registers' },
-  { '<leader>fr', snacks.picker.resume,             desc = 'Resume last search' },
-  { '<leader>fp', snacks.picker.pickers,            desc = 'Find pickers' },
-  { '<leader>fn', snacks.picker.notifications,      desc = 'Find notifications' },
+  { '<leader>fD', snacks.picker.diagnostics, desc = 'Find all diagnostics' },
+  { '<leader>fu', snacks.picker.undo, desc = 'Find undo history' },
+  { '<leader>fr', snacks.picker.registers, desc = 'Find registers' },
+  { '<leader>fr', snacks.picker.resume, desc = 'Resume last search' },
+  { '<leader>fp', snacks.picker.pickers, desc = 'Find pickers' },
+  { '<leader>fn', snacks.picker.notifications, desc = 'Find notifications' },
   -- TODO: enable this if we ever switch to using lazy plugin loader
   -- { '<leader>fl', snacks.picker.lazy,            desc = 'Find plugin specs' },
 })
@@ -90,17 +102,17 @@ wk.add({
 
 -- Language Server
 wk.add({
-  { 'K',          vim.lsp.buf.hover,                   desc = 'Show hover docs' },
-  { '<leader>l',  group = 'LSP' },
-  { '<leader>lD', snacks.picker.lsp_definitions,       desc = 'Show definitions' },
-  { '<leader>ld', snacks.picker.lsp_declarations,      desc = 'Show declarations' },
-  { '<leader>li', snacks.picker.lsp_implementations,   desc = 'Show implementations' },
-  { '<leader>ll', vim.lsp.buf.code_action,             desc = 'Show code actions' },
-  { '<leader>ls', snacks.picker.lsp_symbols,           desc = 'Show buffer symbols' },
+  { 'K', vim.lsp.buf.hover, desc = 'Show hover docs' },
+  { '<leader>l', group = 'LSP' },
+  { '<leader>lD', snacks.picker.lsp_definitions, desc = 'Show definitions' },
+  { '<leader>ld', snacks.picker.lsp_declarations, desc = 'Show declarations' },
+  { '<leader>li', snacks.picker.lsp_implementations, desc = 'Show implementations' },
+  { '<leader>ll', vim.lsp.buf.code_action, desc = 'Show code actions' },
+  { '<leader>ls', snacks.picker.lsp_symbols, desc = 'Show buffer symbols' },
   { '<leader>ls', snacks.picker.workspace_lsp_symbols, desc = 'Show workspace symbols' },
-  { '<leader>lr', snacks.picker.lsp_references,        desc = 'Show references' },
-  { '<leader>lt', snacks.picker.lsp_type_definitions,  desc = 'Show type definition' },
-  { '<leader>lf', vim.lsp.buf.format,                  desc = 'Format buffer' },
+  { '<leader>lr', snacks.picker.lsp_references, desc = 'Show references' },
+  { '<leader>lt', snacks.picker.lsp_type_definitions, desc = 'Show type definition' },
+  { '<leader>lf', vim.lsp.buf.format, desc = 'Format buffer' },
 })
 
 -- Navigate to other files
@@ -113,6 +125,9 @@ wk.add({
 })
 
 -- Claude Code
+wk.add({
+  { '<leader>c', group = 'Claude Code' },
+})
 vim.keymap.set('n', '<leader>cc', '<cmd>ClaudeCode<cr>', { desc = 'Toggle Claude' })
 vim.keymap.set('n', '<leader>cf', '<cmd>ClaudeCodeFocus<cr>', { desc = 'Focus Claude' })
 vim.keymap.set('n', '<leader>cr', '<cmd>ClaudeCode --resume<cr>', { desc = 'Resume Claude' })
@@ -126,18 +141,19 @@ vim.keymap.set('v', '<leader>cs', '<cmd>ClaudeCodeSend<cr>', { desc = 'Send to C
 vim.api.nvim_create_autocmd('FileType', {
   pattern = { 'NvimTree', 'neo-tree', 'oil', 'minifiles' },
   callback = function()
-    vim.keymap.set('n', '<leader>cs', '<cmd>ClaudeCodeTreeAdd<cr>',
-      { desc = 'Add file', buffer = true })
+    vim.keymap.set('n', '<leader>cs', '<cmd>ClaudeCodeTreeAdd<cr>', { desc = 'Add file', buffer = true })
     vim.keymap.set('n', '<leader>cS', function()
       vim.cmd('ClaudeCodeTreeAdd')
       vim.cmd('ClaudeCodeFocus')
       -- Wait 100ms for focus to complete, then send enter
-      vim.defer_fn(function()
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<CR>', true, false, true), 'n', false)
-      end, 100)
+      vim.defer_fn(
+        function() vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<CR>', true, false, true), 'n', false) end,
+        100
+      )
     end, { desc = 'Add file and send', buffer = true })
   end,
 })
+
 -- GenAI with Parrot
 -- wk.add({
 --   { '<leader>c', group = 'GenAI' },
@@ -173,12 +189,13 @@ local gl = require('gitlinker')
 wk.add({
   { '<leader>g', group = 'Git' },
   { '<leader>gg', '<cmd>Neogit<cr>', desc = 'Open Neogit UI' },
-  { '<leader>gb', function() gs.blame_line(true) end, desc = 'Blame Current Line' },
+  { '<leader>gb', function() snacks.git.blame_line() end, desc = 'Blame Current Line' },
   { '<leader>gn', function() gsa.next_hunk() end, desc = 'Go to next hunk' },
   { '<leader>gp', function() gsa.prev_hunk() end, desc = 'Go to previous hunk' },
   { '<leader>gr', function() gs.reset_hunk() end, desc = 'Reset hunk' },
   { '<leader>gs', function() gs.stage_hunk() end, desc = 'Stage hunk' },
   { '<leader>gu', function() gs.undo_stage_hunk() end, desc = 'Unstage hunk' },
+  { '<leader>go', function() snacks.gitbrowse() end, desc = 'Open current file in browser' },
   {
     '<leader>gy',
     function()

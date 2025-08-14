@@ -139,5 +139,6 @@ in
       # Some random dependencies
       pkgs.fzf # Fuzzy finder needed from fzf-lua plugin
       pkgs.skim # Fuzzy finder needed from fzf-lua plugin
+      pkgs.imagemagick # Snacks: For inline images
     ];
   }
