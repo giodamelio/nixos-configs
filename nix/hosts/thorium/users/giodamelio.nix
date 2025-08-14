@@ -23,6 +23,9 @@
 
   programs.home-manager.enable = true;
 
+  # Override my default email for commits
+  programs.git.userEmail = pkgs.lib.mkForce "gio.damelio@logixboard.com";
+
   # Setup fonts
   home.packages = [
     # Ubuntu default font

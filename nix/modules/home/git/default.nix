@@ -21,6 +21,10 @@
       ".direnv/"
       ".aider*"
     ];
+
+    includes = [
+      { path = "~/.gitconfig.extra"; }
+    ];
   };
 
   # Install Git Absorb for easy automatic fixups
