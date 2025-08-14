@@ -55,5 +55,13 @@
     # Use NixOS inside WSL2
     nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
     nixos-wsl.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Secrets
+    lilvault.url = "github:giodamelio/lilvault";
+    lilvault.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Neovim config framework
+    nvf.url = "github:notashelf/nvf";
+    nvf.inputs.nixpkgs.follows = "nixpkgs";
   };
 }

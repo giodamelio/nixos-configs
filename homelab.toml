@@ -6,7 +6,9 @@ ssh_keys = [
   # Chromebook Developer Container
   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAHlH3cxSO186g1bcZ3I3xSX3Fi2E094XnzvTFnW5/G1 giodamelio@cesium",
   # Pixel 7 Terminus
-  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIeXlwmUkJJrmTVPscq619y5flExaiDnJ4988fHUK1Av"
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIeXlwmUkJJrmTVPscq619y5flExaiDnJ4988fHUK1Av",
+  # Pixel 8 Terminus
+  "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBCsv5nvQed0ahn542ujutvCI7rUv+wNXUQTXAF8MfePxSMBNvHKYj5BtnXNdPeVoI54akfWz9n5f+V6Tv1Qqy5U="
 ]
 
 ## All the machines
@@ -31,6 +33,11 @@ useDescription = "Handling all our monitoring as reliably as possible"
 [machines.lithium1]
 hardwareDescription = "A Vulture VPS"
 useDescription = "Headscale Gateway. Also other networking things that need always online with a public IP"
+secrets = ["pocket-id-encryption-key"]
+
+[machines.lithium1.ssh]
+user = "server"
+hostname = "lithium1.gio.ninja"
 
 [machines.gallium]
 hardwareDescription = "QNAP TS-462-2G"
@@ -43,3 +50,7 @@ useDescription = "Hacking random projects while on Windows"
 [machines.cesium]
 hardwareDescription = "Cheap Lenovo Chromebook"
 useDescription = "Super portable travel machine"
+
+# Define the secrets
+[secrets]
+pocket-id-encryption-key = "./secrets/pocket-id-encryption-key.age"
