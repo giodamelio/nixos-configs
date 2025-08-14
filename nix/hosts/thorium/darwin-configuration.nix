@@ -1,4 +1,8 @@
-{ config, flake, pkgs, ... }: {
+{
+  flake,
+  pkgs,
+  ...
+}: {
   # Necessary for using flakes on this system.
   nix.settings.experimental-features = "nix-command flakes";
 
@@ -28,7 +32,7 @@
 
   # Allow keyboard keys to repeat when held down
   system.defaults.NSGlobalDomain.InitialKeyRepeat = 10;
-  system.defaults.NSGlobalDomain.KeyRepeat = 1; 
+  system.defaults.NSGlobalDomain.KeyRepeat = 1;
 
   # Used for backwards compatibility, please read the changelog before changing.
   # $ darwin-rebuild changelog

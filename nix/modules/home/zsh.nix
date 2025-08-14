@@ -1,4 +1,10 @@
-{flake, pkgs, lib, config, ...}: {
+{
+  flake,
+  pkgs,
+  lib,
+  config,
+  ...
+}: {
   programs.zsh = {
     enable = true;
     enableCompletion = true;
@@ -24,22 +30,23 @@
         brewBinPath = flake.outputs.darwinConfigurations.thorium.config.homebrew.brewPrefix;
         # The one from nix-darwin has the /bin attached, remove that
         brewPrefix = builtins.dirOf brewBinPath;
-      in lib.mkAfter ''
-        # Setup Homebrew path on MacOS
-        # Set the homebrew PATH after the NIX path so Nix executables take precedent
-        # Not using `brew shellenv` since it always puts itself first in the $PATH
-        # Note: Hostname has to be hardcoded for now
-        # See: https://github.com/numtide/blueprint/issues/69
-        export HOMEBREW_PREFIX="${brewPrefix}";
-        export HOMEBREW_CELLAR="${brewPrefix}/Cellar";
-        export HOMEBREW_REPOSITORY="${brewPrefix}";
-        export PATH="$PATH:${brewPrefix}/bin";
-        export INFOPATH="${brewPrefix}/share/info:${"\${INFOPATH:-}"}";
+      in
+        lib.mkAfter ''
+          # Setup Homebrew path on MacOS
+          # Set the homebrew PATH after the NIX path so Nix executables take precedent
+          # Not using `brew shellenv` since it always puts itself first in the $PATH
+          # Note: Hostname has to be hardcoded for now
+          # See: https://github.com/numtide/blueprint/issues/69
+          export HOMEBREW_PREFIX="${brewPrefix}";
+          export HOMEBREW_CELLAR="${brewPrefix}/Cellar";
+          export HOMEBREW_REPOSITORY="${brewPrefix}";
+          export PATH="$PATH:${brewPrefix}/bin";
+          export INFOPATH="${brewPrefix}/share/info:${"\${INFOPATH:-}"}";
 
-        # Add ~/.local/bin to the start of the PATH
-        # ''\ is a weird escape sequence
-        export PATH="''\${HOME}/.local/bin:$PATH"
-      '');
+          # Add ~/.local/bin to the start of the PATH
+          # ''\ is a weird escape sequence
+          export PATH="''\${HOME}/.local/bin:$PATH"
+        '');
     in
       lib.mkMerge (
         [vimModeKeybindingFix]

@@ -201,10 +201,7 @@ in {
     })
 
     # Collect some metrics with Telegraf
-    ({
-      pkgs,
-      ...
-    }: {
+    ({pkgs, ...}: {
       services.telegraf = {
         enable = true;
         extraConfig = {

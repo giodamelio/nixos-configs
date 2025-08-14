@@ -23,7 +23,7 @@
     ];
 
     includes = [
-      { path = "~/.gitconfig.extra"; }
+      {path = "~/.gitconfig.extra";}
     ];
   };
 
