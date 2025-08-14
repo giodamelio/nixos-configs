@@ -25,6 +25,7 @@ pkgs.mkShell {
       pkgs.nix-output-monitor
       pkgs.backblaze-b2
       pkgs.claude-code
+      pkgs.lua-language-server
     ]
     ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin [
       perSystem.morlana.default
