@@ -73,19 +73,9 @@
 
       exec-once = [
         "waybar"
-        "dunst"
         "thunderbird"
         "spotify"
       ];
-    };
-  };
-
-  services.dunst = {
-    enable = true;
-    settings = {
-      global = {
-        follow = "mouse";
-      };
     };
   };
 }
