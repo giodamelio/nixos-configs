@@ -15,6 +15,7 @@
     flake.homeModules.nix-index
     flake.homeModules.atuin
     flake.homeModules.llm
+    flake.homeModules.nh
   ];
 
   home = {
