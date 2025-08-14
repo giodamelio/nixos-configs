@@ -116,6 +116,7 @@
       nvim-notify # Pretty notifications
       claudecode # Integration with Claude Code
       smart-splits-nvim # Easy Multiplexer Split Navigation
+      snacks-nvim # Collection of small quality of life plugins by Folke
       persisted-nvim # Session manager
     ];
 

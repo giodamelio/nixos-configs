@@ -1,12 +1,14 @@
 local wk = require('which-key')
 
-local tb = require('telescope.builtin')
 local neotest = require('neotest')
 local smart_split = require('smart-splits')
+local snacks = require('snacks')
 
 -- Misc top level bindings
 wk.add({
-  { '<leader><Tab>', '<cmd>edit #<cr>', desc = 'Switch to last buffer' },
+  { '<leader><Tab>',     '<cmd>edit #<cr>',               desc = 'Switch to last buffer' },
+  { '<leader>/',         snacks.terminal.toggle,          desc = 'Toggle terminal' },
+  { '<leader>/',         snacks.terminal.toggle,          desc = 'Toggle terminal',      mode = 't' },
 
   -- Pane Navigation with Smart Splits
   { '<A-h>', smart_split.resize_left },
@@ -29,15 +31,37 @@ wk.add({
 })
 
 -- Fuzzy Finding
+local function files_hidden()
+  snacks.picker.files({
+    finder = "files",
+    format = "file",
+    show_empty = true,
+    hidden = true,
+    ignored = true,
+    follow = false,
+    supports_live = true,
+  })
+end
+
 wk.add({
-  { '<leader>f', group = 'Find' },
-  { '<leader>f?', tb.help_tags, desc = 'Find help tags' },
-  { '<leader>fb', tb.buffers, desc = 'Find buffer' },
-  { '<leader>ff', tb.find_files, desc = 'Find file' },
-  { '<leader>fg', tb.live_grep, desc = 'Find line in file' },
-  { '<leader>fh', function() tb.find_files({ hidden = true }) end, desc = 'Find file (including hidden)' },
-  { '<leader>fm', tb.marks, desc = 'Find marks' },
-  { '<leader>fr', tb.oldfiles, desc = 'Find recent files' },
+  { '<leader>f',  group = 'Find' },
+  { '<leader>f?', snacks.picker.help,               desc = 'Find help tags' },
+  { '<leader>fb', snacks.picker.buffers,            desc = 'Find buffer' },
+  { '<leader>ff', snacks.picker.smart,              desc = 'Find file' },
+  { '<leader>fg', snacks.picker.grep,               desc = 'Find line in file' },
+  { '<leader>fh', files_hidden,                     desc = 'Find file (including hidden)' },
+  { '<leader>fm', snacks.picker.marks,              desc = 'Find marks' },
+  { '<leader>fr', snacks.picker.recent,             desc = 'Find recent files' },
+  { '<leader>fc', snacks.picker.command_history,    desc = 'Find recent commands' },
+  { '<leader>fd', snacks.picker.diagnostics_buffer, desc = 'Find buffer diagnostics' },
+  { '<leader>fD', snacks.picker.diagnostics,        desc = 'Find all diagnostics' },
+  { '<leader>fu', snacks.picker.undo,               desc = 'Find undo history' },
+  { '<leader>fr', snacks.picker.registers,          desc = 'Find registers' },
+  { '<leader>fr', snacks.picker.resume,             desc = 'Resume last search' },
+  { '<leader>fp', snacks.picker.pickers,            desc = 'Find pickers' },
+  { '<leader>fn', snacks.picker.notifications,      desc = 'Find notifications' },
+  -- TODO: enable this if we ever switch to using lazy plugin loader
+  -- { '<leader>fl', snacks.picker.lazy,            desc = 'Find plugin specs' },
 })
 
 -- Diagnostics and Trouble.nvim
@@ -66,15 +90,17 @@ wk.add({
 
 -- Language Server
 wk.add({
-  { 'K', vim.lsp.buf.hover, desc = 'Show hover docs' },
-  { '<leader>l', group = 'LSP' },
-  { '<leader>lD', vim.lsp.buf.definition, desc = 'Show definitions' },
-  { '<leader>ld', vim.lsp.buf.declaration, desc = 'Show declarations' },
-  { '<leader>li', vim.lsp.buf.implementation, desc = 'Show implementations' },
-  { '<leader>ll', vim.lsp.buf.code_action, desc = 'Show code actions' },
-  { '<leader>lr', vim.lsp.buf.references, desc = 'Show references' },
-  { '<leader>lt', vim.lsp.buf.type_definition, desc = 'Show type definition' },
-  { '<leader>lf', vim.lsp.buf.format, desc = 'Format buffer' },
+  { 'K',          vim.lsp.buf.hover,                   desc = 'Show hover docs' },
+  { '<leader>l',  group = 'LSP' },
+  { '<leader>lD', snacks.picker.lsp_definitions,       desc = 'Show definitions' },
+  { '<leader>ld', snacks.picker.lsp_declarations,      desc = 'Show declarations' },
+  { '<leader>li', snacks.picker.lsp_implementations,   desc = 'Show implementations' },
+  { '<leader>ll', vim.lsp.buf.code_action,             desc = 'Show code actions' },
+  { '<leader>ls', snacks.picker.lsp_symbols,           desc = 'Show buffer symbols' },
+  { '<leader>ls', snacks.picker.workspace_lsp_symbols, desc = 'Show workspace symbols' },
+  { '<leader>lr', snacks.picker.lsp_references,        desc = 'Show references' },
+  { '<leader>lt', snacks.picker.lsp_type_definitions,  desc = 'Show type definition' },
+  { '<leader>lf', vim.lsp.buf.format,                  desc = 'Format buffer' },
 })
 
 -- Navigate to other files
