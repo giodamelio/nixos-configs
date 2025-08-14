@@ -8,6 +8,10 @@
   inherit (flake.packages.${pkgs.stdenv.system}) reboot-into-entry;
   inherit (flake.lib.homelab.machines.cadmium) monitor-names;
 in {
+  home.packages = [
+    pkgs.swaynotificationcenter
+  ];
+
   programs.waybar = {
     enable = true;
     systemd = {
@@ -60,7 +64,7 @@ in {
 
         modules-left = ["sway/mode" "sway/workspaces" "hyprland/workspaces" "hyprland/submap"];
         modules-center = [];
-        modules-right = ["network#tailscale0" "network#wifi" "network" "cpu" "memory" "pulseaudio" "tray" "clock" "custom/power"];
+        modules-right = ["network#tailscale0" "network#wifi" "network" "cpu" "memory" "pulseaudio" "tray" "custom/notification" "clock" "custom/power"];
 
         inherit clock;
 
@@ -114,6 +118,29 @@ in {
         "custom/power" = {
           on-click = "${reboot-into-entry}/bin/reboot-into-entry";
           format = " ⏻  ";
+        };
+
+        "custom/notification" = let
+          swayncClient = "${pkgs.swaynotificationcenter}/bin/swaync-client";
+        in {
+          tooltip = false;
+          format = " {icon} ";
+          format-icons = {
+            notification = "<span foreground='red'><sup></sup></span>";
+            none = "";
+            dnd-notification = "<span foreground='red'><sup></sup></span>";
+            dnd-none = "";
+            inhibited-notification = "<span foreground='red'><sup></sup></span>";
+            inhibited-none = "";
+            dnd-inhibited-notification = "<span foreground='red'><sup></sup></span>";
+            dnd-inhibited-none = "";
+          };
+          return-type = "json";
+          exec-if = "which ${swayncClient}";
+          exec = "${swayncClient} -swb";
+          on-click = "${swayncClient} -t -sw";
+          on-click-right = "${swayncClient} -d -sw";
+          escape = true;
         };
       };
 
