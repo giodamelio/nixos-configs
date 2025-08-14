@@ -1,19 +1,15 @@
 {inputs, ...}: {
   imports = [
-    inputs.nix-index-database.hmModules.nix-index
+    inputs.nix-index-database.homeModules.nix-index
   ];
 
   programs.nix-index-database.comma.enable = true;
 
-  # home.packages = with pkgs; [
-  #   nix-index
-  #   comma
-  # ];
-  # programs.nix-index = {
-  #   enable = true;
-  #   enableZshIntegration = true;
-  # };
-  #
+  programs.nix-index = {
+    enable = true;
+    enableZshIntegration = true;
+  };
+
   # # TODO: contribute this back to the HomeManager module
   # # https://github.com/nix-community/home-manager/blob/master/modules/programs/nix-index.nix
   # # Example: https://github.com/nix-community/home-manager/blob/6a20e40acaebf067da682661aa67da8b36812606/modules/services/borgmatic.nix#L45
