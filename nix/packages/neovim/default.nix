@@ -23,6 +23,18 @@
     meta.homepage = "https://github.com/arnamak/stay-centered.nvim";
   };
 
+  claudecode = pkgs.vimUtils.buildVimPlugin {
+    pname = "claudecode.nvim";
+    version = "2025-07-14";
+    src = pkgs.fetchFromGitHub {
+      owner = "coder";
+      repo = "claudecode.nvim";
+      rev = "985b4b117ea13ec85c92830ecac8f63543dd5ead"; # Latest on branch main as of 2025-07-14
+      hash = "sha256-b4jCKIqowkVuWhI9jxthluZISBOnIc8eOIgkw5++HRY=";
+    };
+    meta.homepage = "https://github.com/arnamak/stay-centered.nvim";
+  };
+
   nvimConfig = pkgs.neovimUtils.makeNeovimConfig {
     withPython3 = true;
     withRuby = false;
@@ -102,7 +114,7 @@
       elixir-tools-nvim # Elixir tooling
       other-nvim # Easily switch to related file types
       nvim-notify # Pretty notifications
-      claude-code-nvim # Integration with Claude Code
+      claudecode # Integration with Claude Code
       smart-splits-nvim # Easy Multiplexer Split Navigation
     ];
 

@@ -165,7 +165,7 @@ require('fzf-lua').setup({ 'default' })
 -- })
 
 -- Claude Code Integration
-require('claude-code').setup()
+require('claudecode').setup()
 
 require('nvim-surround').setup()
 require('Comment').setup()
