@@ -313,6 +313,59 @@ vim.api.nvim_create_autocmd('CursorMoved', {
   end,
 })
 
+-- Add Treefmt commands (only if treefmt is available)
+if vim.fn.executable('treefmt') == 1 then
+  -- Treefmt command for current file or specified paths
+  vim.api.nvim_create_user_command('Treefmt', function(opts)
+    local args = opts.args
+    local cmd
+
+    if args == '' then
+      -- Format current file
+      local current_file = vim.fn.expand('%:p')
+      if current_file == '' then
+        snacks.notifier.notify('No file to format', { level = 'warn' })
+        return
+      end
+      cmd = 'treefmt ' .. vim.fn.shellescape(current_file)
+    else
+      -- Format specified paths
+      local paths = {}
+      for path in string.gmatch(args, '%S+') do
+        table.insert(paths, vim.fn.shellescape(path))
+      end
+      cmd = 'treefmt ' .. table.concat(paths, ' ')
+    end
+
+    local output = vim.fn.system(cmd)
+    if vim.v.shell_error == 0 then
+      if output ~= '' then
+        print(output)
+      end
+    else
+      snacks.notifier.notify('Treefmt failed: ' .. output, { level = 'error' })
+    end
+  end, {
+    nargs = '*',
+    desc = 'Format a file with treefmt',
+    complete = function(arg_lead)
+      return vim.fn.getcompletion(arg_lead, 'file')
+    end,
+  })
+
+  -- TreefmtAll command for entire project
+  vim.api.nvim_create_user_command('TreefmtAll', function()
+    local output = vim.fn.system('treefmt')
+    if vim.v.shell_error == 0 then
+      if output ~= '' then
+        print(output)
+      end
+    else
+      snacks.notifier.notify('Treefmt failed: ' .. output, { level = 'error' })
+    end
+  end, { desc = 'Format entire project with treefmt' })
+end
+
 -- Some helper functions for debugging
 -- selene: allow(multiple_statements)
 _G.dd = function(...)
