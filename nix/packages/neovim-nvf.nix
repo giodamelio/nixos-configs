@@ -4,6 +4,11 @@
   ...
 }: let
   inherit (pkgs) lib;
+  std = inputs.nix-std.lib;
+  inherit (std.tuple) tuple3;
+  # inherit (lib.nvim.binds) mkKeymap mkLuaBinding;
+  inherit (inputs.nvf.lib.nvim.lua) toLuaObject;
+  # pretty = val: lib.trace (lib.generators.toPretty {multiline = true;} val) val;
 in
   (inputs.nvf.lib.neovimConfiguration {
     inherit pkgs;
@@ -12,11 +17,100 @@ in
       {
         config.vim = {
           lsp.enable = true;
+
           theme = {
             enable = true;
             name = "tokyonight";
             style = "moon";
           };
+
+          luaConfigPre = ''
+            local snacks = require('snacks')
+          '';
+
+          keymaps = let
+            # Convert a tuple to an attrset based on a list of key names
+            tupleToAttrset = keysList: tuple: let
+              mapToKv = index: key: {"${key}" = lib.attrsets.getAttr "_${builtins.toString index}" tuple;};
+              listOfAttrs = lib.lists.imap0 mapToKv keysList;
+            in
+              lib.attrsets.mergeAttrsList listOfAttrs;
+
+            # Help in making a whole group of similar bindings
+            mkLeaderGroup = keyPrefix: functionPrefix: bindings:
+              bindings
+              |> lib.lists.map (tuple: (tupleToAttrset ["key" "desc" "action"] tuple))
+              |> lib.lists.map (keyBinding:
+                keyBinding
+                // {
+                  key = "${keyPrefix}${keyBinding.key}";
+                  # Add the prefix if we have a string, otherwise pass it through
+                  action =
+                    if builtins.typeOf keyBinding.action == "string"
+                    then "${functionPrefix}.${keyBinding.action}"
+                    else toLuaObject keyBinding.action;
+                  mode = ["n"];
+                  lua = true;
+                  silent = true;
+                });
+          in
+            mkLeaderGroup "<leader>f" "snacks.picker" [
+              (tuple3 "f" "By file name" "smart")
+              (tuple3 "h" "By file name (including hidden)"
+                (lib.mkLuaInline ''
+                  function()
+                    snacks.picker.files({
+                      finder = 'files',
+                      format = 'file',
+                      show_empty = true,
+                      hidden = true,
+                      ignored = true,
+                      follow = false,
+                      supports_live = true,
+                    })
+                  end
+                ''))
+              (tuple3 "?" "By help tag" "help")
+              (tuple3 "b" "By buffer name" "buffers")
+              (tuple3 "g" "By file content" "grep")
+              (tuple3 "m" "By mark" "marks")
+              (tuple3 "r" "By recent files" "recent")
+              (tuple3 "c" "By cmd history" "command_history")
+              (tuple3 "d" "By buffer diagnostic" "diagnostics_buffer")
+              (tuple3 "D" "By project diagnostic" "diagnostics")
+              (tuple3 "u" "By undo history" "undo")
+              (tuple3 "r" "By history" "registers")
+              (tuple3 "p" "By picker" "pickers")
+              (tuple3 "n" "By notifications" "notifications")
+              # TODO: enable this if we ever switch to using lazy plugin loader
+              # (tuple3 "l" "By plugin spec" "lazy")
+              (tuple3 "r" "Resume last" "resume")
+            ];
+          # ++ [
+          #   {
+          #     key = "<leader>ff";
+          #     desc = "Find file";
+          #     mode = ["n"];
+          #     lua = true;
+          #     silent = true;
+          #     action = "snacks.picker.smart";
+          #   }
+          # ];
+
+          binds = {
+            whichKey = {
+              enable = true;
+              register = {
+                "<leader>l" = "LSP";
+                "<leader>f" = "Fuzzy find";
+              };
+            };
+          };
+
+          languages = {
+            nix.enable = true;
+          };
+
           utility.snacks-nvim = {
             enable = true;
             setupOpts = {

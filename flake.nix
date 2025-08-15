@@ -63,5 +63,8 @@
     # Automated Git hooks
     pre-commit-hooks.url = "github:cachix/git-hooks.nix";
     pre-commit-hooks.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Additional Helpful Std library
+    nix-std.url = "github:chessai/nix-std";
   };
 }
