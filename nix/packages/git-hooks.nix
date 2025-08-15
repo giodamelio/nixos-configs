@@ -37,13 +37,39 @@
       ln -s ${luaStdlib} $out/vim.yml
     '';
   };
+
+  # New version of Statix that supports |> operator
+  statixPipeVersion = pkgs.rustPlatform.buildRustPackage {
+    pname = "statix";
+    # also update version of the vim plugin in
+    # pkgs/applications/editors/vim/plugins/overrides.nix
+    # the version can be found in flake.nix of the source code
+    version = "0.5.8";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "oppiliappan";
+      repo = "statix";
+      rev = "refs/pull/102/head"; # Git ref for the PR head
+      sha256 = "sha256-tvBFAIQuF15M4BygvUJomwQdU+rejWw1Sg/+tTt6jFI=";
+    };
+
+    cargoHash = "sha256-Jkp5e0TOKTTpLEAvxPp/UNQATmxOfSJgaakdPM3IidA=";
+
+    buildFeatures = "json";
+
+    # tests are failing on darwin
+    doCheck = !pkgs.stdenv.hostPlatform.isDarwin;
+  };
 in
   inputs.pre-commit-hooks.lib.${system}.run {
     src = ../../.;
     hooks = {
       # Nix
       deadnix.enable = true;
-      statix.enable = true;
+      statix = {
+        enable = true;
+        entry = "${lib.getExe statixPipeVersion} check --format errfmt";
+      };
       flake-checker.enable = true;
 
       # Shell

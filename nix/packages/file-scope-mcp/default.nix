@@ -44,6 +44,6 @@ in
       license = lib.licenses.gpl3Only;
       maintainers = with lib.maintainers; [];
       mainProgram = "file-scope-mcp";
-      platforms = lib.platforms.all;
+      inherit (lib.platforms) all;
     };
   }
