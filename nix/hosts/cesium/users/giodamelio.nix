@@ -1,5 +1,6 @@
 {flake, ...}: {
   imports = [
+    flake.homeModules.required
     flake.homeModules.modern-coreutils-replacements
     flake.homeModules.git
     flake.homeModules.neovim
@@ -18,4 +19,7 @@
   };
 
   programs.home-manager.enable = true;
+
+  # Configure nix-activate for NixOS
+  gio.nix-activate-config.activation = {system = "nixos";};
 }

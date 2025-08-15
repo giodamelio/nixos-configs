@@ -4,6 +4,7 @@
   ...
 }: {
   imports = [
+    flake.homeModules.required
     flake.homeModules.modern-coreutils-replacements
     flake.homeModules.git
     flake.homeModules.neovim
@@ -23,6 +24,9 @@
   };
 
   programs.home-manager.enable = true;
+
+  # Configure nix-activate-config for Darwin
+  gio.nix-activate-config.activation = {system = "darwin";};
 
   # Override my default email for commits
   programs.git.userEmail = pkgs.lib.mkForce "gio.damelio@logixboard.com";
