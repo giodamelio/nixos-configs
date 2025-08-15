@@ -4,7 +4,10 @@
   ...
 }: {
   # Necessary for using flakes on this system.
-  nix.settings.experimental-features = "nix-command flakes";
+  nix.settings = {
+    experimental-features = "nix-command flakes";
+    extra-experimental-features = "pipe-operators";
+  };
 
   # Set Git commit hash for darwin-version.
   system.configurationRevision = flake.rev or flake.dirtyRev or null;
