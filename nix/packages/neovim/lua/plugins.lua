@@ -182,20 +182,27 @@ require('fzf-lua').setup({ 'default' })
 
 -- Snacks setup
 local snacks = require('snacks')
+
 snacks.setup({
   dashboard = {
     pane_gap = 4,
     preset = {
       keys = {
         { icon = ' ', key = 'f', desc = 'Find File', action = ":lua Snacks.dashboard.pick('files')" },
-        { icon = ' ', key = 'n', desc = 'New File', action = ':ene | startinsert' },
         { icon = ' ', key = 'g', desc = 'Find Text', action = ":lua Snacks.dashboard.pick('live_grep')" },
         { icon = ' ', key = 'r', desc = 'Recent Files', action = ":lua Snacks.dashboard.pick('oldfiles')" },
         {
           icon = ' ',
           key = 'c',
           desc = 'Config',
-          action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.expand('$HOME/nixos-configs/nix/packages/neovim')})",
+          action =
+          ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.expand('$HOME/nixos-configs/nix/packages/neovim')})",
+        },
+        {
+          icon = ' ',
+          key = 'n',
+          desc = 'Nix Configs',
+          action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.expand('$HOME/nixos-configs')})",
         },
         { icon = ' ', key = 's', desc = 'Restore Session', section = 'session' },
         { icon = ' ', key = 'q', desc = 'Quit', action = ':qa' },
