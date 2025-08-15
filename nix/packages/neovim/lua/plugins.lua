@@ -260,6 +260,9 @@ snacks.setup({
   },
 })
 
+-- Add Dashboard command
+vim.api.nvim_create_user_command('Dashboard', function() snacks.dashboard.open() end, { desc = 'Open dashboard' })
+
 -- Some helper functions for debugging
 -- selene: allow(multiple_statements)
 _G.dd = function(...) snacks.debug.inspect(...) end
