@@ -270,6 +270,48 @@ snacks.setup({
 -- Add Dashboard command
 vim.api.nvim_create_user_command('Dashboard', function() snacks.dashboard.open() end, { desc = 'Open dashboard' })
 
+-- Add Nix config installation command (only in nixos-configs directory)
+vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWinEnter' }, {
+  pattern = vim.fn.expand('~/nixos-configs') .. '/*',
+  callback = function()
+    -- Create buffer-local command for installing nix configs
+    vim.api.nvim_buf_create_user_command(
+      0,
+      'NixInstall',
+      function()
+        snacks.terminal('nix-activate-config; echo "Press any key to close..."; read -n 1', {
+          cwd = vim.fn.expand('~/nixos-configs'),
+          win = {
+            position = 'bottom',
+            height = 0.4,
+          },
+          auto_close = true,
+        })
+      end,
+      { desc = 'Install Nix configuration (nix-activate-config)' }
+    )
+  end,
+})
+
+-- Show notification once per session when we first interact with nixos-configs
+vim.api.nvim_create_autocmd('CursorMoved', {
+  pattern = vim.fn.expand('~/nixos-configs') .. '/*',
+  once = true,
+  callback = function()
+    vim.defer_fn(
+      function()
+        snacks.notifier.notify('Use :NixInstall to apply configuration', {
+          title = 'Nix Configuration',
+          level = 'info',
+          timeout = 5000,
+          icon = '❄️',
+        })
+      end,
+      500
+    ) -- Delay to ensure snacks is fully loaded
+  end,
+})
+
 -- Some helper functions for debugging
 -- selene: allow(multiple_statements)
 _G.dd = function(...) snacks.debug.inspect(...) end
