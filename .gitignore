@@ -3,3 +3,4 @@
 result
 tmp/
 .pre-commit-config.yaml
+.claude/settings.local.json

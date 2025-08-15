@@ -1,0 +1,78 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "treefmt"
+          }
+        ]
+      },
+      {
+        "matcher": "MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "treefmt"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "treefmt"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__serena__create_text_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "treefmt"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__serena__replace_regex",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "treefmt"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__serena__replace_symbol_body",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "treefmt"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__serena__insert_after_symbol",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "treefmt"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__serena__insert_before_symbol",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "treefmt"
+          }
+        ]
+      }
+    ]
+  }
+}

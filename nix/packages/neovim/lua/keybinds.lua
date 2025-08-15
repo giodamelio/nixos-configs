@@ -383,3 +383,6 @@ vim.api.nvim_create_autocmd('BufEnter', {
     end, { desc = 'Evaluate Lua selection', buffer = true })
   end,
 })
+
+-- Local leader keybinding for formatting current file with treefmt
+vim.keymap.set('n', '<localleader>f', '<cmd>Treefmt<cr>', { desc = 'Format current file with treefmt' })
