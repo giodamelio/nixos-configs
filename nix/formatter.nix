@@ -1,23 +1,9 @@
 {
-  pkgs,
   inputs,
+  pkgs,
   ...
-}:
-inputs.treefmt-nix.lib.mkWrapper pkgs {
-  projectRootFile = "flake.nix";
-
-  settings.global.excludes = [
-    "secrets/**"
-    "**/*.toml"
-  ];
-
-  programs = {
-    # Nix
-    alejandra.enable = true;
-    deadnix.enable = true;
-    statix.enable = true;
-
-    # Lua
-    stylua.enable = true;
-  };
-}
+}: let
+  evaledModule = inputs.treefmt-nix.lib.evalModule pkgs (import ../treefmt.nix);
+  treefmt = evaledModule.config.build;
+in
+  treefmt.wrapper
