@@ -222,11 +222,53 @@ wk.add({
       gl.link({
         -- GitLinker hard codes to the + register which doesn't work over ssh
         -- action = gla.clipboard,
-        action = function(url) vim.fn.setreg('"', url) end,
+        action = function(url)
+          vim.fn.setreg('"', url)
+        end,
         lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
         lend = vim.api.nvim_buf_get_mark(0, '>')[1],
       })
     end,
     desc = 'Copy permalink to clipboard',
   },
+})
+
+-- Local leader keybinding for Lua evaluation in nixos-configs directory
+vim.api.nvim_create_autocmd('BufEnter', {
+  pattern = vim.fn.expand('~/nixos-configs') .. '/**/*.lua',
+  callback = function()
+    vim.keymap.set('v', '<localleader>e', function()
+      local start_pos = vim.fn.getpos("'<")
+      local end_pos = vim.fn.getpos("'>")
+      local lines = vim.fn.getline(start_pos[2], end_pos[2])
+      if type(lines) == 'string' then
+        lines = { lines }
+      end
+
+      if #lines == 1 then
+        lines[1] = lines[1]:sub(start_pos[3], end_pos[3])
+      else
+        lines[1] = lines[1]:sub(start_pos[3])
+        lines[#lines] = lines[#lines]:sub(1, end_pos[3])
+      end
+
+      local code = table.concat(lines, '\n')
+      local chunk = load(code)
+      if not chunk then
+        print('Error: Failed to compile Lua code')
+        return
+      end
+      local success, result = pcall(chunk)
+
+      if success then
+        if result ~= nil then
+          print(vim.inspect(result))
+        else
+          print('Code executed successfully')
+        end
+      else
+        print('Error: ' .. tostring(result))
+      end
+    end, { desc = 'Evaluate Lua selection', buffer = true })
+  end,
 })
