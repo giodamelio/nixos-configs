@@ -1,4 +1,9 @@
 {
+  pkgs,
+  evalModule,
+  ...
+}:
+evalModule pkgs {
   projectRootFile = "flake.nix";
 
   settings.global.excludes = [

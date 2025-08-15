@@ -1,5 +1,16 @@
-_: {
+{inputs, ...}: {
   homelab = builtins.fromTOML (builtins.readFile ../../homelab.toml);
+
+  # Loaded up version of treefmt that has all the things available on it
+  treefmt = pkgs: let
+    treefmtConfig = pkgs:
+      import ../../treefmt.nix {
+        inherit pkgs;
+        inherit (inputs.treefmt-nix.lib) evalModule;
+      };
+  in
+    (treefmtConfig pkgs).config.build;
+
   writeNushellApplication = pkgs: {
     name,
     source,

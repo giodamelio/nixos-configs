@@ -1,6 +1,5 @@
 {
   pkgs,
-  inputs,
   flake,
   system,
   ...
@@ -8,8 +7,7 @@
   inherit (pkgs) lib;
 
   # Treefmt Setup
-  treefmtEvaledModule = inputs.treefmt-nix.lib.evalModule pkgs (import ../treefmt.nix);
-  treefmt = treefmtEvaledModule.config.build;
+  treefmt = flake.lib.treefmt pkgs;
 
   # Git Hooks Setup
   inherit (flake.packages.${system}) git-hooks;

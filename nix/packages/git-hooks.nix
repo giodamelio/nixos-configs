@@ -2,13 +2,13 @@
   inputs,
   system,
   pkgs,
+  flake,
   ...
 }: let
   inherit (pkgs) lib;
 
   # Treefmt Setup
-  treefmtEvaledModule = inputs.treefmt-nix.lib.evalModule pkgs (import ../../treefmt.nix);
-  treefmt = treefmtEvaledModule.config.build;
+  treefmt = flake.lib.treefmt pkgs;
 
   # Precommit Hooks sub packages
   precommitTools = inputs.pre-commit-hooks.packages.${system};

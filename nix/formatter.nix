@@ -1,9 +1,8 @@
 {
-  inputs,
   pkgs,
+  flake,
   ...
 }: let
-  evaledModule = inputs.treefmt-nix.lib.evalModule pkgs (import ../treefmt.nix);
-  treefmt = evaledModule.config.build;
+  treefmt = flake.lib.treefmt pkgs;
 in
   treefmt.wrapper
