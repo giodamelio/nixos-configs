@@ -34,3 +34,7 @@ vim.opt.completeopt = 'menu,menuone,noselect'
 
 -- Enable 24 bit colors requires ISO-8613-3 compatible terminal
 vim.opt.termguicolors = true
+
+-- File change detection - reload files when they change on disk
+vim.opt.autoread = true -- Automatically read file when changed outside vim
+vim.opt.updatetime = 100 -- Faster update time (default is 4000ms)
