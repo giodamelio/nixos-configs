@@ -1,6 +1,6 @@
 -- Helper function for cmp/LuaSnip bindings
 local has_words_before = function()
-  -- luacheck: ignore
+  -- selene: allow(incorrect_standard_library_use)
   unpack = unpack or table.unpack
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
   return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match('%s') == nil
@@ -83,6 +83,7 @@ lsp_defaults.capabilities =
 
 -- Attach navic
 lsp_defaults.on_attach = function(client, bufnr)
+  -- selene: allow(multiple_statements)
   if client.server_capabilities.documentSymbolProvider then navic.attach(client, bufnr) end
 end
 

@@ -1,6 +1,7 @@
-#! /usr/bin/env nix-shell
-#! nix-shell -i bash -p nix-output-monitor
+#!/usr/bin/env nix-shell
+#!nix-shell -i bash -p nix-output-monitor
 
+#shellcheck disable=SC2029,SC1008
 # Exit on any error
 set -e
 

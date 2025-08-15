@@ -261,7 +261,9 @@ snacks.setup({
 })
 
 -- Some helper functions for debugging
+-- selene: allow(multiple_statements)
 _G.dd = function(...) snacks.debug.inspect(...) end
+-- selene: allow(multiple_statements)
 _G.bt = function() snacks.debug.backtrace() end
 vim.print = _G.dd
 
