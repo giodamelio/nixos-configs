@@ -59,7 +59,7 @@ wk.add({
   { '<leader>f', group = 'Find' },
   { '<leader>f?', snacks.picker.help, desc = 'Find help tags' },
   { '<leader>fb', snacks.picker.buffers, desc = 'Find buffer' },
-  { '<leader>ff', snacks.picker.smart, desc = 'Find file' },
+  { '<leader>ff', snacks.picker.files, desc = 'Find file' },
   { '<leader>fg', snacks.picker.grep, desc = 'Find line in file' },
   { '<leader>fh', files_hidden, desc = 'Find file (including hidden)' },
   { '<leader>fm', snacks.picker.marks, desc = 'Find marks' },
@@ -72,6 +72,8 @@ wk.add({
   { '<leader>fr', snacks.picker.resume, desc = 'Resume last search' },
   { '<leader>fp', snacks.picker.pickers, desc = 'Find pickers' },
   { '<leader>fn', snacks.picker.notifications, desc = 'Find notifications' },
+  { '<leader>fF', snacks.picker.smart, desc = 'Smart Finder' },
+  { '<leader>fr', snacks.picker.resume, desc = 'Resume last search' },
   -- TODO: enable this if we ever switch to using lazy plugin loader
   -- { '<leader>fl', snacks.picker.lazy,            desc = 'Find plugin specs' },
 })
@@ -82,8 +84,20 @@ wk.add({
   { '<leader>dd', '<cmd>TroubleToggle document_diagnostics<cr>', desc = 'Trouble document diagnostics' },
   { '<leader>de', '<cmd>TroubleToggle lsp_definitions<cr>', desc = 'Trouble definitions' },
   { '<leader>di', '<cmd>TroubleToggle lsp_implementations<cr>', desc = 'Trouble implementations' },
-  { '<leader>dn', function() vim.diagnostic.goto_next() end, desc = 'Go to next diagnostic' },
-  { '<leader>dp', function() vim.diagnostic.goto_prev() end, desc = 'Go to previous diagnostic' },
+  {
+    '<leader>dn',
+    function()
+      vim.diagnostic.jump({ count = 1 })
+    end,
+    desc = 'Go to next diagnostic',
+  },
+  {
+    '<leader>dp',
+    function()
+      vim.diagnostic.jump({ count = -1 })
+    end,
+    desc = 'Go to previous diagnostic',
+  },
   { '<leader>dr', '<cmd>TroubleToggle lsp_references<cr>', desc = 'Trouble references' },
   { '<leader>dt', '<cmd>TroubleToggle<cr>', desc = 'Time for trouble' },
 })
@@ -91,13 +105,55 @@ wk.add({
 -- Testing
 wk.add({
   { '<leader>t', group = 'Testing' },
-  { '<leader>tf', function() neotest.run.run(vim.fn.expand('%')) end, desc = 'Run tests in file' },
-  { '<leader>tp', function() neotest.output_panel.toggle() end, desc = 'Toggle output panel' },
-  { '<leader>ts', function() neotest.summary.toggle() end, desc = 'Toggle summary' },
-  { '<leader>tt', function() neotest.run.run() end, desc = 'Run nearest test' },
-  { '<leader>tw', function() neotest.watch.toggle(vim.fn.expand('%')) end, desc = 'Watch tests in file' },
-  { '<leader>ta', function() neotest.run.attach() end, desc = 'Attach to running test' },
-  { '<leader>tl', function() neotest.run.run_last() end, desc = 'Run last test' },
+  {
+    '<leader>tf',
+    function()
+      neotest.run.run(vim.fn.expand('%'))
+    end,
+    desc = 'Run tests in file',
+  },
+  {
+    '<leader>tp',
+    function()
+      neotest.output_panel.toggle()
+    end,
+    desc = 'Toggle output panel',
+  },
+  {
+    '<leader>ts',
+    function()
+      neotest.summary.toggle()
+    end,
+    desc = 'Toggle summary',
+  },
+  {
+    '<leader>tt',
+    function()
+      neotest.run.run()
+    end,
+    desc = 'Run nearest test',
+  },
+  {
+    '<leader>tw',
+    function()
+      neotest.watch.toggle(vim.fn.expand('%'))
+    end,
+    desc = 'Watch tests in file',
+  },
+  {
+    '<leader>ta',
+    function()
+      neotest.run.attach()
+    end,
+    desc = 'Attach to running test',
+  },
+  {
+    '<leader>tl',
+    function()
+      neotest.run.run_last()
+    end,
+    desc = 'Run last test',
+  },
 })
 
 -- Language Server
@@ -146,10 +202,9 @@ vim.api.nvim_create_autocmd('FileType', {
       vim.cmd('ClaudeCodeTreeAdd')
       vim.cmd('ClaudeCodeFocus')
       -- Wait 100ms for focus to complete, then send enter
-      vim.defer_fn(
-        function() vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<CR>', true, false, true), 'n', false) end,
-        100
-      )
+      vim.defer_fn(function()
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<CR>', true, false, true), 'n', false)
+      end, 100)
     end, { desc = 'Add file and send', buffer = true })
   end,
 })
@@ -189,20 +244,64 @@ local gl = require('gitlinker')
 wk.add({
   { '<leader>g', group = 'Git' },
   { '<leader>gg', '<cmd>Neogit<cr>', desc = 'Open Neogit UI' },
-  { '<leader>gb', function() snacks.git.blame_line() end, desc = 'Blame Current Line' },
-  { '<leader>gn', function() gsa.next_hunk() end, desc = 'Go to next hunk' },
-  { '<leader>gp', function() gsa.prev_hunk() end, desc = 'Go to previous hunk' },
-  { '<leader>gr', function() gs.reset_hunk() end, desc = 'Reset hunk' },
-  { '<leader>gs', function() gs.stage_hunk() end, desc = 'Stage hunk' },
-  { '<leader>gu', function() gs.undo_stage_hunk() end, desc = 'Unstage hunk' },
-  { '<leader>go', function() snacks.gitbrowse() end, desc = 'Open current file in browser' },
+  {
+    '<leader>gb',
+    function()
+      snacks.git.blame_line()
+    end,
+    desc = 'Blame Current Line',
+  },
+  {
+    '<leader>gn',
+    function()
+      gsa.next_hunk()
+    end,
+    desc = 'Go to next hunk',
+  },
+  {
+    '<leader>gp',
+    function()
+      gsa.prev_hunk()
+    end,
+    desc = 'Go to previous hunk',
+  },
+  {
+    '<leader>gr',
+    function()
+      gs.reset_hunk()
+    end,
+    desc = 'Reset hunk',
+  },
+  {
+    '<leader>gs',
+    function()
+      gs.stage_hunk()
+    end,
+    desc = 'Stage hunk',
+  },
+  {
+    '<leader>gu',
+    function()
+      gs.undo_stage_hunk()
+    end,
+    desc = 'Unstage hunk',
+  },
+  {
+    '<leader>go',
+    function()
+      snacks.gitbrowse()
+    end,
+    desc = 'Open current file in browser',
+  },
   {
     '<leader>gy',
     function()
       gl.link({
         -- GitLinker hard codes to the + register which doesn't work over ssh
         -- action = gla.clipboard,
-        action = function(url) vim.fn.setreg('"', url) end,
+        action = function(url)
+          vim.fn.setreg('"', url)
+        end,
         lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
         lend = vim.api.nvim_buf_get_mark(0, '>')[1],
       })
@@ -214,8 +313,20 @@ wk.add({
 wk.add({
   mode = { 'v' },
   { '<leader>g', group = 'Git' },
-  { '<leader>gr', function() gs.reset_hunk({ vim.fn.line('.'), vim.fn.line('v') }) end, desc = 'Reset hunk' },
-  { '<leader>gs', function() gs.stage_hunk({ vim.fn.line('.'), vim.fn.line('v') }) end, desc = 'Stage hunk' },
+  {
+    '<leader>gr',
+    function()
+      gs.reset_hunk({ vim.fn.line('.'), vim.fn.line('v') })
+    end,
+    desc = 'Reset hunk',
+  },
+  {
+    '<leader>gs',
+    function()
+      gs.stage_hunk({ vim.fn.line('.'), vim.fn.line('v') })
+    end,
+    desc = 'Stage hunk',
+  },
   {
     '<leader>gy',
     function()

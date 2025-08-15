@@ -14,7 +14,9 @@ local navic = require('nvim-navic')
 -- Setup completion
 cmp.setup({
   snippet = {
-    expand = function(args) require('luasnip').lsp_expand(args.body) end,
+    expand = function(args)
+      require('luasnip').lsp_expand(args.body)
+    end,
   },
   mapping = cmp.mapping.preset.insert({
     ['<C-b>'] = cmp.mapping.scroll_docs(-4),
@@ -84,7 +86,9 @@ lsp_defaults.capabilities =
 -- Attach navic
 lsp_defaults.on_attach = function(client, bufnr)
   -- selene: allow(multiple_statements)
-  if client.server_capabilities.documentSymbolProvider then navic.attach(client, bufnr) end
+  if client.server_capabilities.documentSymbolProvider then
+    navic.attach(client, bufnr)
+  end
 end
 
 -- Autoformat before save
@@ -92,7 +96,9 @@ vim.api.nvim_create_augroup('AutoFormatting', {})
 vim.api.nvim_create_autocmd('BufWritePre', {
   pattern = '*',
   group = 'AutoFormatting',
-  callback = function() vim.lsp.buf.format() end,
+  callback = function()
+    vim.lsp.buf.format()
+  end,
 })
 
 -- Setup some language servers
