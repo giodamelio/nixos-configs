@@ -59,5 +59,9 @@
     # Neovim config framework
     nvf.url = "github:notashelf/nvf";
     nvf.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Automated Git hooks
+    pre-commit-hooks.url = "github:cachix/git-hooks.nix";
+    pre-commit-hooks.inputs.nixpkgs.follows = "nixpkgs";
   };
 }

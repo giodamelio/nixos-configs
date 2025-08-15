@@ -1,11 +1,18 @@
 {
   pkgs,
   inputs,
+  flake,
+  system,
   ...
 }: let
   inherit (pkgs) lib;
+
+  # Treefmt Setup
   treefmtEvaledModule = inputs.treefmt-nix.lib.evalModule pkgs (import ../treefmt.nix);
   treefmt = treefmtEvaledModule.config.build;
+
+  # Git Hooks Setup
+  inherit (flake.packages.${system}) git-hooks;
 in
   pkgs.mkShell {
     buildInputs =
@@ -29,9 +36,14 @@ in
       ]
       ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin []
       # Treefmt
-      ++ [treefmt.wrapper] ++ (lib.attrValues treefmt.programs);
+      ++ [treefmt.wrapper]
+      ++ (lib.attrValues treefmt.programs)
+      # Precommit Hooks tools
+      ++ git-hooks.config.enabledPackages;
 
     shellHook = ''
+      ${git-hooks.shellHook}
+
       alias b2=backblaze-b2
     '';
   }
