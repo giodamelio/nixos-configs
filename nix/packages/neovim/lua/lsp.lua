@@ -136,7 +136,28 @@ local lua_ls_config = function()
     },
   }
 end
-lspconfig.lua_ls.setup(lua_ls_config()) -- Lua
+-- Configure lua_ls to use stylua for formatting
+local lua_config = lua_ls_config()
+lua_config.settings.Lua.format = {
+  enable = true, -- Disable built-in formatter
+}
+-- Override the formatting handler to use stylua
+lua_config.on_attach = function(client, bufnr)
+  if client.server_capabilities.documentSymbolProvider then
+    navic.attach(client, bufnr)
+  end
+
+  -- Override LSP formatting to use stylua
+  client.server_capabilities.documentFormattingProvider = true
+  vim.lsp.handlers['textDocument/formatting'] = function(_, _, ctx)
+    if ctx.client_id == client.id then
+      local bufname = vim.api.nvim_buf_get_name(bufnr)
+      vim.fn.system('stylua ' .. vim.fn.shellescape(bufname))
+      vim.cmd('edit') -- Reload to show changes
+    end
+  end
+end
+lspconfig.lua_ls.setup(lua_config) -- Lua
 lspconfig.nil_ls.setup({
   settings = {
     ['nil'] = {
