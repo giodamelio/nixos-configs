@@ -40,6 +40,9 @@ wk.add({
   { '<leader><leader>j', smart_split.swap_buf_down },
   { '<leader><leader>k', smart_split.swap_buf_up },
   { '<leader><leader>l', smart_split.swap_buf_right },
+
+  -- Open explorer
+  { '<leader>`', snacks.explorer.open },
 })
 
 -- Fuzzy Finding
