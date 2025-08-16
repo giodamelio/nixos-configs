@@ -126,6 +126,7 @@
       luafile ${./lua/treesitter.lua}
       luafile ${./lua/plugins.lua}
       luafile ${./lua/keybinds.lua}
+      luafile ${./lua/neovide.lua}
     ";
   };
 in
