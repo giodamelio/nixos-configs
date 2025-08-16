@@ -32,15 +32,10 @@
   programs.git.userEmail = pkgs.lib.mkForce "gio.damelio@logixboard.com";
 
   # Setup fonts
-  home.packages = [
-    # Ubuntu default font
-    pkgs.ubuntu_font_family
-
-    # Jetbrains Mono
-    pkgs.jetbrains-mono
-
-    # Add Inconsolata Nerdfont
-    pkgs.nerd-fonts.inconsolata
-    pkgs.nerd-fonts.jetbrains-mono
+  home.packages = with pkgs;
+  with pkgs.nerd-fonts; [
+    ubuntu-sans
+    inconsolata
+    jetbrains-mono
   ];
 }

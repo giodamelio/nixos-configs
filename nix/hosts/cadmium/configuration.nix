@@ -10,6 +10,7 @@ in {
 
     flake.nixosModules.wifi
     flake.nixosModules.nh
+    flake.nixosModules.fonts
 
     # Hardware stuff
     ./disko.nix
