@@ -31,6 +31,7 @@ in
         pkgs.backblaze-b2
         pkgs.claude-code
         pkgs.lua-language-server
+        pkgs.nh
       ]
       ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin []
       # Treefmt
