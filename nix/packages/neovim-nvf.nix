@@ -29,6 +29,9 @@ in
           '';
 
           keymaps = let
+            # Wrap Lua Function
+            lf = func: lib.mkLuaInline "function() ${func} end";
+
             # Convert a tuple to an attrset based on a list of key names
             tupleToAttrset = keysList: tuple: let
               mapToKv = index: key: {"${key}" = lib.attrsets.getAttr "_${builtins.toString index}" tuple;};
@@ -54,7 +57,7 @@ in
                   silent = true;
                 });
           in
-            mkLeaderGroup "<leader>f" "snacks.picker" [
+            (mkLeaderGroup "<leader>f" "snacks.picker" [
               (tuple3 "f" "By file name" "smart")
               (tuple3 "h" "By file name (including hidden)"
                 (lib.mkLuaInline ''
@@ -85,7 +88,35 @@ in
               # TODO: enable this if we ever switch to using lazy plugin loader
               # (tuple3 "l" "By plugin spec" "lazy")
               (tuple3 "r" "Resume last" "resume")
-            ];
+            ])
+            ++ (mkLeaderGroup "<leader>d" "" [
+              (tuple3 "d" "Trouble document diagnostics" "<cmd>TroubleToggle document_diagnostics<cr>")
+              (tuple3 "e" "Trouble LSP definitions" "<cmd>TroubleToggle lsp_definitions<cr>")
+              (tuple3 "i" "Trouble LSP implementations" "<cmd>TroubleToggle lsp_implementations<cr>")
+              (tuple3 "r" "Trouble LSP references" "")
+              (tuple3 "n" "Next Diagnostic" (lf "vim.diagnostic.jump({ count = 1 })"))
+              (tuple3 "p" "Prev Diagnostic" (lf "vim.diagnostic.jump({ count = -1 })"))
+              (tuple3 "t" "Toggle Trouble" "<cmd>TroubleToggle<cr>")
+            ])
+            ++ (mkLeaderGroup "<leader>d" "" [
+              (tuple3 "d" "Trouble document diagnostics" "<cmd>TroubleToggle document_diagnostics<cr>")
+              (tuple3 "e" "Trouble LSP definitions" "<cmd>TroubleToggle lsp_definitions<cr>")
+              (tuple3 "i" "Trouble LSP implementations" "<cmd>TroubleToggle lsp_implementations<cr>")
+              (tuple3 "r" "Trouble LSP references" "")
+              (tuple3 "n" "Next Diagnostic" (lf "vim.diagnostic.jump({ count = 1 })"))
+              (tuple3 "p" "Prev Diagnostic" (lf "vim.diagnostic.jump({ count = -1 })"))
+              (tuple3 "t" "Toggle Trouble" "<cmd>TroubleToggle<cr>")
+            ])
+            ++ (mkLeaderGroup "<leader>t" "" [
+              (tuple3 "t" "Run nearest test" (lf "neotest.run.run()"))
+              (tuple3 "f" "Run all tests in file" (lf "neotest.run.run(vim.fn.expand('%'))"))
+              (tuple3 "p" "Toggle output panel" (lf "neotest.output_panel.toggle()"))
+              (tuple3 "s" "Toggle summary panel" (lf "neotest.summary.toggle()"))
+              (tuple3 "w" "Watch all tests in file" (lf "neotest.watch.toggle(vim.fn.expand('%'))"))
+              (tuple3 "a" "Attach to running test" (lf "neotest.run.attach()"))
+              (tuple3 "l" "Run last test" (lf "neotest.run.run_last()"))
+            ]);
+
           # ++ [
           #   {
           #     key = "<leader>ff";
@@ -103,6 +134,8 @@ in
               register = {
                 "<leader>l" = "LSP";
                 "<leader>f" = "Fuzzy find";
+                "<leader>d" = "Diagnostics/Trouble";
+                "<leader>t" = "Testing";
               };
             };
           };
