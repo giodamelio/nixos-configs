@@ -46,6 +46,9 @@
           # Add ~/.local/bin to the start of the PATH
           # ''\ is a weird escape sequence
           export PATH="''\${HOME}/.local/bin:$PATH"
+
+          # Add ~/bin to the start of the path
+          export PATH="''\${HOME}/bin:$PATH"
         '');
     in
       lib.mkMerge (
