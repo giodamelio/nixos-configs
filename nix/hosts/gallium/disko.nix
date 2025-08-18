@@ -52,10 +52,10 @@
             };
           };
         }
-        // (mkZFSDisk "hda" "ata-ST6000VN001-2BB186_ZR13SCLC")
-        // (mkZFSDisk "hdb" "ata-ST6000VN001-2BB186_ZR13V715")
-        // (mkZFSDisk "hdc" "ata-ST6000VN001-2BB186_ZR13TANY")
-        // (mkZFSDisk "hdd" "ata-ST6000VN001-2BB186_ZR13V6ZJ");
+        // (mkZFSDisk "sda" "ata-ST6000VN001-2BB186_ZR13SCLC")
+        // (mkZFSDisk "sdb" "ata-ST6000VN001-2BB186_ZR13V715")
+        // (mkZFSDisk "sdc" "ata-ST6000VN001-2BB186_ZR13TANY")
+        // (mkZFSDisk "sdd" "ata-ST6000VN001-2BB186_ZR13V6ZJ");
       zpool = {
         boot = {
           type = "zpool";
@@ -127,17 +127,17 @@
                 mountpoint = "legacy";
               };
             };
-            garage = {
-              type = "zfs_fs";
-              # mountpoint = "/var/lib/garage/data";
-            };
-            media = {
-              type = "zfs_fs";
-              mountpoint = "/tank/media";
-              options = {
-                mountpoint = "legacy";
-              };
-            };
+            # garage = {
+            #   type = "zfs_fs";
+            #   # mountpoint = "/var/lib/garage/data";
+            # };
+            # media = {
+            #   type = "zfs_fs";
+            #   mountpoint = "/tank/media";
+            #   options = {
+            #     mountpoint = "legacy";
+            #   };
+            # };
           };
         };
       };
