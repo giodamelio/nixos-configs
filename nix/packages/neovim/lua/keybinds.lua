@@ -349,3 +349,21 @@ wk.add({
 
 -- Local leader keybinding for formatting current file with treefmt
 vim.keymap.set('n', '<localleader>f', '<cmd>Treefmt<cr>', { desc = 'Format current file with treefmt' })
+
+-- Lua-specific keybindings
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'lua',
+  callback = function()
+    wk.add({
+      buffer = true,
+      {
+        '<localleader>e',
+        function()
+          snacks.debug.run()
+        end,
+        desc = 'Run current file/selection',
+        mode = { 'n', 'v' },
+      },
+    })
+  end,
+})
