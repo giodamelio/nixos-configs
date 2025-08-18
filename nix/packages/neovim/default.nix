@@ -125,6 +125,7 @@
       luafile ${./lua/lsp.lua}
       luafile ${./lua/treesitter.lua}
       luafile ${./lua/plugins.lua}
+      luafile ${./lua/commands.lua}
       luafile ${./lua/keybinds.lua}
       luafile ${./lua/neovide.lua}
     ";

@@ -358,10 +358,8 @@ vim.api.nvim_create_autocmd('FileType', {
       buffer = true,
       {
         '<localleader>e',
-        function()
-          snacks.debug.run()
-        end,
-        desc = 'Run current file/selection',
+        '<cmd>LuaEval<cr>',
+        desc = 'Evaluate current file/selection',
         mode = { 'n', 'v' },
       },
     })

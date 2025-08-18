@@ -274,29 +274,6 @@ snacks.setup({
   },
 })
 
--- Add Dashboard command
-vim.api.nvim_create_user_command('Dashboard', function()
-  snacks.dashboard.open()
-end, { desc = 'Open dashboard' })
-
--- Add Nix config installation command (only in nixos-configs directory)
-vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWinEnter' }, {
-  pattern = vim.fn.expand('~/nixos-configs') .. '/*',
-  callback = function()
-    -- Create buffer-local command for installing nix configs
-    vim.api.nvim_buf_create_user_command(0, 'NixInstall', function()
-      snacks.terminal('nix-activate-config; echo "Press any key to close..."; read -n 1', {
-        cwd = vim.fn.expand('~/nixos-configs'),
-        win = {
-          position = 'bottom',
-          height = 0.4,
-        },
-        auto_close = true,
-      })
-    end, { desc = 'Install Nix configuration (nix-activate-config)' })
-  end,
-})
-
 -- Show notification once per session when we first interact with nixos-configs
 vim.api.nvim_create_autocmd('CursorMoved', {
   pattern = vim.fn.expand('~/nixos-configs') .. '/*',
@@ -312,59 +289,6 @@ vim.api.nvim_create_autocmd('CursorMoved', {
     end, 500) -- Delay to ensure snacks is fully loaded
   end,
 })
-
--- Add Treefmt commands (only if treefmt is available)
-if vim.fn.executable('treefmt') == 1 then
-  -- Treefmt command for current file or specified paths
-  vim.api.nvim_create_user_command('Treefmt', function(opts)
-    local args = opts.args
-    local cmd
-
-    if args == '' then
-      -- Format current file
-      local current_file = vim.fn.expand('%:p')
-      if current_file == '' then
-        snacks.notifier.notify('No file to format', { level = 'warn' })
-        return
-      end
-      cmd = 'treefmt ' .. vim.fn.shellescape(current_file)
-    else
-      -- Format specified paths
-      local paths = {}
-      for path in string.gmatch(args, '%S+') do
-        table.insert(paths, vim.fn.shellescape(path))
-      end
-      cmd = 'treefmt ' .. table.concat(paths, ' ')
-    end
-
-    local output = vim.fn.system(cmd)
-    if vim.v.shell_error == 0 then
-      if output ~= '' then
-        print(output)
-      end
-    else
-      snacks.notifier.notify('Treefmt failed: ' .. output, { level = 'error' })
-    end
-  end, {
-    nargs = '*',
-    desc = 'Format a file with treefmt',
-    complete = function(arg_lead)
-      return vim.fn.getcompletion(arg_lead, 'file')
-    end,
-  })
-
-  -- TreefmtAll command for entire project
-  vim.api.nvim_create_user_command('TreefmtAll', function()
-    local output = vim.fn.system('treefmt')
-    if vim.v.shell_error == 0 then
-      if output ~= '' then
-        print(output)
-      end
-    else
-      snacks.notifier.notify('Treefmt failed: ' .. output, { level = 'error' })
-    end
-  end, { desc = 'Format entire project with treefmt' })
-end
 
 -- Some helper functions for debugging
 -- selene: allow(multiple_statements)
