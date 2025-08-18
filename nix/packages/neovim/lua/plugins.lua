@@ -386,7 +386,7 @@ require('persisted').setup({
 telescope.load_extension('persisted')
 
 require('claudecode').setup()
-require('nvim-surround').setup()
 require('Comment').setup()
 require('stay-centered').setup()
 require('smart-splits')
+require('mini.ai').setup()

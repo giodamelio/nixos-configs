@@ -104,7 +104,6 @@
 
       avante-nvim # GenAI addition
       oil-nvim # Move/Create/Delete files/directories directly in a vim buffer
-      nvim-surround # Deal with pairs of things
       comment-nvim # Better comments
       marks-nvim # Show marks in the sign column
       vim-eunuch # Do a Unix to it
@@ -118,6 +117,7 @@
       smart-splits-nvim # Easy Multiplexer Split Navigation
       snacks-nvim # Collection of small quality of life plugins by Folke
       persisted-nvim # Session manager
+      mini-ai # Better a/i text objects
     ];
 
     customRC = "
