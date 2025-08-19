@@ -175,7 +175,7 @@ wk.add({
   { '<leader>li', snacks.picker.lsp_implementations, desc = 'Show implementations' },
   { '<leader>ll', vim.lsp.buf.code_action, desc = 'Show code actions' },
   { '<leader>ls', snacks.picker.lsp_symbols, desc = 'Show buffer symbols' },
-  { '<leader>ls', snacks.picker.workspace_lsp_symbols, desc = 'Show workspace symbols' },
+  { '<leader>lS', snacks.picker.workspace_lsp_symbols, desc = 'Show workspace symbols' },
   { '<leader>lr', snacks.picker.lsp_references, desc = 'Show references' },
   { '<leader>lt', snacks.picker.lsp_type_definitions, desc = 'Show type definition' },
   { '<leader>lf', vim.lsp.buf.format, desc = 'Format buffer' },
