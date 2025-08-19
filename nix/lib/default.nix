@@ -15,11 +15,12 @@
     name,
     source,
     runtimeInputs ? [],
+    meta ? {},
   }: let
     inherit (pkgs) lib;
   in
     pkgs.writeTextFile {
-      inherit name;
+      inherit name meta;
       executable = true;
       destination = "/bin/${name}";
       text =

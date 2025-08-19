@@ -4,10 +4,11 @@
   ...
 }: let
   inherit (pkgs) lib;
-
-  cmd = flake.lib.writeNushellApplication pkgs {
+in
+  flake.lib.writeNushellApplication pkgs {
     name = "audio-output-switcher";
     runtimeInputs = [pkgs.pulseaudio pkgs.wofi];
+    meta.platforms = lib.platforms.linux;
     source = ''
       let sinks = (pactl --format=json list sinks | from json)
 
@@ -30,14 +31,4 @@
         }
       }
     '';
-  };
-
-  dummy = pkgs.writeShellScriptBin "audio-output-switcher" ''
-    echo "This application is only available on Linux" >&2
-    echo "You are running: $(uname -s)" >&2
-    exit 1
-  '';
-in
-  if pkgs.stdenv.isLinux
-  then cmd
-  else dummy
+  }

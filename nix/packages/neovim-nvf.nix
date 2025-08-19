@@ -41,7 +41,7 @@ in
 
             # Convert a tuple to an attrset based on a list of key names
             tupleToAttrset = keysList: tuple: let
-              tupleLength = lib.attrsets.length (builtins.removeAttrs tuple ["_type"]);
+              tupleLength = builtins.length (builtins.attrNames (builtins.removeAttrs tuple ["_type"]));
               keysLength = lib.lists.length keysList;
             in
               assert lib.asserts.assertMsg (keysLength == tupleLength)
@@ -175,48 +175,48 @@ in
                 })
               ''))
             ])
-            ++ [
-              # Git visual mode bindings
-              {
-                key = "<leader>gr";
-                desc = "Reset hunk (visual)";
-                mode = ["v"];
-                lua = true;
-                silent = true;
-                action = lf ''
-                  local gs = require('gitsigns')
-                  gs.reset_hunk({ vim.fn.line('.'), vim.fn.line('v') })
-                '';
-              }
-              {
-                key = "<leader>gs";
-                desc = "Stage hunk (visual)";
-                mode = ["v"];
-                lua = true;
-                silent = true;
-                action = lf ''
-                  local gs = require('gitsigns')
-                  gs.stage_hunk({ vim.fn.line('.'), vim.fn.line('v') })
-                '';
-              }
-              {
-                key = "<leader>gy";
-                desc = "Copy permalink to clipboard (visual)";
-                mode = ["v"];
-                lua = true;
-                silent = true;
-                action = lf ''
-                  local gl = require('gitlinker')
-                  gl.link({
-                    action = function(url)
-                      vim.fn.setreg('"', url)
-                    end,
-                    lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
-                    lend = vim.api.nvim_buf_get_mark(0, '>')[1],
-                  })
-                '';
-              }
-            ]
+            # ++ [
+            # # Git visual mode bindings
+            # {
+            #   key = "<leader>gr";
+            #   desc = "Reset hunk (visual)";
+            #   mode = ["v"];
+            #   lua = true;
+            #   silent = true;
+            #   action = lf ''
+            #     local gs = require('gitsigns')
+            #     gs.reset_hunk({ vim.fn.line('.'), vim.fn.line('v') })
+            #   '';
+            # }
+            # {
+            #   key = "<leader>gs";
+            #   desc = "Stage hunk (visual)";
+            #   mode = ["v"];
+            #   lua = true;
+            #   silent = true;
+            #   action = lf ''
+            #     local gs = require('gitsigns')
+            #     gs.stage_hunk({ vim.fn.line('.'), vim.fn.line('v') })
+            #   '';
+            # }
+            # {
+            #   key = "<leader>gy";
+            #   desc = "Copy permalink to clipboard (visual)";
+            #   mode = ["v"];
+            #   lua = true;
+            #   silent = true;
+            #   action = lf ''
+            #     local gl = require('gitlinker')
+            #     gl.link({
+            #       action = function(url)
+            #         vim.fn.setreg('"', url)
+            #       end,
+            #       lstart = vim.api.nvim_buf_get_mark(0, '<')[1],
+            #       lend = vim.api.nvim_buf_get_mark(0, '>')[1],
+            #     })
+            #   '';
+            # }
+            # ]
             ++ [
               # Claude Code send in visual mode
               {
