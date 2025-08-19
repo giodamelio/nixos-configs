@@ -41,10 +41,15 @@ in
 
             # Convert a tuple to an attrset based on a list of key names
             tupleToAttrset = keysList: tuple: let
-              mapToKv = index: key: {"${key}" = lib.attrsets.getAttr "_${builtins.toString index}" tuple;};
-              listOfAttrs = lib.lists.imap0 mapToKv keysList;
+              tupleLength = lib.attrsets.length (builtins.removeAttrs tuple ["_type"]);
+              keysLength = lib.lists.length keysList;
             in
-              lib.attrsets.mergeAttrsList listOfAttrs;
+              assert lib.asserts.assertMsg (keysLength == tupleLength)
+              "tupleToAttrset: keysList length (${builtins.toString keysLength}) must equal tuple length (${builtins.toString tupleLength})"; let
+                mapToKv = index: key: {"${key}" = lib.attrsets.getAttr "_${builtins.toString index}" tuple;};
+                listOfAttrs = lib.lists.imap0 mapToKv keysList;
+              in
+                lib.attrsets.mergeAttrsList listOfAttrs;
 
             # Help in making a whole group of similar bindings
             mkLeaderGroup = keyPrefix: functionPrefix: bindings:
