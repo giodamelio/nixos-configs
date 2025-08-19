@@ -75,6 +75,13 @@ wk.add({
   { '<leader>fr', snacks.picker.resume, desc = 'Resume last search' },
   { '<leader>fp', snacks.picker.pickers, desc = 'Find pickers' },
   { '<leader>fn', snacks.picker.notifications, desc = 'Find notifications' },
+  { '<leader>fGb', snacks.picker.git_branches, desc = 'Find Git branches' },
+  { '<leader>fGl', snacks.picker.git_log, desc = 'Find Git log' },
+  { '<leader>fGL', snacks.picker.git_log_line, desc = 'Find Git log line' },
+  { '<leader>fGs', snacks.picker.git_status, desc = 'Find Git status' },
+  { '<leader>fGS', snacks.picker.git_stash, desc = 'Find Git stash' },
+  { '<leader>fGd', snacks.picker.git_diff, desc = 'Find Git diff (hunks)' },
+  { '<leader>fGf', snacks.picker.git_log_file, desc = 'Find Git log files' },
   { '<leader>fF', snacks.picker.smart, desc = 'Smart Finder' },
   { '<leader>fr', snacks.picker.resume, desc = 'Resume last search' },
   -- TODO: enable this if we ever switch to using lazy plugin loader
