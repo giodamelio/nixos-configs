@@ -118,6 +118,7 @@
       snacks-nvim # Collection of small quality of life plugins by Folke
       persisted-nvim # Session manager
       mini-ai # Better a/i text objects
+      firenvim # Use Neovim in the browser
     ];
 
     customRC = "
