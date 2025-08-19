@@ -34,8 +34,13 @@
   };
 
   # Allow keyboard keys to repeat when held down
-  system.defaults.NSGlobalDomain.InitialKeyRepeat = 10;
-  system.defaults.NSGlobalDomain.KeyRepeat = 1;
+  system.defaults.NSGlobalDomain = {
+    # Values from UI: 120, 90, 60, 30, 12, 6, 2
+    KeyRepeat = 2;
+
+    # Values from UI: 120, 94, 68, 35, 25, 15
+    InitialKeyRepeat = 15;
+  };
 
   # Used for backwards compatibility, please read the changelog before changing.
   # $ darwin-rebuild changelog
