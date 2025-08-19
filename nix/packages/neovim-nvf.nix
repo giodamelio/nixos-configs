@@ -89,32 +89,23 @@ in
               # (tuple3 "l" "By plugin spec" "lazy")
               (tuple3 "r" "Resume last" "resume")
             ])
-            ++ (mkLeaderGroup "<leader>d" "" [
-              (tuple3 "d" "Trouble document diagnostics" "<cmd>TroubleToggle document_diagnostics<cr>")
-              (tuple3 "e" "Trouble LSP definitions" "<cmd>TroubleToggle lsp_definitions<cr>")
-              (tuple3 "i" "Trouble LSP implementations" "<cmd>TroubleToggle lsp_implementations<cr>")
-              (tuple3 "r" "Trouble LSP references" "")
-              (tuple3 "n" "Next Diagnostic" (lf "vim.diagnostic.jump({ count = 1 })"))
-              (tuple3 "p" "Prev Diagnostic" (lf "vim.diagnostic.jump({ count = -1 })"))
-              (tuple3 "t" "Toggle Trouble" "<cmd>TroubleToggle<cr>")
+            ++ (mkLeaderGroup "<leader>fG" "snacks.picker" [
+              (tuple3 "b" "Git branches" "git_branches")
+              (tuple3 "l" "Git log" "git_log")
+              (tuple3 "L" "Git log line" "git_log_line")
+              (tuple3 "s" "Git status" "git_status")
+              (tuple3 "S" "Git stash" "git_stash")
+              (tuple3 "d" "Git diff (hunks)" "git_diff")
+              (tuple3 "f" "Git log files" "git_log_file")
             ])
             ++ (mkLeaderGroup "<leader>d" "" [
               (tuple3 "d" "Trouble document diagnostics" "<cmd>TroubleToggle document_diagnostics<cr>")
               (tuple3 "e" "Trouble LSP definitions" "<cmd>TroubleToggle lsp_definitions<cr>")
               (tuple3 "i" "Trouble LSP implementations" "<cmd>TroubleToggle lsp_implementations<cr>")
-              (tuple3 "r" "Trouble LSP references" "")
+              (tuple3 "r" "Trouble LSP references" "<cmd>TroubleToggle lsp_references<cr>")
               (tuple3 "n" "Next Diagnostic" (lf "vim.diagnostic.jump({ count = 1 })"))
               (tuple3 "p" "Prev Diagnostic" (lf "vim.diagnostic.jump({ count = -1 })"))
               (tuple3 "t" "Toggle Trouble" "<cmd>TroubleToggle<cr>")
-            ])
-            ++ (mkLeaderGroup "<leader>t" "" [
-              (tuple3 "t" "Run nearest test" (lf "neotest.run.run()"))
-              (tuple3 "f" "Run all tests in file" (lf "neotest.run.run(vim.fn.expand('%'))"))
-              (tuple3 "p" "Toggle output panel" (lf "neotest.output_panel.toggle()"))
-              (tuple3 "s" "Toggle summary panel" (lf "neotest.summary.toggle()"))
-              (tuple3 "w" "Watch all tests in file" (lf "neotest.watch.toggle(vim.fn.expand('%'))"))
-              (tuple3 "a" "Attach to running test" (lf "neotest.run.attach()"))
-              (tuple3 "l" "Run last test" (lf "neotest.run.run_last()"))
             ]);
 
           # ++ [
@@ -134,6 +125,7 @@ in
               register = {
                 "<leader>l" = "LSP";
                 "<leader>f" = "Fuzzy find";
+                "<leader>fG" = "Git";
                 "<leader>d" = "Diagnostics/Trouble";
                 "<leader>t" = "Testing";
               };
