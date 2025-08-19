@@ -219,37 +219,10 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
--- GenAI with Parrot
--- wk.add({
---   { '<leader>c', group = 'GenAI' },
---   { '<leader>cc', '<cmd>PrtChatNew popup<cr>', desc = 'Open a new chat' },
---   { '<leader>c<Tab>', '<cmd>PrtChatToggle popup<cr>', desc = 'Toggle chat' },
---   { '<leader>cP', '<cmd>PrtChatPaste popup<cr>', desc = 'Paste visual selection into latest chat' },
---   { '<leader>cf', '<cmd>PrtChatFinder<cr>', desc = 'Fuzzy search chat files using fzf' },
---   { '<leader>cd', '<cmd>PrtChatDelete<cr>', desc = 'Delete current chat file' },
---   { '<leader>cs', '<cmd>PrtStop<cr>', desc = 'Interrupt ongoing respond' },
---   { '<leader>cS', '<cmd>PrtStatus<cr>', desc = 'Prints current provider and model selection' },
---   { '<leader>cr', '<cmd>PrtRewrite<cr>', desc = 'Rewrites the visual selection based on a prompt' },
---   { '<leader>ca', '<cmd>PrtAppend<cr>', desc = 'Append text to visual selection based on a prompt' },
---   { '<leader>cp', '<cmd>PrtPrepend<cr>', desc = 'Prepend text to visual selection based on a prompt' },
---   { '<leader>cR', '<cmd>PrtRetry<cr>', desc = 'Repeats the last rewrite/append/prepend' },
--- })
-
--- wk.add({
---   mode = { 'v' },
---   { '<leader>c',  group = 'GenAI' },
---   { '<leader>cc', ":'<,'>PrtChatNew popup<cr>",   desc = 'Open a new chat' },
---   { '<leader>cp', ":'<,'>PrtChatPaste popup<cr>", desc = 'Paste visual selection into latest chat' },
---   { '<leader>cr', ":'<,'>PrtRewrite<cr>",         desc = 'Rewrites the visual selection based on a prompt' },
---   { '<leader>ca', ":'<,'>PrtAppend<cr>",          desc = 'Append text to visual selection based on a prompt' },
---   { '<leader>cp', ":'<,'>PrtPrepend<cr>",         desc = 'Prepend text to visual selection based on a prompt' },
--- })
-
 -- Git keybindings
 local gs = require('gitsigns')
 local gsa = require('gitsigns.actions')
 local gl = require('gitlinker')
--- local gla = require('gitlinker.actions')
 
 wk.add({
   { '<leader>g', group = 'Git' },
