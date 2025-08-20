@@ -10,6 +10,7 @@ in {
     tree = "eza --tree";
     du = "dust";
     ps = pkgs.lib.getExe pkgs.procs;
+    fdg = "fd --glob";
   };
 
   # Improved version of eza tree for zsh that uses a pager
