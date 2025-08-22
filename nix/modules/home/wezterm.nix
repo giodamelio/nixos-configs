@@ -26,7 +26,7 @@
       config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' } -- Disable ligature
 
       config.hide_tab_bar_if_only_one_tab = false
-      config.use_fancy_tab_bar = false
+      config.use_fancy_tab_bar = true
 
       -- TODO: Update this when there is highlighting support
       -- See: https://github.com/wezterm/wezterm/issues/4077
