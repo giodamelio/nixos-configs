@@ -11,6 +11,11 @@ in {
     du = "dust";
     ps = pkgs.lib.getExe pkgs.procs;
     fdg = "fd --glob";
+
+    # Claude Code
+    cc = "claude";
+    ccr = "claude --resume";
+    ccc = "claude --continue";
   };
 
   # Improved version of eza tree for zsh that uses a pager
