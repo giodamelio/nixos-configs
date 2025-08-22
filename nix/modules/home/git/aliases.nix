@@ -21,6 +21,9 @@ _: {
     ignored = "status --ignored";
     fixup = "commit --amend -C HEAD";
 
+    # Makes it interactive, force and works with directories
+    cleanitup = "clean -ifd";
+
     # Aliases that require external commands
     pcb = "!git push origin $(git rev-parse --abbrev-ref HEAD)";
     rm-deleted = "!git ls-files --deleted -z | xargs -0 git rm";
