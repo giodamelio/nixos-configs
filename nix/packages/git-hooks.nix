@@ -49,11 +49,11 @@
     src = pkgs.fetchFromGitHub {
       owner = "oppiliappan";
       repo = "statix";
-      rev = "refs/pull/102/head"; # Git ref for the PR head
-      sha256 = "sha256-tvBFAIQuF15M4BygvUJomwQdU+rejWw1Sg/+tTt6jFI=";
+      rev = "f76adab8920438c39edbf3463b7a7150f9875617";
+      sha256 = "sha256-g1fFexvaHiW4qc3XfVaoqoCe2mp1yeaDG4wgaDgcuGM=";
     };
 
-    cargoHash = "sha256-Jkp5e0TOKTTpLEAvxPp/UNQATmxOfSJgaakdPM3IidA=";
+    cargoHash = "sha256-jiMv28kSqCfaYnVsE/q/EtaPmSrANvJYjI9FQ2+Biz8=";
 
     buildFeatures = "json";
 
