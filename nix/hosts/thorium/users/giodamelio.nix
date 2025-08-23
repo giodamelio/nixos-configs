@@ -17,6 +17,7 @@
     flake.homeModules.atuin
     flake.homeModules.llm
     flake.homeModules.nh
+    flake.homeModules.claude-code
   ];
 
   home = {
@@ -38,4 +39,20 @@
     inconsolata
     jetbrains-mono
   ];
+
+  # Configure Claude Code
+  programs.claude-code = {
+    enable = true;
+    agents = {
+      postgres-db-expert = ../../../modules/home/claude-code/agents/postgres-db-expert.md;
+    };
+    commands = {
+      plan-save = ../../../modules/home/claude-code/commands/plan-save.md;
+      plan-load = ../../../modules/home/claude-code/commands/plan-load.md;
+      pre-commit = {
+        markdown = ../../../modules/home/claude-code/commands/pre-commit.md;
+        script = ../../../modules/home/claude-code/commands/pre-commit.sh;
+      };
+    };
+  };
 }
