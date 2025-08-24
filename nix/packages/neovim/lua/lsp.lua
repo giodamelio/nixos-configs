@@ -173,7 +173,7 @@ lspconfig.ruby_lsp.setup({})
 lspconfig.rubocop.setup({})
 lspconfig.gleam.setup({})
 lspconfig.ts_ls.setup({})
-lspconfig.sourcekit()
+vim.lsp.enable('sourcekit')
 lspconfig.yamlls.setup({
   settings = {
     yaml = {

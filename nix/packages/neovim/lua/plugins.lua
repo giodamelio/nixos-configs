@@ -1,19 +1,6 @@
 -- Trouble
-require('trouble').setup()
-
--- Telescope
-local telescope = require('telescope')
-local trouble = require('trouble.sources.telescope')
-
--- Allow opening telescope results in Trouble
-telescope.setup({
-  defaults = {
-    mappings = {
-      i = { ['<c-t>'] = trouble.open },
-      n = { ['<c-t>'] = trouble.open },
-    },
-  },
-})
+local trouble = require('trouble')
+trouble.setup()
 
 -- Snippets
 require('luasnip.loaders.from_vscode').lazy_load()
@@ -290,9 +277,6 @@ require('other-nvim').setup({
   },
 })
 
--- FZF Lua
-require('fzf-lua').setup({ 'default' })
-
 -- Parrot
 -- require('parrot').setup({
 --   providers = {
@@ -432,9 +416,6 @@ vim.print = _G.dd
 require('persisted').setup({
   autoload = true,
 })
-
--- Allow searching Persisted sessions with Telescope
-telescope.load_extension('persisted')
 
 require('claudecode').setup()
 require('Comment').setup()
