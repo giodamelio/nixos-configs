@@ -26,6 +26,7 @@
     postgresql_15
     fblog
     logdy
+    devenv # Easy development environments based on Nix, amazing until I want to stray off the path, which is 90% of the time but really should be 10%
   ];
 
   # Setup homebrew
