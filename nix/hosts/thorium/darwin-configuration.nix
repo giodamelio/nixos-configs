@@ -5,6 +5,7 @@
 }: {
   # Necessary for using flakes on this system.
   nix.settings = {
+    trusted-users = ["root" "giodamelio"];
     experimental-features = "nix-command flakes";
     extra-experimental-features = "pipe-operators";
   };
