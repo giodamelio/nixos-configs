@@ -64,7 +64,7 @@
 in
   inputs.pre-commit-hooks.lib.${system}.run {
     src = ../../.;
-    default_stages = ["commit" "pre-push"];
+    default_stages = ["pre-commit" "pre-push"];
     hooks = {
       # Nix
       deadnix.enable = true;
