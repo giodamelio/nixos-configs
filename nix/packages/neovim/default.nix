@@ -54,10 +54,8 @@
       # Pretty lists of things
       trouble-nvim
 
-      # Fuzzy find things
-      telescope-nvim
-      plenary-nvim # Needed dependency
-      fzf-lua # Needed dependency
+      # Lots of things need this
+      plenary-nvim
 
       # Language Server
       nvim-lspconfig
@@ -140,8 +138,6 @@ in
       (pkgs.wrapNeovimUnstable pkgs.neovim-unwrapped nvimConfig)
 
       # Some random dependencies
-      pkgs.fzf # Fuzzy finder needed from fzf-lua plugin
-      pkgs.skim # Fuzzy finder needed from fzf-lua plugin
       pkgs.imagemagick # Snacks: For inline images
     ];
   }

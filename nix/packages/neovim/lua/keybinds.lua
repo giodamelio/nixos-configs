@@ -91,9 +91,11 @@ wk.add({
 -- Diagnostics and Trouble.nvim
 wk.add({
   { '<leader>d', group = 'Diagnostics/Trouble' },
-  { '<leader>dd', '<cmd>TroubleToggle document_diagnostics<cr>', desc = 'Trouble document diagnostics' },
-  { '<leader>de', '<cmd>TroubleToggle lsp_definitions<cr>', desc = 'Trouble definitions' },
-  { '<leader>di', '<cmd>TroubleToggle lsp_implementations<cr>', desc = 'Trouble implementations' },
+  { '<leader>dd', '<cmd>Trouble diagnostics toggle filter.buf=0<cr>', desc = 'Trouble document diagnostics' },
+  { '<leader>dl', '<cmd>Trouble lsp toggle<cr>', desc = 'Trouble document diagnostics' },
+  { '<leader>de', '<cmd>Trouble lsp_definitions toggle<cr>', desc = 'Trouble definitions' },
+  { '<leader>di', '<cmd>Trouble lsp_implementations toggle<cr>', desc = 'Trouble implementations' },
+  { '<leader>dr', '<cmd>Trouble lsp_references toggle<cr>', desc = 'Trouble references' },
   {
     '<leader>dn',
     function()
@@ -108,8 +110,6 @@ wk.add({
     end,
     desc = 'Go to previous diagnostic',
   },
-  { '<leader>dr', '<cmd>TroubleToggle lsp_references<cr>', desc = 'Trouble references' },
-  { '<leader>dt', '<cmd>TroubleToggle<cr>', desc = 'Time for trouble' },
 })
 
 -- Testing
