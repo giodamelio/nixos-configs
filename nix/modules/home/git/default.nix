@@ -25,6 +25,11 @@
     includes = [
       {path = "~/.gitconfig.extra";}
     ];
+
+    extraConfig = {
+      # New branch name for default inits
+      init.defaultBranch = "main";
+    };
   };
 
   # Install Git Absorb for easy automatic fixups
