@@ -19,6 +19,7 @@
     globals = {
       vim.property = "new-fields";
       "_G".property = "new-fields";
+      "hs".property = "new-fields";
     };
   };
   seleneConfig = (pkgs.formats.toml {}).generate "selene.toml" {
