@@ -50,10 +50,15 @@
           # Add ~/bin to the start of the path
           export PATH="''\${HOME}/bin:$PATH"
         '');
+
+      # Load some secrets from the MacOS keychain
+      loadSecrets = lib.mkOrder 1400 ''
+        export OPENAI_API_KEY=$(security find-generic-password -a "$USER" -s 'openai_api_token' -w)
+      '';
     in
       lib.mkMerge (
         [vimModeKeybindingFix]
-        ++ (lib.optionals pkgs.stdenv.hostPlatform.isDarwin [homebrewShellEnv])
+        ++ (lib.optionals pkgs.stdenv.hostPlatform.isDarwin [homebrewShellEnv loadSecrets])
       );
   };
 
