@@ -2,7 +2,9 @@
   flake,
   pkgs,
   ...
-}: {
+}: let
+  flakePackages = flake.packages.${pkgs.stdenv.system};
+in {
   # Necessary for using flakes on this system.
   nix.settings = {
     trusted-users = ["root" "giodamelio"];
@@ -28,6 +30,7 @@
     fblog
     logdy
     devenv # Easy development environments based on Nix, amazing until I want to stray off the path, which is 90% of the time but really should be 10%
+    flakePackages.files_that_change_togather # Little script that uses Git to show which files often get changed in the same commit
   ];
 
   # Setup homebrew
