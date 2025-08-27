@@ -148,27 +148,6 @@
     "flake-parts_2": {
       "inputs": {
         "nixpkgs-lib": [
-          "nixvim",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1743550720,
-        "narHash": "sha256-hIshGgKZCgWh6AYJpJmRgFdR3WUbkY04o82X05xqQiY=",
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "rev": "c621e8422220273271f52058f618c94e405bb0f5",
-        "type": "github"
-      },
-      "original": {
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "type": "github"
-      }
-    },
-    "flake-parts_3": {
-      "inputs": {
-        "nixpkgs-lib": [
           "nvf",
           "nixpkgs"
         ]
@@ -525,47 +504,10 @@
         "type": "github"
       }
     },
-    "nixvim": {
-      "inputs": {
-        "flake-parts": "flake-parts_2",
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "nuschtosSearch": "nuschtosSearch"
-      },
-      "locked": {
-        "lastModified": 1746879234,
-        "narHash": "sha256-L5pwOBj/qAMhCC5QXmWSw8QrcL26bNztwpLhONaFfd8=",
-        "owner": "nix-community",
-        "repo": "nixvim",
-        "rev": "e527939f79caa0636c7d5331e4e6c70857a1fbe0",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "nixvim",
-        "type": "github"
-      }
-    },
-    "nuschtosSearch": {
-      "locked": {
-        "lastModified": 1746914906,
-        "narHash": "sha256-ACer0JbVPT5+ShNjbeM3ZCLmmxCPEJNmVRrlod8UqiA=",
-        "owner": "giodamelio",
-        "repo": "empty-flake",
-        "rev": "ce14a26e90ff0677e82f57dc7bfa573614add4d7",
-        "type": "github"
-      },
-      "original": {
-        "owner": "giodamelio",
-        "repo": "empty-flake",
-        "type": "github"
-      }
-    },
     "nvf": {
       "inputs": {
         "flake-compat": "flake-compat_3",
-        "flake-parts": "flake-parts_3",
+        "flake-parts": "flake-parts_2",
         "mnw": "mnw",
         "nixpkgs": [
           "nixpkgs"
@@ -622,7 +564,6 @@
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs",
         "nixpkgs-stable": "nixpkgs-stable",
-        "nixvim": "nixvim",
         "nvf": "nvf",
         "pre-commit-hooks": "pre-commit-hooks",
         "treefmt-nix": "treefmt-nix_2"
