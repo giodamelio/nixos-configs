@@ -31,6 +31,7 @@ in {
     logdy
     devenv # Easy development environments based on Nix, amazing until I want to stray off the path, which is 90% of the time but really should be 10%
     flakePackages.files_that_change_togather # Little script that uses Git to show which files often get changed in the same commit
+    logrotate
   ];
 
   # Setup homebrew
