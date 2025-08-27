@@ -99,14 +99,14 @@ wk.add({
   {
     '<leader>dn',
     function()
-      vim.diagnostic.jump({ count = 1 })
+      vim.diagnostic.jump({ count = 1, float = true })
     end,
     desc = 'Go to next diagnostic',
   },
   {
     '<leader>dp',
     function()
-      vim.diagnostic.jump({ count = -1 })
+      vim.diagnostic.jump({ count = -1, float = true })
     end,
     desc = 'Go to previous diagnostic',
   },
