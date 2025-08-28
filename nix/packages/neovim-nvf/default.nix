@@ -17,6 +17,7 @@ in
       ./lsp.nix
       ./finding.nix
       ./claude-code.nix
+      ./lualine.nix
 
       {
         config.vim = {
