@@ -14,6 +14,7 @@ in
       ./keybinding-tree.nix
       ./git.nix
       ./autocomplete.nix
+      ./treesitter.nix
       ./lsp.nix
       ./finding.nix
       ./claude-code.nix
