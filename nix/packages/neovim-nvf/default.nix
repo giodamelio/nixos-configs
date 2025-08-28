@@ -13,17 +13,12 @@ in
     modules = [
       ./keybinding-tree.nix
       ./git.nix
+      ./autocomplete.nix
+      ./lsp.nix
 
       {
         config.vim = {
           keybindingTree = {
-            keys = {
-              "K" = {
-                desc = "Show hover docs";
-                lua = "vim.lsp.buf.hover()";
-              };
-            };
-
             groups = {
               "<leader>" = {
                 desc = "Leader";
@@ -142,8 +137,6 @@ in
             };
           };
 
-          lsp.enable = true;
-
           theme = {
             enable = true;
             name = "tokyonight";
@@ -163,6 +156,7 @@ in
 
           languages = {
             nix.enable = true;
+            lua.enable = true;
           };
 
           utility.smart-splits = {
