@@ -13,6 +13,10 @@
           symbols = "<leader>ds";
         };
       };
+
+      mappings = {
+        format = "<leader>lF";
+      };
     };
 
     keybindingTree = {
@@ -31,6 +35,17 @@
               groups.g.desc = "Go to";
               groups.t.desc = "Toggle";
               groups.w.desc = "Workspace";
+
+              keys = {
+                "f" = {
+                  desc = "Finder";
+                  cmd = "<cmd>Lspsaga finder<cr>";
+                };
+                "n" = {
+                  desc = "Rename symbol";
+                  cmd = "<cmd>Lspsaga rename";
+                };
+              };
             };
 
             "d" = {
