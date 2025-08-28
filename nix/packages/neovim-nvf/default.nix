@@ -12,6 +12,7 @@ in
 
     modules = [
       ./keybinding-tree.nix
+      ./git.nix
 
       {
         config.vim = {
