@@ -2,8 +2,15 @@
   config.vim = {
     git = {
       neogit.enable = true;
-      gitsigns.enable = true;
       gitlinker-nvim.enable = true;
+
+      gitsigns = {
+        enable = true;
+        mappings = {
+          toggleBlame = null;
+          toggleDeleted = null;
+        };
+      };
     };
 
     keybindingTree = {
