@@ -153,6 +153,13 @@ in
             local snacks = require('snacks')
           '';
 
+          extraPlugins = {
+            claudecode = {
+              package = pkgs.vimPlugins.claudecode-nvim;
+              setup = "require('claudecode').setup()";
+            };
+          };
+
           languages = {
             nix.enable = true;
           };
