@@ -57,6 +57,9 @@ in {
         {
           command = "${pkgs.spotify}/bin/spotify";
         }
+        {
+          command = "${pkgs.firefox}/bin/firefox";
+        }
       ];
 
       # Don't make the window focus follow the mouse
@@ -132,6 +135,9 @@ in {
         "10" = [
           {app_id = "thunderbird";}
           {app_id = "spotify";}
+        ];
+        "2" = [
+          {app_id = "firefox";}
         ];
       };
     };
