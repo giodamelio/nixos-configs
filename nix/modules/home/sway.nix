@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   lib,
   flake,
@@ -6,14 +7,34 @@
 }: let
   inherit (flake.lib.homelab.machines.cadmium) monitor-names;
   modifier = "Mod4";
+  flameshotModified = pkgs.flameshot.override {enableWlrSupport = true;};
 in {
-  home.packages = [
-    pkgs.libnotify
+  home.packages = with pkgs; [
+    libnotify # For sending notifications
+
+    # Setup good screenshots
+    flameshotModified # For nice screenshots
+    grim # Required backend for Wayland screenshots
+    slurp # For area selection (optional but recommended)
+    wl-clipboard # For clipboard functionality
   ];
+
+  home.sessionVariables = {
+    # Help QT applications work better with Wayland
+    QT_QPA_PLATFORM = "wayland";
+    SDL_VIDEODRIVER = "wayland";
+    _JAVA_AWT_WM_NONREPARENTING = "1";
+    XDG_CURRENT_DESKTOP = "sway";
+    XDG_SESSION_DESKTOP = "sway";
+  };
 
   wayland.windowManager.sway = {
     enable = true;
     xwayland = true;
+
+    extraConfigEarly = ''
+      for_window [app_id="flameshot" title="flameshot"] border pixel 0, floating enable, fullscreen disable, move absolute position 0 0
+    '';
 
     config = {
       # Use the Windows/Apple key as our main modifier
@@ -97,6 +118,13 @@ in {
         "XF86Launch6" = "exec ${pkgs.playerctl}/bin/playerctl previous";
         "XF86Launch7" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
         "XF86Launch8" = "exec ${pkgs.playerctl}/bin/playerctl next";
+
+        # Screenshots
+        "Print" = "exec flameshot gui";
+        "Shift+Print" = "exec flameshot gui --clipboard";
+        "${modifier}+Print" = "exec flameshot full --clipboard";
+        "${modifier}+Shift+Print" = "exec flameshot full --path ~/Pictures/Screenshots/";
+        "${modifier}+ctrl+Print" = "exec flameshot gui --delay 3000";
       };
 
       # Assign certin programs to certin workspaces
@@ -204,11 +232,44 @@ in {
     xdgOpenUsePortal = true;
     config = {
       common.default = "*";
+      sway = {
+        default = ["wlr" "gtk"];
+        "org.freedesktop.impl.portal.Screenshot" = ["wlr"];
+        "org.freedesktop.impl.portal.ScreenCast" = ["wlr"];
+      };
     };
     extraPortals = with pkgs; [
       xdg-desktop-portal-gtk
     ];
   };
+
+  # Setup Flameshot for screenshots
+  services.flameshot = {
+    enable = true;
+    package = flameshotModified;
+    settings = {
+      General = {
+        # Basic settings
+        showStartupLaunchMessage = false;
+        savePath = "${config.home.homeDirectory}/Pictures/Screenshots";
+        savePathFixed = true;
+
+        # UI settings
+        drawColor = "#ff0000";
+        drawThickness = 2;
+
+        # Wayland specific (if needed)
+        useJpgForClipboard = false;
+        disabledGrimWarning = true;
+      };
+    };
+  };
+  # Override a few env vars
+  systemd.user.services.flameshot.Service.Environment = [
+    "QT_FONT_DPI=250"
+    "QT_ENABLE_HIGHDPI_SCALING=0.5"
+    "QT_AUTO_SCREEN_SCALE_FACTOR=0"
+  ];
 
   programs.swayr = {
     enable = true;
