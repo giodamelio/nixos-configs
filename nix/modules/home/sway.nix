@@ -103,6 +103,7 @@ in {
       assigns = {
         "10" = [
           {app_id = "thunderbird";}
+          {app_id = "spotify";}
         ];
       };
     };
