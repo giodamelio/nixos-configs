@@ -22,8 +22,8 @@ hardwareDescription = "Desktop machine under my desk"
 useDescription = "Main development machine"
 
 [machines.cadmium.monitor-names]
-left = "DP-3"
-middle = "DP-2"
+left = "DP-2"
+middle = "DP-3"
 right = "DP-1"
 
 [machines.manganese]
