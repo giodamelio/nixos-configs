@@ -1,3 +1,8 @@
+-- Fresh start: Close all buffers but stay open
+vim.api.nvim_create_user_command('BdeleteAll', function()
+  vim.cmd('bufdo bdelete')
+end, { desc = 'Close all buffers, but stay open' })
+
 -- Files with hidden support
 vim.api.nvim_create_user_command('FilesHidden', function()
   local snacks = require('snacks')
