@@ -9,6 +9,10 @@
   modifier = "Mod4";
   flameshotModified = pkgs.flameshot.override {enableWlrSupport = true;};
 in {
+  imports = [
+    flake.homeModules.vicinae
+  ];
+
   home.packages = with pkgs; [
     libnotify # For sending notifications
 
@@ -40,8 +44,8 @@ in {
       # Use the Windows/Apple key as our main modifier
       inherit modifier;
 
-      # Use rofi as our launcher
-      menu = "${pkgs.wofi}/bin/wofi --show=drun --allow-images";
+      # Use Vicinae as our launcher
+      menu = "vicinae";
 
       # Use Wezterm as our terminal
       terminal = "${pkgs.wezterm}/bin/wezterm";
@@ -107,6 +111,9 @@ in {
 
       # Add some keybindings
       keybindings = lib.mkOptionDefault {
+        # I have gotten too used to MacOS...
+        "${modifier}+space" = "exec vicinae";
+
         # Switch to the last focused windows
         "${modifier}+Tab" = "exec ${pkgs.swayr}/bin/swayr switch-to-urgent-or-lru-window";
 
@@ -245,6 +252,7 @@ in {
       };
     };
     extraPortals = with pkgs; [
+      xdg-desktop-portal-wlr
       xdg-desktop-portal-gtk
     ];
   };
