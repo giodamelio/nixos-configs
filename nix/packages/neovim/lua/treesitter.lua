@@ -39,3 +39,6 @@ vim.filetype.add({
     hurl = 'hurl',
   },
 })
+
+-- Add some external syntaxes
+require('tree-sitter-surrealdb').setup()

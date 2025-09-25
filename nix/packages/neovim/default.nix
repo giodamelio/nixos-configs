@@ -23,6 +23,31 @@
     meta.homepage = "https://github.com/arnamak/stay-centered.nvim";
   };
 
+  tresitterGrammerSurrealdb = pkgs.tree-sitter.buildGrammar {
+    language = "surrealdb";
+    version = "2025-09-24";
+    src = pkgs.fetchFromGitHub {
+      owner = "DariusCorvus";
+      repo = "tree-sitter-surrealdb";
+      # Latest on branch main as of 2025-09-24
+      rev = "17a7ed4481bdaaa35a1372f3a94bc851d634a19e";
+      hash = "sha256-/xX5lEQKFuLQl6YxUA2WLKGX5P2GBugtYj42WCtA0xU=";
+    };
+  };
+
+  surrealdbTreesitter = pkgs.vimUtils.buildVimPlugin {
+    pname = "tree-sitter-surrealdb.nvim";
+    version = "2025-09-24";
+    src = pkgs.fetchFromGitHub {
+      owner = "DariusCorvus";
+      repo = "tree-sitter-surrealdb.nvim";
+      # Latest on branch main as of 2025-09-24
+      rev = "a875cb4be3035a0cb525c35c4c6f1512fb9fa27d";
+      hash = "sha256-hEkIX7oCLhw+fNp7xzwZ2sCrDWWhM6nbrY7O4L2HYZE=";
+    };
+    meta.homepage = "https://github.com/DariusCorvus/tree-sitter-surrealdb.nvim";
+  };
+
   nvimConfig = pkgs.neovimUtils.makeNeovimConfig {
     withPython3 = true;
     withRuby = false;
@@ -65,9 +90,11 @@
       nvim-navic
 
       # AST for hightlighting, formatting, etc
-      nvim-treesitter.withAllGrammars
+      # All grammers plus my added one
+      (nvim-treesitter.withPlugins (_: nvim-treesitter.allGrammars ++ [tresitterGrammerSurrealdb]))
       rainbow-delimiters-nvim # Rainbow parens
       nvim-treesitter-parsers.hurl
+      surrealdbTreesitter
 
       # Status bar
       lualine-nvim
