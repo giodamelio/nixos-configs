@@ -17,7 +17,7 @@
 in
   stdenvNoCC.mkDerivation (finalAttrs: {
     pname = "claude-code";
-    version = manifestContents.version or "unstable";
+    inherit (manifestContents) version;
 
     src = fetchurl {
       url = "${gcsBucket}/${finalAttrs.version}/${platform}/claude";
