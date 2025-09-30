@@ -1,3 +1,6 @@
+-- Mini icons
+require('mini.icons').setup()
+
 -- Trouble
 local trouble = require('trouble')
 trouble.setup()

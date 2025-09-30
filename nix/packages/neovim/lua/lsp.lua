@@ -1,80 +1,84 @@
--- Helper function for cmp/LuaSnip bindings
-local has_words_before = function()
-  -- selene: allow(incorrect_standard_library_use)
-  unpack = unpack or table.unpack
-  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match('%s') == nil
-end
-
-local cmp = require('cmp')
-local luasnip = require('luasnip')
--- local lspconfig = require('lspconfig')
 local navic = require('nvim-navic')
--- local cmp_nvim_lsp = require('cmp_nvim_lsp')
+local blink = require('blink.cmp')
 
--- Setup completion
-cmp.setup({
-  snippet = {
-    expand = function(args)
-      require('luasnip').lsp_expand(args.body)
-    end,
-  },
-  mapping = cmp.mapping.preset.insert({
-    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete(),
-    ['<C-e>'] = cmp.mapping.abort(),
-    ['<CR>'] = cmp.mapping.confirm({ select = true }),
-    ['<Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif luasnip.expand_or_locally_jumpable() then
-        luasnip.expand_or_jump()
-      elseif has_words_before() then
-        cmp.complete()
-      else
-        fallback()
-      end
-    end),
-    ['<S-Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end),
-  }),
-  window = {
-    completion = cmp.config.window.bordered(),
-    documentation = cmp.config.window.bordered(),
-  },
-  sources = cmp.config.sources({
-    { name = 'path' },
-    { name = 'nvim_lsp', keyword_length = 2 },
-    { name = 'luasnip', keyword_length = 3 },
-  }, {
-    { name = 'buffer', keyword_length = 4 },
-  }),
-})
+---- Setup Completion ----
 
--- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
-cmp.setup.cmdline({ '/', '?' }, {
-  mapping = cmp.mapping.preset.cmdline(),
+-- Load some additional providers
+require('blink-cmp-git')
+
+-- Main setup
+blink.setup({
+  keymap = { preset = 'default' },
+
+  appearance = {
+    nerd_font_variant = 'mono',
+  },
+
+  completion = {
+    documentation = { auto_show = false },
+
+    -- Draw the menu with mini.icons and lspkind
+    menu = {
+      draw = {
+        columns = { { 'kind_icon', 'label', 'label_description', gap = 1 }, { 'kind' } },
+        components = {
+          kind_icon = {
+            text = function(ctx)
+              if vim.tbl_contains({ 'Path' }, ctx.source_name) then
+                local mini_icon, _ = require('mini.icons').get_icon(ctx.item.data.type, ctx.label)
+                if mini_icon then
+                  return mini_icon .. ctx.icon_gap
+                end
+              end
+
+              local icon = require('lspkind').symbolic(ctx.kind, { mode = 'symbol' })
+              return icon .. ctx.icon_gap
+            end,
+
+            -- Optionally, use the highlight groups from mini.icons
+            -- You can also add the same function for `kind.highlight` if you want to
+            -- keep the highlight groups in sync with the icons.
+            highlight = function(ctx)
+              if vim.tbl_contains({ 'Path' }, ctx.source_name) then
+                local mini_icon, mini_hl = require('mini.icons').get_icon(ctx.item.data.type, ctx.label)
+                if mini_icon then
+                  return mini_hl
+                end
+              end
+              return ctx.kind_hl
+            end,
+          },
+          kind = {
+            -- Optional, use highlights from mini.icons
+            highlight = function(ctx)
+              if vim.tbl_contains({ 'Path' }, ctx.source_name) then
+                local mini_icon, mini_hl = require('mini.icons').get_icon(ctx.item.data.type, ctx.label)
+                if mini_icon then
+                  return mini_hl
+                end
+              end
+              return ctx.kind_hl
+            end,
+          },
+        },
+      },
+    },
+  },
+
   sources = {
-    { name = 'buffer' },
+    default = { 'lsp', 'path', 'snippets', 'buffer', 'git' },
+    providers = {
+      git = {
+        module = 'blink-cmp-git',
+        name = 'Git',
+        opts = {},
+      },
+    },
   },
-})
 
--- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
-cmp.setup.cmdline(':', {
-  mapping = cmp.mapping.preset.cmdline(),
-  sources = cmp.config.sources({
-    { name = 'path' },
-  }, {
-    { name = 'cmdline' },
-  }),
+  signature = { enabled = true },
+
+  fuzzy = { implementation = 'prefer_rust_with_warning' },
 })
 
 ---- Setup Language Servers ----
@@ -84,7 +88,7 @@ vim.lsp.config('*', {
   capabilities = vim.tbl_deep_extend(
     'force',
     vim.lsp.protocol.make_client_capabilities(),
-    require('cmp_nvim_lsp').default_capabilities()
+    blink.get_lsp_capabilities({}, false)
   ),
   on_attach = function(client, bufnr)
     -- Attach Navic

@@ -36,6 +36,11 @@
         config = "colorscheme tokyonight";
       }
 
+      # Icons
+      nvim-web-devicons
+      mini-icons
+      lspkind-nvim
+
       # Interactivly show keybinds
       which-key-nvim
 
@@ -49,15 +54,11 @@
       nvim-lspconfig
 
       # Autocomplete
-      nvim-cmp
-      cmp-nvim-lsp
-      cmp-buffer
-      cmp-path
-      cmp-cmdline
+      blink-cmp
+      blink-cmp-git
 
       # Snippets
       luasnip
-      cmp_luasnip
       friendly-snippets
 
       # Code Context
@@ -71,7 +72,6 @@
       # Status bar
       lualine-nvim
       lualine-lsp-progress
-      nvim-web-devicons
 
       # Git stuff
       gitsigns-nvim # Git status in the gutter
