@@ -43,7 +43,7 @@
 
   config = lib.mkIf config.programs.claude-code.enable {
     # Install package if requested
-    home.packages = lib.optional config.programs.claude-code.installPackage pkgs.claude-ai;
+    home.packages = lib.optional config.programs.claude-code.installPackage pkgs.claude-code;
 
     # Dynamically link agents and commands using home.file
     home.file =

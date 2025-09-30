@@ -10,6 +10,7 @@
     flake.homeModules.nushell
     flake.homeModules.nix-index
     flake.homeModules.atuind
+    flake.homeModules.claude-code
   ];
 
   home = {
@@ -19,6 +20,10 @@
   };
 
   programs.home-manager.enable = true;
+  programs.claude-code = {
+    enable = true;
+    installPackage = true;
+  };
 
   # Configure nix-activate for NixOS
   gio.nix-activate-config.activation = {system = "nixos";};
