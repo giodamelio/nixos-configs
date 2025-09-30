@@ -25,6 +25,7 @@
   # Configure Claude Code
   programs.claude-code = {
     enable = true;
+    installPackage = true;
     agents = {};
     commands = {
       plan-save = ../../../modules/home/claude-code/commands/plan-save.md;
