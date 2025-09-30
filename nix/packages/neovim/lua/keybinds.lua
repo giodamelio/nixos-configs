@@ -88,6 +88,15 @@ wk.add({
   -- { '<leader>fl', snacks.picker.lazy,            desc = 'Find plugin specs' },
 })
 
+-- Get around important files easily
+wk.add({
+  { '<leader><leader><Tab>', group = 'Grapple' },
+  { '<leader><leader><Tab>m', '<cmd>Grapple toggle<cr>', desc = 'Grapple toggle tag' },
+  { '<leader><leader><Tab>M', '<cmd>Grapple toggle_tags<cr>', desc = 'Grapple open tags window' },
+  { '<leader><leader><Tab>n', '<cmd>Grapple cycle_tags next<cr>', desc = 'Grapple cycle next tag' },
+  { '<leader><leader><Tab>p', '<cmd>Grapple cycle_tags prev<cr>', desc = 'Grapple cycle previous tag' },
+})
+
 -- Diagnostics and Trouble.nvim
 wk.add({
   { '<leader>d', group = 'Diagnostics/Trouble' },
