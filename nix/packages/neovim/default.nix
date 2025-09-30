@@ -105,6 +105,7 @@
       persisted-nvim # Session manager
       mini-ai # Better a/i text objects
       firenvim # Use Neovim in the browser
+      vim-dadbod # Interact with databases
     ];
 
     customRC = "
