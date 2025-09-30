@@ -2,8 +2,11 @@
   config,
   lib,
   pkgs,
+  flake,
   ...
-}: {
+}: let
+  claudeCode = flake.packages.${pkgs.stdenv.system}.claude-code;
+in {
   options.programs.claude-code = {
     enable = lib.mkEnableOption "Claude Code configuration management";
 
@@ -43,7 +46,7 @@
 
   config = lib.mkIf config.programs.claude-code.enable {
     # Install package if requested
-    home.packages = lib.optional config.programs.claude-code.installPackage pkgs.claude-code;
+    home.packages = lib.optional config.programs.claude-code.installPackage claudeCode;
 
     # Dynamically link agents and commands using home.file
     home.file =
