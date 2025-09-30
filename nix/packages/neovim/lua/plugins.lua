@@ -98,8 +98,8 @@ require('neotest').setup({
 -- Elixir Tools
 require('elixir').setup({
   nextls = {
-    enable = true,
-    cmd = os.getenv('NEXTLS_CMD'),
+    enable = false,
+    cmd = 'nextls',
     init_options = {
       experimental = {
         completions = {
