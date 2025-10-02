@@ -113,6 +113,16 @@ vim.lsp.config('lexical', {
   cmd = { 'lexical' },
 })
 
+vim.lsp.config('rust_analyzer', {
+  settings = {
+    ['rust-analyzer'] = {
+      check = {
+        command = 'clippy',
+      },
+    },
+  },
+})
+
 vim.lsp.enable('sourcekit')
 vim.lsp.enable('nil_ls')
 vim.lsp.enable('expert', false) -- TODO: enable this when it is ready
@@ -120,6 +130,7 @@ vim.lsp.enable('nextls')
 vim.lsp.enable('lua_ls')
 vim.lsp.enable('emmet_ls')
 vim.lsp.enable('lexical')
+vim.lsp.enable('rust_analyzer')
 
 -- Autoformat before save
 vim.api.nvim_create_augroup('AutoFormatting', {})
