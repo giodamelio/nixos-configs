@@ -16,6 +16,7 @@
     flake.homeModules.nix-index
     flake.homeModules.syncthing
     flake.homeModules.atuind
+    flake.homeModules.claude-code
   ];
 
   home = {
@@ -28,6 +29,12 @@
 
   # Configure nix-activate for NixOS
   gio.nix-activate-config.activation = {system = "nixos";};
+
+  # Configure Claude Code
+  programs.claude-code = {
+    enable = true;
+    installPackage = true;
+  };
 
   # Setup fonts
   fonts = {
