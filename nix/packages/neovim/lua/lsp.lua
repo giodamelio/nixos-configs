@@ -76,6 +76,7 @@ blink.setup({
       },
       buffer = {
         score_offset = 3,
+        min_keyword_length = 3,
       },
       path = {
         score_offset = 4,
