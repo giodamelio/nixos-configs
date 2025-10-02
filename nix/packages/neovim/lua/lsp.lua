@@ -68,10 +68,25 @@ blink.setup({
   sources = {
     default = { 'lsp', 'path', 'snippets', 'buffer', 'git' },
     providers = {
+      lsp = {
+        score_offset = 1,
+      },
+      snippets = {
+        score_offset = 2,
+      },
+      buffer = {
+        score_offset = 3,
+      },
+      path = {
+        score_offset = 4,
+      },
       git = {
         module = 'blink-cmp-git',
         name = 'Git',
         opts = {},
+        -- This should ALWAYS go last
+        score_offset = -10000,
+        min_keyword_length = 4,
       },
     },
   },
