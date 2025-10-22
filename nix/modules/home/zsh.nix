@@ -67,9 +67,23 @@
           rm -f -- "$tmp"
         }
       '';
+
+      # Create a directory (possibly several deep) and cd into it
+      takeFunction = lib.mkOrder 1102 ''
+        function take() {
+          mkdir -p "$@" && cd "$@"
+        }
+      '';
+
+      # Create a temporary directory and cd into it
+      taketmpFunction = lib.mkOrder 1103 ''
+        function taketmp() {
+          cd "$(mktemp -d)"
+        }
+      '';
     in
       lib.mkMerge (
-        [vimModeKeybindingFix yaziFunction]
+        [vimModeKeybindingFix yaziFunction takeFunction taketmpFunction]
         ++ (lib.optionals pkgs.stdenv.hostPlatform.isDarwin [homebrewShellEnv loadSecrets])
       );
   };
