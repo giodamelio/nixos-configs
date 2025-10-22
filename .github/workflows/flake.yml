@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - "main"
+      - "claude/**"
 jobs:
   flake-health-checker:
     name: Check Flake Health

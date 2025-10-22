@@ -82,3 +82,27 @@ The configuration uses a modular approach:
 - Secrets stored in `secrets/` directory using age encryption
 - SSH keys defined in homelab.toml for consistent access
 - Never commit unencrypted secrets to the repository
+
+## Git Commit Guidelines
+
+### Commit Message Style
+- Keep commit messages short and concise
+- Use imperative mood ("Add feature" not "Added feature")
+- No promotional text or tool references
+- No "Co-Authored-By" lines
+
+### Author and Committer
+Always set both author and committer to the repository owner:
+```bash
+GIT_COMMITTER_NAME="Giovanni d'Amelio" \
+GIT_COMMITTER_EMAIL="gio@damelio.net" \
+git commit --author="Giovanni d'Amelio <gio@damelio.net>" -m "Commit message"
+```
+
+### Example Good Commit
+```
+Add whichbin script to lil-scripts
+
+Adds whichbin utility that follows executable symlink chains to find the
+actual binary location in the Nix store.
+```

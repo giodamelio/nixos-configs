@@ -1,6 +1,7 @@
 {flake, ...}: {
   imports = [
     flake.homeModules.required
+    flake.homeModules.lil-scripts
     flake.homeModules.modern-coreutils-replacements
     flake.homeModules.git
     flake.homeModules.neovim
