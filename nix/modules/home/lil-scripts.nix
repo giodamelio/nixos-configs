@@ -4,6 +4,9 @@
   ...
 }: {
   home.packages = [
+    # Find executables in PATH and follow symlink chains
+    flake.packages.${pkgs.stdenv.system}.whichbin
+
     # List processes listening on ports
     flake.packages.${pkgs.stdenv.system}.open-ports
 
