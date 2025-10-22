@@ -12,5 +12,8 @@
 
     # Print git repository root directory
     flake.packages.${pkgs.stdenv.system}.git-root
+
+    # Print $PATH with newlines for easier reading
+    flake.packages.${pkgs.stdenv.system}.prettypath
   ];
 }
