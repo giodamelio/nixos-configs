@@ -31,4 +31,9 @@ in {
       devenv # Easy development environment management
     ];
   };
+
+  # Password manager
+  programs._1password = {
+    enable = true;
+  };
 }
