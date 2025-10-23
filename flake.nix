@@ -6,7 +6,9 @@
       inherit inputs;
       prefix = ./nix;
       nixpkgs.config.allowUnfree = true;
-    };
+    }
+    # Add the inputs to the outputs for easy access in `nix repl`;
+    // {inherit inputs;};
 
   inputs = {
     # Nixpkgs
