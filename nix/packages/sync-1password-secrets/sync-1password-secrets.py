@@ -81,7 +81,7 @@ async def main():
             envfile = ""
             for field in item.fields:
                 if field.field_type == "Concealed":
-                    envfile += f"{field.title}={field.value}"
+                    envfile += f"{field.title}={field.value}\n"
             envfile += "\n"
 
             write_systemd_secret(item.title, envfile)
