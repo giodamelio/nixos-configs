@@ -12,6 +12,7 @@ in {
     flake.nixosModules.wifi
     flake.nixosModules.nh
     flake.nixosModules.fonts
+    flake.nixosModules._1password
 
     # Hardware stuff
     ./disko.nix

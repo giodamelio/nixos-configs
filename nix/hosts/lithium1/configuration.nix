@@ -9,6 +9,7 @@ in {
     flake.nixosModules.basic-packages
     flake.nixosModules.basic-settings
     flake.nixosModules.monitoring
+    flake.nixosModules._1password
 
     # Create server user
     ({pkgs, ...}: {
