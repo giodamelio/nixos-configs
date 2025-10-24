@@ -34,7 +34,7 @@
     };
   };
 in
-  pkgs.writers.writePython3Bin "sync-secrets.py" {
+  pkgs.writers.writePython3Bin "sync-1password-secrets" {
     libraries = with pkgs.python3.pkgs; [
       pwinput
       onepassword-sdk-python
