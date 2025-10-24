@@ -126,6 +126,57 @@ in {
       }
     )
 
+    # Run Garage as a S3 file server
+    (
+      {pkgs, ...}: {
+        services.garage = {
+          enable = true;
+          package = pkgs.garage_2;
+          settings = {
+            db_engine = "sqlite";
+            replication_factor = 1;
+
+            rpc_bind_addr = "[::]:3901";
+            rpc_public_addr = "127.0.0.1:3901";
+            rpc_secret_file = "/run/credentials/garage.service/garage_rpc_secret";
+
+            # Secret files are loaded via SystemD Creds so it is secure
+            allow_world_readable_secrets = true;
+
+            s3_api = {
+              s3_region = "garage";
+              api_bind_addr = "[::]:3900";
+              root_domain = ".s3.garage.h.gio.ninja";
+            };
+
+            s3_web = {
+              bind_addr = "[::]:3902";
+              root_domain = ".web.garage.h.gio.ninja";
+              index = "index.html";
+            };
+
+            k2v_api = {
+              api_bind_addr = "[::]:3904";
+            };
+
+            admin = {
+              api_bind_addr = "[::]:3903";
+              admin_token_file = "/run/credentials/garage.service/garage_admin_token";
+              metrics_token_file = "/run/credentials/garage.service/garage_metrics_token";
+            };
+          };
+        };
+
+        systemd.services.garage.serviceConfig = {
+          LoadCredentialEncrypted = [
+            "garage_rpc_secret:/var/lib/credstore/garage_rpc_secret"
+            "garage_admin_token:/var/lib/credstore/garage_admin_token"
+            "garage_metrics_token:/var/lib/credstore/garage_metrics_token"
+          ];
+        };
+      }
+    )
+
     # Run Headscale for easy networking
     {
       networking.firewall.allowedTCPPorts = [
