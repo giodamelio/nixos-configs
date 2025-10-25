@@ -174,6 +174,26 @@ in {
             "garage_metrics_token:/var/lib/credstore/garage_metrics_token"
           ];
         };
+
+        services.caddy = {
+          virtualHosts."https://s3.garage.h.gio.ninja" = {
+            serverAliases = [
+              "s3.garage.h.gio.ninja"
+              "*.s3.garage.h.gio.ninja"
+            ];
+            extraConfig = ''
+              bind tailscale/garage
+              tls {
+                dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
+                resolvers 1.1.1.1
+              }
+              reverse_proxy localhost:3900 {
+                health_uri /health
+                health_port 3903
+              }
+            '';
+          };
+        };
       }
     )
 
