@@ -10,6 +10,7 @@ in {
     flake.nixosModules.basic-settings
     flake.nixosModules.monitoring
     flake.nixosModules.onepassword
+    flake.nixosModules.lil-scripts
 
     # Create server user
     (

@@ -3,7 +3,7 @@
   flake,
   ...
 }: {
-  home.packages = [
+  environment.systemPackages = [
     # Find executables in PATH and follow symlink chains
     flake.packages.${pkgs.stdenv.system}.whichbin
 
