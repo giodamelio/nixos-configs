@@ -30,6 +30,68 @@ in {
       }
     )
 
+    # Setup CoreDNS server with fixed list of records
+    (
+      {
+        pkgs,
+        lib,
+        ...
+      }: let
+        records = {
+          "66.42.72.162" = [
+            "headscale"
+            "lithium1"
+            "login"
+          ];
+          "100.64.0.3" = [
+            "gatus"
+            "garage"
+            "s3.garage"
+            "*.s3.garage"
+          ];
+        };
+        zoneFile = pkgs.writeText "gio.ninja.zone" ''
+          $ORIGIN gio.ninja.
+          @ IN SOA @ @ 1 1h 15m 30d 2h
+            IN NS @
+
+          ${lib.pipe records [
+            (builtins.mapAttrs (ip: hosts: builtins.map (host: "${host} IN A ${ip}") hosts))
+            builtins.attrValues
+            builtins.concatLists
+            (builtins.concatStringsSep "\n")
+          ]}
+        '';
+      in {
+        services.coredns = {
+          enable = true;
+          config = ''
+            gio.ninja:53 {
+                file ${zoneFile}
+                errors
+                cache
+            }
+
+            .:53 {
+                forward . 1.1.1.1 1.0.0.1
+                errors
+                cache
+            }
+          '';
+        };
+
+        # Open the firewall
+        networking.firewall = {
+          allowedTCPPorts = [
+            53
+          ];
+          allowedUDPPorts = [
+            53
+          ];
+        };
+      }
+    )
+
     # Setup Pocket ID
     (
       {pkgs, ...}: {
@@ -56,11 +118,9 @@ in {
         # Setup Caddy as a reverse proxy
         systemd.services.caddy.serviceConfig = {
           LoadCredentialEncrypted = [
-            "caddy-tailscale-preauth-key:/var/lib/credstore/caddy-tailscale-preauth-key"
             "caddy-cloudflare-api-token:/var/lib/credstore/caddy-cloudflare-api-token"
           ];
           Environment = [
-            "TAILSCALE_PREAUTH_KEY_FILE=%d/caddy-tailscale-preauth-key"
             "CLOUDFLARE_API_TOKEN_FILE=%d/caddy-cloudflare-api-token"
           ];
         };
@@ -74,20 +134,14 @@ in {
           package = pkgs.caddy.withPlugins {
             plugins = [
               "github.com/caddy-dns/cloudflare@v0.2.1"
-              "github.com/tailscale/caddy-tailscale@v0.0.0-20250508175905-642f61fea3cc"
             ];
             # hash = "sha256-3nhBsVLFrGqG7JQpVDHtjyfphw2mTcpS3o0gGjydyHc=";
-            hash = "sha256-eOEzNLk17TZZh0H/DRgxLM2nnEZWmtod9tfmlTU/Gls=";
+            # hash = "sha256-eOEzNLk17TZZh0H/DRgxLM2nnEZWmtod9tfmlTU/Gls=";
+            hash = "sha256-iRzpN9awuEFsc7hqKzOMNiCFFEv833xhd4LM+VFQedI=";
           };
 
           globalConfig = ''
             email admin@gio.ninja
-
-            tailscale {
-              auth_key {file.{$TAILSCALE_PREAUTH_KEY_FILE}}
-              control_url http://localhost:8080
-              ephemral false
-            }
           '';
 
           virtualHosts."https://login.gio.ninja" = {
@@ -102,20 +156,8 @@ in {
             '';
           };
 
-          virtualHosts."https://testing123.h.gio.ninja" = {
+          virtualHosts."https://gatus.gio.ninja" = {
             extraConfig = ''
-              bind tailscale/testing123
-              tls {
-                dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
-                resolvers 1.1.1.1
-              }
-              respond OK
-            '';
-          };
-
-          virtualHosts."https://gatus.h.gio.ninja" = {
-            extraConfig = ''
-              bind tailscale/gatus
               tls {
                 dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
                 resolvers 1.1.1.1
@@ -177,13 +219,12 @@ in {
         };
 
         services.caddy = {
-          virtualHosts."https://s3.garage.h.gio.ninja" = {
+          virtualHosts."https://s3.garage.gio.ninja" = {
             serverAliases = [
-              "s3.garage.h.gio.ninja"
-              "*.s3.garage.h.gio.ninja"
+              "s3.garage.gio.ninja"
+              "*.s3.garage.gio.ninja"
             ];
             extraConfig = ''
-              bind tailscale/garage
               tls {
                 dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
                 resolvers 1.1.1.1
@@ -218,10 +259,15 @@ in {
           dns = {
             magic_dns = true;
             base_domain = "h.gio.ninja";
-            nameservers.global = [
-              "8.8.8.8"
-              "8.8.4.4"
-            ];
+            nameservers = {
+              global = [
+                "1.1.1.1"
+                "1.0.0.1"
+              ];
+              split."gio.ninja" = [
+                "100.64.0.3"
+              ];
+            };
           };
 
           oidc = {
