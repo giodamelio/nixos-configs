@@ -83,6 +83,11 @@ The configuration uses a modular approach:
 - SSH keys defined in homelab.toml for consistent access
 - Never commit unencrypted secrets to the repository
 
+### Nix Code Style
+- Use `lib.pipe` for data transformations to improve readability
+- Prefer `lib.pipe` over deeply nested function calls when processing data through multiple steps
+- Example: `lib.pipe data [step1 step2 step3]` instead of `step3 (step2 (step1 data))`
+
 ## Git Commit Guidelines
 
 ### Commit Message Style
