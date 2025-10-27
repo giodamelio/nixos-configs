@@ -131,6 +131,19 @@ in {
                 }
               ];
             }
+            {
+              job_name = "pocket-id";
+              static_configs = [
+                {
+                  targets = [
+                    "lithium1.h.gio.ninja:9464"
+                  ];
+                  labels = {
+                    host = "lithium1";
+                  };
+                }
+              ];
+            }
           ];
         };
 
@@ -166,8 +179,15 @@ in {
             # ENCRYPTION_KEY_FILE = "\${CREDENTIALS_DIRECTORY}/pocket-id-encryption-key";
             ENCRYPTION_KEY_FILE = "/run/credentials/pocket-id.service/pocket-id-encryption-key";
             ANALYTICS_DISABLED = true;
+
+            METRICS_ENABLED = true;
+            OTEL_METRICS_EXPORTER = "prometheus";
+            OTEL_EXPORTER_PROMETHEUS_HOST = "0.0.0.0";
+            OTEL_EXPORTER_PROMETHEUS_PORT = 9464;
           };
         };
+
+        networking.firewall.interfaces."tailscale0".allowedTCPPorts = [9464];
 
         # Load the encrypted encryption key
         systemd.services.pocket-id.serviceConfig = {
