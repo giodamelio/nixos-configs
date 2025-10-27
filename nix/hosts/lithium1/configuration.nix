@@ -48,6 +48,9 @@ in {
             "garage"
             "s3.garage"
             "*.s3.garage"
+            "web.garage"
+            "*.web.garage"
+            "parseable"
           ];
         };
         zoneFile = pkgs.writeText "gio.ninja.zone" ''
@@ -92,6 +95,73 @@ in {
       }
     )
 
+    # Parseable observability platform
+    (
+      {pkgs, ...}: let
+        parseableConfig = pkgs.writeText "parseable-config.env" ''
+          P_S3_URL=https://s3.garage.gio.ninja
+          P_S3_REGION=garage
+          P_S3_BUCKET=parseable
+          RUST_LOG="info"
+        '';
+        parseableWrapper = pkgs.writeShellApplication {
+          name = "parseable-wrapper";
+          runtimeInputs = [
+            parseableConfig
+            pkgs.parseable
+          ];
+          excludeShellChecks = ["SC1091"];
+          text = ''
+            # Temporarly export all sourced variables,
+            # even though they don't have `export` in front of them
+            set -o allexport
+
+            # Hard coded configs
+            source ${parseableConfig}
+
+            # Secrets from SystemD Creds
+            source "''$CREDENTIALS_DIRECTORY/parseable-envfile"
+
+            set +o allexport
+
+            # Main executable
+            parseable s3-store
+          '';
+        };
+      in {
+        systemd.services.parseable = {
+          description = "Parseable observability";
+          after = ["network-online.target"];
+          wants = ["network-online.target"];
+          wantedBy = ["multi-user.target"];
+
+          serviceConfig = {
+            Type = "simple";
+            DynamicUser = true;
+            StateDirectory = "parseable";
+            WorkingDirectory = "/var/lib/parseable";
+
+            # Load secrets from systemd credential
+            LoadCredentialEncrypted = "parseable-envfile:/var/lib/credstore/parseable-envfile";
+
+            ExecStart = pkgs.lib.getExe parseableWrapper;
+            Restart = "always";
+          };
+        };
+
+        services.caddy = {
+          virtualHosts."https://parseable.gio.ninja" = {
+            extraConfig = ''
+              tls {
+                dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
+                resolvers 1.1.1.1
+              }
+              reverse_proxy localhost:8000
+            '';
+          };
+        };
+      }
+    )
     # Setup Pocket ID
     (
       {pkgs, ...}: {
