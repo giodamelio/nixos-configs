@@ -52,6 +52,9 @@ in {
             "*.web.garage"
             "parseable"
           ];
+          "10.0.0.188" = [
+            "jetkvm"
+          ];
         };
         zoneFile = pkgs.writeText "gio.ninja.zone" ''
           $ORIGIN gio.ninja.
@@ -162,6 +165,7 @@ in {
         };
       }
     )
+
     # Setup Pocket ID
     (
       {pkgs, ...}: {
@@ -259,12 +263,12 @@ in {
             s3_api = {
               s3_region = "garage";
               api_bind_addr = "[::]:3900";
-              root_domain = ".s3.garage.h.gio.ninja";
+              root_domain = ".s3.garage.gio.ninja";
             };
 
             s3_web = {
               bind_addr = "[::]:3902";
-              root_domain = ".web.garage.h.gio.ninja";
+              root_domain = ".web.garage.gio.ninja";
               index = "index.html";
             };
 
