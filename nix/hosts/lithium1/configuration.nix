@@ -118,6 +118,19 @@ in {
                 }
               ];
             }
+            {
+              job_name = "gatus";
+              static_configs = [
+                {
+                  targets = [
+                    "lithium1.h.gio.ninja:4444"
+                  ];
+                  labels = {
+                    host = "lithium1";
+                  };
+                }
+              ];
+            }
           ];
         };
 
@@ -653,6 +666,8 @@ in {
           AmbientCapabilities = "CAP_NET_RAW";
         };
       };
+
+      networking.firewall.interfaces."tailscale0".allowedTCPPorts = [4444];
     }
   ];
 
