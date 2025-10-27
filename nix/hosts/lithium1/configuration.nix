@@ -51,6 +51,7 @@ in {
             "web.garage"
             "*.web.garage"
             "parseable"
+            "prometheus"
           ];
           "10.0.0.188" = [
             "jetkvm"
@@ -206,6 +207,46 @@ in {
         # Load the auth secrets for Vector
         systemd.services.vector.serviceConfig = {
           LoadCredentialEncrypted = "vector-parseable-creds.json:/var/lib/credstore/vector-parseable-creds.json";
+        };
+      }
+    )
+
+    # Setup Prometheus for metrics
+    (
+      _: {
+        services.prometheus = {
+          enable = true;
+
+          scrapeConfigs = [
+            {
+              job_name = "telegraf";
+              static_configs = [
+                {
+                  targets = [
+                    "lithium1.h.gio.ninja:9273"
+                  ];
+                  labels = {
+                    host = "lithium1";
+                  };
+                }
+              ];
+            }
+          ];
+        };
+
+        services.caddy = {
+          virtualHosts."https://prometheus.gio.ninja" = {
+            extraConfig = ''
+              # Only listen to traffic coming from Tailscale
+              bind 100.64.0.3
+
+              tls {
+                dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
+                resolvers 1.1.1.1
+              }
+              reverse_proxy localhost:9090
+            '';
+          };
         };
       }
     )
@@ -508,30 +549,25 @@ in {
               ];
 
               # Monitor PostgreSQL
-              postgresql = {
-                address = "host=/run/postgresql dbname=telegraf";
-              };
+              # TODO: fix this
+              # postgresql = {
+              #   address = "host=/run/postgresql dbname=telegraf";
+              # };
 
               # Monitor Wireguard
               wireguard = {};
             };
 
             outputs = {
-              postgresql = {
-                connection = "host=/run/postgresql dbname=telegraf";
-
-                # Templated statements to execute when creating a new table.
-                # Setup this way for TimescaleDB
-                tags_as_foreign_keys = true;
-                create_templates = [
-                  "CREATE TABLE {{ .table }} ({{ .columns }})"
-                  "SELECT create_hypertable({{ .table|quoteLiteral }}, 'time', chunk_time_interval => INTERVAL '7d')"
-                  "ALTER TABLE {{ .table }} SET (timescaledb.compress, timescaledb.compress_segmentby = 'tag_id')"
-                ];
+              prometheus_client = {
+                listen = ":9273";
+                metric_version = 2;
               };
             };
           };
         };
+
+        networking.firewall.interfaces."tailscale0".allowedTCPPorts = [9273];
       }
     )
 
