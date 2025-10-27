@@ -119,15 +119,22 @@ in {
               ];
             }
             {
+              job_name = "cloudprober";
+              static_configs = [
+                {
+                  targets = [
+                    "lithium1.h.gio.ninja:9313"
+                  ];
+                }
+              ];
+            }
+            {
               job_name = "gatus";
               static_configs = [
                 {
                   targets = [
                     "lithium1.h.gio.ninja:4444"
                   ];
-                  labels = {
-                    host = "lithium1";
-                  };
                 }
               ];
             }
@@ -138,9 +145,6 @@ in {
                   targets = [
                     "lithium1.h.gio.ninja:9464"
                   ];
-                  labels = {
-                    host = "lithium1";
-                  };
                 }
               ];
             }
@@ -600,18 +604,6 @@ in {
                 metrics_url = "/metrics";
               };
             }
-            {
-              type = "POSTGRES";
-              postgres_surfacer = {
-                connection_string = "host=/run/postgresql dbname=cloudprober";
-                # Schema for table:
-                # CREATE TABLE metrics (
-                #   time timestamp, metric_name varchar(80), value float8, labels jsonb
-                # )
-                # ALTER TABLE metrics OWNER TO cloudprober;
-                metrics_table_name = "metrics";
-              };
-            }
           ];
         };
         jsonFormat = pkgs.formats.json {};
@@ -642,6 +634,8 @@ in {
             ];
           };
         };
+
+        networking.firewall.interfaces."tailscale0".allowedTCPPorts = [9313];
       }
     )
 
