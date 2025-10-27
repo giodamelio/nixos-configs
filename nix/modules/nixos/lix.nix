@@ -25,7 +25,10 @@ in {
     nix = {
       package = pkgs.lixPackageSets.stable.lix;
       settings = {
-        extra-experimental-features = ["pipe-operator" "fetch-closure" "repl-flake"];
+        extra-experimental-features = [
+          "pipe-operator"
+          "fetch-closure"
+        ];
 
         # Add some helpers to `nix repl` via `repl-overlays`
         # https://docs.lix.systems/manual/lix/stable/command-ref/conf-file.html#conf-repl-overlays
@@ -40,8 +43,7 @@ in {
   # Override apply function to allow removing existing features
   options.nix.settings = {
     extra-experimental-features = lib.mkOption {
-      apply = featList:
-        lib.filter (feat: !builtins.elem feat experimentalFeaturesToRemove) featList;
+      apply = featList: lib.filter (feat: !builtins.elem feat experimentalFeaturesToRemove) featList;
     };
   };
 }
