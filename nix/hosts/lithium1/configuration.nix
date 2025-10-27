@@ -386,7 +386,7 @@ in {
       };
     }
 
-    # Setup PostgreSQL with TimescaleDB for metrics collection
+    # Setup PostgreSQL
     (
       {pkgs, ...}: {
         environment.systemPackages = [
@@ -395,37 +395,13 @@ in {
 
         services.postgresql = {
           enable = true;
-          extensions = with pkgs.postgresql16Packages; [
-            timescaledb
-            timescaledb_toolkit
-          ];
-          settings.shared_preload_libraries = ["timescaledb"];
-          ensureDatabases = [
-            "telegraf"
-            "cloudprober"
-          ];
+          ensureDatabases = [];
           ensureUsers = [
             {
               name = "server";
               ensureClauses = {
                 login = true;
                 superuser = true;
-              };
-            }
-            {
-              name = "telegraf";
-              ensureDBOwnership = true;
-              ensureClauses = {
-                login = true;
-                createdb = true;
-              };
-            }
-            {
-              name = "cloudprober";
-              ensureDBOwnership = true;
-              ensureClauses = {
-                login = true;
-                createdb = true;
               };
             }
           ];
