@@ -163,6 +163,50 @@ in {
             '';
           };
         };
+
+        # Send JournalD logs to Parseable
+        services.vector = {
+          enable = true;
+          journaldAccess = true;
+          settings = {
+            # Collect logs from JournalD
+            sources.journald = {
+              type = "journald";
+            };
+
+            # Send logs to Parseable
+            sinks.parseable = {
+              inputs = ["journald"];
+              type = "http";
+              method = "post";
+              compression = "gzip";
+              encoding = {codec = "json";};
+              uri = "https://parseable.gio.ninja/api/v1/ingest";
+
+              # Set the stream
+              request.headers = {
+                X-P-Stream = "journald";
+              };
+
+              auth = {
+                strategy = "basic";
+                user = "journald_ingest";
+                password = "SECRET[systemd_creds.password]";
+              };
+            };
+
+            # Load our secrets
+            secret.systemd_creds = {
+              type = "file";
+              path = "/run/credentials/vector.service/vector-parseable-creds.json";
+            };
+          };
+        };
+
+        # Load the auth secrets for Vector
+        systemd.services.vector.serviceConfig = {
+          LoadCredentialEncrypted = "vector-parseable-creds.json:/var/lib/credstore/vector-parseable-creds.json";
+        };
       }
     )
 
