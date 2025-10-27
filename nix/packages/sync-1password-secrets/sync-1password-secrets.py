@@ -2,6 +2,7 @@ import os
 import asyncio
 import subprocess
 import platform
+import json
 
 import pwinput
 from onepassword.client import Client
@@ -77,14 +78,23 @@ async def main():
             field = next(filter(is_password_field, item.fields), None)
             write_systemd_secret(item.title, field.value)
         elif item.category == "SecureNote":
-            # Build the env from all the fields
-            envfile = ""
-            for field in item.fields:
-                if field.field_type == "Concealed":
-                    envfile += f"{field.title}={field.value}\n"
-            envfile += "\n"
+            file = ""
 
-            write_systemd_secret(item.title, envfile)
+            if "json" in item.tags:
+                # Build a json file from the fields
+                fields = {}
+                for field in item.fields:
+                    if field.field_type == "Concealed":
+                        fields[field.title] = field.value
+                file = json.dumps(fields)
+            else:
+                # Build an envfile from the fields
+                for field in item.fields:
+                    if field.field_type == "Concealed":
+                        file += f"{field.title}={field.value}\n"
+                file += "\n"
+
+            write_systemd_secret(item.title, file)
 
         print()
 
