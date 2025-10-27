@@ -51,6 +51,7 @@ in {
             "web.garage"
             "*.web.garage"
             "prometheus"
+            "loki"
           ];
           "10.0.0.188" = [
             "jetkvm"
@@ -148,6 +149,16 @@ in {
                 }
               ];
             }
+            {
+              job_name = "loki";
+              static_configs = [
+                {
+                  targets = [
+                    "lithium1.h.gio.ninja:3100"
+                  ];
+                }
+              ];
+            }
           ];
         };
 
@@ -165,6 +176,76 @@ in {
             '';
           };
         };
+      }
+    )
+
+    # Setup Loki for logs
+    (
+      _: {
+        services.loki = {
+          enable = true;
+          configuration = {
+            auth_enabled = false;
+
+            server = {
+              http_listen_port = 3100;
+              grpc_listen_port = 9096;
+            };
+
+            common = {
+              path_prefix = "/var/lib/loki";
+              instance_addr = "127.0.0.1";
+              storage = {
+                filesystem = {
+                  chunks_directory = "/var/lib/loki/chunks";
+                  rules_directory = "/var/lib/loki/rules";
+                };
+              };
+              replication_factor = 1;
+              ring = {
+                kvstore = {
+                  store = "inmemory";
+                };
+              };
+            };
+
+            schema_config = {
+              configs = [
+                {
+                  from = "2025-10-27";
+                  store = "tsdb";
+                  object_store = "filesystem";
+                  schema = "v13";
+                  index = {
+                    prefix = "index_";
+                    period = "24h";
+                  };
+                }
+              ];
+            };
+
+            analytics = {
+              reporting_enabled = false;
+            };
+          };
+        };
+
+        services.caddy = {
+          virtualHosts."https://loki.gio.ninja" = {
+            extraConfig = ''
+              # Only listen to traffic coming from Tailscale
+              bind 100.64.0.3
+
+              tls {
+                dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
+                resolvers 1.1.1.1
+              }
+              reverse_proxy localhost:3100
+            '';
+          };
+        };
+
+        networking.firewall.interfaces."tailscale0".allowedTCPPorts = [3100];
       }
     )
 
