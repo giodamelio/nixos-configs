@@ -28,7 +28,9 @@
   programs.home-manager.enable = true;
 
   # Configure nix-activate-config for Darwin
-  gio.nix-activate-config.activation = {system = "darwin";};
+  gio.nix-activate-config.activation = {
+    system = "darwin";
+  };
 
   # Override my default email for commits
   programs.git.userEmail = pkgs.lib.mkForce "gio.damelio@logixboard.com";
@@ -42,7 +44,7 @@
   ];
 
   # Configure Claude Code
-  programs.claude-code = {
+  programs.gio-claude-code = {
     enable = true;
     agents = {
       postgres-db-expert = ../../../modules/home/claude-code/agents/postgres-db-expert.md;

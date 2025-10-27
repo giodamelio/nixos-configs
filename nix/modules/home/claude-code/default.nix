@@ -7,7 +7,7 @@
 }: let
   claudeCode = flake.packages.${pkgs.stdenv.system}.claude-code;
 in {
-  options.programs.claude-code = {
+  options.programs.gio-claude-code = {
     enable = lib.mkEnableOption "Claude Code configuration management";
 
     installPackage = lib.mkOption {
@@ -44,33 +44,40 @@ in {
     };
   };
 
-  config = lib.mkIf config.programs.claude-code.enable {
+  config = lib.mkIf config.programs.gio-claude-code.enable {
     # Install package if requested
-    home.packages = lib.optional config.programs.claude-code.installPackage claudeCode;
+    home.packages = lib.optional config.programs.gio-claude-code.installPackage claudeCode;
 
     # Dynamically link agents and commands using home.file
     home.file =
       # Link agents
       lib.mapAttrs' (
-        name: path:
-          lib.nameValuePair ".claude/agents/${name}.md" {source = path;}
+        name: path: lib.nameValuePair ".claude/agents/${name}.md" {source = path;}
       )
       config.programs.claude-code.agents
       //
       # Link commands (handle both simple paths and attrsets with markdown/script)
-      lib.concatMapAttrs (name: value:
-        if lib.isPath value
-        then {".claude/commands/${name}.md" = {source = value;};}
-        else
-          lib.optionalAttrs (value ? markdown) {
-            ".claude/commands/${name}.md" = {source = value.markdown;};
-          }
-          // lib.optionalAttrs (value ? script) {
-            ".claude/commands/${name}.sh" = {
-              source = value.script;
-              executable = true;
+      lib.concatMapAttrs (
+        name: value:
+          if lib.isPath value
+          then {
+            ".claude/commands/${name}.md" = {
+              source = value;
             };
-          })
-      config.programs.claude-code.commands;
+          }
+          else
+            lib.optionalAttrs (value ? markdown) {
+              ".claude/commands/${name}.md" = {
+                source = value.markdown;
+              };
+            }
+            // lib.optionalAttrs (value ? script) {
+              ".claude/commands/${name}.sh" = {
+                source = value.script;
+                executable = true;
+              };
+            }
+      )
+      config.programs.gio-claude-code.commands;
   };
 }

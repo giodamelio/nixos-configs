@@ -24,7 +24,7 @@
   programs.home-manager.enable = true;
 
   # Configure Claude Code
-  programs.claude-code = {
+  programs.gio-claude-code = {
     enable = true;
     installPackage = true;
     agents = {};
@@ -39,5 +39,7 @@
   };
 
   # Configure nix-activate for NixOS-WSL
-  gio.nix-activate-config.activation = {system = "nixos";};
+  gio.nix-activate-config.activation = {
+    system = "nixos";
+  };
 }
