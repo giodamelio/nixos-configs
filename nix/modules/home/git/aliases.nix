@@ -1,5 +1,5 @@
 _: {
-  programs.git.aliases = {
+  programs.git.settings.alias = {
     ci = "commit";
     st = "status";
     br = "branch";

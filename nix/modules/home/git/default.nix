@@ -6,11 +6,15 @@
   programs.git = {
     enable = true;
 
-    userName = "Giovanni d'Amelio";
-    userEmail = "gio@damelio.net";
+    settings = {
+      user = {
+        name = "Giovanni d'Amelio";
+        email = "gio@damelio.net";
+      };
 
-    # Use Difftastic for language aware diffing powered by Treesitter
-    difftastic.enable = true;
+      # New branch name for default inits
+      init.defaultBranch = "main";
+    };
 
     # Setup Git Large File Storage
     lfs.enable = true;
@@ -25,11 +29,12 @@
     includes = [
       {path = "~/.gitconfig.extra";}
     ];
+  };
 
-    extraConfig = {
-      # New branch name for default inits
-      init.defaultBranch = "main";
-    };
+  # Language aware diffing powered by Treesitter
+  programs.difftastic = {
+    enable = true;
+    git.enable = true;
   };
 
   # Install Git Absorb for easy automatic fixups
