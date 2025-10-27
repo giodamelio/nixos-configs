@@ -249,6 +249,34 @@ in {
       }
     )
 
+    # Send Logs to Loki with Vector
+    (
+      _: {
+        # Send JournalD logs to Parseable
+        services.vector = {
+          enable = true;
+          journaldAccess = true;
+          settings = {
+            # Collect logs from JournalD
+            sources.journald = {
+              type = "journald";
+            };
+
+            # Send logs to Loki
+            sinks.loki = {
+              type = "loki";
+              inputs = ["journald"];
+              endpoint = "https://loki.gio.ninja";
+              encoding.codec = "json";
+              labels = {
+                hostname = "lithium1";
+              };
+            };
+          };
+        };
+      }
+    )
+
     # Setup Pocket ID
     (
       {pkgs, ...}: {
