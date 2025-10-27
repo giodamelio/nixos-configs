@@ -139,6 +139,16 @@ vim.lsp.config('rust_analyzer', {
   },
 })
 
+vim.lsp.config('nil_ls', {
+  settings = {
+    ['nil'] = {
+      formatting = {
+        command = { 'alejandra' },
+      },
+    },
+  },
+})
+
 vim.lsp.enable('sourcekit')
 vim.lsp.enable('nil_ls')
 vim.lsp.enable('expert', false) -- TODO: enable this when it is ready
