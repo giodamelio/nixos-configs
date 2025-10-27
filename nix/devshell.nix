@@ -32,6 +32,7 @@ in
         claude-code
         pkgs.lua-language-server
         pkgs.nh
+        pkgs.minio-client
       ]
       ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin []
       # Treefmt
