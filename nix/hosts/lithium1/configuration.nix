@@ -52,6 +52,7 @@ in {
             "*.web.garage"
             "prometheus"
             "loki"
+            "grafana"
           ];
           "10.0.0.188" = [
             "jetkvm"
@@ -128,6 +129,15 @@ in {
                   ];
                 }
               ];
+              metric_relabel_configs = [
+                {
+                  source_labels = ["__name__"];
+                  regex = "(.*)";
+                  target_label = "__name__";
+                  replacement = "cloudprober_$1";
+                  action = "replace";
+                }
+              ];
             }
             {
               job_name = "gatus";
@@ -159,8 +169,28 @@ in {
                 }
               ];
             }
+            {
+              job_name = "node";
+              static_configs = [
+                {
+                  targets = [
+                    "lithium1.h.gio.ninja:9000"
+                  ];
+                  labels = {
+                    host = "lithium1";
+                  };
+                }
+              ];
+            }
           ];
+
+          exporters.node = {
+            enable = true;
+            port = 9000;
+          };
         };
+
+        networking.firewall.interfaces."tailscale0".allowedTCPPorts = [9000];
 
         services.caddy = {
           virtualHosts."https://prometheus.gio.ninja" = {
@@ -277,6 +307,52 @@ in {
       }
     )
 
+    # Setup Grafana to view metrics and logs
+    (
+      _: {
+        services.grafana = {
+          enable = true;
+          settings = {
+            server = {
+              http_addr = "127.0.0.1";
+              http_port = 3000;
+              domain = "grafana.gio.ninja";
+              enforce_domain = true;
+            };
+            analytics.reporting_enabled = false;
+          };
+
+          provision = {
+            enable = true;
+            datasources.settings.datasources = [
+              {
+                name = "Prometheus";
+                type = "prometheus";
+                url = "http://prometheus.gio.ninja";
+                isDefault = true;
+                editable = false;
+              }
+            ];
+          };
+        };
+
+        services.caddy = {
+          virtualHosts."https://grafana.gio.ninja" = {
+            extraConfig = ''
+              # Only listen to traffic coming from Tailscale
+              bind 100.64.0.3
+
+              tls {
+                dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
+                resolvers 1.1.1.1
+              }
+              reverse_proxy localhost:3000
+            '';
+          };
+        };
+      }
+    )
+
     # Setup Pocket ID
     (
       {pkgs, ...}: {
@@ -345,16 +421,6 @@ in {
           virtualHosts."https://headscale.gio.ninja" = {
             extraConfig = ''
               reverse_proxy localhost:8080
-            '';
-          };
-
-          virtualHosts."https://gatus.gio.ninja" = {
-            extraConfig = ''
-              tls {
-                dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
-                resolvers 1.1.1.1
-              }
-              reverse_proxy localhost:4444
             '';
           };
         };
@@ -763,6 +829,21 @@ in {
         serviceConfig = {
           CapabilityBoundingSet = "CAP_NET_RAW";
           AmbientCapabilities = "CAP_NET_RAW";
+        };
+      };
+
+      services.caddy = {
+        virtualHosts."https://gatus.gio.ninja" = {
+          extraConfig = ''
+            # Only listen to traffic coming from Tailscale
+            bind 100.64.0.3
+
+            tls {
+              dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
+              resolvers 1.1.1.1
+            }
+            reverse_proxy localhost:4444
+          '';
         };
       };
 
