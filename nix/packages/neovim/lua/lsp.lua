@@ -1,5 +1,6 @@
 local navic = require('nvim-navic')
 local blink = require('blink.cmp')
+local mini_icons = require('mini.icons')
 
 ---- Setup Completion ----
 
@@ -25,7 +26,7 @@ blink.setup({
           kind_icon = {
             text = function(ctx)
               if vim.tbl_contains({ 'Path' }, ctx.source_name) then
-                local mini_icon, _ = require('mini.icons').get_icon(ctx.item.data.type, ctx.label)
+                local mini_icon, _ = mini_icons.get(ctx.item.data.type, ctx.label)
                 if mini_icon then
                   return mini_icon .. ctx.icon_gap
                 end
@@ -40,7 +41,7 @@ blink.setup({
             -- keep the highlight groups in sync with the icons.
             highlight = function(ctx)
               if vim.tbl_contains({ 'Path' }, ctx.source_name) then
-                local mini_icon, mini_hl = require('mini.icons').get_icon(ctx.item.data.type, ctx.label)
+                local mini_icon, mini_hl = mini_icons.get(ctx.item.data.type, ctx.label)
                 if mini_icon then
                   return mini_hl
                 end
@@ -52,7 +53,7 @@ blink.setup({
             -- Optional, use highlights from mini.icons
             highlight = function(ctx)
               if vim.tbl_contains({ 'Path' }, ctx.source_name) then
-                local mini_icon, mini_hl = require('mini.icons').get_icon(ctx.item.data.type, ctx.label)
+                local mini_icon, mini_hl = mini_icons.get(ctx.item.data.type, ctx.label)
                 if mini_icon then
                   return mini_hl
                 end
