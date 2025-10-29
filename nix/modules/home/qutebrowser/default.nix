@@ -1,4 +1,6 @@
-{pkgs, ...}: {
+{pkgs, ...}: let
+  inherit (pkgs) lib;
+in {
   programs.qutebrowser = {
     enable = true;
 
@@ -14,14 +16,16 @@
       };
       tabs = {
         # padding = mkPadding 1 5 5 1;
-        position = "right";
+        position = "left";
         show = "always";
-
-        tree_tabs = true;
       };
 
       # Edit text with Neovim inside Wezterm
       editor.command = ["wezterm" "start" "--always-new-process" "--" "nvim" "-c" "normal {line}G{column0}l" "{file}"];
+    };
+
+    aliases = {
+      "1password" = "spawn --userscript 1password";
     };
 
     searchEngines = {
@@ -31,19 +35,10 @@
       nix-home-manager = "https://home-manager-options.extranix.com/?query={}&release=master";
       nix-options = "https://search.nixos.org/options?channel=unstable&type=packages&query={}";
       nix-packages = "https://search.nixos.org/packages?channel=unstable&type=packages&query={}";
+      noogle = "https://noogle.dev/q?term={}";
     };
 
     quickmarks = {
-      # Back9 Repos
-      "github back9 infrastructure" = "https://github.com/back9ins/infrastructure";
-      "github back9 boss" = "https://github.com/back9ins/boss";
-      "github back9 fairway" = "https://github.com/back9ins/fairway";
-      "github back9 conv" = "https://github.com/back9ins/conv";
-      "github back9 compulife" = "https://github.com/back9ins/compulife";
-      "github back9 actions" = "https://github.com/back9ins/actions";
-      "github back9 av" = "https://github.com/back9ins/av";
-      "github back9 quote and apply" = "https://github.com/back9ins/quote-and-apply";
-
       # AWS Console Pages
       "aws ecs" = "https://us-east-1.console.aws.amazon.com/ecs/v2/clusters?region=us-east-1";
       "aws ecr registry" = "https://us-east-1.console.aws.amazon.com/ecr/private-registry/repositories?region=us-east-1";
@@ -52,6 +47,14 @@
       "aws secrets manager" = "https://us-east-1.console.aws.amazon.com/secretsmanager/listsecrets?region=us-east-1";
     };
   };
+
+  # Setup some userscripts
+  xdg.configFile."qutebrowser/userscripts/1password".source = lib.getExe (pkgs.writeShellApplication {
+    name = "qutebrowser-1password";
+    runtimeInputs = with pkgs; [python3 jq];
+    excludeShellChecks = ["SC2129"];
+    text = ./1password.sh;
+  });
 
   # Install some dependencies for userscripts
   home.packages = with pkgs; [
