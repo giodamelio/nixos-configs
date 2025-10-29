@@ -33,6 +33,7 @@ in
         pkgs.lua-language-server
         pkgs.nh
         pkgs.minio-client
+        pkgs.jq
       ]
       ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin []
       # Treefmt
