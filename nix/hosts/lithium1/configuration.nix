@@ -297,9 +297,16 @@ in {
               type = "loki";
               inputs = ["journald"];
               endpoint = "https://loki.gio.ninja";
-              encoding.codec = "json";
+              encoding.codec = "text";
               labels = {
                 hostname = "lithium1";
+                job = "journald";
+                priority = "{{ PRIORITY }}";
+                systemd_unit = "{{ _SYSTEMD_UNIT }}";
+                exe = "{{ _EXE }}";
+                cmdline = "{{ _CMDLINE }}";
+                pid = "{{ _PID }}";
+                runtime_scope = "{{ _RUNTIME_SCOPE }}";
               };
             };
           };
