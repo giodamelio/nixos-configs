@@ -5,8 +5,9 @@ in {
     enable = true;
 
     settings = {
-      # This doesn't just set the preference...
-      colors.webpage.darkmode.enabled = false;
+      # Dark mode by default
+      colors.webpage.preferred_color_scheme = "dark";
+
       fonts.default_size = "14pt";
       hints = {
         mode = "letter";
@@ -24,8 +25,24 @@ in {
       editor.command = ["wezterm" "start" "--always-new-process" "--" "nvim" "-c" "normal {line}G{column0}l" "{file}"];
     };
 
+    # The home manager module can't handle dicts well
+    extraConfig = ''
+      config.set("content.javascript.log_message.excludes", {
+        # See: https://github.com/qutebrowser/qutebrowser/issues/7557
+        'userscript:_qute_js': [
+          "Uncaught InvalidStateError: Failed to set the 'selectionStart' property on 'HTMLInputElement': The input element's type ('email') does not support selection."
+        ]
+      })
+    '';
+
     aliases = {
       "1password" = "spawn --userscript 1password";
+    };
+
+    keyBindings = {
+      normal = {
+        "I" = "hint inputs --first";
+      };
     };
 
     searchEngines = {
