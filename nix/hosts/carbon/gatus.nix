@@ -18,6 +18,15 @@
             "[RESPONSE_TIME] < 300"
           ];
         }
+        {
+          name = "JetKVM";
+          url = "http://jetkvm.gio.ninja";
+          interval = "5m";
+          conditions = [
+            "[STATUS] == 200"
+            "[RESPONSE_TIME] < 300"
+          ];
+        }
       ];
     };
   };
