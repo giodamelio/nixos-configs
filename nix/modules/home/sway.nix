@@ -3,6 +3,7 @@
   pkgs,
   lib,
   flake,
+  perSystem,
   ...
 }: let
   inherit (flake.lib.homelab.machines.cadmium) monitor-names;
@@ -64,6 +65,9 @@ in {
         {
           command = "${pkgs.firefox}/bin/firefox";
         }
+        {
+          command = "${lib.getExe' perSystem.vicinae.default "vicinae"} server";
+        }
       ];
 
       # Don't make the window focus follow the mouse
@@ -112,7 +116,7 @@ in {
       # Add some keybindings
       keybindings = lib.mkOptionDefault {
         # I have gotten too used to MacOS...
-        "${modifier}+space" = "exec vicinae";
+        "${modifier}+space" = "exec vicinae toggle";
 
         # Switch to the last focused windows
         "${modifier}+Tab" = "exec ${pkgs.swayr}/bin/swayr switch-to-urgent-or-lru-window";

@@ -65,8 +65,8 @@
     nix-std.url = "github:chessai/nix-std";
 
     # Awesome Launcher Program (Like Raycast)
-    vicinae.url = "github:vicinaehq/vicinae/6a9211b57c213fd940de4c8bd52c1295725cdcb0";
-    # vicinae.url = "github:vicinaehq/vicinae";
+    # vicinae.url = "github:vicinaehq/vicinae/6a9211b57c213fd940de4c8bd52c1295725cdcb0";
+    vicinae.url = "github:vicinaehq/vicinae";
     vicinae.inputs.nixpkgs.follows = "nixpkgs";
   };
 }

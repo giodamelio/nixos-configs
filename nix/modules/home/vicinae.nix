@@ -11,8 +11,10 @@
     perSystem.vicinae.default
   ];
 
+  # TODO: When started with SystemD, Vicinae files to launch many programs
+  # Instead we will launch it with a sway startup command
   services.vicinae = {
-    enable = true;
+    enable = false;
     autoStart = true;
   };
 }
