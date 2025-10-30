@@ -56,6 +56,10 @@ hardwareDescription = "HP EliteDesk Mini Computer"
 physicalLocation = "minirack"
 useDescription = "LAN VPN and other important services"
 
-# Define the secrets
-[secrets]
-pocket-id-encryption-key = "./secrets/pocket-id-encryption-key.age"
+[dns."gio.ninja"]
+"10.0.128.125" = ["cadmium"]
+"10.0.128.210" = [
+  "carbon",
+  "gatus"
+]
+"10.0.0.188" = ["jetkvm"]

@@ -125,18 +125,7 @@ in {
         lib,
         ...
       }: let
-        records = {
-          "10.0.128.125" = [
-            "cadmium"
-          ];
-          "10.0.128.210" = [
-            "carbon"
-            "gatus"
-          ];
-          "10.0.0.188" = [
-            "jetkvm"
-          ];
-        };
+        records = homelab.dns."gio.ninja";
         zoneFile = pkgs.writeText "gio.ninja.zone" ''
           $ORIGIN gio.ninja.
           @ IN SOA @ @ 1 1h 15m 30d 2h
