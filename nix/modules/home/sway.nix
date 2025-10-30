@@ -31,6 +31,19 @@ in {
     _JAVA_AWT_WM_NONREPARENTING = "1";
     XDG_CURRENT_DESKTOP = "sway";
     XDG_SESSION_DESKTOP = "sway";
+    XDG_SESSION_TYPE = "wayland";
+    # NIXOS_XDG_OPEN_USE_PORTAL = "1";
+  };
+
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "text/html" = "firefox.desktop";
+      "x-scheme-handler/http" = "firefox.desktop";
+      "x-scheme-handler/https" = "firefox.desktop";
+      "x-scheme-handler/about" = "firefox.desktop";
+      "x-scheme-handler/unknown" = "firefox.desktop";
+    };
   };
 
   wayland.windowManager.sway = {
@@ -246,11 +259,10 @@ in {
   # XDG Portal
   xdg.portal = {
     enable = true;
-    xdgOpenUsePortal = true;
+    xdgOpenUsePortal = false;
     config = {
-      common.default = "*";
       sway = {
-        default = ["wlr" "gtk"];
+        default = ["gtk"];
         "org.freedesktop.impl.portal.Screenshot" = ["wlr"];
         "org.freedesktop.impl.portal.ScreenCast" = ["wlr"];
       };
