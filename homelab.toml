@@ -51,6 +51,11 @@ useDescription = "Hacking random projects while on Windows"
 hardwareDescription = "Cheap Lenovo Chromebook"
 useDescription = "Super portable travel machine"
 
+[machines.carbon]
+hardwareDescription = "HP EliteDesk Mini Computer"
+physicalLocation = "minirack"
+useDescription = "LAN VPN and other important services"
+
 # Define the secrets
 [secrets]
 pocket-id-encryption-key = "./secrets/pocket-id-encryption-key.age"
