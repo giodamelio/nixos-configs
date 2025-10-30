@@ -11,6 +11,8 @@ in {
     flake.nixosModules.onepassword
     flake.nixosModules.lil-scripts
 
+    ./gatus.nix # Status Page
+
     # Dynamic DNS with Cloudflare
     (
       _: {
@@ -129,6 +131,10 @@ in {
           ];
           "10.0.128.210" = [
             "carbon"
+            "gatus"
+          ];
+          "10.0.0.188" = [
+            "jetkvm"
           ];
         };
         zoneFile = pkgs.writeText "gio.ninja.zone" ''
