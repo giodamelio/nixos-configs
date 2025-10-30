@@ -116,6 +116,73 @@ in {
       }
     )
 
+    # Setup CoreDNS server with fixed list of records
+    (
+      {
+        pkgs,
+        lib,
+        ...
+      }: let
+        records = {
+          "10.0.128.125" = [
+            "cadmium"
+          ];
+          "10.0.128.210" = [
+            "carbon"
+          ];
+        };
+        zoneFile = pkgs.writeText "gio.ninja.zone" ''
+          $ORIGIN gio.ninja.
+          @ IN SOA @ @ 1 1h 15m 30d 2h
+            IN NS @
+
+          ${lib.pipe records [
+            (builtins.mapAttrs (ip: hosts: builtins.map (host: "${host} IN A ${ip}") hosts))
+            builtins.attrValues
+            builtins.concatLists
+            (builtins.concatStringsSep "\n")
+          ]}
+        '';
+      in {
+        # Disable systemd-resolved dns server
+        services.resolved = {
+          extraConfig = ''
+            DNSStubListener=no
+          '';
+        };
+
+        services.coredns = {
+          enable = true;
+          config = ''
+            gio.ninja:53 {
+                file ${zoneFile} {
+                  fallthrough
+                }
+                forward . 1.1.1.1 1.0.0.1
+                errors
+                cache
+            }
+
+            .:53 {
+                forward . 1.1.1.1 1.0.0.1
+                errors
+                cache
+            }
+          '';
+        };
+
+        # Open the firewall
+        networking.firewall = {
+          allowedTCPPorts = [
+            53
+          ];
+          allowedUDPPorts = [
+            53
+          ];
+        };
+      }
+    )
+
     # Create server user
     (
       {pkgs, ...}: {
