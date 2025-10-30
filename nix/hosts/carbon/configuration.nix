@@ -10,6 +10,7 @@ in {
     flake.nixosModules.basic-settings
     flake.nixosModules.onepassword
     flake.nixosModules.lil-scripts
+    flake.nixosModules.reverse-proxy
 
     ./gatus.nix # Status Page
 
