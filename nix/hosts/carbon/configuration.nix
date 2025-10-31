@@ -14,6 +14,7 @@ in {
 
     ./gatus.nix # Status Page
     ./pocket-id.nix # OIDC Server
+    ./prometheus.nix # Metrics Server
 
     # Dynamic DNS with Cloudflare
     (

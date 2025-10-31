@@ -19,9 +19,6 @@
     };
   };
 
-  # Allow scraping of the metrics
-  networking.firewall.allowedTCPPorts = [9464];
-
   # Load the encrypted encryption key
   systemd.services.pocket-id.serviceConfig = {
     LoadCredentialEncrypted = "pocket-id-encryption-key:/var/lib/credstore/pocket-id-encryption-key";

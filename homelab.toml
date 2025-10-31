@@ -61,6 +61,7 @@ useDescription = "LAN VPN and other important services"
 "10.0.128.210" = [
   "carbon",
   "gatus",
-  "login"
+  "login",
+  "prometheus"
 ]
 "10.0.0.188" = ["jetkvm"]
