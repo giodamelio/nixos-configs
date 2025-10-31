@@ -28,6 +28,15 @@ _: {
           ];
         }
         {
+          name = "Grafana";
+          url = "http://Grafana.gio.ninja/api/health";
+          interval = "5m";
+          conditions = [
+            "[STATUS] == 200"
+            "[RESPONSE_TIME] < 300"
+          ];
+        }
+        {
           name = "Pocket ID";
           url = "http://login.gio.ninja/healthz";
           interval = "5m";
