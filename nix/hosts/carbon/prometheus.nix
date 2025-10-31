@@ -41,7 +41,7 @@
               "localhost:9000"
             ];
             labels = {
-              host = "lithium1";
+              host = "carbon";
             };
           }
         ];
@@ -54,7 +54,7 @@
               "localhost:${builtins.toString config.services.prometheus.exporters.zfs.port}"
             ];
             labels = {
-              host = "lithium1";
+              host = "carbon";
             };
           }
         ];

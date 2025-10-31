@@ -29,7 +29,7 @@ The repository uses lefthook for git hooks:
 
 ### Directory Structure
 - `nix/` - All Nix configurations (managed by Blueprint)
-  - `hosts/` - Per-machine configurations (cadmium, lithium1, gallium, etc.)
+  - `hosts/` - Per-machine configurations (cadmium, gallium, etc.)
   - `modules/` - Reusable NixOS and Home Manager modules
     - `nixos/` - System-level modules
     - `home/` - User-level modules  
@@ -41,7 +41,6 @@ The repository uses lefthook for git hooks:
 
 ### Host Types
 - **cadmium**: Main development desktop (NixOS)
-- **lithium1**: Headscale gateway VPS (NixOS) 
 - **gallium**: NAS with storage services (NixOS)
 - **thorium**: macOS machine (nix-darwin)
 - **calcium**: WSL2 distro (NixOS-WSL)

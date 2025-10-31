@@ -30,15 +30,6 @@ right = "DP-1"
 hardwareDescription = ""
 useDescription = "Handling all our monitoring as reliably as possible"
 
-[machines.lithium1]
-hardwareDescription = "A Vulture VPS"
-useDescription = "Headscale Gateway. Also other networking things that need always online with a public IP"
-secrets = ["pocket-id-encryption-key"]
-
-[machines.lithium1.ssh]
-user = "server"
-hostname = "lithium1.gio.ninja"
-
 [machines.gallium]
 hardwareDescription = "QNAP TS-462-2G"
 useDescription = "NAS running TruNAS Scale. Also runs storage based servers (Garage for S3, Syncthing)"
