@@ -11,11 +11,13 @@ in {
     flake.nixosModules.onepassword
     flake.nixosModules.lil-scripts
     flake.nixosModules.reverse-proxy
+    flake.nixosModules.send-metrics
 
     ./gatus.nix # Status Page
     ./pocket-id.nix # OIDC Server
     ./prometheus.nix # Metrics Server
     ./loki.nix # Logs Server
+    ./grafana.nix # Metrics/Logs UI
 
     # Dynamic DNS with Cloudflare
     (
