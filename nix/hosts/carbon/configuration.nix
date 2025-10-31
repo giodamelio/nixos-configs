@@ -14,6 +14,8 @@ in {
     flake.nixosModules.reverse-proxy
     flake.nixosModules.send-metrics
 
+    # TODO: setup auto backup
+    ./postgresql.nix # DB to be shared across applications
     ./gatus.nix # Status Page
     ./pocket-id.nix # OIDC Server
     ./prometheus.nix # Metrics Server

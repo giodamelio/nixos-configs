@@ -69,6 +69,16 @@
           }
         ];
       }
+      {
+        job_name = "postgres";
+        static_configs = [
+          {
+            targets = [
+              "localhost:9187"
+            ];
+          }
+        ];
+      }
     ];
   };
 
