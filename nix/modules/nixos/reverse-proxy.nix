@@ -79,5 +79,10 @@
         )
         config.services.gio.reverse-proxy.virtualHosts;
     };
+
+    networking.firewall.allowedTCPPorts = [
+      80
+      443
+    ];
   };
 }

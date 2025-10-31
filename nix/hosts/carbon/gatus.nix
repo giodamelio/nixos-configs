@@ -27,6 +27,15 @@ _: {
             "[RESPONSE_TIME] < 300"
           ];
         }
+        {
+          name = "Pocket ID";
+          url = "http://login.gio.ninja/healthz";
+          interval = "5m";
+          conditions = [
+            "[STATUS] == 204"
+            "[RESPONSE_TIME] < 300"
+          ];
+        }
       ];
     };
   };
@@ -48,9 +57,4 @@ _: {
       };
     };
   };
-
-  networking.firewall.allowedTCPPorts = [
-    80
-    443
-  ];
 }

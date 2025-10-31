@@ -60,6 +60,7 @@ useDescription = "LAN VPN and other important services"
 "10.0.128.125" = ["cadmium"]
 "10.0.128.210" = [
   "carbon",
-  "gatus"
+  "gatus",
+  "login"
 ]
 "10.0.0.188" = ["jetkvm"]

@@ -13,6 +13,7 @@ in {
     flake.nixosModules.reverse-proxy
 
     ./gatus.nix # Status Page
+    ./pocket-id.nix # OIDC Server
 
     # Dynamic DNS with Cloudflare
     (
