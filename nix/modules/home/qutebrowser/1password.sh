@@ -24,8 +24,14 @@ MATCHED_ITEMS=$(op item list --long --format=json | jq --raw-output "
 # Check that only one item matches
 # TODO: handle multiple items being matched
 MATCHED_COUNT=$(jq '. | length' <<< "$MATCHED_ITEMS")
-if [ "$MATCHED_COUNT" -ne "1" ]; then
+if [ "$MATCHED_COUNT" -gt "1" ]; then
     echo "message-error '$DOMAIN matched more then one item'" >> "$QUTE_FIFO"
+    echo "$MATCHED_ITEMS"
+    exit 1
+fi
+
+if [ "$MATCHED_COUNT" -eq "0" ]; then
+    echo "message-error '$DOMAIN matched did not match any items'" >> "$QUTE_FIFO"
     exit 1
 fi
 
