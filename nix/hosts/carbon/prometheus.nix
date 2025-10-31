@@ -59,7 +59,42 @@
           }
         ];
       }
+      {
+        job_name = "unpoller";
+        static_configs = [
+          {
+            targets = [
+              "localhost:9130"
+            ];
+          }
+        ];
+      }
     ];
+  };
+
+  # Get stats from our Unifi Controller
+  services.unpoller = {
+    enable = true;
+    unifi.controllers = [
+      {
+        url = "https://unifi.gio.ninja:8443";
+        verify_ssl = false;
+        user = "unpoller";
+        pass = "/run/credentials/unifi-poller.service/unifi-controller-unpoller-password";
+
+        # Extra info to send to Loki
+        save_ids = true;
+        save_events = true;
+        save_alarms = true;
+        save_anomalies = true;
+      }
+    ];
+    influxdb.disable = true;
+    loki.url = "http://localhost:3100";
+  };
+
+  gio.loadCredentialEncrypted.services = {
+    "unifi-poller" = ["unifi-controller-unpoller-password"];
   };
 
   services.gio.reverse-proxy = {

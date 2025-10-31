@@ -8,6 +8,7 @@ in {
 
     flake.nixosModules.basic-packages
     flake.nixosModules.basic-settings
+    flake.nixosModules.load-credential-encrypted
     flake.nixosModules.onepassword
     flake.nixosModules.lil-scripts
     flake.nixosModules.reverse-proxy
