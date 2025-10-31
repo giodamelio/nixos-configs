@@ -1,4 +1,4 @@
-{
+{config, ...}: {
   services.prometheus = {
     enable = true;
 
@@ -39,6 +39,19 @@
           {
             targets = [
               "localhost:9000"
+            ];
+            labels = {
+              host = "lithium1";
+            };
+          }
+        ];
+      }
+      {
+        job_name = "zfs";
+        static_configs = [
+          {
+            targets = [
+              "localhost:${builtins.toString config.services.prometheus.exporters.zfs.port}"
             ];
             labels = {
               host = "lithium1";

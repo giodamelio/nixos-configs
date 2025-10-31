@@ -54,5 +54,9 @@
         "systemd"
       ];
     };
+
+    exporters.zfs = {
+      enable = true;
+    };
   };
 }
