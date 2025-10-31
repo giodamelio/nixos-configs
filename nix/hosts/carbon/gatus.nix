@@ -15,7 +15,7 @@ _: {
           interval = "5m";
           conditions = [
             "[STATUS] == 200"
-            "[RESPONSE_TIME] < 300"
+            "[RESPONSE_TIME] < 500"
           ];
         }
         {
