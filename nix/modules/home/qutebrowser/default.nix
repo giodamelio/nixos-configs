@@ -53,6 +53,7 @@ in {
       nix-options = "https://search.nixos.org/options?channel=unstable&type=packages&query={}";
       nix-packages = "https://search.nixos.org/packages?channel=unstable&type=packages&query={}";
       noogle = "https://noogle.dev/q?term={}";
+      nixpkgs = "https://github.com/search?q=repo%3ANixOS%2Fnixpkgs%20{}&type=code";
     };
 
     quickmarks = {
