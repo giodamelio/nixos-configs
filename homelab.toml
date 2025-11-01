@@ -57,7 +57,8 @@ useDescription = "LAN VPN and other important services"
   "loki",
   "grafana",
   "mealie",
-  "api.mealie"
+  "api.mealie",
+  "homer"
 ]
 "10.0.0.188" = ["jetkvm"]
 "10.0.0.2" = ["unifi"]

@@ -22,6 +22,7 @@ in {
     ./loki.nix # Logs Server
     ./grafana.nix # Metrics/Logs UI
     ./mealie.nix # Recipe Manager
+    ./homer.nix # Homepage to list all the services
 
     # Dynamic DNS with Cloudflare
     (
