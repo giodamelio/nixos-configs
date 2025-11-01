@@ -55,7 +55,9 @@ useDescription = "LAN VPN and other important services"
   "login",
   "prometheus",
   "loki",
-  "grafana"
+  "grafana",
+  "mealie",
+  "api.mealie"
 ]
 "10.0.0.188" = ["jetkvm"]
 "10.0.0.2" = ["unifi"]

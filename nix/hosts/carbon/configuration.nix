@@ -21,6 +21,7 @@ in {
     ./prometheus.nix # Metrics Server
     ./loki.nix # Logs Server
     ./grafana.nix # Metrics/Logs UI
+    ./mealie.nix # Recipe Manager
 
     # Dynamic DNS with Cloudflare
     (
