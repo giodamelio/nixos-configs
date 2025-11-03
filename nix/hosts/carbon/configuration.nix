@@ -38,7 +38,7 @@ in {
         # Load the Cloudflare token
         systemd.services.cloudflare-dyndns.serviceConfig = {
           LoadCredential = null;
-          LoadCredentialEncrypted = "apiToken:/var/lib/credstore/apiToken";
+          LoadCredentialEncrypted = "apiToken";
         };
       }
     )
@@ -111,7 +111,7 @@ in {
         systemd.services."systemd-networkd" = {
           serviceConfig = {
             LoadCredentialEncrypted = [
-              "wireguard-wg0-private-key:/var/lib/credstore/wireguard-wg0-private-key"
+              "wireguard-wg0-private-key"
             ];
           };
         };

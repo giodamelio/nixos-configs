@@ -44,7 +44,7 @@
     # Setup Caddy as a reverse proxy
     systemd.services.caddy.serviceConfig = {
       LoadCredentialEncrypted = [
-        "caddy-cloudflare-api-token:/var/lib/credstore/caddy-cloudflare-api-token"
+        "caddy-cloudflare-api-token"
       ];
       Environment = [
         "CLOUDFLARE_API_TOKEN_FILE=%d/caddy-cloudflare-api-token"

@@ -21,13 +21,13 @@
 
   # Load the encrypted encryption key
   systemd.services.pocket-id.serviceConfig = {
-    LoadCredentialEncrypted = "pocket-id-encryption-key:/var/lib/credstore/pocket-id-encryption-key";
+    LoadCredentialEncrypted = "pocket-id-encryption-key";
   };
 
   # Setup Caddy as a reverse proxy
   systemd.services.caddy.serviceConfig = {
     LoadCredentialEncrypted = [
-      "caddy-cloudflare-api-token:/var/lib/credstore/caddy-cloudflare-api-token"
+      "caddy-cloudflare-api-token"
     ];
     Environment = [
       "CLOUDFLARE_API_TOKEN_FILE=%d/caddy-cloudflare-api-token"

@@ -5,9 +5,6 @@
 }:
 with lib; let
   cfg = config.gio.loadCredentialEncrypted;
-
-  # Default directory for encrypted credentials
-  credStoreDir = cfg.credentialStoreDirectory;
 in {
   options.gio.loadCredentialEncrypted = {
     enable =
@@ -30,24 +27,12 @@ in {
         Each credential will be loaded from the credential store directory.
       '';
     };
-
-    credentialStoreDirectory = mkOption {
-      type = types.path;
-      default = "/var/lib/credstore";
-      description = ''
-        Directory where encrypted credentials are stored.
-      '';
-    };
   };
 
   config = mkIf cfg.enable {
     systemd.services =
       mapAttrs (_serviceName: credentialNames: {
-        serviceConfig.LoadCredentialEncrypted =
-          map (
-            name: "${name}:${credStoreDir}/${name}"
-          )
-          credentialNames;
+        serviceConfig.LoadCredentialEncrypted = credentialNames;
       })
       cfg.services;
   };
