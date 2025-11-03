@@ -9,14 +9,17 @@ from onepassword.client import Client
 
 
 def write_systemd_secret(name, contents):
+    credstore_path = "/usr/lib/credstore.encrypted"
     try:
+        os.makedirs(credstore_path, exist_ok=True)
+
         proc = subprocess.Popen(
             [
                 "systemd-creds",
                 "encrypt",
                 "--name=" + name,
                 "-",
-                f"/var/lib/credstore/{name}"
+                f"{credstore_path}/{name}"
             ],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
