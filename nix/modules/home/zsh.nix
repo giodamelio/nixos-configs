@@ -2,7 +2,6 @@
   flake,
   pkgs,
   lib,
-  config,
   ...
 }: {
   programs.zsh = {
@@ -23,6 +22,11 @@
       # See: https://github.com/jeffreytse/zsh-vi-mode/issues/148#issuecomment-1566863380
       vimModeKeybindingFix = lib.mkAfter ''
         zvm_after_init_commands+=("bindkey -M viins '^r' atuin-search-viins")
+      '';
+
+      # Allow editing the current line in edit mode with Control+E
+      vimModeEditInInsertMode = lib.mkAfter ''
+        zvm_after_init_commands+=("bindkey -M viins '^E' zvm_vi_edit_command_line")
       '';
 
       # Add some things to the path
@@ -83,7 +87,13 @@
       '';
     in
       lib.mkMerge (
-        [vimModeKeybindingFix yaziFunction takeFunction taketmpFunction]
+        [
+          vimModeKeybindingFix
+          vimModeEditInInsertMode
+          yaziFunction
+          takeFunction
+          taketmpFunction
+        ]
         ++ (lib.optionals pkgs.stdenv.hostPlatform.isDarwin [homebrewShellEnv loadSecrets])
       );
   };
