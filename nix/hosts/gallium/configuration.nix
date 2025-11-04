@@ -11,6 +11,7 @@ in {
     flake.nixosModules.load-credential-encrypted
     flake.nixosModules.onepassword
     flake.nixosModules.lil-scripts
+    flake.nixosModules.send-metrics
 
     # Create server user
     ({pkgs, ...}: {

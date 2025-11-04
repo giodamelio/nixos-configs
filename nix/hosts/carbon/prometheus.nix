@@ -1,4 +1,6 @@
-{config, ...}: {
+{config, ...}: let
+  exporter_ports.zfs = config.services.prometheus.exporters.zfs.port;
+in {
   services.prometheus = {
     enable = true;
 
@@ -44,6 +46,14 @@
               host = "carbon";
             };
           }
+          {
+            targets = [
+              "gallium.gio.ninja:9000"
+            ];
+            labels = {
+              host = "gallium";
+            };
+          }
         ];
       }
       {
@@ -51,10 +61,18 @@
         static_configs = [
           {
             targets = [
-              "localhost:${builtins.toString config.services.prometheus.exporters.zfs.port}"
+              "localhost:${builtins.toString exporter_ports.zfs}"
             ];
             labels = {
               host = "carbon";
+            };
+          }
+          {
+            targets = [
+              "gallium.gio.ninja:${builtins.toString exporter_ports.zfs}"
+            ];
+            labels = {
+              host = "gallium";
             };
           }
         ];

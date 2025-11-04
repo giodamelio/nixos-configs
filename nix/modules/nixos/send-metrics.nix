@@ -1,4 +1,4 @@
-{
+{config, ...}: {
   services.alloy = {
     enable = true;
   };
@@ -58,5 +58,13 @@
     exporters.zfs = {
       enable = true;
     };
+  };
+
+  # Open the firewall to allow collecting metrics
+  networking.firewall = {
+    allowedTCPPorts = [
+      config.services.prometheus.exporters.node.port
+      config.services.prometheus.exporters.zfs.port
+    ];
   };
 }

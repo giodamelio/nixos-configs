@@ -11,6 +11,7 @@ _: {
       endpoints = [
         {
           name = "Google";
+          group = "External";
           url = "https://google.com";
           interval = "5m";
           conditions = [
@@ -20,6 +21,7 @@ _: {
         }
         {
           name = "JetKVM";
+          group = "Services";
           url = "http://jetkvm.gio.ninja";
           interval = "5m";
           conditions = [
@@ -29,6 +31,7 @@ _: {
         }
         {
           name = "Grafana";
+          group = "Services";
           url = "http://Grafana.gio.ninja/api/health";
           interval = "5m";
           conditions = [
@@ -38,6 +41,7 @@ _: {
         }
         {
           name = "Pocket ID";
+          group = "Services";
           url = "http://login.gio.ninja/healthz";
           interval = "5m";
           conditions = [
@@ -47,11 +51,20 @@ _: {
         }
         {
           name = "Mealie";
+          group = "Services";
           url = "http://mealie.gio.ninja/";
           interval = "5m";
           conditions = [
             "[STATUS] == 200"
             "[RESPONSE_TIME] < 300"
+          ];
+        }
+        {
+          name = "Gallium";
+          group = "Hosts";
+          url = "icmp://gallium.gio.ninja";
+          conditions = [
+            "[CONNECTED] == true"
           ];
         }
       ];
