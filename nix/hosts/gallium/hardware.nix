@@ -24,7 +24,7 @@
     efi.canTouchEfiVariables = true;
   };
   boot.zfs.forceImportRoot = true;
-  boot.zfs.extraPools = ["boot"];
+  boot.zfs.extraPools = ["boot" "tank"];
   boot.supportedFilesystems = ["zfs"];
   boot.initrd.supportedFilesystems = ["zfs"];
 

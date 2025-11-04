@@ -49,6 +49,7 @@ useDescription = "LAN VPN and other important services"
 
 [dns."gio.ninja"]
 "10.0.128.125" = ["cadmium"]
+"10.0.0.211" = ["gallium"]
 "10.0.128.210" = [
   "carbon",
   "gatus",

@@ -1,5 +1,5 @@
 {
-  environment.etc."issue.d/ip.issue".text = "\\4{eth0}\n";
+  environment.etc."issue.d/ip.issue".text = "IP Address \\4\n\n";
   nix.settings = {
     experimental-features = ["nix-command" "flakes"];
     extra-experimental-features = ["pipe-operators"];
