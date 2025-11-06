@@ -7,6 +7,9 @@
     # Find executables in PATH and follow symlink chains
     flake.packages.${pkgs.stdenv.system}.whichbin
 
+    # Show Nix derivation tree for an executable
+    flake.packages.${pkgs.stdenv.system}.treebinderivation
+
     # List processes listening on ports
     flake.packages.${pkgs.stdenv.system}.open-ports
 
