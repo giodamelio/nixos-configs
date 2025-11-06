@@ -59,7 +59,10 @@ useDescription = "LAN VPN and other important services"
   "grafana",
   "mealie",
   "api.mealie",
-  "homer"
+  "homer",
+  "restate",
+  "admin.restate",
+  "ingress.restate"
 ]
 "10.0.0.188" = ["jetkvm"]
 "10.0.0.2" = ["unifi"]

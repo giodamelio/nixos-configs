@@ -97,6 +97,16 @@ in {
           }
         ];
       }
+      {
+        job_name = "restate";
+        static_configs = [
+          {
+            targets = [
+              "localhost:5122"
+            ];
+          }
+        ];
+      }
     ];
   };
 

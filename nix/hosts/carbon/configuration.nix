@@ -23,6 +23,7 @@ in {
     ./grafana.nix # Metrics/Logs UI
     ./mealie.nix # Recipe Manager
     ./homer.nix # Homepage to list all the services
+    ./restate.nix # Distributed application platform
 
     # Dynamic DNS with Cloudflare
     (
