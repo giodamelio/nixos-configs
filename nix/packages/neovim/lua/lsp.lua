@@ -159,6 +159,10 @@ vim.lsp.enable('emmet_ls')
 vim.lsp.enable('lexical')
 vim.lsp.enable('rust_analyzer')
 
+-- Python
+vim.lsp.enable('basedpyright')
+vim.lsp.enable('ruff')
+
 -- Autoformat before save
 vim.api.nvim_create_augroup('AutoFormatting', {})
 vim.api.nvim_create_autocmd('BufWritePre', {
