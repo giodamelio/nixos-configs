@@ -48,6 +48,19 @@
     meta.homepage = "https://github.com/DariusCorvus/tree-sitter-surrealdb.nvim";
   };
 
+  mintSyntax = pkgs.vimUtils.buildVimPlugin {
+    pname = "vim-mint";
+    version = "2025-11-10";
+    src = pkgs.fetchFromGitHub {
+      owner = "IrenejMarc";
+      repo = "vim-mint";
+      # Latest on branch main as of 2025-11-10
+      rev = "b4448a5193888a73e87da58fe7f938ce0ade1ad8";
+      hash = "sha256-3LmDNCy8KL6/t5tafu7+bO5tiy/Q/kDiBhnubGpNVTs=";
+    };
+    meta.homepage = "https://github.com/DariusCorvus/tree-sitter-surrealdb.nvim";
+  };
+
   nvimConfig = pkgs.neovimUtils.makeNeovimConfig {
     withPython3 = true;
     withRuby = false;
@@ -133,6 +146,7 @@
       mini-ai # Better a/i text objects
       firenvim # Use Neovim in the browser
       vim-dadbod # Interact with databases
+      mintSyntax # Syntax for the Mint language
     ];
 
     customRC = "
