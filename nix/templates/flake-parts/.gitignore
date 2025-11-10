@@ -1,0 +1,8 @@
+# Nix
+result
+
+# direnv cahce
+.direnv
+
+# Generated pre-commit config
+.pre-commit-config.yaml
