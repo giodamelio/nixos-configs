@@ -1,9 +1,14 @@
-{
+{inputs, ...}: {
   environment.etc."issue.d/ip.issue".text = "IP Address \\4\n\n";
-  nix.settings = {
-    experimental-features = ["nix-command" "flakes"];
-    extra-experimental-features = ["pipe-operators"];
-    trusted-users = ["root" "@wheel"];
+  nix = {
+    settings = {
+      experimental-features = ["nix-command" "flakes"];
+      extra-experimental-features = ["pipe-operators"];
+      trusted-users = ["root" "@wheel"];
+    };
+    registry = {
+      stable.flake = inputs.nixpkgs-stable;
+    };
   };
   security.sudo.wheelNeedsPassword = false;
   security.pam.services.swaylock = {};
