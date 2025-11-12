@@ -74,6 +74,12 @@
         },
       }
 
+      -- Windows only settings
+      if wezterm.target_triple == 'x86_64-pc-windows-msvc' then
+        -- Load NixOS WSL2 by default
+        config.default_domain = 'WSL:NixOS'
+      end
+
       smart_splits.apply_to_config(config, {
         direction_keys = { 'h', 'j', 'k', 'l' },
         modifiers = {
