@@ -8,7 +8,7 @@ ssh_keys = [
   # Pixel 7 Terminus
   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIeXlwmUkJJrmTVPscq619y5flExaiDnJ4988fHUK1Av",
   # Pixel 8 Terminus
-  "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBCsv5nvQed0ahn542ujutvCI7rUv+wNXUQTXAF8MfePxSMBNvHKYj5BtnXNdPeVoI54akfWz9n5f+V6Tv1Qqy5U="
+  "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBCsv5nvQed0ahn542ujutvCI7rUv+wNXUQTXAF8MfePxSMBNvHKYj5BtnXNdPeVoI54akfWz9n5f+V6Tv1Qqy5U=",
   # Calcium (Cadmium Windows WSL)
   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMhqJ8PTqeOk3DUTcakj2BUpSbVJslDpejEf+0avaQtD giodamelio@calcium"
 ]
