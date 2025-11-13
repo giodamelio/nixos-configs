@@ -16,6 +16,22 @@ There are currently {{ len (ds "homelab").machines }} machines listed in the [da
 {{- end }}
 {{- end }}
 
+# IP Ranges
+
+| Name    | CIDR            | VLAN Tag | Description                                                            |
+|---------|-----------------|----------|------------------------------------------------------------------------|
+| Trusted | `10.0.0.1/16`   | 1        | Trusted family devices, can route to everything on the LAN             |
+| Public  | `10.20.0.1/16`  | 2        | For guests and untrusted devices, can only route to each other and WAN |
+| Homelab | `10.30.0.1/16`  | 3        | Homelab servers                                                        |
+| VPN     | `10.100.0.1/22` |          | VPN for trusted devices, can route to everything on the LAN            |
+
+# Wifi Networks
+
+| SSID      | VLAN Tag | Description               |
+|-----------|----------|---------------------------|
+| Interwebs | 2        | Attached to guest network |
+| SGD       | 1        | Trusted family devices    |
+
 # Neovim AppImages
 
 Github Actions builds a static Neovim AppImage with my config baked in:
