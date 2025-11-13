@@ -115,7 +115,7 @@ in {
     enable = true;
     unifi.controllers = [
       {
-        url = "https://unifi.gio.ninja:8443";
+        url = "https://unifi.gio.ninja";
         verify_ssl = false;
         user = "unpoller";
         pass = "/run/credentials/unifi-poller.service/unifi-controller-unpoller-password";
