@@ -137,14 +137,22 @@ in {
         lib,
         ...
       }: let
-        records = homelab.dns."gio.ninja";
+        a_records = homelab.dns."gio.ninja".a;
+        cname_records = homelab.dns."gio.ninja".cname;
         zoneFile = pkgs.writeText "gio.ninja.zone" ''
           $ORIGIN gio.ninja.
           @ IN SOA @ @ 1 1h 15m 30d 2h
             IN NS @
 
-          ${lib.pipe records [
+          ${lib.pipe a_records [
             (builtins.mapAttrs (ip: hosts: builtins.map (host: "${host} IN A ${ip}") hosts))
+            builtins.attrValues
+            builtins.concatLists
+            (builtins.concatStringsSep "\n")
+          ]}
+
+          ${lib.pipe cname_records [
+            (builtins.mapAttrs (ip: hosts: builtins.map (host: "${host} IN CNAME ${ip}") hosts))
             builtins.attrValues
             builtins.concatLists
             (builtins.concatStringsSep "\n")

@@ -37,7 +37,7 @@ hardwareDescription = "QNAP TS-462-2G"
 useDescription = "NAS running TruNAS Scale. Also runs storage based servers (Garage for S3, Syncthing)"
 
 [machines.gallium.deploy]
-sshDestination = "server@gallium.lan"
+sshDestination = "server@gallium.gio.ninja"
 
 [machines.calcium]
 hardwareDescription = "WSL2 Distro on Cadmium's Windows 11 install"
@@ -53,12 +53,15 @@ physicalLocation = "minirack"
 useDescription = "LAN VPN and other important services"
 
 [machines.carbon.deploy]
-sshDestination = "server@carbon.lan"
+sshDestination = "server@carbon.gio.ninja"
 
-[dns."gio.ninja"]
-"10.0.128.125" = ["cadmium"]
-"10.0.0.211" = ["gallium"]
-"10.0.128.210" = [
+[dns."gio.ninja".a]
+
+[dns."gio.ninja".cname]
+"unifi.lan." = ["unifi"]
+"cadmium.lan." = ["cadmium"]
+"gallium.lan." = ["gallium"]
+"carbon.lan." = [
   "carbon",
   "gatus",
   "login",
@@ -72,5 +75,4 @@ sshDestination = "server@carbon.lan"
   "admin.restate",
   "ingress.restate"
 ]
-"10.0.0.188" = ["jetkvm"]
-"10.0.0.2" = ["unifi"]
+"jetkvm-6c1ce193ef466514.lan." = ["jetkvm"]
