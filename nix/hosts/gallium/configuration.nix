@@ -13,17 +13,34 @@ in {
     flake.nixosModules.lil-scripts
     flake.nixosModules.send-metrics
 
+    # Add some helpful programs
+    (
+      {pkgs, ...}: {
+        environment.systemPackages = with pkgs; [
+          dua
+          dust
+          parted
+        ];
+      }
+    )
+
     # Create server user
-    ({pkgs, ...}: {
-      users.users.server = {
-        extraGroups = ["wheel" "docker" "sound"];
-        isNormalUser = true;
-        shell = pkgs.zsh;
-        openssh.authorizedKeys.keys = homelab.ssh_keys;
-      };
-      security.sudo.wheelNeedsPassword = false;
-      programs.zsh.enable = true;
-    })
+    (
+      {pkgs, ...}: {
+        users.users.server = {
+          extraGroups = [
+            "wheel"
+            "docker"
+            "sound"
+          ];
+          isNormalUser = true;
+          shell = pkgs.zsh;
+          openssh.authorizedKeys.keys = homelab.ssh_keys;
+        };
+        security.sudo.wheelNeedsPassword = false;
+        programs.zsh.enable = true;
+      }
+    )
 
     (_: {
       networking.hostId = "8425e349";
