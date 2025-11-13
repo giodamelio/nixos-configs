@@ -170,6 +170,12 @@ in {
                 cache
             }
 
+            lan:53 {
+              forward . 10.0.0.1
+              errors
+              cache
+            }
+
             .:53 {
                 forward . 1.1.1.1 1.0.0.1
                 errors
