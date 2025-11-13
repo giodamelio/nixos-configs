@@ -25,25 +25,6 @@ in {
     ./homer.nix # Homepage to list all the services
     ./restate.nix # Distributed application platform
 
-    # Dynamic DNS with Cloudflare
-    (
-      _: {
-        services.cloudflare-dyndns = {
-          enable = true;
-          # We are overriding the loading to use encrypted credentials
-          apiTokenFile = "/noop";
-          domains = ["home.gio.ninja"];
-          proxied = false;
-        };
-
-        # Load the Cloudflare token
-        systemd.services.cloudflare-dyndns.serviceConfig = {
-          LoadCredential = null;
-          LoadCredentialEncrypted = "apiToken";
-        };
-      }
-    )
-
     # Configure Networking with Systemd Networkd
     {
       # Use Networkd
