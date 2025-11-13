@@ -1,7 +1,6 @@
 {
   pkgs,
   flake,
-  lib,
   ...
 }: let
   inherit (flake.packages.${pkgs.stdenv.system}) audio-output-switcher;
