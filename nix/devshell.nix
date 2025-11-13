@@ -10,7 +10,7 @@
   treefmt = flake.lib.treefmt pkgs;
 
   # Git Hooks Setup
-  inherit (flake.packages.${system}) git-hooks claude-code;
+  inherit (flake.packages.${system}) git-hooks claude-code deploy;
 in
   pkgs.mkShell {
     buildInputs =
@@ -36,6 +36,7 @@ in
         pkgs.jq
         pkgs.vscode-json-languageserver
         pkgs.nixd
+        deploy
       ]
       ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin []
       # Treefmt

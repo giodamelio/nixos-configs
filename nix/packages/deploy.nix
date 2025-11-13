@@ -5,38 +5,43 @@
 }:
 flake.lib.writeNushellApplication pkgs {
   name = "deploy";
-  runtimeInputs = [pkgs.skim];
+  runtimeInputs = with pkgs; [nh];
   source = ''
-    def hosts [] {
-      nix eval .#nixosConfigurations --apply builtins.attrNames --json | from json
+    def destinations [] {
+      let repo_root = (git rev-parse --show-toplevel)
+      cat $'($repo_root)/homelab.toml'
+        | from toml
+        | get machines
+        | transpose hostname data
+        | where $it.data.deploy?.sshDestination? != null
+        | each {|item| [$item.hostname, $item.data.deploy.sshDestination] }
+        | into record
     }
 
-    # Deploy all hosts
-    def "main all" [] {
-      colmena apply
+    def hosts [] {
+      destinations | columns
     }
 
     # Interactivaly choose a host and deploy to it
-    def "main" [
-      host?: string@hosts
-      --verbose (-v) # Disable Colmena spinners and print the whole build log
+    def --wrapped "main" [
+      host: string@hosts
+      ...args
     ] {
-      # If no node is passed, interactivaly pick one
-      let node = (if ($host == null) {
-        let nodes = (
-          nix eval .#nixosConfigurations --apply builtins.attrNames --json
-        )
-        ($nodes | from json | to text | sk)
-      } else {
-        $host
-      })
-
-      printf "Running 'colmena apply --on %s'\n\n" $node
-      if ($verbose != null) {
-        colmena apply --verbose --on $node --experimental-flake-eval
-      } else {
-        colmena apply --on $node --experimental-flake-eval
+      if $host not-in (hosts) {
+        print $'host ($host) not found in (hosts)'
+        exit 1
       }
+      let destination = (destinations | get $host)
+      print $'Deploying to ($host) at ($destination)...'
+      print ""
+
+      # if ($verbose != null) {
+      #   colmena apply --verbose --on $node --experimental-flake-eval
+      # } else {
+      #   colmena apply --on $node --experimental-flake-eval
+      # }
+
+      nh os switch ...$args --hostname $host --target-host $destination .
     }
   '';
 }
