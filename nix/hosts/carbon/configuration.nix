@@ -44,91 +44,27 @@ in {
       }
     )
 
-    # Setup Wireguard VPNs
-    (
-      {pkgs, ...}: let
-        wireguardPort = 51820;
-      in {
-        environment.systemPackages = with pkgs; [
-          wireguard-tools
-        ];
+    # Configure Networking with Systemd Networkd
+    {
+      # Use Networkd
+      networking = {
+        useNetworkd = true;
+        useDHCP = false;
+        interfaces."eno1".useDHCP = true;
 
-        # Allow forwarding of traffic
-        boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
-
-        # Use Networkd
-        networking = {
-          useNetworkd = true;
-          useDHCP = false;
-          interfaces."eno1".useDHCP = true;
-
-          firewall = {
-            enable = true;
-            allowPing = true;
-            # TODO: Might need this later
-            # allowedUDPPorts = [
-            #   5353 # mdns
-            # ];
-          };
-          nftables = {
-            enable = true;
-          };
-        };
-
-        systemd.network = {
+        firewall = {
           enable = true;
-
-          netdevs."50-wg0" = {
-            netdevConfig = {
-              Kind = "wireguard";
-              Name = "wg0";
-            };
-
-            wireguardConfig = {
-              PrivateKey = "@wireguard-wg0-private-key";
-              ListenPort = wireguardPort;
-            };
-
-            wireguardPeers = [
-              {
-                PublicKey = "GOPX3KoKUxmtIqdI0qWxvv3aCv8Qa/rug/9V6vWXNxU=";
-                AllowedIPs = ["10.10.10.2/32"];
-              }
-            ];
-          };
-
-          networks."50-wg0" = {
-            matchConfig.Name = "wg0";
-            address = ["10.10.10.1/24"];
-            networkConfig = {
-              IPv4Forwarding = true;
-            };
-          };
+          allowPing = true;
         };
-
-        # Load wireguard private key into systemd-networkd
-        # This allows us to load the credential via systemd.netdev directly
-        # See systemd.netdev(5), search for "PrivateKey="
-        systemd.services."systemd-networkd" = {
-          serviceConfig = {
-            LoadCredentialEncrypted = [
-              "wireguard-wg0-private-key"
-            ];
-          };
-        };
-
-        networking.firewall = {
-          allowedUDPPorts = [wireguardPort];
-          trustedInterfaces = ["wg0"];
-        };
-
-        networking.nat = {
+        nftables = {
           enable = true;
-          externalInterface = "eno1";
-          internalInterfaces = ["wg0"];
         };
-      }
-    )
+      };
+
+      systemd.network = {
+        enable = true;
+      };
+    }
 
     # Setup CoreDNS server with fixed list of records
     (
