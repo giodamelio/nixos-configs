@@ -34,6 +34,8 @@ in
         pkgs.nh
         pkgs.minio-client
         pkgs.jq
+        pkgs.vscode-json-languageserver
+        pkgs.nixd
       ]
       ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin []
       # Treefmt
