@@ -24,6 +24,7 @@ in {
     ./mealie.nix # Recipe Manager
     ./homer.nix # Homepage to list all the services
     ./restate.nix # Distributed application platform
+    ./windmill.nix # Workflow Engine
 
     # Configure Networking with Systemd Networkd
     {
