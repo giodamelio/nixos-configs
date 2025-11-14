@@ -94,6 +94,17 @@ in {
             targets = [
               "localhost:9187"
             ];
+            labels = {
+              host = "carbon";
+            };
+          }
+          {
+            targets = [
+              "gallium.gio.ninja:9187"
+            ];
+            labels = {
+              host = "gallium";
+            };
           }
         ];
       }

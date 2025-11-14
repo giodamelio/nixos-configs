@@ -1,4 +1,8 @@
-{config, ...}: {
+{
+  config,
+  lib,
+  ...
+}: {
   services.alloy = {
     enable = true;
   };
@@ -58,6 +62,13 @@
     exporters.zfs = {
       enable = true;
     };
+  };
+
+  # Export PostegreSQL metrics
+  services.prometheus.exporters.postgres = lib.mkIf config.services.postgresql.enable {
+    enable = true;
+    runAsLocalSuperUser = true;
+    openFirewall = true;
   };
 
   # Open the firewall to allow collecting metrics

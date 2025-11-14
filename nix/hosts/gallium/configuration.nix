@@ -14,6 +14,7 @@ in {
     flake.nixosModules.send-metrics
     flake.nixosModules.reverse-proxy
 
+    ./posgresql.nix # Shared PostgreSQL database
     ./immich.nix # Photo/Video backup service
 
     # Add some helpful programs
