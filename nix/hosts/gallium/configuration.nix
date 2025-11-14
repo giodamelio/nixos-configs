@@ -12,6 +12,9 @@ in {
     flake.nixosModules.onepassword
     flake.nixosModules.lil-scripts
     flake.nixosModules.send-metrics
+    flake.nixosModules.reverse-proxy
+
+    ./immich.nix # Photo/Video backup service
 
     # Add some helpful programs
     (

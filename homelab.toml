@@ -60,7 +60,10 @@ sshDestination = "server@carbon.gio.ninja"
 [dns."gio.ninja".cname]
 "unifi.lan." = ["unifi"]
 "cadmium.lan." = ["cadmium"]
-"gallium.lan." = ["gallium"]
+"gallium.lan." = [
+  "gallium",
+  "immich"
+]
 "carbon.lan." = [
   "carbon",
   "gatus",
