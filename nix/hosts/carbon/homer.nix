@@ -22,6 +22,12 @@
             logo = dashboardLogo "mealie";
           }
           {
+            name = "Immich";
+            subtitle = "Photo/Video Sync";
+            url = "https://immich.gio.ninja";
+            logo = dashboardLogo "immich";
+          }
+          {
             name = "Gatus";
             subtitle = "Status Page";
             url = "https://gatus.gio.ninja";
