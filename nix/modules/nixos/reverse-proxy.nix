@@ -21,6 +21,11 @@
             description = "The upstream port to proxy to";
             example = 8080;
           };
+
+          extraConfig = mkOption {
+            type = types.lines;
+            default = "";
+          };
         };
       });
       default = {};
@@ -73,6 +78,9 @@
                   dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
                   resolvers 1.1.1.1
                 }
+
+                ${cfg.extraConfig}
+
                 reverse_proxy ${cfg.host}:${toString cfg.port}
               '';
             }

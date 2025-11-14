@@ -107,6 +107,28 @@ in {
           }
         ];
       }
+      {
+        job_name = "immich_api";
+        metrics_path = "/metrics/api";
+        static_configs = [
+          {
+            targets = [
+              "immich.gio.ninja"
+            ];
+          }
+        ];
+      }
+      {
+        job_name = "immich_microservices";
+        metrics_path = "/metrics/microservices";
+        static_configs = [
+          {
+            targets = [
+              "immich.gio.ninja"
+            ];
+          }
+        ];
+      }
     ];
   };
 
