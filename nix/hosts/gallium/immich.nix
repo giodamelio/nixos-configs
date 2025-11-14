@@ -51,6 +51,14 @@
             values = ["count"];
             labels = ["email"];
           };
+          disk_usage_per_user_bytes = {
+            help = "Totaly number of bytes each user has used";
+            query = ''
+              SELECT email, "quotaUsageInBytes" count FROM "user";
+            '';
+            values = ["count"];
+            labels = ["email"];
+          };
           albums_total = {
             help = "Total number of albums";
             query = "SELECT COUNT(*) as count FROM album;";
