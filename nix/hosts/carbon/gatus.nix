@@ -67,6 +67,16 @@ _: {
             "[CONNECTED] == true"
           ];
         }
+        {
+          name = "Immich";
+          group = "Services";
+          url = "http://immich.gio.ninja/";
+          interval = "5m";
+          conditions = [
+            "[STATUS] == 200"
+            "[RESPONSE_TIME] < 300"
+          ];
+        }
       ];
     };
   };
