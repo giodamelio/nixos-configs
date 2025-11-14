@@ -140,6 +140,17 @@ in {
           }
         ];
       }
+      {
+        job_name = "immich_stats";
+        metrics_path = "/metrics/stats";
+        static_configs = [
+          {
+            targets = [
+              "immich.gio.ninja"
+            ];
+          }
+        ];
+      }
     ];
   };
 
