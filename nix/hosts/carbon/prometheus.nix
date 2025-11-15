@@ -151,6 +151,22 @@ in {
           }
         ];
       }
+      {
+        job_name = "immich_jobs";
+        scheme = "https";
+        metrics_path = "/api/w/main/jobs/run_wait_result/p/u/gio/convert_immich_job_stats_to_prometheus";
+        static_configs = [
+          {
+            targets = [
+              "windmill.gio.ninja"
+            ];
+          }
+        ];
+        authorization = {
+          type = "Bearer";
+          credentials = "tmoxuQTiIE4WRICfHsSAJ9uO7niEBNsY";
+        };
+      }
     ];
   };
 
