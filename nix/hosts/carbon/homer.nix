@@ -28,6 +28,12 @@
             logo = dashboardLogo "immich";
           }
           {
+            name = "Windmill";
+            subtitle = "Workflow engine for automations";
+            url = "https://windmill.gio.ninja";
+            logo = dashboardLogo "windmill";
+          }
+          {
             name = "Gatus";
             subtitle = "Status Page";
             url = "https://gatus.gio.ninja";
