@@ -1,0 +1,18 @@
+--- a/build.rs	2025-11-16 16:44:49.719345586 -0800
++++ b/build.rs	2025-11-16 16:45:04.652914523 -0800
+@@ -7,14 +7,7 @@
+         .file_descriptor_set_path("rustmailer.bin")
+         .compile(&["./protos/rustmailer.proto"], &["./protos"])?;
+ 
+-    let output = Command::new("git")
+-        .args(&["rev-parse", "--short", "HEAD"])
+-        .output()
+-        .expect("Failed to get git commit hash");
+-    let git_hash = String::from_utf8(output.stdout)
+-        .expect("Invalid UTF-8")
+-        .trim()
+-        .to_string();
++    let git_hash = "@GIT_HASH@".to_string();
+     println!("cargo:rustc-env=GIT_HASH={}", git_hash);
+     Ok(())
+ }

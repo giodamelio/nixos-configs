@@ -25,6 +25,7 @@ in {
     ./homer.nix # Homepage to list all the services
     ./restate.nix # Distributed application platform
     ./windmill.nix # Workflow Engine
+    ./rustmailer.nix # Email middleware
 
     # Configure Networking with Systemd Networkd
     {
