@@ -78,6 +78,7 @@ sshDestination = "server@carbon.gio.ninja"
   "admin.restate",
   "ingress.restate",
   "windmill",
-  "rustmailer"
+  "rustmailer",
+  "grist"
 ]
 "jetkvm-6c1ce193ef466514.lan." = ["jetkvm"]

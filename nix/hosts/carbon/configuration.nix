@@ -27,6 +27,7 @@ in {
     ./windmill.nix # Workflow Engine
     ./rustmailer.nix # Email middleware
     ./nats.nix # Message Broker
+    ./grist.nix # Spreadsheets on steroids
 
     # Configure Networking with Systemd Networkd
     {

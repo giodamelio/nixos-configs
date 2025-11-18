@@ -568,6 +568,21 @@
         "type": "github"
       }
     },
+    "quadlet-nix": {
+      "locked": {
+        "lastModified": 1763141753,
+        "narHash": "sha256-XAHkOkLEWbRQZ6t/SowwOukrUfIneNQOC/UEQlTaPBU=",
+        "owner": "SEIAROTg",
+        "repo": "quadlet-nix",
+        "rev": "211b5c626cf9ea91403b510e2ac5ca03a7194566",
+        "type": "github"
+      },
+      "original": {
+        "owner": "SEIAROTg",
+        "repo": "quadlet-nix",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "blueprint": "blueprint",
@@ -584,6 +599,7 @@
         "nixpkgs-stable": "nixpkgs-stable",
         "nvf": "nvf",
         "pre-commit-hooks": "pre-commit-hooks",
+        "quadlet-nix": "quadlet-nix",
         "treefmt-nix": "treefmt-nix_2",
         "vicinae": "vicinae"
       }
