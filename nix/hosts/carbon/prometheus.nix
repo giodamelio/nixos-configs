@@ -167,6 +167,20 @@ in {
           credentials = "tmoxuQTiIE4WRICfHsSAJ9uO7niEBNsY";
         };
       }
+      {
+        job_name = "rustmailer";
+        static_configs = [
+          {
+            targets = [
+              "rustmailer.gio.ninja"
+            ];
+          }
+        ];
+        authorization = {
+          type = "Bearer";
+          credentials = "CbAZP7V9G7cRjfbsrgkFK8kE";
+        };
+      }
     ];
   };
 
