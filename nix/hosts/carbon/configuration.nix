@@ -26,6 +26,7 @@ in {
     ./restate.nix # Distributed application platform
     ./windmill.nix # Workflow Engine
     ./rustmailer.nix # Email middleware
+    ./nats.nix # Message Broker
 
     # Configure Networking with Systemd Networkd
     {
