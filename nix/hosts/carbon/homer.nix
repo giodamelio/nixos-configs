@@ -84,6 +84,12 @@
             url = "https://prometheus.gio.ninja";
             logo = dashboardLogo "prometheus";
           }
+          {
+            name = "Rustmailer";
+            subtitle = "Email middleware";
+            url = "https://rustmailer.gio.ninja";
+            logo = "https://rustmailer.com/images/logo.svg";
+          }
         ];
       }
     ];
