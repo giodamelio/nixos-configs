@@ -16,6 +16,7 @@ in {
 
     ./postgresql.nix # Shared PostgreSQL database
     ./immich.nix # Photo/Video backup service
+    ./garage.nix # Open Source distributed object storage (S3 compatable)
 
     # Add some helpful programs
     (

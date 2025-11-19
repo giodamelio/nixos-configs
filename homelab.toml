@@ -62,7 +62,11 @@ sshDestination = "server@carbon.gio.ninja"
 "cadmium.lan." = ["cadmium"]
 "gallium.lan." = [
   "gallium",
-  "immich"
+  "immich",
+  "s3.garage",
+  "*.s3.garage",
+  "*.web.garage",
+  "admin.garage"
 ]
 "carbon.lan." = [
   "carbon",

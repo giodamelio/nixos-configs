@@ -3,6 +3,7 @@
 in {
   services.prometheus = {
     enable = true;
+    checkConfig = "syntax-only";
 
     scrapeConfigs = [
       {
@@ -181,6 +182,26 @@ in {
           credentials = "CbAZP7V9G7cRjfbsrgkFK8kE";
         };
       }
+      {
+        job_name = "garage";
+        static_configs = [
+          {
+            targets = [
+              "admin.garage.gio.ninja"
+            ];
+          }
+        ];
+        authorization = {
+          type = "Bearer";
+          credentials_file = "/run/credentials/prometheus.service/garage_metrics_token";
+        };
+      }
+    ];
+  };
+
+  gio.loadCredentialEncrypted.services = {
+    "prometheus" = [
+      "garage_metrics_token"
     ];
   };
 
