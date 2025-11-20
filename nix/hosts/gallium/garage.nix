@@ -53,12 +53,17 @@
     Group = "garage";
   };
 
-  gio.loadCredentialEncrypted.services = {
-    "garage" = [
-      "garage_rpc_secret"
-      "garage_admin_token"
-      "garage_metrics_token"
-    ];
+  gio.credentials = {
+    enable = true;
+    services = {
+      "garage" = {
+        loadCredentialEncrypted = [
+          "garage_rpc_secret"
+          "garage_admin_token"
+          "garage_metrics_token"
+        ];
+      };
+    };
   };
 
   services.gio.reverse-proxy = {

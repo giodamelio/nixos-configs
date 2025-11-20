@@ -199,12 +199,6 @@ in {
     ];
   };
 
-  gio.loadCredentialEncrypted.services = {
-    "prometheus" = [
-      "garage_metrics_token"
-    ];
-  };
-
   # Get stats from our Unifi Controller
   services.unpoller = {
     enable = true;
@@ -226,8 +220,17 @@ in {
     loki.url = "http://localhost:3100";
   };
 
-  gio.loadCredentialEncrypted.services = {
-    "unifi-poller" = ["unifi-controller-unpoller-password"];
+  # Load some credentials into our systemd services
+  gio.credentials = {
+    enable = true;
+    services = {
+      "prometheus" = {
+        loadCredentialEncrypted = ["garage_metrics_token"];
+      };
+      "unifi-poller" = {
+        loadCredentialEncrypted = ["unifi-controller-unpoller-password"];
+      };
+    };
   };
 
   services.gio.reverse-proxy = {

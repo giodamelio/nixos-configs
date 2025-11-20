@@ -1,9 +1,4 @@
 {
-  pkgs,
-  config,
-  lib,
-  ...
-}: {
   services.mealie = {
     enable = true;
     database.createLocally = true;
@@ -31,28 +26,20 @@
     };
   };
 
-  # Manually load the credentials into environment variables,
-  # this is done by the Docker entrypoint normally so we have to replicate that
-  # See: https://github.com/mealie-recipes/mealie/blob/01713b04163e9524b2665ad8089148b6d2f90233/docker/entry.sh#L38-L73
-  systemd.services.mealie.serviceConfig.ExecStart = lib.mkForce (let
-    cfg = config.services.mealie;
-  in
-    pkgs.writers.writeBash "mealie-wrapper" ''
-      export SMTP_PASSWORD="$(<"$SMTP_PASSWORD_FILE")"
-      export OPENAI_API_KEY="$(<"$OPENAI_API_KEY_FILE")"
-      export OIDC_CLIENT_ID="$(<"$OIDC_CLIENT_ID_FILE")"
-      export OIDC_CLIENT_SECRET="$(<"$OIDC_CLIENT_SECRET_FILE")"
-
-      ${lib.getExe cfg.package} -b ${cfg.listenAddress}:${builtins.toString cfg.port} ${lib.escapeShellArgs cfg.extraOptions}
-    '');
-
-  gio.loadCredentialEncrypted.services = {
-    "mealie" = [
-      "mealie-fastmail-smtp-password"
-      "mealie-oidc-client-id"
-      "mealie-oidc-client-secret"
-      "mealie-openai-api-key"
-    ];
+  gio.credentials = {
+    enable = true;
+    services = {
+      "mealie" = {
+        execStartWrapper = {
+          environment = {
+            SMTP_PASSWORD = "mealie-fastmail-smtp-password";
+            OPENAI_API_KEY = "mealie-openai-api-key";
+            OIDC_CLIENT_ID = "mealie-oidc-client-id";
+            OIDC_CLIENT_SECRET = "mealie-oidc-client-secret";
+          };
+        };
+      };
+    };
   };
 
   services.gio.reverse-proxy = {
