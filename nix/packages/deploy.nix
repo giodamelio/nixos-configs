@@ -41,7 +41,17 @@ flake.lib.writeNushellApplication pkgs {
       #   colmena apply --on $node --experimental-flake-eval
       # }
 
-      nh os switch ...$args --hostname $host --target-host $destination .
+      # Build the OS first
+      nh os build --diff never $".#nixosConfigurations.($host)"
+
+      # Push it to the binary cache
+      attic push homelab result/
+
+      # Then actually deploy it
+      nh os switch --ask ...$args --hostname $host --target-host $destination .
+
+      # Clean up the result so the changes don't look so crazy
+      rm result
     }
   '';
 }

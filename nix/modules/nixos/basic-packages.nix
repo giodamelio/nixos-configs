@@ -29,6 +29,7 @@ in {
       rage # Easy encryption
       cachix # Nix binary caching
       devenv # Easy development environment management
+      attic-client # Nix binary cache
     ];
   };
 }
