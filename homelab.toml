@@ -90,6 +90,7 @@ join_address = "carbon.gio.ninja"
   "ingress.restate",
   "windmill",
   "rustmailer",
-  "grist"
+  "grist",
+  "consul"
 ]
 "jetkvm-6c1ce193ef466514.lan." = ["jetkvm"]

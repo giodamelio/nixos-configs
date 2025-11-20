@@ -146,6 +146,36 @@ in {
         webUi = true;
         interface.bind = "eno1";
       };
+
+      # Make it read only by only allowing GET requests though
+      services.gio.reverse-proxy = {
+        enable = true;
+        virtualHosts = {
+          "consul" = {
+            host = "localhost";
+            port = 8500;
+            reverseProxy = false;
+            extraConfig = ''
+              @get_requests {
+                method GET
+              }
+
+              reverse_proxy @get_requests localhost:8500
+
+              # Respond with 405 for all other methods
+              @not_get_requests {
+                  not {
+                      method GET
+                  }
+              }
+
+              respond @not_get_requests 405 {
+                  body "Method Not Allowed"
+              }
+            '';
+          };
+        };
+      };
     }
 
     # Create server user

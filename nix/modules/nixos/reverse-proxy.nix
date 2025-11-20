@@ -22,6 +22,12 @@
             example = 8080;
           };
 
+          reverseProxy = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Automatically configure reverse_proxy directive";
+          };
+
           extraConfig = mkOption {
             type = types.lines;
             default = "";
@@ -81,7 +87,11 @@
 
                 ${cfg.extraConfig}
 
-                reverse_proxy ${cfg.host}:${toString cfg.port}
+                ${
+                  lib.optionalString
+                  cfg.reverseProxy
+                  "reverse_proxy ${cfg.host}:${toString cfg.port}"
+                }
               '';
             }
         )
