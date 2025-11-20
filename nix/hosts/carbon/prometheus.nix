@@ -196,6 +196,21 @@ in {
           credentials_file = "/run/credentials/prometheus.service/garage_metrics_token";
         };
       }
+      {
+        job_name = "consul";
+        metrics_path = "/v1/agent/metrics";
+        params.format = ["prometheus"];
+        static_configs = [
+          {
+            targets = [
+              "consul.gio.ninja"
+            ];
+            labels = {
+              host = "carbon";
+            };
+          }
+        ];
+      }
     ];
   };
 
