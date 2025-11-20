@@ -107,6 +107,12 @@ in {
               cache
             }
 
+            consul:53 {
+              forward . 127.0.0.1:8600
+              errors
+              cache
+            }
+
             .:53 {
                 forward . 1.1.1.1 1.0.0.1
                 errors
