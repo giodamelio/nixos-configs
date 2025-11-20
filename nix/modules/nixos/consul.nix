@@ -32,12 +32,19 @@ in {
       server = true;
       enable_syslog = true;
       retry_join = joinAddresses;
+      addresses = {
+        dns = "0.0.0.0";
+      };
     };
   };
 
   # See: https://developer.hashicorp.com/consul/docs/reference/architecture/ports
   networking.firewall.allowedTCPPorts = [
     8300 # Server RPC
+    8301 # LAN serf
+    8600 # DNS server
+  ];
+  networking.firewall.allowedUDPPorts = [
     8301 # LAN serf
     8600 # DNS server
   ];
