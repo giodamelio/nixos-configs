@@ -4,9 +4,9 @@
   pkgs,
   ...
 }: let
-  cfg = config.gio.services.zfs_backup;
+  cfg = config.gio.zfs_backup;
 in {
-  options.gio.services.zfs_backup = {
+  options.gio.zfs_backup = {
     enable = lib.mkOption {
       type = lib.types.bool;
       default = false;

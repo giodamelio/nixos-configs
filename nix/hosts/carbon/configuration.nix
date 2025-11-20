@@ -13,6 +13,7 @@ in {
     flake.nixosModules.lil-scripts
     flake.nixosModules.reverse-proxy
     flake.nixosModules.send-metrics
+    flake.nixosModules.zfs-backup
 
     # TODO: setup auto backup
     ./postgresql.nix # DB to be shared across applications
@@ -124,6 +125,19 @@ in {
         };
       }
     )
+
+    {
+      gio.zfs_backup = {
+        enable = true;
+        datasets = [
+          "tank"
+          "tank/home"
+          "tank/nix"
+          "tank/reserve"
+          "tank/root"
+        ];
+      };
+    }
 
     # Create server user
     (

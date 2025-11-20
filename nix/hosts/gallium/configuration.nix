@@ -13,6 +13,7 @@ in {
     flake.nixosModules.lil-scripts
     flake.nixosModules.send-metrics
     flake.nixosModules.reverse-proxy
+    flake.nixosModules.zfs-backup
 
     ./postgresql.nix # Shared PostgreSQL database
     ./immich.nix # Photo/Video backup service
@@ -29,6 +30,30 @@ in {
         ];
       }
     )
+
+    # Setup ZFS auto snapshots
+    {
+      gio.zfs_backup = {
+        enable = true;
+        datasets = [
+          "boot"
+          "boot/garage_metadata"
+          "boot/home"
+          "boot/nix"
+          "boot/reserve"
+          "boot/root"
+          "tank"
+          "tank/attic"
+          "tank/attic_storage"
+          "tank/garage"
+          "tank/hard-drive-dumping-zone"
+          "tank/immich"
+          "tank/isos"
+          "tank/photos-dump"
+          "tank/syncthing"
+        ];
+      };
+    }
 
     # Create server user
     (
