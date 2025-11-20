@@ -14,6 +14,7 @@ in {
     flake.nixosModules.reverse-proxy
     flake.nixosModules.send-metrics
     flake.nixosModules.zfs-backup
+    flake.nixosModules.consul
 
     # TODO: setup auto backup
     ./postgresql.nix # DB to be shared across applications
@@ -136,6 +137,14 @@ in {
           "tank/reserve"
           "tank/root"
         ];
+      };
+    }
+
+    # Host specific console configs
+    {
+      services.consul = {
+        webUi = true;
+        interface.bind = "eno1";
       };
     }
 

@@ -39,6 +39,9 @@ useDescription = "NAS running TruNAS Scale. Also runs storage based servers (Gar
 [machines.gallium.deploy]
 sshDestination = "server@gallium.gio.ninja"
 
+[machines.gallium.consul]
+join_address = "gallium.gio.ninja"
+
 [machines.calcium]
 hardwareDescription = "WSL2 Distro on Cadmium's Windows 11 install"
 useDescription = "Hacking random projects while on Windows"
@@ -54,6 +57,9 @@ useDescription = "LAN VPN and other important services"
 
 [machines.carbon.deploy]
 sshDestination = "server@carbon.gio.ninja"
+
+[machines.carbon.consul]
+join_address = "carbon.gio.ninja"
 
 [dns."gio.ninja".a]
 

@@ -14,6 +14,7 @@ in {
     flake.nixosModules.send-metrics
     flake.nixosModules.reverse-proxy
     flake.nixosModules.zfs-backup
+    flake.nixosModules.consul
 
     ./postgresql.nix # Shared PostgreSQL database
     ./immich.nix # Photo/Video backup service
@@ -52,6 +53,13 @@ in {
           "tank/photos-dump"
           "tank/syncthing"
         ];
+      };
+    }
+
+    # Host specific Consul configs
+    {
+      services.consul = {
+        interface.bind = "enp5s0";
       };
     }
 
