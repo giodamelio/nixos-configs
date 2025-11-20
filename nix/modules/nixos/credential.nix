@@ -63,7 +63,7 @@ with lib; let
 
     # Collect all credentials that need to be loaded and deduplicate
     allCredentials = unique (
-      (serviceCfg.loadCredentialEncrypted or [])
+      serviceCfg.loadCredentialEncrypted or []
       ++ (
         if hasWrapper
         then
@@ -109,7 +109,11 @@ in {
       };
 
     services = mkOption {
-      type = types.attrsOf (types.submodule {
+      type = types.attrsOf (types.submodule ({
+        name,
+        config,
+        ...
+      }: {
         options = {
           loadCredentialEncrypted = mkOption {
             type = types.listOf types.str;
@@ -154,8 +158,38 @@ in {
               The original ExecStart will be automatically detected from the service.
             '';
           };
+
+          credentialPath = mkOption {
+            type = types.attrsOf types.str;
+            readOnly = true;
+            description = ''
+              Helper attribute set that provides the runtime paths to credentials.
+              For example, gio.credential.services.consul.credentialPath.encrypt will return
+              "/run/credentials/consul.service/encrypt".
+            '';
+            default = let
+              hasWrapper = config.execStartWrapper or null != null;
+              allCredentialNames = unique (
+                config.loadCredentialEncrypted or []
+                ++ (
+                  if hasWrapper
+                  then
+                    (
+                      config.execStartWrapper.envfiles or []
+                      ++ (attrValues config.execStartWrapper.environment or {})
+                    )
+                  else []
+                )
+              );
+            in
+              listToAttrs (map (credName: {
+                  name = credName;
+                  value = "/run/credentials/${name}.service/${credName}";
+                })
+                allCredentialNames);
+          };
         };
-      });
+      }));
       default = {};
       example = literalExpression ''
         {
