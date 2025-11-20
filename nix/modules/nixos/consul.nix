@@ -22,38 +22,71 @@
     ))
   ];
 in {
-  services.consul = {
-    enable = true;
-    extraConfigFiles = [
-      config.gio.credentials.services.consul.credentialPath."consul-encrypt.json"
-    ];
-    extraConfig = {
-      bootstrap_expect = 2;
-      server = true;
-      enable_syslog = true;
-      retry_join = joinAddresses;
-      addresses = {
-        dns = "0.0.0.0";
+  options.gio.services = lib.mkOption {
+    type = lib.types.attrsOf (lib.types.submodule {
+      options.consul = lib.mkOption {
+        type = lib.types.nullOr lib.types.attrs;
+        default = null;
+        description = "Consul service definition for this service";
       };
-    };
+    });
+    default = {};
+    description = "Service definitions with Consul integration";
   };
 
-  # See: https://developer.hashicorp.com/consul/docs/reference/architecture/ports
-  networking.firewall.allowedTCPPorts = [
-    8300 # Server RPC
-    8301 # LAN serf
-    8600 # DNS server
-  ];
-  networking.firewall.allowedUDPPorts = [
-    8301 # LAN serf
-    8600 # DNS server
-  ];
+  config = {
+    services.consul = {
+      enable = true;
+      extraConfigFiles =
+        [
+          config.gio.credentials.services.consul.credentialPath."consul-encrypt.json"
+        ]
+        ++ lib.optional (builtins.length (builtins.attrValues config.gio.services) > 0) "/etc/consul.d/services.json";
+      extraConfig = {
+        bootstrap_expect = 2;
+        server = true;
+        enable_syslog = true;
+        retry_join = joinAddresses;
+        addresses = {
+          dns = "0.0.0.0";
+        };
+        telemetry = {
+          prometheus_retention_time = "5m";
+        };
+      };
+    };
 
-  gio.credentials = {
-    enable = true;
-    services = {
-      "consul" = {
-        loadCredentialEncrypted = ["consul-encrypt.json"];
+    # Generate Consul service definitions
+    environment.etc = let
+      serviceDefinitions = lib.pipe config.gio.services [
+        builtins.attrValues
+        (builtins.filter (svc: svc.consul != null))
+        (builtins.map (svc: svc.consul))
+      ];
+    in
+      lib.mkIf (builtins.length serviceDefinitions > 0) {
+        "consul.d/services.json".text = builtins.toJSON {
+          services = serviceDefinitions;
+        };
+      };
+
+    # See: https://developer.hashicorp.com/consul/docs/reference/architecture/ports
+    networking.firewall.allowedTCPPorts = [
+      8300 # Server RPC
+      8301 # LAN serf
+      8600 # DNS server
+    ];
+    networking.firewall.allowedUDPPorts = [
+      8301 # LAN serf
+      8600 # DNS server
+    ];
+
+    gio.credentials = {
+      enable = true;
+      services = {
+        "consul" = {
+          loadCredentialEncrypted = ["consul-encrypt.json"];
+        };
       };
     };
   };

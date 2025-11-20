@@ -42,6 +42,18 @@
     };
   };
 
+  gio.services.grist.consul = {
+    name = "grist";
+    address = "grist.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://grist.gio.ninja";
+        interval = "60s";
+      }
+    ];
+  };
+
   services.gio.reverse-proxy = {
     enable = true;
     virtualHosts = {

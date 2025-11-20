@@ -98,4 +98,16 @@ _: {
       };
     };
   };
+
+  gio.services.gatus.consul = {
+    name = "gatus";
+    address = "gatus.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://gatus.gio.ninja/health";
+        interval = "60s";
+      }
+    ];
+  };
 }

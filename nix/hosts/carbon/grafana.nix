@@ -40,4 +40,16 @@
       };
     };
   };
+
+  gio.services.grafana.consul = {
+    name = "grafana";
+    address = "grafana.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://grafana.gio.ninja/api/health";
+        interval = "60s";
+      }
+    ];
+  };
 }

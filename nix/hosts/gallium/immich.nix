@@ -102,4 +102,16 @@
       };
     };
   };
+
+  gio.services.immich.consul = {
+    name = "immich";
+    address = "immich.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://immich.gio.ninja/";
+        interval = "60s";
+      }
+    ];
+  };
 }

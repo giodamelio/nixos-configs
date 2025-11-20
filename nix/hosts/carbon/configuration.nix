@@ -130,6 +130,18 @@ in {
             53
           ];
         };
+
+        # Register the service with Consul
+        gio.services.coredns.consul = {
+          name = "coredns";
+          port = 53;
+          checks = [
+            {
+              tcp = "carbon.gio.ninja:53";
+              interval = "60s";
+            }
+          ];
+        };
       }
     )
 

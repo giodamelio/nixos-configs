@@ -125,4 +125,16 @@ in {
       }
     '';
   };
+
+  gio.services.homer.consul = {
+    name = "homer";
+    address = "homer.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://homer.gio.ninja";
+        interval = "60s";
+      }
+    ];
+  };
 }
