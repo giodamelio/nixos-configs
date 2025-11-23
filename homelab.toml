@@ -93,4 +93,4 @@ join_address = "carbon.gio.ninja"
   "grist",
   "consul"
 ]
-"jetkvm-6c1ce193ef466514.lan." = ["jetkvm"]
+"jetkvm.lan." = ["jetkvm"]
