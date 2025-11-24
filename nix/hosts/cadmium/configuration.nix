@@ -52,9 +52,8 @@ in {
     # Autosnapshot ZFS and send to NAS
     flake.nixosModules.zfs-backup
     (_: {
-      gio.services.zfs_backup = {
+      gio.zfs_backup = {
         enable = true;
-        syncToGallium = true;
         datasets = [
           "tank/home"
           "tank/nix"
