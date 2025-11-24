@@ -127,6 +127,7 @@
       neotest-go
       neotest-deno
       neotest-rspec
+      neotest-python
 
       avante-nvim # GenAI addition
       oil-nvim # Move/Create/Delete files/directories directly in a vim buffer

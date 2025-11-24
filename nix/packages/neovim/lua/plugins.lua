@@ -95,6 +95,7 @@ require('neotest').setup({
     require('neotest-go'),
     require('neotest-deno'),
     require('neotest-rspec'),
+    require('neotest-python'),
   },
 })
 
