@@ -7,5 +7,8 @@
   services.nats = {
     enable = true;
     jetstream = true;
+    settings = {
+      http_port = 8222;
+    };
   };
 }
