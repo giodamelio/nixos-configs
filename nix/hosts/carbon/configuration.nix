@@ -30,6 +30,7 @@ in {
     ./rustmailer.nix # Email middleware
     ./nats.nix # Message Broker
     ./grist.nix # Spreadsheets on steroids
+    ./hammond.nix # Random automations for my life
 
     # Configure Networking with Systemd Networkd
     {

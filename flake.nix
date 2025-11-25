@@ -71,5 +71,9 @@
 
     # Define/Run Podman quadlets easily
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
+
+    # Random automations
+    hammond.url = "github:giodamelio/hammond";
+    hammond.inputs.nixpkgs.follows = "nixpkgs";
   };
 }
