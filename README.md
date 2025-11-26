@@ -4,7 +4,7 @@ Used to configure all of my machines
 
 # Machines
 
-There are currently 7 machines listed in the [data](./homelab.toml)
+There are currently 6 machines listed in the [data](./homelab.toml)
 
 
   - `cadmium`
@@ -25,9 +25,6 @@ There are currently 7 machines listed in the [data](./homelab.toml)
   - `gio-pixel-7`
     - Description: My Phone
     - Hardware: Pixel 7 Pro
-  - `manganese`
-    - Description: Handling all our monitoring as reliably as possible
-    - Hardware: 
 
 # IP Ranges
 

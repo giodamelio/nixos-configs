@@ -28,10 +28,6 @@ left = "DP-2"
 middle = "DP-3"
 right = "DP-1"
 
-[machines.manganese]
-hardwareDescription = ""
-useDescription = "Handling all our monitoring as reliably as possible"
-
 [machines.gallium]
 hardwareDescription = "QNAP TS-462-2G"
 useDescription = "NAS running TruNAS Scale. Also runs storage based servers (Garage for S3, Syncthing)"
