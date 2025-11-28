@@ -18,6 +18,7 @@
     flake.homeModules.syncthing
     flake.homeModules.atuind
     flake.homeModules.claude-code
+    flake.homeModules.llm
   ];
 
   home = {

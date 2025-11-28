@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  flake,
+  ...
+}: {
   home.packages = [
     (pkgs.python3.withPackages (python-pkgs:
       with python-pkgs; [
@@ -18,5 +22,7 @@
         llm-templates-github
         llm-fragments-github
       ]))
+
+    flake.packages.${pkgs.stdenv.system}.runprompt
   ];
 }
