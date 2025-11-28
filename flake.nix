@@ -75,5 +75,9 @@
     # Random automations
     hammond.url = "github:giodamelio/hammond";
     hammond.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Unison Programming Language
+    unison-lang.url = "github:ceedubs/unison-nix";
+    unison-lang.inputs.nixpkgs.follows = "nixpkgs";
   };
 }

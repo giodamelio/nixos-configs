@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  perSystem,
+  ...
+}: let
   gitlinker = pkgs.vimUtils.buildVimPlugin {
     pname = "gitlinker.nvim";
     version = "2023-12-15";
@@ -148,6 +152,7 @@
       firenvim # Use Neovim in the browser
       vim-dadbod # Interact with databases
       mintSyntax # Syntax for the Mint language
+      perSystem.unison-lang.vim-unison # Unison lang support
     ];
 
     customRC = "
@@ -170,5 +175,8 @@ in
 
       # Some random dependencies
       pkgs.imagemagick # Snacks: For inline images
+
+      # For Unison LSP
+      pkgs.netcat-gnu
     ];
   }

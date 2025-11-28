@@ -158,6 +158,7 @@ vim.lsp.enable('lua_ls')
 vim.lsp.enable('emmet_ls')
 vim.lsp.enable('lexical')
 vim.lsp.enable('rust_analyzer')
+vim.lsp.enable('unison')
 
 -- Python
 vim.lsp.enable('basedpyright')
