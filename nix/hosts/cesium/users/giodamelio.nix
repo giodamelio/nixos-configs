@@ -26,6 +26,13 @@
     installPackage = true;
   };
 
+  programs.opencode = {
+    enable = true;
+    settings = {
+      model = "anthropic/claude-sonnet-4-5";
+    };
+  };
+
   # Configure nix-activate for NixOS
   gio.nix-activate-config.activation = {system = "nixos";};
 }
