@@ -77,7 +77,7 @@
     hammond.inputs.nixpkgs.follows = "nixpkgs";
 
     # Unison Programming Language
-    unison-lang.url = "github:ceedubs/unison-nix";
+    unison-lang.url = "github:giodamelio/unison-nix/giodamelio/init-ucm-desktop";
     unison-lang.inputs.nixpkgs.follows = "nixpkgs";
   };
 }

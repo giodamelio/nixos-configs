@@ -24,5 +24,6 @@ in {
 
     # Unison lang things
     perSystem.unison-lang.ucm-bin
+    perSystem.unison-lang.ucm-desktop
   ];
 }

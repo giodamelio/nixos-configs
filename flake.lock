@@ -1664,15 +1664,16 @@
         "unison": "unison"
       },
       "locked": {
-        "lastModified": 1764097591,
-        "narHash": "sha256-Ob8+scmyJNAkqC1rCILSoo/oXtfrMO+7FTNE0MJGyk0=",
-        "owner": "ceedubs",
+        "lastModified": 1764620184,
+        "narHash": "sha256-Z4EtKy80qkRdZPd4wOOypqDB0cGt8CxRWmv0cMvl9a0=",
+        "owner": "giodamelio",
         "repo": "unison-nix",
-        "rev": "a75f58f638bc71c27bb6aac9e0c89fd3ec0abf30",
+        "rev": "3136dc2d4f19976e8d8ea0dd7ee86a30ac34780d",
         "type": "github"
       },
       "original": {
-        "owner": "ceedubs",
+        "owner": "giodamelio",
+        "ref": "giodamelio/init-ucm-desktop",
         "repo": "unison-nix",
         "type": "github"
       }
