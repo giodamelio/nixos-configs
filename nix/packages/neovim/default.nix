@@ -107,8 +107,14 @@
       nvim-navic
 
       # AST for hightlighting, formatting, etc
-      # All grammers plus my added one
-      (nvim-treesitter.withPlugins (_: nvim-treesitter.allGrammars ++ [tresitterGrammerSurrealdb]))
+      (nvim-treesitter.withPlugins (
+        _:
+          nvim-treesitter.allGrammars
+          ++ [
+            tresitterGrammerSurrealdb
+            perSystem.unison-lang.tree-sitter-grammar
+          ]
+      ))
       rainbow-delimiters-nvim # Rainbow parens
       nvim-treesitter-parsers.hurl
       surrealdbTreesitter
