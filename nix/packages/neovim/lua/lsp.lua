@@ -150,6 +150,10 @@ vim.lsp.config('nil_ls', {
   },
 })
 
+vim.lsp.config('hls', {
+  filetypes = { 'haskell', 'lhaskell', 'cabal' },
+})
+
 vim.lsp.enable('sourcekit')
 vim.lsp.enable('nil_ls')
 vim.lsp.enable('expert', false) -- TODO: enable this when it is ready
@@ -159,6 +163,7 @@ vim.lsp.enable('emmet_ls')
 vim.lsp.enable('lexical')
 vim.lsp.enable('rust_analyzer')
 vim.lsp.enable('unison')
+vim.lsp.enable('hls')
 
 -- Python
 vim.lsp.enable('basedpyright')

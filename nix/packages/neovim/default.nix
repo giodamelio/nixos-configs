@@ -160,6 +160,7 @@
       mintSyntax # Syntax for the Mint language
       perSystem.unison-lang.vim-unison # Unison lang support
       grapple-nvim # Easy switching between important files
+      vim-ormolu # Haskell autoformatting
     ];
 
     customRC = "
