@@ -31,6 +31,7 @@ in {
     ./nats.nix # Message Broker
     ./grist.nix # Spreadsheets on steroids
     ./hammond.nix # Random automations for my life
+    ./home-assistant.nix # Home Automation
 
     # Configure Networking with Systemd Networkd
     {

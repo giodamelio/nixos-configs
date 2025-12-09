@@ -87,6 +87,7 @@ join_address = "carbon.gio.ninja"
   "windmill",
   "rustmailer",
   "grist",
-  "consul"
+  "consul",
+  "home-assistant",
 ]
 "jetkvm.lan." = ["jetkvm"]
