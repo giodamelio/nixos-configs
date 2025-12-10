@@ -19,6 +19,7 @@
     flake.homeModules.atuind
     flake.homeModules.claude-code
     flake.homeModules.llm
+    flake.homeModules.jj
   ];
 
   home = {

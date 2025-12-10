@@ -12,6 +12,7 @@
     flake.homeModules.nix-index
     flake.homeModules.atuind
     flake.homeModules.claude-code
+    flake.homeModules.jj
   ];
 
   home = {
