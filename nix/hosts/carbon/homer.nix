@@ -28,6 +28,12 @@
             logo = dashboardLogo "immich";
           }
           {
+            name = "Jellyfin";
+            subtitle = "Media Server";
+            url = "https://jellyfin.gio.ninja";
+            logo = dashboardLogo "jellyfin";
+          }
+          {
             name = "Windmill";
             subtitle = "Workflow engine for automations";
             url = "https://windmill.gio.ninja";

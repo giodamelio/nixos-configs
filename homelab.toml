@@ -69,7 +69,8 @@ join_address = "carbon.gio.ninja"
   "*.s3.garage",
   "*.web.garage",
   "admin.garage",
-  "attic"
+  "attic",
+  "jellyfin",
 ]
 "carbon.lan." = [
   "carbon",
