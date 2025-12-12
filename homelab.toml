@@ -71,6 +71,9 @@ join_address = "carbon.gio.ninja"
   "admin.garage",
   "attic",
   "jellyfin",
+  "nzbget",
+  "prowlarr",
+  "sonarr",
 ]
 "carbon.lan." = [
   "carbon",

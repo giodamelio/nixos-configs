@@ -28,12 +28,6 @@
             logo = dashboardLogo "immich";
           }
           {
-            name = "Jellyfin";
-            subtitle = "Media Server";
-            url = "https://jellyfin.gio.ninja";
-            logo = dashboardLogo "jellyfin";
-          }
-          {
             name = "Windmill";
             subtitle = "Workflow engine for automations";
             url = "https://windmill.gio.ninja";
@@ -50,6 +44,36 @@
             subtitle = "Home automation";
             url = "https://home-assistant.gio.ninja";
             logo = dashboardLogo "home-assistant";
+          }
+        ];
+      }
+      {
+        name = "Media";
+        icon = "";
+        items = [
+          {
+            name = "Jellyfin";
+            subtitle = "Media Server";
+            url = "https://jellyfin.gio.ninja";
+            logo = dashboardLogo "jellyfin";
+          }
+          {
+            name = "NZBGet";
+            subtitle = "Usenet Binary Newsready";
+            url = "https://nzbget.gio.ninja";
+            logo = dashboardLogo "nzbget";
+          }
+          {
+            name = "Prowlarr";
+            subtitle = "Index Manager";
+            url = "https://prowlarr.gio.ninja";
+            logo = dashboardLogo "prowlarr";
+          }
+          {
+            name = "Sonarr";
+            subtitle = "TV Show Tracker";
+            url = "https://sonarr.gio.ninja";
+            logo = dashboardLogo "sonarr";
           }
         ];
       }
