@@ -117,9 +117,9 @@ vim.lsp.config('*', {
 })
 
 vim.lsp.config('expert', {
-  cmd = { 'expert' },
+  cmd = { 'expert', '--stdio' },
   root_markers = { 'mix.exs' },
-  filetypes = { 'elixir' },
+  filetypes = { 'elixir', 'eelixir', 'heex', 'surface' },
 })
 
 vim.lsp.config('emmet_ls', {
@@ -156,7 +156,7 @@ vim.lsp.config('hls', {
 
 vim.lsp.enable('sourcekit')
 vim.lsp.enable('nil_ls')
-vim.lsp.enable('expert', false) -- TODO: enable this when it is ready
+vim.lsp.enable('expert')
 vim.lsp.enable('nextls')
 vim.lsp.enable('lua_ls')
 vim.lsp.enable('emmet_ls')
