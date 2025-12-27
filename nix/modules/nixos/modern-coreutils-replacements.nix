@@ -3,6 +3,6 @@
     fd # find
     procs # ps
     sd # sed
-    du-dust # du
+    dust # du
   ];
 }
