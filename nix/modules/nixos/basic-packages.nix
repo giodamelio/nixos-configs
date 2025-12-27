@@ -3,7 +3,7 @@
   flake,
   ...
 }: let
-  customNeovim = flake.packages.${pkgs.stdenv.system}.neovim;
+  flakePkgs = flake.packages.${pkgs.stdenv.hostPlatform.system};
 in {
   environment = {
     systemPackages = with pkgs; [
@@ -14,12 +14,13 @@ in {
       tree # I always want this...
       zellij # Kinda like Tmux
       # usbutils # For lsusb command
+      flakePkgs.witr # Why is this process/port/whatever running
 
       git
       file
 
       # My custom wrapped Neovim with configs/plugins
-      customNeovim
+      flakePkgs.neovim
 
       # Internet fetchers
       curl

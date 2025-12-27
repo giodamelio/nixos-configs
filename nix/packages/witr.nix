@@ -14,7 +14,11 @@ in
 
     vendorHash = null;
 
-    ldflags = ["-s" "-w"];
+    ldflags = ["-s" "-w" "-X" "main.version=0.1.0"];
+
+    postPatch = ''
+      substituteInPlace go.mod --replace-fail 'go 1.25.5' 'go 1.25.4'
+    '';
 
     meta = {
       description = "Why is this running";
