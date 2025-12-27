@@ -23,6 +23,9 @@ useDescription = "My Phone"
 hardwareDescription = "Desktop machine under my desk"
 useDescription = "Main development machine"
 
+[machines.cadmium.deploy]
+sshDestination = "giodamelio@cadmium.gio.ninja"
+
 [machines.cadmium.monitor-names]
 left = "DP-2"
 middle = "DP-3"

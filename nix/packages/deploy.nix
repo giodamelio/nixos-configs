@@ -31,8 +31,16 @@ flake.lib.writeNushellApplication pkgs {
         print $'host ($host) not found in (hosts)'
         exit 1
       }
+
       let destination = (destinations | get $host)
-      print $'Deploying to ($host) at ($destination)...'
+      let local_hostname = (hostname | str trim)
+      let is_local_deploy = ($host == $local_hostname)
+
+      if $is_local_deploy {
+        print $'Deploying to ($host) locally...'
+      } else {
+        print $'Deploying to ($host) at ($destination)...'
+      }
       print ""
 
       # if ($verbose != null) {
@@ -48,7 +56,11 @@ flake.lib.writeNushellApplication pkgs {
       attic push homelab result/
 
       # Then actually deploy it
-      nh os switch --ask ...$args --hostname $host --target-host $destination .
+      if $is_local_deploy {
+        nh os switch --ask ...$args --hostname $host .
+      } else {
+        nh os switch --ask ...$args --hostname $host --target-host $destination .
+      }
 
       # Clean up the result so the changes don't look so crazy
       rm result
