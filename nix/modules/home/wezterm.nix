@@ -1,8 +1,7 @@
-{perSystem, ...}: {
+_: {
   programs.wezterm = {
     enable = true;
     enableZshIntegration = true;
-    package = perSystem.nixpkgs-stable.wezterm;
 
     extraConfig = ''
       local io = require 'io'
