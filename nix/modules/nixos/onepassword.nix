@@ -3,7 +3,7 @@
   pkgs,
   ...
 }: let
-  inherit (flake.packages.${pkgs.stdenv.system}) sync-1password-secrets;
+  inherit (flake.packages.${pkgs.stdenv.hostPlatform.system}) sync-1password-secrets;
 in {
   # Password manager
   programs._1password = {

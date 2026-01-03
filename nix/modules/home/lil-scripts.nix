@@ -2,24 +2,26 @@
   pkgs,
   flake,
   ...
-}: {
+}: let
+  inherit (pkgs.stdenv.hostPlatform) system;
+in {
   home.packages = [
     # Find executables in PATH and follow symlink chains
-    flake.packages.${pkgs.stdenv.system}.whichbin
+    flake.packages.${system}.whichbin
 
     # Show Nix derivation tree for an executable
-    flake.packages.${pkgs.stdenv.system}.treebinderivation
+    flake.packages.${system}.treebinderivation
 
     # List processes listening on ports
-    flake.packages.${pkgs.stdenv.system}.open-ports
+    flake.packages.${system}.open-ports
 
     # Print git repository root directory
-    flake.packages.${pkgs.stdenv.system}.git-root
+    flake.packages.${system}.git-root
 
     # Print $PATH with newlines for easier reading
-    flake.packages.${pkgs.stdenv.system}.prettypath
+    flake.packages.${system}.prettypath
 
     # View journalctl logs for systemd units
-    flake.packages.${pkgs.stdenv.system}.jview
+    flake.packages.${system}.jview
   ];
 }

@@ -3,8 +3,8 @@
   flake,
   ...
 }: let
-  inherit (flake.packages.${pkgs.stdenv.system}) audio-output-switcher;
-  inherit (flake.packages.${pkgs.stdenv.system}) reboot-into-entry;
+  inherit (flake.packages.${pkgs.stdenv.hostPlatform.system}) audio-output-switcher;
+  inherit (flake.packages.${pkgs.stdenv.hostPlatform.system}) reboot-into-entry;
   inherit (flake.lib.homelab.machines.cadmium) monitor-names;
 in {
   home.packages = [

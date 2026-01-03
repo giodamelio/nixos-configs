@@ -3,7 +3,7 @@
   flake,
   ...
 }: let
-  rustmailPackage = flake.packages.${pkgs.stdenv.system}.rustmailer;
+  rustmailPackage = flake.packages.${pkgs.stdenv.hostPlatform.system}.rustmailer;
 in {
   systemd.services.rustmailer = {
     description = "RustMailer Email Service";

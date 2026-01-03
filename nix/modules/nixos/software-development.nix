@@ -5,7 +5,7 @@
   perSystem,
   ...
 }: let
-  flakePackages = flake.packages.${pkgs.stdenv.system};
+  flakePackages = flake.packages.${pkgs.stdenv.hostPlatform.system};
 in {
   imports = [
     flake.modules.common.nixpkgs-stable

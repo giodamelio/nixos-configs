@@ -23,6 +23,6 @@
         llm-fragments-github
       ]))
 
-    flake.packages.${pkgs.stdenv.system}.runprompt
+    flake.packages.${pkgs.stdenv.hostPlatform.system}.runprompt
   ];
 }

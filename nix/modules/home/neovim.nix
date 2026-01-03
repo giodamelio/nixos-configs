@@ -4,7 +4,7 @@
   ...
 }: let
   inherit (pkgs) lib;
-  customNeovim = flake.packages.${pkgs.stdenv.system}.neovim;
+  customNeovim = flake.packages.${pkgs.stdenv.hostPlatform.system}.neovim;
 in {
   home.packages =
     [

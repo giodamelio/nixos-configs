@@ -4,7 +4,7 @@
   config,
   ...
 }: let
-  inherit (flake.packages.${pkgs.stdenv.system}) windmill;
+  inherit (flake.packages.${pkgs.stdenv.hostPlatform.system}) windmill;
 in {
   services.windmill = {
     enable = true;

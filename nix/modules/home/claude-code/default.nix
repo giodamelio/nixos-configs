@@ -5,7 +5,7 @@
   flake,
   ...
 }: let
-  claudeCode = flake.packages.${pkgs.stdenv.system}.claude-code;
+  claudeCode = flake.packages.${pkgs.stdenv.hostPlatform.system}.claude-code;
 in {
   options.programs.gio-claude-code = {
     enable = lib.mkEnableOption "Claude Code configuration management";

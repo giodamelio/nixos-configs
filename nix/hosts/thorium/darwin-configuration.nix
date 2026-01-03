@@ -3,7 +3,7 @@
   pkgs,
   ...
 }: let
-  flakePackages = flake.packages.${pkgs.stdenv.system};
+  flakePackages = flake.packages.${pkgs.stdenv.hostPlatform.system};
 in {
   # Necessary for using flakes on this system.
   nix.settings = {
