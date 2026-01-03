@@ -127,32 +127,35 @@ in {
       ];
 
       # Add some keybindings
-      keybindings = lib.mkOptionDefault {
-        # I have gotten too used to MacOS...
-        "${modifier}+space" = "exec vicinae toggle";
+      keybindings = let
+        playerctlCmd = "exec ${pkgs.playerctl}/bin/playerctl -i firefox";
+      in
+        lib.mkOptionDefault {
+          # I have gotten too used to MacOS...
+          "${modifier}+space" = "exec vicinae toggle";
 
-        # Switch to the last focused windows
-        "${modifier}+Tab" = "exec ${pkgs.swayr}/bin/swayr switch-to-urgent-or-lru-window";
+          # Switch to the last focused windows
+          "${modifier}+Tab" = "exec ${pkgs.swayr}/bin/swayr switch-to-urgent-or-lru-window";
 
-        # Clipboard History
-        "${modifier}+v" = "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.wofi}/bin/wofi --show=dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
+          # Clipboard History
+          "${modifier}+v" = "exec ${pkgs.cliphist}/bin/cliphist list | ${pkgs.wofi}/bin/wofi --show=dmenu | ${pkgs.cliphist}/bin/cliphist decode | ${pkgs.wl-clipboard}/bin/wl-copy";
 
-        # Make media buttons work
-        "XF86AudioRaiseVolume" = "exec ${pkgs.pw-volume}/bin/pw-volume change +2.5%";
-        "XF86AudioLowerVolume" = "exec ${pkgs.pw-volume}/bin/pw-volume change -2.5%";
-        "XF86AudioMute" = "exec ${pkgs.pw-volume}/bin/pw-volume mute toggle'";
-        "XF86AudioPlay" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
-        "XF86Launch6" = "exec ${pkgs.playerctl}/bin/playerctl previous";
-        "XF86Launch7" = "exec ${pkgs.playerctl}/bin/playerctl play-pause";
-        "XF86Launch8" = "exec ${pkgs.playerctl}/bin/playerctl next";
+          # Make media buttons work
+          "XF86AudioRaiseVolume" = "exec ${pkgs.pw-volume}/bin/pw-volume change +2.5%";
+          "XF86AudioLowerVolume" = "exec ${pkgs.pw-volume}/bin/pw-volume change -2.5%";
+          "XF86AudioMute" = "${playerctlCmd} mute toggle'";
+          "XF86AudioPlay" = "${playerctlCmd} play-pause";
+          "XF86Launch6" = "${playerctlCmd} previous";
+          "XF86Launch7" = "${playerctlCmd} play-pause";
+          "XF86Launch8" = "${playerctlCmd} next";
 
-        # Screenshots
-        "Print" = "exec flameshot gui";
-        "Shift+Print" = "exec flameshot gui --clipboard";
-        "${modifier}+Print" = "exec flameshot full --clipboard";
-        "${modifier}+Shift+Print" = "exec flameshot full --path ~/Pictures/Screenshots/";
-        "${modifier}+ctrl+Print" = "exec flameshot gui --delay 3000";
-      };
+          # Screenshots
+          "Print" = "exec flameshot gui";
+          "Shift+Print" = "exec flameshot gui --clipboard";
+          "${modifier}+Print" = "exec flameshot full --clipboard";
+          "${modifier}+Shift+Print" = "exec flameshot full --path ~/Pictures/Screenshots/";
+          "${modifier}+ctrl+Print" = "exec flameshot gui --delay 3000";
+        };
 
       # Assign certin programs to certin workspaces
       assigns = {
