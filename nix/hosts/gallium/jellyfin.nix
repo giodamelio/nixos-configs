@@ -1,6 +1,19 @@
-_: {
+_: let
+  mediaGroup = "media";
+in {
+  users.groups = {
+    ${mediaGroup} = {
+      members = [
+        "jellyfin"
+        "nzbget"
+        "prowlarr"
+        "sonarr"
+      ];
+    };
+  };
   services.jellyfin = {
     enable = true;
+    group = mediaGroup;
   };
 
   services.gio.reverse-proxy = {
@@ -27,14 +40,18 @@ _: {
 
   services.prowlarr = {
     enable = true;
+    # TODO: allow setting group
+    # group = mediaGroup;
   };
 
   services.sonarr = {
     enable = true;
+    group = mediaGroup;
   };
 
   services.nzbget = {
     enable = true;
+    group = mediaGroup;
     settings = {};
   };
 }
