@@ -1,13 +1,18 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  config,
+  ...
+}: let
+  inherit (pkgs) lib;
   mediaGroup = "media";
 in {
   users.groups = {
     ${mediaGroup} = {
       members = [
         "jellyfin"
-        "nzbget"
         "prowlarr"
         "sonarr"
+        "radarr"
       ];
     };
   };
@@ -43,6 +48,14 @@ in {
         host = "localhost";
         port = 8989;
       };
+      "radarr" = {
+        host = "localhost";
+        port = 7878;
+      };
+      "sabnzbd" = {
+        host = "localhost";
+        port = 8888;
+      };
     };
   };
 
@@ -57,9 +70,23 @@ in {
     group = mediaGroup;
   };
 
-  services.nzbget = {
+  services.radarr = {
     enable = true;
     group = mediaGroup;
-    settings = {};
+  };
+
+  services.sabnzbd = let
+    stateDir = "/var/lib/sabnzbd";
+  in {
+    enable = true;
+    group = mediaGroup;
+    configFile = "${stateDir}/sabnzbd.ini";
+  };
+
+  systemd.services.sabnzbd = {
+    serviceConfig = {
+      Type = lib.mkForce "simple";
+      ExecStart = lib.mkForce "${config.services.sabnzbd.package}/bin/sabnzbd -f ${config.services.sabnzbd.configFile} -s 127.0.0.1:8888 --disable-file-log";
+    };
   };
 }

@@ -58,10 +58,10 @@
             logo = dashboardLogo "jellyfin";
           }
           {
-            name = "NZBGet";
-            subtitle = "Usenet Binary Newsready";
-            url = "https://nzbget.gio.ninja";
-            logo = dashboardLogo "nzbget";
+            name = "SABnzbd";
+            subtitle = "Usenet Binary Newsreader";
+            url = "https://sabnzbd.gio.ninja";
+            logo = dashboardLogo "sabnzbd";
           }
           {
             name = "Prowlarr";
@@ -74,6 +74,12 @@
             subtitle = "TV Show Tracker";
             url = "https://sonarr.gio.ninja";
             logo = dashboardLogo "sonarr";
+          }
+          {
+            name = "Radarr";
+            subtitle = "Movie Tracker";
+            url = "https://radarr.gio.ninja";
+            logo = dashboardLogo "radarr";
           }
         ];
       }
