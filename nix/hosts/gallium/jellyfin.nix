@@ -1,4 +1,4 @@
-_: let
+{pkgs, ...}: let
   mediaGroup = "media";
 in {
   users.groups = {
@@ -15,6 +15,14 @@ in {
     enable = true;
     group = mediaGroup;
   };
+
+  users.users.server = {
+    extraGroups = [mediaGroup];
+  };
+
+  environment.systemPackages = with pkgs; [
+    filebot
+  ];
 
   services.gio.reverse-proxy = {
     enable = true;
