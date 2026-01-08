@@ -15,6 +15,7 @@ in {
     flake.nixosModules.send-metrics
     flake.nixosModules.zfs-backup
     flake.nixosModules.consul
+    flake.nixosModules.nats
 
     # TODO: setup auto backup
     ./postgresql.nix # DB to be shared across applications
@@ -28,7 +29,6 @@ in {
     ./restate.nix # Distributed application platform
     ./windmill.nix # Workflow Engine
     ./rustmailer.nix # Email middleware
-    ./nats.nix # Message Broker
     ./grist.nix # Spreadsheets on steroids
     ./hammond.nix # Random automations for my life
     ./home-assistant.nix # Home Automation
