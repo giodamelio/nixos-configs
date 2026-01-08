@@ -132,6 +132,12 @@
             url = "https://rustmailer.gio.ninja";
             logo = "https://rustmailer.com/images/logo.svg";
           }
+          {
+            name = "OpenBao";
+            subtitle = "Secrets Management";
+            url = "https://openbao.gio.ninja";
+            logo = "https://openbao.org/img/favicon.svg";
+          }
         ];
       }
     ];
