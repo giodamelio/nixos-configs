@@ -188,6 +188,7 @@ wk.add({
   { '<leader>lr', snacks.picker.lsp_references, desc = 'Show references' },
   { '<leader>lt', snacks.picker.lsp_type_definitions, desc = 'Show type definition' },
   { '<leader>lf', vim.lsp.buf.format, desc = 'Format buffer' },
+  { '<leader>lR', vim.lsp.buf.rename, desc = 'Rename under cursor' },
 })
 
 -- Navigate to other files
