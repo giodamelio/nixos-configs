@@ -16,6 +16,7 @@ in {
     flake.nixosModules.zfs-backup
     flake.nixosModules.consul
     flake.nixosModules.nats
+    flake.nixosModules.lan-dns
 
     ./postgresql.nix # Shared PostgreSQL database
     ./immich.nix # Photo/Video backup service
