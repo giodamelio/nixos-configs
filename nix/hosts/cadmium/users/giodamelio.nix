@@ -21,6 +21,7 @@
     flake.homeModules.llm
     flake.homeModules.jj
     flake.homeModules.pi
+    flake.homeModules.codex
   ];
 
   home = {
