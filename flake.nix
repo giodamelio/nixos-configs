@@ -79,5 +79,9 @@
     # Unison Programming Language
     unison-lang.url = "github:giodamelio/unison-nix/giodamelio/init-ucm-desktop";
     unison-lang.inputs.nixpkgs.follows = "nixpkgs";
+
+    # LLM Agents
+    llm-agents.url = "github:numtide/llm-agents.nix";
+    llm-agents.inputs.nixpkgs.follows = "nixpkgs";
   };
 }

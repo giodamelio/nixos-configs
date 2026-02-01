@@ -13,6 +13,7 @@
     flake.homeModules.atuind
     flake.homeModules.claude-code
     flake.homeModules.jj
+    flake.homeModules.pi
   ];
 
   home = {
@@ -24,7 +25,6 @@
   programs.home-manager.enable = true;
   programs.claude-code = {
     enable = true;
-    installPackage = true;
   };
 
   programs.opencode = {

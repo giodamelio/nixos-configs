@@ -20,6 +20,7 @@
     flake.homeModules.claude-code
     flake.homeModules.llm
     flake.homeModules.jj
+    flake.homeModules.pi
   ];
 
   home = {
