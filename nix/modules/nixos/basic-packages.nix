@@ -15,6 +15,7 @@ in {
       zellij # Kinda like Tmux
       # usbutils # For lsusb command
       flakePkgs.witr # Why is this process/port/whatever running
+      jq # JSON munging
 
       git
       file
