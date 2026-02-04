@@ -92,5 +92,8 @@
     # Fork of OpenAI Codex
     just-every-code.url = "github:just-every/code";
     just-every-code.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Handy Speach to Text
+    handy.url = "github:cpuguy83/nix-handy-stt/upstream_pr_680";
   };
 }

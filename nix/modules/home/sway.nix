@@ -82,7 +82,7 @@ in {
           command = "${lib.getExe' perSystem.vicinae.default "vicinae"} server";
         }
         {
-          command = "${lib.getExe perSystem.giopkgs.handy}";
+          command = "${lib.getExe perSystem.handy.default}";
         }
       ];
 

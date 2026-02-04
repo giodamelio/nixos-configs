@@ -547,6 +547,44 @@
         "type": "github"
       }
     },
+    "handy": {
+      "inputs": {
+        "handy-src": "handy-src",
+        "nixpkgs": "nixpkgs_2",
+        "rust-overlay": "rust-overlay"
+      },
+      "locked": {
+        "lastModified": 1769793857,
+        "narHash": "sha256-OTFWbbgcbOWz8a8odToKIpXEBgsrdDQdBh5f3LFxuVQ=",
+        "owner": "cpuguy83",
+        "repo": "nix-handy-stt",
+        "rev": "a7d527c08434c2c12ae0bbeba945870e847f34dd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cpuguy83",
+        "ref": "upstream_pr_680",
+        "repo": "nix-handy-stt",
+        "type": "github"
+      }
+    },
+    "handy-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1769541499,
+        "narHash": "sha256-iyOU+h4ZgBPO7RDz2NENWmPYOSRaVGHvPRXy5ejTCEI=",
+        "owner": "SoumyaRanjanPatnaik",
+        "repo": "Handy",
+        "rev": "ac7f2b360c8c5c5085a2204d98981aaf50494f1a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "SoumyaRanjanPatnaik",
+        "repo": "Handy",
+        "rev": "ac7f2b360c8c5c5085a2204d98981aaf50494f1a",
+        "type": "github"
+      }
+    },
     "haskellNix": {
       "inputs": {
         "HTTP": "HTTP",
@@ -859,7 +897,7 @@
         "nixpkgs": [
           "nixpkgs"
         ],
-        "rust-overlay": "rust-overlay"
+        "rust-overlay": "rust-overlay_2"
       },
       "locked": {
         "lastModified": 1768317274,
@@ -998,7 +1036,7 @@
     "nix": {
       "inputs": {
         "lowdown-src": "lowdown-src",
-        "nixpkgs": "nixpkgs_4",
+        "nixpkgs": "nixpkgs_5",
         "nixpkgs-regression": "nixpkgs-regression"
       },
       "locked": {
@@ -1369,6 +1407,22 @@
     },
     "nixpkgs_2": {
       "locked": {
+        "lastModified": 1769740369,
+        "narHash": "sha256-xKPyJoMoXfXpDM5DFDZDsi9PHArf2k5BJjvReYXoFpM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "6308c3b21396534d8aaeac46179c14c439a89b8a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_3": {
+      "locked": {
         "lastModified": 1766747458,
         "narHash": "sha256-m63jjuo/ygo8ztkCziYh5OOIbTSXUDkKbqw3Vuqu4a4=",
         "owner": "NixOS",
@@ -1382,7 +1436,7 @@
         "type": "indirect"
       }
     },
-    "nixpkgs_3": {
+    "nixpkgs_4": {
       "locked": {
         "lastModified": 1735554305,
         "narHash": "sha256-zExSA1i/b+1NMRhGGLtNfFGXgLtgo+dcuzHzaWA6w3Q=",
@@ -1398,7 +1452,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_4": {
+    "nixpkgs_5": {
       "locked": {
         "lastModified": 1657693803,
         "narHash": "sha256-G++2CJ9u0E7NNTAi9n5G8TdDmGJXcIjkJ3NF8cetQB8=",
@@ -1548,6 +1602,7 @@
         "disko": "disko",
         "giopkgs": "giopkgs",
         "hammond": "hammond",
+        "handy": "handy",
         "home-manager": "home-manager",
         "just-every-code": "just-every-code",
         "lilvault": "lilvault",
@@ -1558,7 +1613,7 @@
         "nixos-generators": "nixos-generators",
         "nixos-hardware": "nixos-hardware",
         "nixos-wsl": "nixos-wsl",
-        "nixpkgs": "nixpkgs_2",
+        "nixpkgs": "nixpkgs_3",
         "nixpkgs-stable": "nixpkgs-stable",
         "nvf": "nvf",
         "pre-commit-hooks": "pre-commit-hooks",
@@ -1587,6 +1642,27 @@
       }
     },
     "rust-overlay": {
+      "inputs": {
+        "nixpkgs": [
+          "handy",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1769742225,
+        "narHash": "sha256-roSD/OJ3x9nF+Dxr+/bLClX3U8FP9EkCQIFpzxKjSUM=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "bcdd8d37594f0e201639f55889c01c827baf5c75",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "rust-overlay_2": {
       "inputs": {
         "nixpkgs": [
           "just-every-code",
@@ -1793,7 +1869,7 @@
     },
     "treefmt-nix_4": {
       "inputs": {
-        "nixpkgs": "nixpkgs_3"
+        "nixpkgs": "nixpkgs_4"
       },
       "locked": {
         "lastModified": 1736154270,
