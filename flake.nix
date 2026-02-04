@@ -15,6 +15,9 @@
     nixpkgs.url = "flake:nixpkgs/nixpkgs-unstable";
     nixpkgs-stable.url = "github:nixos/nixpkgs/nixos-25.05";
 
+    # My own personal set of packages
+    giopkgs.url = "github:giodamelio/giopkgs";
+
     # Make the organization of the flake easy
     blueprint.url = "github:numtide/blueprint";
     blueprint.inputs.nixpkgs.follows = "nixpkgs";

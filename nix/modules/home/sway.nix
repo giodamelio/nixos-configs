@@ -9,7 +9,6 @@
   inherit (flake.lib.homelab.machines.cadmium) monitor-names;
   modifier = "Mod4";
   flameshotModified = pkgs.flameshot.override {enableWlrSupport = true;};
-  flakePkgs = flake.packages.${pkgs.stdenv.hostPlatform.system};
 in {
   imports = [
     flake.homeModules.vicinae
@@ -83,7 +82,7 @@ in {
           command = "${lib.getExe' perSystem.vicinae.default "vicinae"} server";
         }
         {
-          command = "${lib.getExe flakePkgs.handy}";
+          command = "${lib.getExe perSystem.giopkgs.handy}";
         }
       ];
 
@@ -162,6 +161,7 @@ in {
 
           # Voice to text
           "${modifier}+alt+space" = "exec ${lib.getExe' pkgs.procps "pkill"} -USR2 -n handy";
+          "XF86Calculator" = "exec ${lib.getExe' pkgs.procps "pkill"} -USR2 -n handy";
         };
 
       # Assign certin programs to certin workspaces
