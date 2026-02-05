@@ -31,7 +31,6 @@ in {
     ./windmill.nix # Workflow Engine
     ./rustmailer.nix # Email middleware
     ./grist.nix # Spreadsheets on steroids
-    ./hammond.nix # Random automations for my life
     ./home-assistant.nix # Home Automation
     ./openbao.nix # Secret Automation
 

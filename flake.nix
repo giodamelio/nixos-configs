@@ -77,10 +77,6 @@
     # Define/Run Podman quadlets easily
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
 
-    # Random automations
-    hammond.url = "github:giodamelio/hammond";
-    hammond.inputs.nixpkgs.follows = "nixpkgs";
-
     # Unison Programming Language
     unison-lang.url = "github:giodamelio/unison-nix/giodamelio/init-ucm-desktop";
     unison-lang.inputs.nixpkgs.follows = "nixpkgs";
