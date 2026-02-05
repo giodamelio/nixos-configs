@@ -98,5 +98,6 @@ join_address = "carbon.gio.ninja"
   "consul",
   "home-assistant",
   "openbao",
+  "hammond",
 ]
 "jetkvm.lan." = ["jetkvm"]

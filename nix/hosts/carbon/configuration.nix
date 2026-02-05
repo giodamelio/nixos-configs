@@ -33,6 +33,7 @@ in {
     ./grist.nix # Spreadsheets on steroids
     ./home-assistant.nix # Home Automation
     ./openbao.nix # Secret Automation
+    ./hammond.nix # My personal automation bot
 
     # Configure Networking with Systemd Networkd
     {
