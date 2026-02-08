@@ -1,10 +1,12 @@
 {
   pkgs,
   flake,
+  perSystem,
   ...
 }: let
   inherit (flake.packages.${pkgs.stdenv.hostPlatform.system}) audio-output-switcher;
   inherit (flake.packages.${pkgs.stdenv.hostPlatform.system}) reboot-into-entry;
+  inherit (flake.packages.${pkgs.stdenv.hostPlatform.system}) waybar-network-monitor;
   inherit (flake.lib.homelab.machines.cadmium) monitor-names;
 in {
   home.packages = [
@@ -13,6 +15,7 @@ in {
 
   programs.waybar = {
     enable = true;
+    package = perSystem.giopkgs.waybar;
     systemd = {
       enable = true;
       target = "sway-session.target";
@@ -63,7 +66,7 @@ in {
 
         modules-left = ["sway/mode" "sway/workspaces" "hyprland/workspaces" "hyprland/submap"];
         modules-center = [];
-        modules-right = ["network#tailscale0" "network#wifi" "network" "cpu" "memory" "pulseaudio" "tray" "custom/notification" "clock" "custom/power"];
+        modules-right = ["network#tailscale0" "network#wifi" "network" "custom/network-down-icon" "custom-graph/network-down" "custom/network-up-icon" "custom-graph/network-up" "cpu" "memory" "pulseaudio" "tray" "custom/notification" "clock" "custom/power"];
 
         inherit clock;
 
@@ -84,6 +87,30 @@ in {
           // {
             interface = "tailscale0";
           };
+
+        # The custom-graph module's format option appears to be broken/buggy,
+        # so we use separate custom modules to display the icons
+        "custom/network-down-icon" = {
+          format = "↓";
+          tooltip = false;
+        };
+
+        "custom-graph/network-down" = {
+          exec = "${waybar-network-monitor}/bin/waybar-network-monitor down";
+          return-type = "json";
+          tooltip = true;
+        };
+
+        "custom/network-up-icon" = {
+          format = "↑";
+          tooltip = false;
+        };
+
+        "custom-graph/network-up" = {
+          exec = "${waybar-network-monitor}/bin/waybar-network-monitor up";
+          return-type = "json";
+          tooltip = true;
+        };
 
         cpu = {
           format = "{icon0}{icon1}{icon2}{icon3}{icon4}{icon5}{icon6}{icon7}{icon8}{icon9}{icon10}{icon11} {usage}% ";
@@ -318,6 +345,28 @@ in {
 
       label:focus {
           background-color: #000000;
+      }
+
+      #custom-network-down-icon {
+          background-color: transparent;
+          color: #0080c0;
+          padding: 0 2px;
+      }
+
+      #custom-graph-network-down {
+          background-color: transparent;
+          padding: 0 5px 0 0;
+      }
+
+      #custom-network-up-icon {
+          background-color: transparent;
+          color: #fa7070;
+          padding: 0 2px;
+      }
+
+      #custom-graph-network-up {
+          background-color: transparent;
+          padding: 0 5px 0 0;
       }
 
       #cpu {
