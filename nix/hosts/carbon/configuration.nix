@@ -38,10 +38,11 @@ in {
     # Configure Networking with Systemd Networkd
     {
       # Use Networkd
+      # Note: eno1 is configured as a bridge port in hammond.nix
+      # The bridge (br0) gets the IP address, not eno1 directly
       networking = {
         useNetworkd = true;
         useDHCP = false;
-        interfaces."eno1".useDHCP = true;
 
         firewall = {
           enable = true;
@@ -66,15 +67,17 @@ in {
           "tank/nix"
           "tank/reserve"
           "tank/root"
+          "tank/microvms"
         ];
       };
     }
 
-    # Host specific console configs
+    # Host specific consul configs
     {
       services.consul = {
         webUi = true;
-        interface.bind = "eno1";
+        # Bind to bridge instead of eno1 (eno1 is now a bridge port with no IP)
+        interface.bind = "br0";
       };
 
       # Make it read only by only allowing GET requests though

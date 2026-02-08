@@ -91,5 +91,9 @@
 
     # Handy Speach to Text
     handy.url = "github:cpuguy83/nix-handy-stt/upstream_pr_680";
+
+    # Run small declarative VMs easily
+    microvm.url = "github:microvm-nix/microvm.nix";
+    microvm.inputs.nixpkgs.follows = "nixpkgs";
   };
 }
