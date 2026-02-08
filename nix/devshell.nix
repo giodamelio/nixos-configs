@@ -21,7 +21,7 @@ in
         pkgs.nushell
         pkgs.rage
         pkgs.pwgen
-        pkgs.dogdns
+        pkgs.doggo
         pkgs.opentofu
         pkgs.little_boxes
         pkgs.nil
