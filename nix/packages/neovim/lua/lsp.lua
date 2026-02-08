@@ -156,6 +156,7 @@ vim.lsp.config('hls', {
 
 vim.lsp.enable('sourcekit')
 vim.lsp.enable('nil_ls')
+vim.lsp.enable('nixd')
 vim.lsp.enable('expert')
 vim.lsp.enable('nextls')
 vim.lsp.enable('lua_ls')
