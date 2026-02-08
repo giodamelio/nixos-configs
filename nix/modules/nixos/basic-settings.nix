@@ -1,4 +1,8 @@
-{inputs, ...}: {
+{
+  inputs,
+  flake,
+  ...
+}: {
   environment.etc."issue.d/ip.issue".text = "IP Address \\4\n\n";
   nix = {
     settings = {
@@ -32,4 +36,10 @@
       PasswordAuthentication = false;
     };
   };
+
+  # Copy the flake source to /etc/nixos for emergency recovery
+  # In case of losing access to the main repo, any machine can rebuild itself with:
+  #   cp -rL /etc/nixos /tmp/recovery && cd /tmp/recovery && nixos-rebuild switch --flake .#hostname
+  environment.etc."nixos".source = flake;
+  environment.etc."nixos-revision".text = flake.rev or flake.dirtyRev or "unknown";
 }
