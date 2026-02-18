@@ -60,6 +60,12 @@ sshDestination = "server@carbon.gio.ninja"
 [machines.carbon.consul]
 join_address = "carbon.gio.ninja"
 
+[machines.hammond]
+hardwareDescription = "Intel NUC 5th Gen"
+hardwareModelNumber = "NUC5CPYH"
+physicalLocation = "minirack"
+useDescription = "Hammond AI agent"
+
 [dns."gio.ninja".a]
 
 [dns."gio.ninja".cname]
