@@ -78,6 +78,7 @@ join_address = "carbon.gio.ninja"
   "sonarr",
   "sabnzbd",
   "radarr",
+  "nats-ws",
 ]
 "carbon.lan." = [
   "carbon",
