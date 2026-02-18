@@ -19,7 +19,16 @@ in {
   services.jellyfin = {
     enable = true;
     group = mediaGroup;
+    hardwareAcceleration = {
+      enable = true;
+      type = "qsv";
+      device = "/dev/dri/renderD128";
+    };
+    transcoding = {
+      enableHardwareEncoding = true;
+    };
   };
+  users.users.jellyfin.extraGroups = ["render" "video"];
 
   users.users.server = {
     extraGroups = [mediaGroup];

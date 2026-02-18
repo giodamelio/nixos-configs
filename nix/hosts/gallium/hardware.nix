@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: {
   boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "sr_mod" "sdhci_pci"];
@@ -13,6 +14,14 @@
   time.timeZone = "America/Los_Angeles";
 
   networking.hostName = "gallium";
+
+  hardware.graphics = {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-media-driver
+      vpl-gpu-rt
+    ];
+  };
 
   boot.loader = {
     systemd-boot = {
