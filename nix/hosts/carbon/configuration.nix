@@ -33,13 +33,10 @@ in {
     ./grist.nix # Spreadsheets on steroids
     ./home-assistant.nix # Home Automation
     ./openbao.nix # Secret Automation
-    ./hammond.nix # My personal automation bot
+    ./hammond.nix # Static network configuration
 
     # Configure Networking with Systemd Networkd
     {
-      # Use Networkd
-      # Note: eno1 is configured as a bridge port in hammond.nix
-      # The bridge (br0) gets the IP address, not eno1 directly
       networking = {
         useNetworkd = true;
         useDHCP = false;
@@ -76,8 +73,7 @@ in {
     {
       services.consul = {
         webUi = true;
-        # Bind to bridge instead of eno1 (eno1 is now a bridge port with no IP)
-        interface.bind = "br0";
+        interface.bind = "eno1";
       };
 
       # Make it read only by only allowing GET requests though
