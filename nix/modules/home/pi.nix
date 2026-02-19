@@ -1,9 +1,5 @@
-{
-  pkgs,
-  flake,
-  ...
-}: {
+{perSystem, ...}: {
   home.packages = [
-    flake.inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.pi
+    perSystem.llm-agents.pi
   ];
 }
