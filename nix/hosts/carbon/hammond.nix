@@ -49,6 +49,17 @@ _: {
     '';
     interfaces."enp0s20f0u6" = {
       allowedUDPPorts = [67];
+      allowedTCPPorts = [4000];
+    };
+  };
+
+  services.gio.reverse-proxy = {
+    enable = true;
+    virtualHosts = {
+      "hammond" = {
+        host = "192.168.100.29";
+        port = 4000;
+      };
     };
   };
 }
