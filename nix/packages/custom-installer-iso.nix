@@ -1,10 +1,9 @@
 {
+  perSystem,
   inputs,
-  flake,
-  pkgs,
   ...
 }: let
-  customNeovim = flake.packages.${pkgs.stdenv.hostPlatform.system}.neovim;
+  customNeovim = perSystem.neovim-configs.light;
   homelab = builtins.fromTOML (builtins.readFile ../../homelab.toml);
 in
   inputs.nixos-generators.nixosGenerate {

@@ -1,9 +1,11 @@
 {
+  perSystem,
   pkgs,
   flake,
   ...
 }: let
   flakePkgs = flake.packages.${pkgs.stdenv.hostPlatform.system};
+  customNeovim = perSystem.neovim-configs.default;
 in {
   environment = {
     systemPackages = with pkgs; [
@@ -22,7 +24,7 @@ in {
       file
 
       # My custom wrapped Neovim with configs/plugins
-      flakePkgs.neovim
+      customNeovim
 
       # Internet fetchers
       curl

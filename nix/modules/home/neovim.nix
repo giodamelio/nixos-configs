@@ -1,10 +1,10 @@
 {
+  perSystem,
   pkgs,
-  flake,
   ...
 }: let
   inherit (pkgs) lib;
-  customNeovim = flake.packages.${pkgs.stdenv.hostPlatform.system}.neovim;
+  customNeovim = perSystem.neovim-configs.default;
 in {
   home.packages =
     [

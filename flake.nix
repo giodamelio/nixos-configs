@@ -56,9 +56,9 @@
     lilvault.url = "github:giodamelio/lilvault";
     lilvault.inputs.nixpkgs.follows = "nixpkgs";
 
-    # Neovim config framework
-    nvf.url = "github:notashelf/nvf";
-    nvf.inputs.nixpkgs.follows = "nixpkgs";
+    # My Personal Neovim Configuration
+    neovim-configs.url = "github:giodamelio/neovim-configs-nix";
+    neovim-configs.inputs.nixpkgs.follows = "nixpkgs";
 
     # Automated Git hooks
     pre-commit-hooks.url = "github:cachix/git-hooks.nix";
