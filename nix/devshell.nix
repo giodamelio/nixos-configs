@@ -10,7 +10,7 @@
   treefmt = flake.lib.treefmt pkgs;
 
   # Git Hooks Setup
-  inherit (flake.packages.${system}) git-hooks claude-code deploy;
+  inherit (flake.packages.${system}) git-hooks deploy;
 in
   pkgs.mkShell {
     buildInputs =
@@ -29,7 +29,6 @@ in
         pkgs.nix-diff
         pkgs.nix-output-monitor
         pkgs.backblaze-b2
-        claude-code
         pkgs.lua-language-server
         pkgs.nh
         pkgs.minio-client
