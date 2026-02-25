@@ -1,4 +1,4 @@
-{
+{config, ...}: {
   services.grafana = {
     enable = true;
     settings = {
@@ -9,6 +9,7 @@
         enforce_domain = true;
       };
       analytics.reporting_enabled = false;
+      security.secret_key = "$__file{${config.gio.credentials.services.grafana.credentialPath.grafana-secret-key}}";
     };
 
     provision = {
@@ -30,6 +31,8 @@
       ];
     };
   };
+
+  gio.credentials.services.grafana.loadCredentialEncrypted = ["grafana-secret-key"];
 
   services.gio.reverse-proxy = {
     enable = true;

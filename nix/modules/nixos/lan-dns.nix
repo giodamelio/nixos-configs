@@ -26,11 +26,12 @@
     ]}
   '';
 in {
-  # Disable systemd-resolved dns server
   services.resolved = {
-    extraConfig = ''
-      DNSStubListener=no
-    '';
+    settings = {
+      Resolve = {
+        DNSStubListener = "no";
+      };
+    };
   };
 
   services.coredns = {

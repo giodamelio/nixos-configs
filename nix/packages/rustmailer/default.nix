@@ -1,5 +1,5 @@
 {pkgs}: let
-  inherit (pkgs) lib rustPlatform fetchFromGitHub curl pkg-config protobuf bzip2 oniguruma openssl zlib zstd stdenv darwin pnpm;
+  inherit (pkgs) lib rustPlatform fetchFromGitHub curl pkg-config protobuf bzip2 oniguruma openssl zlib zstd stdenv darwin pnpmConfigHook fetchPnpmDeps;
 
   version = "1.5.3";
 
@@ -18,10 +18,10 @@
 
     nativeBuildInputs = [
       pkgs.nodejs
-      pkgs.pnpm.configHook
+      pnpmConfigHook
     ];
 
-    pnpmDeps = pnpm.fetchDeps {
+    pnpmDeps = fetchPnpmDeps {
       inherit version src;
       pname = "${pname}-web";
       fetcherVersion = 2;

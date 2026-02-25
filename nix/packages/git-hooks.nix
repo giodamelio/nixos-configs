@@ -58,7 +58,8 @@
 
     buildFeatures = "json";
 
-    # tests are failing on darwin
+    meta.mainProgram = "statix";
+
     doCheck = !pkgs.stdenv.hostPlatform.isDarwin;
   };
 in
