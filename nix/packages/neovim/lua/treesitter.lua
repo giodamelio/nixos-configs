@@ -1,17 +1,5 @@
-local ts = require('nvim-treesitter.configs')
 local rainbow_delimiters = require('rainbow-delimiters')
 local rainbowsetup = require('rainbow-delimiters.setup')
-
-ts.setup({
-  highlight = {
-    enable = true,
-    disable = {},
-  },
-  indent = {
-    enable = true,
-    disable = {},
-  },
-})
 
 rainbowsetup({
   strategy = {
@@ -39,6 +27,3 @@ vim.filetype.add({
     hurl = 'hurl',
   },
 })
-
--- Add some external syntaxes
-require('tree-sitter-surrealdb').setup()
