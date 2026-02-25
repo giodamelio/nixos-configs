@@ -28,7 +28,6 @@ in
         pkgs.nvd
         pkgs.nix-diff
         pkgs.nix-output-monitor
-        pkgs.backblaze-b2
         pkgs.lua-language-server
         pkgs.nh
         pkgs.minio-client
