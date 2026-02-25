@@ -62,3 +62,28 @@ Guide for agentic coding tools working in this NixOS configuration repository.
 - **Modify user env**: Edit `nix/modules/home/`, run `treefmt`, then `nix flake check`
 - **Host-specific changes**: Edit `nix/hosts/<hostname>/`, always validate with `nix flake check`
 - **Secret management**: Store secrets in `secrets/` with age encryption; SSH keys in homelab.toml; never commit unencrypted secrets
+
+## Commit Messages
+- One line, imperative mood, start with capital letter
+- No prefixes (no `chore:`, `feat:`, `fix:`, etc.)
+- No emojis
+- Describe what the change does, not what you did
+- Only add extra lines for genuinely complex changes that need explanation
+
+**Good examples:**
+```
+Setup Jellyfin server
+Add reverse proxy for hammond
+Fix broken devshell
+Update Nixpkgs and llm-agents
+Remove obsolete Claude Code package
+Enable the Nixd LSP in Neovim
+```
+
+**Bad examples:**
+```
+chore: update deps
+feat(neovim): add lsp support
+fixed the thing
+WIP
+```
