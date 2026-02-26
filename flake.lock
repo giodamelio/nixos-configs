@@ -1340,11 +1340,11 @@
         "unison-lang": "unison-lang"
       },
       "locked": {
-        "lastModified": 1772053711,
-        "narHash": "sha256-2geaXLJNrIVre5szbqHncWiRa0wJ9MaUd62TpP7PjD0=",
+        "lastModified": 1772147135,
+        "narHash": "sha256-e49cUzYLnJ3fg/Ai7duh+BirtSUaw+ptk9WjPmwnHmA=",
         "owner": "giodamelio",
         "repo": "neovim-configs-nix",
-        "rev": "18c8575f0d2a097462d116ac9978d1197a949a1c",
+        "rev": "b107bdd96ffa7d9d5e73b0d8dd5d697a06511829",
         "type": "github"
       },
       "original": {

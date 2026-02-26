@@ -29,10 +29,16 @@ config.use_fancy_tab_bar = true
 -- See: https://github.com/wezterm/wezterm/issues/4077
 config.hyperlink_rules = wezterm.default_hyperlink_rules()
 
--- Click on directory paths to cd
+-- Click on directory/file paths to cd or open in vim
 table.insert(config.hyperlink_rules, {
   regex = [[(?:[.~]?/|(?<!\w)/)[^\s"'`<>|:]+]],
-  format = 'wezterm-cd://$0',
+  format = 'wezterm-path://$0',
+})
+
+-- Click on omp --resume commands to run them
+table.insert(config.hyperlink_rules, {
+  regex = [[omp --resume [0-9a-f]+]],
+  format = 'wezterm-omp://$0',
 })
 
 -- Minimize padding
@@ -119,12 +125,22 @@ wezterm.on('trigger-vim-with-scrollback', function(window, pane)
   os.remove(name)
 end)
 
--- Handle click-to-cd for directory paths
+-- Handle click-to-cd/open for paths
 wezterm.on('open-uri', function(window, pane, uri)
-  local prefix = 'wezterm-cd://'
-  if uri:sub(1, #prefix) == prefix then
-    local path = uri:sub(#prefix + 1)
-    wezterm.log_info('click-to-cd: ' .. path)
+  -- Handle omp --resume commands
+  local omp_prefix = 'wezterm-omp://'
+  if uri:sub(1, #omp_prefix) == omp_prefix then
+    local cmd = uri:sub(#omp_prefix + 1)
+    wezterm.log_info('omp-resume: ' .. cmd)
+    pane:send_text(cmd .. '\n')
+    return false
+  end
+
+  -- Handle path clicks
+  local path_prefix = 'wezterm-path://'
+  if uri:sub(1, #path_prefix) == path_prefix then
+    local path = uri:sub(#path_prefix + 1)
+    wezterm.log_info('click-path: ' .. path)
 
     -- Expand ~ and prepend cwd for relative paths
     local expanded = path
@@ -147,7 +163,17 @@ wezterm.on('open-uri', function(window, pane, uri)
       if dir_ok then
         pane:send_text(wezterm.shell_join_args({ 'cd', normalized }) .. '\n')
       else
-        window:toast_notification('WezTerm', 'Not a directory: ' .. path, nil, 4000)
+        -- It's a file - check if binary using file command
+        local mime_success, mime_out, _ = wezterm.run_child_process({ 'file', '--mime-encoding', '-b', normalized })
+        local is_binary = not mime_success or mime_out:match('binary')
+
+        if is_binary then
+          local _, type_out, _ = wezterm.run_child_process({ 'file', '-b', normalized })
+          local file_type = type_out:gsub('\n$', '')
+          window:toast_notification('WezTerm', file_type .. ': ' .. path, nil, 4000)
+        else
+          pane:send_text(wezterm.shell_join_args({ 'vim', normalized }) .. '\n')
+        end
       end
     else
       window:toast_notification('WezTerm', 'Path does not exist: ' .. path, nil, 4000)
