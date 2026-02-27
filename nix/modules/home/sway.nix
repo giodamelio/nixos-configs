@@ -7,6 +7,7 @@
   ...
 }: let
   inherit (flake.lib.homelab.machines.cadmium) monitor-names;
+  inherit (flake.packages.${pkgs.stdenv.hostPlatform.system}) sway-smart-terminal;
   modifier = "Mod4";
   flameshotModified = pkgs.flameshot.override {enableWlrSupport = true;};
 in {
@@ -134,6 +135,9 @@ in {
         playerctlCmd = "exec ${pkgs.playerctl}/bin/playerctl -i firefox";
       in
         lib.mkOptionDefault {
+          "${modifier}+Return" = "exec ${lib.getExe sway-smart-terminal}";
+          "${modifier}+alt+Return" = "exec ${pkgs.wezterm}/bin/wezterm start --cwd $HOME";
+
           # I have gotten too used to MacOS...
           "${modifier}+space" = "exec vicinae toggle";
 
