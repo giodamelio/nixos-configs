@@ -22,6 +22,7 @@ in {
     flakePackages.files_that_change_togather # Little script that uses Git to show which files often get changed in the same commit
     flakePackages.ghclone # Clone GitHub repos into ~/projects/<owner>/<repo>
     zed-editor # New fancy editor. Collaboration first. "Just works" first
+    gh # Github CLI
 
     # Unison lang things
     perSystem.unison-lang.ucm-bin
