@@ -11,7 +11,7 @@
 
   boot.initrd.availableKernelModules = ["xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod"];
   boot.initrd.kernelModules = ["amdgpu"];
-  boot.kernelModules = ["kvm-intel" "amdgpu" "iwlwifi"];
+  boot.kernelModules = ["kvm-intel" "amdgpu" "iwlwifi" "vhost_vsock"];
   boot.extraModulePackages = [];
 
   networking.useDHCP = lib.mkDefault true;
