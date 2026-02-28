@@ -55,6 +55,9 @@ config.enable_scroll_bar = true
 -- Keep more scrollback lines
 config.scrollback_lines = 6000
 
+-- Use Kitty Keyboard protocol
+config.enable_kitty_keyboard = true
+
 -- Key Bindings
 config.keys = {
   { key = 'l', mods = 'ALT', action = wezterm.action.ShowLauncher },
