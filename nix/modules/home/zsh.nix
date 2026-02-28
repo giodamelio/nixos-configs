@@ -85,6 +85,21 @@
           cd "$(mktemp -d)"
         }
       '';
+
+      # Zoxide: interactive mode when no args, otherwise normal behavior
+      zoxideInteractive = lib.mkAfter ''
+        function z() {
+          if [[ $# -eq 0 ]]; then
+            __zoxide_zi
+          else
+            __zoxide_z "$@"
+          fi
+        }
+        function zi() {
+          __zoxide_zi "$@"
+        }
+        [[ -o zle ]] && compdef __zoxide_z_complete z
+      '';
     in
       lib.mkMerge (
         [
@@ -93,6 +108,7 @@
           yaziFunction
           takeFunction
           taketmpFunction
+          zoxideInteractive
         ]
         ++ (lib.optionals pkgs.stdenv.hostPlatform.isDarwin [homebrewShellEnv loadSecrets])
       );
@@ -101,6 +117,7 @@
   programs.zoxide = {
     enable = true;
     enableZshIntegration = true;
+    options = ["--no-cmd"];
   };
 
   programs.starship = {
