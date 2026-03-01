@@ -55,8 +55,10 @@ config.enable_scroll_bar = true
 -- Keep more scrollback lines
 config.scrollback_lines = 6000
 
--- Use Kitty Keyboard protocol
-config.enable_kitty_keyboard = true
+-- Kitty Keyboard protocol disabled: WezTerm bug #6872 causes escape key
+-- release events to leak as literal text in applications like OMP.
+-- Re-enable once https://github.com/wezterm/wezterm/pull/6872 is merged.
+config.enable_kitty_keyboard = false
 
 -- Key Bindings
 config.keys = {
