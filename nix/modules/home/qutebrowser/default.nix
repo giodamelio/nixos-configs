@@ -1,8 +1,13 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  perSystem,
+  ...
+}: let
   inherit (pkgs) lib;
 in {
   programs.qutebrowser = {
     enable = true;
+    package = perSystem.giopkgs.qutebrowser;
 
     settings = {
       # Dark mode by default
