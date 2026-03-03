@@ -444,11 +444,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1772555812,
-        "narHash": "sha256-AtYiC3WWSmheZl7Xt5HMA8V6BLAW54kDZXmqtnT/RrQ=",
+        "lastModified": 1772564355,
+        "narHash": "sha256-/7X3yqYP8/brpL1LPLv4h4jlNQl0nB1Sox7WjDmTgiU=",
         "owner": "giodamelio",
         "repo": "giopkgs",
-        "rev": "49f12722b423e72f202a337e984e209f803237aa",
+        "rev": "82c96ef8333f0fb6eef5c2c5a3750be2949fa71d",
         "type": "github"
       },
       "original": {
