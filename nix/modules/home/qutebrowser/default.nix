@@ -50,6 +50,7 @@ in {
     keyBindings = {
       normal = {
         "I" = "hint inputs --first";
+        "xx" = "config-cycle tabs.show always switching";
       };
     };
 
