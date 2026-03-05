@@ -9,7 +9,7 @@
 
       ui = {
         diff-formatter = ["difft" "--color=always" "$left" "$right"];
-        default-command = "log";
+        default-command = "status";
       };
 
       git = {
