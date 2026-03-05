@@ -25,6 +25,7 @@
 
   home.packages = with pkgs; [
     difftastic
+    lazyjj
   ];
 
   # If we are using JJ update our shell prompt to display it
