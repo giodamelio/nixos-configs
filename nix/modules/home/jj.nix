@@ -16,6 +16,10 @@
         private-commits = "description(glob:'wip*') | description(glob:'WIP*') | description(glob:'private:*') | description('scratch')";
         write-change-id-header = true;
       };
+
+      aliases = {
+        "e" = ["edit"];
+      };
     };
   };
 
