@@ -19,6 +19,7 @@
 
       aliases = {
         "e" = ["edit"];
+        "logall" = ["log" "-r" "all()"];
       };
     };
   };
