@@ -95,5 +95,9 @@
     # Run small declarative VMs easily
     microvm.url = "github:microvm-nix/microvm.nix";
     microvm.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Pull based deploy NixOS deploy tool
+    comin.url = "github:nlewo/comin";
+    comin.inputs.nixpkgs.follows = "nixpkgs";
   };
 }
