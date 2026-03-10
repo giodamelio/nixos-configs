@@ -23,6 +23,7 @@ in {
     ./garage.nix # Open Source distributed object storage (S3 compatable)
     ./attic.nix # Nix binary cache
     ./jellyfin.nix # Home media server
+    ./syncthing.nix # Cross device file syncing
 
     # Add some helpful programs
     (

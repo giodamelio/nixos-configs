@@ -85,6 +85,7 @@ useDescription = "Hammond AI agent"
   "sabnzbd",
   "radarr",
   "nats-ws",
+  "syncthing-gallium",
 ]
 "carbon.lan." = [
   "carbon",
