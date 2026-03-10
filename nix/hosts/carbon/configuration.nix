@@ -29,7 +29,6 @@ in {
     ./homer.nix # Homepage to list all the services
     ./restate.nix # Distributed application platform
     ./windmill.nix # Workflow Engine
-    ./rustmailer.nix # Email middleware
     ./grist.nix # Spreadsheets on steroids
     ./home-assistant.nix # Home Automation
     ./openbao.nix # Secret Automation
