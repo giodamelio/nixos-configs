@@ -101,7 +101,6 @@ useDescription = "Hammond AI agent"
   "admin.restate",
   "ingress.restate",
   "windmill",
-  "rustmailer",
   "grist",
   "consul",
   "home-assistant",
