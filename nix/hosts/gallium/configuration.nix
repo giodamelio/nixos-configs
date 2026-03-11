@@ -18,6 +18,7 @@ in {
     flake.nixosModules.nats
     flake.nixosModules.lan-dns
     flake.nixosModules.comin
+    flake.nixosModules.netdata-child
 
     ./postgresql.nix # Shared PostgreSQL database
     ./immich.nix # Photo/Video backup service

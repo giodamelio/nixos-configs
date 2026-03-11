@@ -197,6 +197,27 @@ in {
           }
         ];
       }
+      {
+        job_name = "comin";
+        static_configs = [
+          {
+            targets = [
+              "localhost:4243"
+            ];
+            labels = {
+              host = "carbon";
+            };
+          }
+          {
+            targets = [
+              "gallium.gio.ninja:4243"
+            ];
+            labels = {
+              host = "gallium";
+            };
+          }
+        ];
+      }
     ];
   };
 

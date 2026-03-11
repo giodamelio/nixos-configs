@@ -34,6 +34,7 @@ in {
     ./home-assistant.nix # Home Automation
     ./openbao.nix # Secret Automation
     ./hammond.nix # Static network configuration
+    ./netdata.nix # Real-time Infrastructure Monitoring
 
     # Configure Networking with Systemd Networkd
     {

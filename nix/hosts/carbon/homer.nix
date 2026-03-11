@@ -132,6 +132,12 @@
             url = "https://openbao.gio.ninja";
             logo = "https://openbao.org/img/favicon.svg";
           }
+          {
+            name = "Netdata";
+            subtitle = "Real-time Infrastructure Monitoring";
+            url = "https://netdata.gio.ninja";
+            logo = dashboardLogo "netdata";
+          }
         ];
       }
     ];

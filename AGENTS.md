@@ -63,6 +63,8 @@ Guide for agentic coding tools working in this NixOS configuration repository.
 - **Host-specific changes**: Edit `nix/hosts/<hostname>/`, always validate with `nix flake check`
 - **Secret management**: Store secrets in `secrets/` with age encryption; SSH keys in homelab.toml; never commit unencrypted secrets
 
+## Documentation
+- `docs/adding-a-module.md` - End-to-end guide for adding new NixOS modules (DNS, reverse proxy, dashboard, secrets)
 ## Commit Messages
 - One line, imperative mood, start with capital letter
 - No prefixes (no `chore:`, `feat:`, `fix:`, etc.)
