@@ -158,11 +158,12 @@ pkgs.writeShellApplication {
       fi
     done
 
-    # Bind git config read-only
+    # Bind configs read-only
     for dotpath in \
       "$HOME/.gitconfig" \
       "$HOME/.config/git" \
-      "$HOME/.config/nix"
+      "$HOME/.config/nix" \
+      /etc/nix
     do
       if [[ -e "$dotpath" ]]; then
         BWRAP_ARGS+=(--ro-bind "$dotpath" "$dotpath")
