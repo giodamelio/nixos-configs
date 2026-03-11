@@ -54,7 +54,7 @@ Guide for agentic coding tools working in this NixOS configuration repository.
 - **Disko**: Declarative disk partitioning
 - **treefmt-nix**: Code formatting pipeline
 - **ZFS**: Storage with automated snapshots and backups
-- **lefthook**: Git hooks (pre-commit: treefmt, pre-push: nix flake check)
+- **prek**: Git hooks via git-hooks.nix (deadnix, statix, shellcheck, stylua, treefmt)
 
 ## Common Workflows
 - **Add machine**: Create `nix/hosts/<hostname>/` with configuration.nix, hardware.nix; update homelab.toml; test with `nix flake check`

@@ -40,7 +40,7 @@ in
       # Treefmt
       ++ [treefmt.wrapper]
       ++ (lib.attrValues treefmt.programs)
-      # Precommit Hooks tools
+      # Prek (git hooks) tools
       ++ git-hooks.config.enabledPackages;
 
     shellHook = ''

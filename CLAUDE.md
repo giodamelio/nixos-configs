@@ -21,9 +21,8 @@ This is a personal NixOS/Nix flake configuration repository that manages multipl
 - `deadnix` - Find unused Nix code
 
 ### Git Hooks
-The repository uses lefthook for git hooks:
-- Pre-commit: Runs `treefmt --fail-on-change` on Nix and Lua files
-- Pre-push: Runs `nix flake check`
+The repository uses prek (via git-hooks.nix) for git hooks:
+- Pre-commit/pre-push: Runs deadnix, statix, shellcheck, stylua, selene, lua-ls, treefmt
 
 ## Architecture
 

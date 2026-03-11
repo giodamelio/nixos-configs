@@ -54,6 +54,7 @@
           check.enable = true;
           settings = {
             enable = true;
+            package = pkgs.prek;
             default_stages = [
               "pre-commit"
               "pre-push"

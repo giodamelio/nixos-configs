@@ -10,7 +10,7 @@
   # Treefmt Setup
   treefmt = flake.lib.treefmt pkgs;
 
-  # Precommit Hooks sub packages
+  # Git hooks sub packages
   precommitTools = inputs.pre-commit-hooks.packages.${system};
 
   # Config for Selene
@@ -64,6 +64,7 @@
   };
 in
   inputs.pre-commit-hooks.lib.${system}.run {
+    package = pkgs.prek;
     src = ../../.;
     default_stages = ["pre-commit" "pre-push"];
     hooks = {
