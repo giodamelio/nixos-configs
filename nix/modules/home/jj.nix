@@ -20,6 +20,10 @@
       aliases = {
         "e" = ["edit"];
         "logall" = ["log" "-r" "all()"];
+
+        # Update the current bookmark to the current or last commit
+        "tug" = ["bookmark" "move" "--from" "heads(::@- & bookmarks())" "--to" "@"];
+        "tug-" = ["bookmark" "move" "--from" "heads(::@- & bookmarks())" "--to" "@-"];
       };
     };
   };
