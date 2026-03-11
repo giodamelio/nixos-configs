@@ -4,6 +4,7 @@
   config,
   ...
 }: let
+  inherit (pkgs) lib;
   inherit (flake.packages.${pkgs.stdenv.hostPlatform.system}) windmill;
 in {
   services.windmill = {
@@ -54,11 +55,11 @@ in {
 
   # Allow containers to connect to the windmill database
   services.postgresql = {
-    identMap = ''
+    identMap = lib.mkAfter ''
       windmill root windmill
       windmill windmill windmill
     '';
-    authentication = ''
+    authentication = lib.mkAfter ''
       local all windmill peer map=windmill
     '';
   };

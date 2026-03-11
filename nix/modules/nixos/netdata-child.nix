@@ -3,6 +3,10 @@
   perSystem,
   ...
 }: {
+  imports = [
+    ./netdata-integrations.nix
+  ];
+
   services.netdata = {
     enable = true;
     package = perSystem.giopkgs.netdata;
