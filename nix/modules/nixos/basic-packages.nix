@@ -22,6 +22,8 @@ in {
 
       git
       file
+      zip
+      unzip
 
       # My custom wrapped Neovim with configs/plugins
       customNeovim
