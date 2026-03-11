@@ -218,6 +218,16 @@ in {
           }
         ];
       }
+      {
+        job_name = "miniflux";
+        static_configs = [
+          {
+            targets = [
+              "localhost:8085"
+            ];
+          }
+        ];
+      }
     ];
   };
 

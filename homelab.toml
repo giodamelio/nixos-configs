@@ -107,5 +107,6 @@ useDescription = "Hammond AI agent"
   "openbao",
   "hammond",
   "netdata",
+  "miniflux",
 ]
 "jetkvm.lan." = ["jetkvm"]

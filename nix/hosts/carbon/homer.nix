@@ -45,6 +45,12 @@
             url = "https://home-assistant.gio.ninja";
             logo = dashboardLogo "home-assistant";
           }
+          {
+            name = "Miniflux";
+            subtitle = "RSS Feed Reader";
+            url = "https://miniflux.gio.ninja";
+            logo = dashboardLogo "miniflux";
+          }
         ];
       }
       {

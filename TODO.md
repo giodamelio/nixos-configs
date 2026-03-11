@@ -5,3 +5,5 @@
 - [ ] Fix reboot-into-entry script so I can call it from anywhere and add a .desktop shortcut for it.
   - Maybe integrate into Vicinae?
 - [ ] Setup mTLS for Caddy. Just for services that only I will use from the browser as an extra layer of protection
+- [x] Install Miniflux
+- [ ] Move the Prometheus scrape configs to be next to the config of the services. To enable loading dynamically with modules. The high level config should still stay in the prometheus.nix

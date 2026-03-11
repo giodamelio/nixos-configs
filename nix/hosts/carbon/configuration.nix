@@ -35,6 +35,7 @@ in {
     ./openbao.nix # Secret Automation
     ./hammond.nix # Static network configuration
     ./netdata.nix # Real-time Infrastructure Monitoring
+    ./miniflux.nix # RSS Feed Reader
 
     # Configure Networking with Systemd Networkd
     {
