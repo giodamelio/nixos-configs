@@ -1,4 +1,23 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  flake,
+  ...
+}: let
+  jj-push = flake.lib.writeNushellApplication pkgs {
+    name = "jj-push";
+    source = ''
+      def main [...args] {
+        if not (which prek | is-empty) {
+          prek run -a
+          if $env.LAST_EXIT_CODE != 0 {
+            exit $env.LAST_EXIT_CODE
+          }
+        }
+        jj git push ...$args
+      }
+    '';
+  };
+in {
   programs.jujutsu = {
     enable = true;
     settings = {
@@ -24,13 +43,15 @@
         # Update the current bookmark to the current or last commit
         "tug" = ["bookmark" "move" "--from" "heads(::@- & bookmarks())" "--to" "@"];
         "tug-" = ["bookmark" "move" "--from" "heads(::@- & bookmarks())" "--to" "@-"];
+        "push" = ["util" "exec" "--" "jj-push"];
       };
     };
   };
 
-  home.packages = with pkgs; [
-    difftastic
-    lazyjj
+  home.packages = [
+    pkgs.difftastic
+    pkgs.lazyjj
+    jj-push
   ];
 
   # If we are using JJ update our shell prompt to display it
