@@ -22,6 +22,7 @@
     flake.homeModules.jj
     flake.homeModules.pi
     flake.homeModules.codex
+    flake.homeModules.optnix
   ];
 
   home = {

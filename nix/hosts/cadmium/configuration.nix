@@ -14,6 +14,7 @@ in {
     flake.nixosModules.fonts
     flake.nixosModules.onepassword
     flake.nixosModules.remote-builder-builder
+    flake.nixosModules.optnix
 
     # Hardware stuff
     ./disko.nix

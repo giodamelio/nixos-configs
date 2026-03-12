@@ -99,5 +99,9 @@
     # Pull based deploy NixOS deploy tool
     comin.url = "github:nlewo/comin";
     comin.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Nix Module Options search based directly on modules themselves
+    optnix.url = "sourcehut:~watersucks/optnix";
+    optnix.inputs.nixpkgs.follows = "nixpkgs";
   };
 }
