@@ -39,6 +39,8 @@ in {
       aliases = {
         "e" = ["edit"];
         "logall" = ["log" "-r" "all()"];
+        "bs" = ["bookmark" "set"];
+        "bsf" = ["bookmark" "set" "--allow-backwards"];
 
         # Update the current bookmark to the current or last commit
         "tug" = ["bookmark" "move" "--from" "heads(::@- & bookmarks())" "--to" "@"];
