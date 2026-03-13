@@ -2,5 +2,5 @@
 .devenv/
 result
 tmp/
-.pre-commit-config.yaml
+prek.toml
 .claude/settings.local.json

@@ -11,6 +11,13 @@
   in
     (treefmtConfig pkgs).config.build;
 
+  # Prek hooks configuration and shell integration
+  prek = pkgs: flake:
+    import ./prek.nix {
+      inherit pkgs;
+      treefmt = flake.lib.treefmt pkgs;
+    };
+
   writeNushellApplication = pkgs: {
     name,
     source,

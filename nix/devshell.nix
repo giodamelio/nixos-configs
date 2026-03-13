@@ -9,8 +9,10 @@
   # Treefmt Setup
   treefmt = flake.lib.treefmt pkgs;
 
-  # Git Hooks Setup
-  inherit (flake.packages.${system}) git-hooks deploy;
+  # Prek (git hooks) Setup
+  prek = flake.lib.prek pkgs flake;
+
+  inherit (flake.packages.${system}) deploy;
 in
   pkgs.mkShell {
     buildInputs =
@@ -41,10 +43,10 @@ in
       ++ [treefmt.wrapper]
       ++ (lib.attrValues treefmt.programs)
       # Prek (git hooks) tools
-      ++ git-hooks.config.enabledPackages;
+      ++ prek.packages;
 
     shellHook = ''
-      ${git-hooks.shellHook}
+      ${prek.shellHook}
 
       alias b2=backblaze-b2
     '';
