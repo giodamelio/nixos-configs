@@ -12,7 +12,7 @@ Guide for agentic coding tools working in this NixOS configuration repository.
 - `deadnix` - Find unused Nix code
 
 ## Repository Structure
-- `nix/hosts/` - Per-machine configs (cadmium, lithium1, gallium, thorium, calcium, cesium, manganese)
+- `nix/hosts/` - Per-machine configs (cadmium, carbon, gallium, thorium, calcium, cesium)
 - `nix/modules/nixos/` - System-level NixOS modules
 - `nix/modules/home/` - User-level Home Manager modules
 - `nix/modules/common/` - Shared modules across platforms
@@ -22,13 +22,14 @@ Guide for agentic coding tools working in this NixOS configuration repository.
 - `secrets/` - Age-encrypted secrets
 
 ## Host Types
-- **cadmium**: Main development desktop (NixOS)
-- **lithium1**: Headscale gateway VPS (NixOS)
+- **carbon**: Main server with Prometheus, Grafana, and core services (NixOS)
 - **gallium**: NAS with storage services (NixOS)
+- **cadmium**: Main development desktop (NixOS)
 - **thorium**: macOS machine (nix-darwin)
 - **calcium**: WSL2 distro (NixOS-WSL)
 - **cesium**: Chromebook travel machine (NixOS)
-- **manganese**: Monitoring/observability server (NixOS)
+
+Networking: Servers on dedicated VLAN with Unifi VPN for remote access.
 
 ## Code Style Guidelines
 - **Formatting**: Use alejandra for Nix, stylua for Lua (automated via treefmt)
