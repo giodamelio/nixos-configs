@@ -49,7 +49,7 @@ You are tasked with saving the current context and plan for future continuation.
    - What challenges or considerations are important?
    - What context would be most valuable for continuing this work?
 
-2. **Generate Plan Name and Create File**: 
+2. **Generate Plan Name and Create File**:
    - First, analyze the current context to generate an appropriate plan filename
    - If working on a Linear ticket, start with the ticket ID (e.g., "ENG-1394-")
    - Add a descriptive name based on the current task using kebab-case

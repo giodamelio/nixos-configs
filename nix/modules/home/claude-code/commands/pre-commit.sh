@@ -58,18 +58,18 @@ case $PROJECT_TYPE in
         # shellcheck disable=SC1091
         source .env
         set +a
-        
+
         if [[ -z "$AFFECTED_PROJECTS" ]]; then
           # Get affected projects using NX
           echo "🔍 Detecting affected projects..."
           AFFECTED_PROJECTS=$(yarn nx show projects --affected --base=$UPSTREAM --sep="," 2>/dev/null)
         fi
-        
+
         if [[ -z "$AFFECTED_PROJECTS" ]]; then
             echo "✅ No affected projects found"
             exit 0
         fi
-        
+
         # Count and display affected projects
         PROJECT_COUNT=$(echo "$AFFECTED_PROJECTS" | tr ',' '\n' | wc -l | xargs)
         echo "📁 Found $PROJECT_COUNT affected project(s):"

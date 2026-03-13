@@ -31,7 +31,7 @@ The repository uses prek (via git-hooks.nix) for git hooks:
   - `hosts/` - Per-machine configurations (cadmium, gallium, etc.)
   - `modules/` - Reusable NixOS and Home Manager modules
     - `nixos/` - System-level modules
-    - `home/` - User-level modules  
+    - `home/` - User-level modules
     - `common/` - Shared modules
   - `lib/` - Helper functions and utilities
   - `packages/` - Custom package definitions

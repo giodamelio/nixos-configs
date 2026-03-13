@@ -172,7 +172,7 @@ When a module needs host-specific config:
 # nix/hosts/<hostname>/<service>.nix
 {flake, ...}: {
   imports = [flake.nixosModules.<module>];
-  
+
   # host-specific additions
   services.foo.extraSetting = "host-value";
 }

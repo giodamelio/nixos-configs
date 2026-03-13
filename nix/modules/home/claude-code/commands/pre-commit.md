@@ -28,7 +28,7 @@ Simply run the pre-commit script which automatically:
 
 The script handles all three projects:
 - **Farmers Cartel**: Uses NX affected commands with `origin/main`
-- **Farmers Market**: Uses Make targets with `origin/master`  
+- **Farmers Market**: Uses Make targets with `origin/master`
 - **Mandarina**: Uses yarn verify with `origin/main`
 
 ## Usage
@@ -48,7 +48,7 @@ Use the IDE tools that are built in to Claude Code. Print an error if it is not 
 ## Success Criteria
 
 ✅ All linting passes
-✅ All formatting checks pass  
+✅ All formatting checks pass
 ✅ All type checking passes
 ✅ All tests pass
 ✅ No critical IDE diagnostics on modified files
