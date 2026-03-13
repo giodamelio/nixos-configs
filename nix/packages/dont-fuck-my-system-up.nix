@@ -98,8 +98,8 @@ pkgs.writeShellApplication {
     fi
 
     BWRAP_ARGS=(
-      # NixOS: bind the nix store read-only for all dependencies
-      --ro-bind /nix/store /nix/store
+      # NixOS: bind the nix store read-write for nix build commands
+      --bind /nix/store /nix/store
 
       # Bind /run for NixOS system (current-system symlinks, etc)
       --ro-bind /run /run
