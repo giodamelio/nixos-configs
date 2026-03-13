@@ -1,6 +1,5 @@
 {
   inputs,
-  lib,
   pkgs,
   ...
 }: let
@@ -17,7 +16,7 @@ in {
       scopes.home-manager = {
         description = "home-manager configuration for all systems";
         options-list-file = optnixLib.hm.mkOptionsListFromHMSource {
-          home-manager = inputs.home-manager;
+          inherit (inputs) home-manager;
           modules = with inputs; [
             optnix.homeModules.optnix
             nix-index-database.homeModules.nix-index
