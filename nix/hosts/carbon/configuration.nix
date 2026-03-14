@@ -12,6 +12,7 @@ in {
     flake.nixosModules.onepassword
     flake.nixosModules.lil-scripts
     flake.nixosModules.reverse-proxy
+    flake.nixosModules.mtls
     flake.nixosModules.send-metrics
     flake.nixosModules.zfs-backup
     flake.nixosModules.consul
@@ -86,6 +87,7 @@ in {
             host = "localhost";
             port = 8500;
             reverseProxy = false;
+            mtls = true;
             extraConfig = ''
               @get_requests {
                 method GET

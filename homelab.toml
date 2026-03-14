@@ -108,5 +108,6 @@ useDescription = "Hammond AI agent"
   "hammond",
   "netdata",
   "miniflux",
+  "ca",
 ]
 "jetkvm.lan." = ["jetkvm"]

@@ -41,6 +41,12 @@
             type = types.lines;
             default = "";
           };
+
+          mtls = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Enable mTLS client certificate verification for this vhost";
+          };
         };
       });
       default = {};
@@ -61,18 +67,34 @@
         }
       '';
     };
+
+    mtlsRootCaCertPath = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = "Path to root CA certificate for mTLS client verification";
+    };
   };
 
   config = lib.mkIf config.services.gio.reverse-proxy.enable {
-    assertions = lib.flatten (
-      lib.mapAttrsToList (
-        hostname: cfg: {
-          assertion = (cfg.socket_path != null) != (cfg.host != null && cfg.port != null);
-          message = "Virtual host '${hostname}' must specify either socket_path OR both host and port";
-        }
+    assertions =
+      lib.flatten (
+        lib.mapAttrsToList (
+          hostname: cfg: {
+            assertion = (cfg.socket_path != null) != (cfg.host != null && cfg.port != null);
+            message = "Virtual host '${hostname}' must specify either socket_path OR both host and port";
+          }
+        )
+        config.services.gio.reverse-proxy.virtualHosts
       )
-      config.services.gio.reverse-proxy.virtualHosts
-    );
+      ++ [
+        {
+          assertion = let
+            anyMtls = lib.any (cfg: cfg.mtls) (lib.attrValues config.services.gio.reverse-proxy.virtualHosts);
+          in
+            !anyMtls || config.services.gio.reverse-proxy.mtlsRootCaCertPath != null;
+          message = "mtlsRootCaCertPath must be set when any virtualHost has mtls enabled";
+        }
+      ];
 
     # Setup Caddy as a reverse proxy
     systemd.services.caddy.serviceConfig = {
@@ -90,7 +112,7 @@
         plugins = [
           "github.com/caddy-dns/cloudflare@v0.2.1"
         ];
-        hash = "sha256-hZKTEzevrabjgZCCcoRKlqUfdDIUr89KEFJ84kyFxeg=";
+        hash = "sha256-B5xXld1+IRUAQHm8zkHFqvRp8cqnervVL6XEos5VNkc=";
       };
 
       globalConfig = ''
@@ -105,6 +127,14 @@
                 tls {
                   dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
                   resolvers 1.1.1.1
+                  ${lib.optionalString (cfg.mtls && config.services.gio.reverse-proxy.mtlsRootCaCertPath != null) ''
+                  client_auth {
+                    mode require_and_verify
+                    trust_pool file {
+                      pem_file ${config.services.gio.reverse-proxy.mtlsRootCaCertPath}
+                    }
+                  }
+                ''}
                 }
 
                 ${cfg.extraConfig}

@@ -66,6 +66,7 @@ Networking: Servers on dedicated VLAN with Unifi VPN for remote access.
 
 ## Documentation
 - `docs/adding-a-module.md` - End-to-end guide for adding new NixOS modules (DNS, reverse proxy, dashboard, secrets)
+- `docs/mtls.md` - mTLS client certificate authentication with step-ca and Caddy
 ## Commit Messages
 - One line, imperative mood, start with capital letter
 - No prefixes (no `chore:`, `feat:`, `fix:`, etc.)
