@@ -11,6 +11,7 @@
 in {
   home.packages = [
     pkgs.swaynotificationcenter
+    reboot-into-entry
   ];
 
   programs.waybar = {
@@ -527,5 +528,12 @@ in {
           background-color: #0069d4;
       }
     '';
+  };
+
+  xdg.desktopEntries.reboot-into-entry = {
+    name = "Reboot Into Boot Entry";
+    exec = "reboot-into-entry";
+    icon = "system-reboot";
+    categories = ["System"];
   };
 }

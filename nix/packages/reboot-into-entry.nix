@@ -47,7 +47,7 @@ in
       if ($selected | is-empty) == false {
         let selected_id = ($selected | get 0 | get id)
         print $"Rebooting with boot entry: ($clean_title) [($selected_id)]"
-        systemctl reboot --boot-loader-entry=($selected_id)
+        sudo systemctl reboot --boot-loader-entry=($selected_id)
       } else {
         print "No boot entry selected, aborting."
       }
