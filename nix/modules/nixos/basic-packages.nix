@@ -6,6 +6,7 @@
 }: let
   flakePkgs = flake.packages.${pkgs.stdenv.hostPlatform.system};
   customNeovim = perSystem.neovim-configs.default;
+  inherit (perSystem) giopkgs;
 in {
   environment = {
     systemPackages = with pkgs; [
@@ -38,6 +39,7 @@ in {
       devenv # Easy development environment management
       attic-client # Nix binary cache
       nix-output-monitor # Pretty cli output for Nix commands
+      giopkgs.e2ecp # Easy cross computer file transfer. CLI or Browser
     ];
   };
 }
