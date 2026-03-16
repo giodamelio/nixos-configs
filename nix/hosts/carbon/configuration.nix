@@ -38,6 +38,7 @@ in {
     ./hammond.nix # Static network configuration
     ./netdata.nix # Real-time Infrastructure Monitoring
     ./miniflux.nix # RSS Feed Reader
+    ./paperless.nix # Document Management
 
     # Configure Networking with Systemd Networkd
     {

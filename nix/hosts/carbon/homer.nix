@@ -51,6 +51,12 @@
             url = "https://miniflux.gio.ninja";
             logo = dashboardLogo "miniflux";
           }
+          {
+            name = "Paperless";
+            subtitle = "Document Management";
+            url = "https://paperless.gio.ninja";
+            logo = dashboardLogo "paperless-ngx";
+          }
         ];
       }
       {
