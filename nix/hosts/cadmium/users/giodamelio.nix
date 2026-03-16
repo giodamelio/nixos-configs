@@ -23,6 +23,7 @@
     flake.homeModules.pi
     flake.homeModules.codex
     flake.homeModules.optnix
+    flake.homeModules.aoe
   ];
 
   home = {
