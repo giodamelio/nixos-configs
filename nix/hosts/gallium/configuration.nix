@@ -69,6 +69,28 @@ in {
       };
     }
 
+    # systemd-networkd configuration
+    {
+      networking = {
+        useNetworkd = true;
+        useDHCP = false;
+        firewall = {
+          enable = true;
+          allowPing = true;
+        };
+        nftables.enable = true;
+      };
+
+      systemd.network = {
+        enable = true;
+        networks."10-lan" = {
+          matchConfig.Name = "enp5s0";
+          networkConfig.DHCP = "yes";
+          linkConfig.RequiredForOnline = "routable";
+        };
+      };
+    }
+
     # Create server user
     (
       {pkgs, ...}: {

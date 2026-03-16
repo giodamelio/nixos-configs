@@ -9,8 +9,6 @@
   boot.kernelModules = ["kvm-intel"];
   boot.extraModulePackages = [];
 
-  networking.useDHCP = lib.mkDefault true;
-
   time.timeZone = "America/Los_Angeles";
 
   networking.hostName = "gallium";
