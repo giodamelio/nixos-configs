@@ -6,11 +6,12 @@
   ...
 }: let
   inherit (perSystem.llm-agents) pi;
-  inherit (perSystem.giopkgs) omp;
+  inherit (perSystem.giopkgs) omp tk;
   dontFuckMySystemUp = flake.packages.${pkgs.stdenv.hostPlatform.system}.dont-fuck-my-system-up;
 in {
   home.packages = [
     dontFuckMySystemUp
+    tk
   ];
 
   home.shellAliases = {
