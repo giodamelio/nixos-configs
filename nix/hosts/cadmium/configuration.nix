@@ -15,6 +15,7 @@ in {
     flake.nixosModules.onepassword
     flake.nixosModules.remote-builder-builder
     flake.nixosModules.optnix
+    flake.nixosModules.client-mtls
 
     # Hardware stuff
     ./disko.nix

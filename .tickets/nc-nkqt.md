@@ -1,6 +1,6 @@
 ---
 id: nc-nkqt
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-03-16T19:39:34Z
