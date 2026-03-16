@@ -536,11 +536,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1773475418,
-        "narHash": "sha256-vbUftyJgf9CGnEds6KY+n6PmSfzhPa4VkS0RIeW/8F4=",
+        "lastModified": 1773567114,
+        "narHash": "sha256-YgR9HvuVMGFjJfsz7P65GcmUMn/X8phIOpicmP1TPpk=",
         "owner": "giodamelio",
         "repo": "giopkgs",
-        "rev": "80702a7143cbde2136ccb439bc68ca186caeb40d",
+        "rev": "9300b172b351dd9e309627480f2aec7b5e1d0712",
         "type": "github"
       },
       "original": {
@@ -1451,11 +1451,11 @@
         "unison-lang": "unison-lang"
       },
       "locked": {
-        "lastModified": 1773427357,
-        "narHash": "sha256-R7REcmb9fwTvpH0/edppJsPiPed1PhDtCsyZdUQrxzY=",
+        "lastModified": 1773684486,
+        "narHash": "sha256-j25uedWVNJrzKZ9Po8IjMSdbYIdrEk3X0VOJPp448Ps=",
         "owner": "giodamelio",
         "repo": "neovim-configs-nix",
-        "rev": "9a59c93571ef4b151eaeb20052c02fb9e784c285",
+        "rev": "276672e4f9be45ecde42f1a25aefe44b8cf26e3f",
         "type": "github"
       },
       "original": {
@@ -2004,11 +2004,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1773282481,
-        "narHash": "sha256-b/GV2ysM8mKHhinse2wz+uP37epUrSE+sAKXy/xvBY4=",
+        "lastModified": 1773389992,
+        "narHash": "sha256-wvfdLLWJ2I9oEpDd9PfMA8osfIZicoQ5MT1jIwNs9Tk=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "fe416aaedd397cacb33a610b33d60ff2b431b127",
+        "rev": "c06b4ae3d6599a672a6210b7021d699c351eebda",
         "type": "github"
       },
       "original": {
