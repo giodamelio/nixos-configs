@@ -7,6 +7,7 @@
   inherit (flake.packages.${pkgs.stdenv.hostPlatform.system}) audio-output-switcher;
   inherit (flake.packages.${pkgs.stdenv.hostPlatform.system}) reboot-into-entry;
   inherit (flake.packages.${pkgs.stdenv.hostPlatform.system}) waybar-network-monitor;
+  inherit (flake.packages.${pkgs.stdenv.hostPlatform.system}) waybar-claude-usage;
   inherit (flake.lib.homelab.machines.cadmium) monitor-names;
 in {
   home.packages = [
@@ -67,7 +68,7 @@ in {
 
         modules-left = ["sway/mode" "sway/workspaces" "hyprland/workspaces" "hyprland/submap"];
         modules-center = [];
-        modules-right = ["network#tailscale0" "network#wifi" "network" "custom/network-down-icon" "custom-graph/network-down" "custom/network-up-icon" "custom-graph/network-up" "cpu" "memory" "pulseaudio" "tray" "custom/notification" "clock" "custom/power"];
+        modules-right = ["network#tailscale0" "network#wifi" "network" "custom/network-down-icon" "custom-graph/network-down" "custom/network-up-icon" "custom-graph/network-up" "cpu" "memory" "custom/claude-usage" "pulseaudio" "tray" "custom/notification" "clock" "custom/power"];
 
         inherit clock;
 
@@ -128,6 +129,12 @@ in {
           ];
         };
 
+        "custom/claude-usage" = {
+          exec = "${waybar-claude-usage}/bin/waybar-claude-usage";
+          return-type = "json";
+          interval = 120;
+          tooltip = true;
+        };
         memory = {
           format = "{percentage}% ({used}GiB) ";
         };
@@ -377,6 +384,26 @@ in {
 
       #memory {
           background-color: #9b59b6;
+      }
+
+      #custom-claude-usage {
+          background-color: #2ecc71;
+          color: #000000;
+      }
+
+      #custom-claude-usage.warning {
+          background-color: #f0932b;
+          color: #000000;
+      }
+
+      #custom-claude-usage.critical {
+          background-color: #f53c3c;
+          color: #ffffff;
+      }
+
+      #custom-claude-usage.error {
+          background-color: #90b1b1;
+          color: #2a5c45;
       }
 
       #disk {
