@@ -19,6 +19,7 @@ in {
     flake.nixosModules.lan-dns
     flake.nixosModules.comin
     flake.nixosModules.netdata-child
+    flake.nixosModules.nfs-mesh
 
     ./postgresql.nix # Shared PostgreSQL database
     ./immich.nix # Photo/Video backup service
@@ -58,6 +59,7 @@ in {
           "tank/isos"
           "tank/photos-dump"
           "tank/syncthing"
+          "tank/paperless"
         ];
       };
     }

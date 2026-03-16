@@ -19,6 +19,7 @@ in {
     flake.nixosModules.nats
     flake.nixosModules.lan-dns
     flake.nixosModules.comin
+    flake.nixosModules.nfs-mesh
 
     # TODO: setup auto backup
     ./postgresql.nix # DB to be shared across applications
