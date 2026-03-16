@@ -129,13 +129,21 @@
                   resolvers 1.1.1.1
                   ${lib.optionalString (cfg.mtls && config.services.gio.reverse-proxy.mtlsRootCaCertPath != null) ''
                   client_auth {
-                    mode require_and_verify
+                    mode verify_if_given
                     trust_pool file {
                       pem_file ${config.services.gio.reverse-proxy.mtlsRootCaCertPath}
                     }
                   }
                 ''}
                 }
+
+                ${lib.optionalString cfg.mtls ''
+                  # Matches when client didn't present a valid certificate
+                  @no_client_cert expression {tls_client_subject} == ""
+                  handle @no_client_cert {
+                    respond "mTLS client certificate required" 403
+                  }
+                ''}
 
                 ${cfg.extraConfig}
 
