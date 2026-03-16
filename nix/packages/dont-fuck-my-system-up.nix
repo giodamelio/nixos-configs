@@ -98,8 +98,8 @@ pkgs.writeShellApplication {
     fi
 
     BWRAP_ARGS=(
-      # NixOS: bind the nix store read-write for nix build commands
-      --bind /nix/store /nix/store
+      # NixOS: bind /nix read-write (includes store, var, daemon socket)
+      --bind /nix /nix
 
       # Bind /run for NixOS system (current-system symlinks, etc)
       --ro-bind /run /run
@@ -112,6 +112,7 @@ pkgs.writeShellApplication {
       --ro-bind /etc/passwd /etc/passwd
       --ro-bind /etc/group /etc/group
       --ro-bind /etc/hosts /etc/hosts
+      --ro-bind /etc/profiles /etc/profiles
 
       # Proc and dev
       --proc /proc
