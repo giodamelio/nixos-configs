@@ -103,7 +103,7 @@
       RemainAfterExit = false;
       Environment = "CLIENT=%i";
     };
-    path = [pkgs.step-cli pkgs.openssl];
+    path = [pkgs.step-cli pkgs.xkcdpass];
     script = ''
       set -euo pipefail
       CERT_DIR="/var/lib/step-ca/client-certs/$CLIENT"
@@ -124,24 +124,25 @@
       cp /var/lib/step-ca/certs/root_ca.crt "$CERT_DIR/"
       cp /var/lib/step-ca/certs/intermediate_ca.crt "$CERT_DIR/"
 
-      # Create CA chain for p12 bundle
-      cat "$CERT_DIR/intermediate_ca.crt" "$CERT_DIR/root_ca.crt" > "$CERT_DIR/ca-chain.crt"
+      # Generate password for p12 bundle
+      xkcdpass -n=3 -d=- > "$CERT_DIR/password.txt"
+      chmod 600 "$CERT_DIR/password.txt"
 
       # Generate PKCS12 bundle for browser import (includes full chain)
-      openssl pkcs12 -export \
-        -out "$CERT_DIR/client.p12" \
-        -inkey "$CERT_DIR/client.key" \
-        -in "$CERT_DIR/client.crt" \
-        -certfile "$CERT_DIR/ca-chain.crt" \
-        -name "$CLIENT mTLS" \
-        -passout pass:
+      step certificate p12 "$CERT_DIR/client.p12" \
+        "$CERT_DIR/client.crt" \
+        "$CERT_DIR/client.key" \
+        --ca "$CERT_DIR/intermediate_ca.crt" \
+        --ca "$CERT_DIR/root_ca.crt" \
+        --password-file "$CERT_DIR/password.txt" \
+        --force
 
       chown -R step-ca:step-ca "$CERT_DIR"
       chmod 644 "$CERT_DIR/client.p12"
 
       echo "Certificate issued for $CLIENT"
       echo "Files: $CERT_DIR/{client.crt,client.key,client.p12,root_ca.crt}"
-      echo "P12 has no password - import directly"
+      echo "P12 password is in $CERT_DIR/password.txt"
     '';
   };
 

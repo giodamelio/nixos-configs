@@ -77,10 +77,10 @@ Certificates are stored at `/var/lib/step-ca/client-certs/<clientname>/`:
 |------|---------|
 | `client.crt` | Client certificate |
 | `client.key` | Private key |
-| `client.p12` | PKCS12 bundle for browser import (no password) |
+| `client.p12` | PKCS12 bundle for browser import |
 | `root_ca.crt` | CA root certificate |
 | `intermediate_ca.crt` | Intermediate CA certificate |
-| `ca-chain.crt` | Full CA chain |
+| `password.txt` | Password for the p12 bundle |
 
 Certificates are valid for 1 year by default.
 
@@ -92,6 +92,7 @@ Certificates are valid for 1 year by default.
 
 ```bash
 scp server@carbon.gio.ninja:/var/lib/step-ca/client-certs/<name>/client.p12 ~/
+scp server@carbon.gio.ninja:/var/lib/step-ca/client-certs/<name>/password.txt ~/
 ```
 
 2. Import into browser:
@@ -99,7 +100,7 @@ scp server@carbon.gio.ninja:/var/lib/step-ca/client-certs/<name>/client.p12 ~/
    - **Firefox**: Settings → Privacy & Security → Certificates → View Certificates → Your Certificates → Import
    - **Edge**: Settings → Privacy, search, and services → Security → Manage certificates → Personal → Import
 
-The `.p12` has no password — leave the password field empty when importing.
+The `.p12` password is in `password.txt` — enter it when importing.
 
 ### NixOS Machine
 
