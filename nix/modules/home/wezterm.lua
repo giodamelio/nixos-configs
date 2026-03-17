@@ -41,6 +41,12 @@ table.insert(config.hyperlink_rules, {
   format = 'wezterm-omp://$0',
 })
 
+-- Click on claude --resume commands to run them
+table.insert(config.hyperlink_rules, {
+  regex = [[claude --resume (?:[0-9a-f-]+|".+?")]],
+  format = 'wezterm-claude://$0',
+})
+
 -- Minimize padding
 config.window_padding = {
   left = 0,
@@ -137,6 +143,15 @@ wezterm.on('open-uri', function(window, pane, uri)
   if uri:sub(1, #omp_prefix) == omp_prefix then
     local cmd = uri:sub(#omp_prefix + 1)
     wezterm.log_info('omp-resume: ' .. cmd)
+    pane:send_text(cmd .. '\n')
+    return false
+  end
+
+  -- Handle claude --resume commands
+  local claude_prefix = 'wezterm-claude://'
+  if uri:sub(1, #claude_prefix) == claude_prefix then
+    local cmd = uri:sub(#claude_prefix + 1)
+    wezterm.log_info('claude-resume: ' .. cmd)
     pane:send_text(cmd .. '\n')
     return false
   end
