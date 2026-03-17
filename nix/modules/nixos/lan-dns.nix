@@ -3,7 +3,7 @@
   lib,
   ...
 }: let
-  homelab = builtins.fromTOML (builtins.readFile ../../../homelab.toml);
+  homelab = fromTOML (builtins.readFile ../../../homelab.toml);
   a_records = homelab.dns."gio.ninja".a;
   cname_records = homelab.dns."gio.ninja".cname;
   zoneFile = pkgs.writeText "gio.ninja.zone" ''
@@ -12,14 +12,14 @@
       IN NS @
 
     ${lib.pipe a_records [
-      (builtins.mapAttrs (ip: hosts: builtins.map (host: "${host} IN A ${ip}") hosts))
+      (builtins.mapAttrs (ip: hosts: map (host: "${host} IN A ${ip}") hosts))
       builtins.attrValues
       builtins.concatLists
       (builtins.concatStringsSep "\n")
     ]}
 
     ${lib.pipe cname_records [
-      (builtins.mapAttrs (ip: hosts: builtins.map (host: "${host} IN CNAME ${ip}") hosts))
+      (builtins.mapAttrs (ip: hosts: map (host: "${host} IN CNAME ${ip}") hosts))
       builtins.attrValues
       builtins.concatLists
       (builtins.concatStringsSep "\n")
