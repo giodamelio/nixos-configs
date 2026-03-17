@@ -594,11 +594,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1773688785,
-        "narHash": "sha256-Tnq/xehOnuvVg4DcgFpY8A7j40o/Adv9OCGn5q3JKEY=",
+        "lastModified": 1773779844,
+        "narHash": "sha256-B2W8o90+4ZMqBmbA9Y77Yt6BaaNDpvi2xwBtS1mg6Uw=",
         "owner": "giodamelio",
         "repo": "giopkgs",
-        "rev": "ccd6fa8dcf4cc25820de7ab0319749b066deabfd",
+        "rev": "6ddef860294792ea5042f73fff4cd2e27833cbf1",
         "type": "github"
       },
       "original": {
