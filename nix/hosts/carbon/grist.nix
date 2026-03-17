@@ -7,7 +7,8 @@
   virtualisation.quadlet.containers.grist = {
     autoStart = true;
     containerConfig = {
-      image = "docker.io/gristlabs/grist:1.7";
+      image = "docker.io/gristlabs/grist:latest";
+      autoUpdate = "registry";
       networks = ["podman"];
       dns = ["10.88.0.1"];
       volumes = [
@@ -64,4 +65,6 @@
       };
     };
   };
+
+  systemd.timers.podman-auto-update.enable = true;
 }
