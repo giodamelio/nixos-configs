@@ -150,7 +150,11 @@ pkgs.writeShellApplication {
     # Bind common dotfiles/directories if they exist (read-write for app state)
     for dotpath in \
       "$HOME/.claude" \
+      "$HOME/.claude.json" \
       "$HOME/.config/claude" \
+      "$HOME/.cache/claude" \
+      "$HOME/.cache/claude-cli-nodejs" \
+      "$HOME/.local/state/claude" \
       "$HOME/.omp" \
       "$HOME/.config/omp"
     do
