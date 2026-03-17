@@ -9,6 +9,7 @@
     containerConfig = {
       image = "docker.io/gristlabs/grist:1.7";
       networks = ["podman"];
+      dns = ["10.88.0.1"];
       volumes = [
         "/var/lib/grist:/persist"
       ];
