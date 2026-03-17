@@ -1451,11 +1451,11 @@
         "unison-lang": "unison-lang"
       },
       "locked": {
-        "lastModified": 1773684486,
-        "narHash": "sha256-j25uedWVNJrzKZ9Po8IjMSdbYIdrEk3X0VOJPp448Ps=",
+        "lastModified": 1773777221,
+        "narHash": "sha256-asTZGjgxHFTlHsQUrGxVPp/cWVunbT8jfYwZBBPoEAo=",
         "owner": "giodamelio",
         "repo": "neovim-configs-nix",
-        "rev": "276672e4f9be45ecde42f1a25aefe44b8cf26e3f",
+        "rev": "1459b88996e3b4aec40ff66b78ac218dccab6cb2",
         "type": "github"
       },
       "original": {
