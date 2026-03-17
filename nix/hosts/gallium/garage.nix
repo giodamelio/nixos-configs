@@ -87,4 +87,16 @@
       };
     };
   };
+
+  gio.services.garage.consul = {
+    name = "garage";
+    address = "s3.garage.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://admin.garage.gio.ninja/health";
+        interval = "60s";
+      }
+    ];
+  };
 }

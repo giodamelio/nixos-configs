@@ -56,4 +56,16 @@
       # };
     };
   };
+
+  gio.services.mealie.consul = {
+    name = "mealie";
+    address = "mealie.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://mealie.gio.ninja/";
+        interval = "60s";
+      }
+    ];
+  };
 }

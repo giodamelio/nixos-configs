@@ -56,4 +56,16 @@
       };
     };
   };
+
+  gio.services.loki.consul = {
+    name = "loki";
+    address = "loki.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://loki.gio.ninja/ready";
+        interval = "60s";
+      }
+    ];
+  };
 }

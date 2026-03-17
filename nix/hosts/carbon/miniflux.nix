@@ -49,4 +49,16 @@ in {
       port = 8085;
     };
   };
+
+  gio.services.miniflux.consul = {
+    name = "miniflux";
+    address = "miniflux.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://miniflux.gio.ninja/healthcheck";
+        interval = "60s";
+      }
+    ];
+  };
 }

@@ -24,4 +24,16 @@ _: {
       port = 8200;
     };
   };
+
+  gio.services.openbao.consul = {
+    name = "openbao";
+    address = "openbao.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://openbao.gio.ninja/v1/sys/health?uninitcode=200&sealedcode=200&standbycode=200";
+        interval = "60s";
+      }
+    ];
+  };
 }

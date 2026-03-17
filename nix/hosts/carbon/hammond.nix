@@ -64,4 +64,16 @@ _: {
       };
     };
   };
+
+  gio.services.hammond.consul = {
+    name = "hammond";
+    address = "hammond.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://hammond.gio.ninja/";
+        interval = "60s";
+      }
+    ];
+  };
 }

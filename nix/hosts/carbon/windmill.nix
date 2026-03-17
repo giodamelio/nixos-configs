@@ -73,4 +73,16 @@ in {
       };
     };
   };
+
+  gio.services.windmill.consul = {
+    name = "windmill";
+    address = "windmill.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://windmill.gio.ninja/";
+        interval = "60s";
+      }
+    ];
+  };
 }

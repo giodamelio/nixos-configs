@@ -67,4 +67,16 @@
       };
     };
   };
+
+  gio.services.attic.consul = {
+    name = "attic";
+    address = "attic.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://attic.gio.ninja/";
+        interval = "60s";
+      }
+    ];
+  };
 }

@@ -98,4 +98,64 @@ in {
       ExecStart = lib.mkForce "${config.services.sabnzbd.package}/bin/sabnzbd -f ${config.services.sabnzbd.configFile} -s 127.0.0.1:8888 --disable-file-log";
     };
   };
+
+  gio.services.jellyfin.consul = {
+    name = "jellyfin";
+    address = "jellyfin.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://jellyfin.gio.ninja/health";
+        interval = "60s";
+      }
+    ];
+  };
+
+  gio.services.prowlarr.consul = {
+    name = "prowlarr";
+    address = "prowlarr.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://prowlarr.gio.ninja/ping";
+        interval = "60s";
+      }
+    ];
+  };
+
+  gio.services.sonarr.consul = {
+    name = "sonarr";
+    address = "sonarr.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://sonarr.gio.ninja/ping";
+        interval = "60s";
+      }
+    ];
+  };
+
+  gio.services.radarr.consul = {
+    name = "radarr";
+    address = "radarr.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://radarr.gio.ninja/ping";
+        interval = "60s";
+      }
+    ];
+  };
+
+  gio.services.sabnzbd.consul = {
+    name = "sabnzbd";
+    address = "sabnzbd.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://sabnzbd.gio.ninja/";
+        interval = "60s";
+      }
+    ];
+  };
 }

@@ -25,4 +25,16 @@ _: {
   networking.firewall.allowedUDPPorts = [
     22000
   ];
+
+  gio.services.syncthing.consul = {
+    name = "syncthing";
+    address = "syncthing-gallium.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://syncthing-gallium.gio.ninja/";
+        interval = "60s";
+      }
+    ];
+  };
 }

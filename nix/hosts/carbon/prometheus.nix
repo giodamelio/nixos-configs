@@ -274,4 +274,16 @@ in {
       };
     };
   };
+
+  gio.services.prometheus.consul = {
+    name = "prometheus";
+    address = "prometheus.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://prometheus.gio.ninja/-/healthy";
+        interval = "60s";
+      }
+    ];
+  };
 }

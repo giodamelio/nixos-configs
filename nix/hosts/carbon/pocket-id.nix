@@ -43,4 +43,16 @@
       };
     };
   };
+
+  gio.services.pocket-id.consul = {
+    name = "pocket-id";
+    address = "login.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://login.gio.ninja/health";
+        interval = "60s";
+      }
+    ];
+  };
 }

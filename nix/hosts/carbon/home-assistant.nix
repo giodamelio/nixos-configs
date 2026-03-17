@@ -110,4 +110,16 @@ in {
       };
     };
   };
+
+  gio.services.home-assistant.consul = {
+    name = "home-assistant";
+    address = "home-assistant.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://home-assistant.gio.ninja/";
+        interval = "60s";
+      }
+    ];
+  };
 }

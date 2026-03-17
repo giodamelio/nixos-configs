@@ -89,4 +89,16 @@ in {
       };
     };
   };
+
+  gio.services.restate-admin.consul = {
+    name = "restate-admin";
+    address = "admin.restate.gio.ninja";
+    port = 443;
+    checks = [
+      {
+        http = "https://admin.restate.gio.ninja/health";
+        interval = "60s";
+      }
+    ];
+  };
 }
