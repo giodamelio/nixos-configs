@@ -1,23 +1,43 @@
-{
-  flake,
-  lib,
-  perSystem,
-  pkgs,
-  ...
-}: let
+{perSystem, ...}: let
   inherit (perSystem.llm-agents) pi;
   inherit (perSystem.giopkgs) omp tk;
-  dontFuckMySystemUp = flake.packages.${pkgs.stdenv.hostPlatform.system}.dont-fuck-my-system-up;
 in {
   home.packages = [
-    dontFuckMySystemUp
     tk
   ];
 
-  home.shellAliases = {
-    pi = "${lib.getExe dontFuckMySystemUp} -- ${lib.getExe pi}";
-    omp = "${lib.getExe dontFuckMySystemUp} -- ${lib.getExe omp}";
-    pi-dangerous = lib.getExe pi;
-    omp-dangerous = lib.getExe omp;
+  gio.dont-fuck-my-system-up = {
+    enable = true;
+    wrappers = {
+      pi = {
+        command = pi;
+        rwBinds = [
+          "$HOME/.omp"
+          "$HOME/.config/omp"
+        ];
+        roBinds = [
+          "$HOME/.gitconfig"
+          "$HOME/.config/git"
+          "$HOME/.config/jj"
+          "$HOME/.config/nix"
+          "/etc/nix"
+          "$HOME/projects/giodamelio/pi-stuff"
+        ];
+      };
+      omp = {
+        command = omp;
+        rwBinds = [
+          "$HOME/.omp"
+          "$HOME/.config/omp"
+        ];
+        roBinds = [
+          "$HOME/.gitconfig"
+          "$HOME/.config/git"
+          "$HOME/.config/jj"
+          "$HOME/.config/nix"
+          "/etc/nix"
+        ];
+      };
+    };
   };
 }

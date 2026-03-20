@@ -1,13 +1,10 @@
 {
   config,
-  flake,
   lib,
   perSystem,
-  pkgs,
   ...
 }: let
   claudeCode = perSystem.llm-agents.claude-code;
-  dontFuckMySystemUp = flake.packages.${pkgs.stdenv.hostPlatform.system}.dont-fuck-my-system-up;
 in {
   options.programs.gio-claude-code = {
     enable = lib.mkEnableOption "Claude Code configuration management";
@@ -47,11 +44,28 @@ in {
   };
 
   config = lib.mkIf config.programs.gio-claude-code.enable {
-    home.packages = [dontFuckMySystemUp];
-
-    home.shellAliases = {
-      claude = "${lib.getExe dontFuckMySystemUp} -- ${lib.getExe claudeCode} --dangerously-skip-permissions";
-      claude-dangerous = "${lib.getExe claudeCode} --dangerously-skip-permissions";
+    gio.dont-fuck-my-system-up = {
+      enable = true;
+      wrappers.claude = {
+        command = claudeCode;
+        extraArgs = ["--dangerously-skip-permissions"];
+        rwBinds = [
+          "$HOME/.claude"
+          "$HOME/.claude.json"
+          "$HOME/.config/claude"
+          "$HOME/.cache/claude"
+          "$HOME/.cache/claude-cli-nodejs"
+          "$HOME/.local/state/claude"
+        ];
+        roBinds = [
+          "$HOME/.gitconfig"
+          "$HOME/.config/git"
+          "$HOME/.config/jj"
+          "$HOME/.config/nix"
+          "/etc/nix"
+          "$HOME/projects/giodamelio/agent-skills"
+        ];
+      };
     };
 
     # Dynamically link agents and commands using home.file
