@@ -36,6 +36,11 @@ in {
         write-change-id-header = true;
       };
 
+      ui = {
+        diff-editor = ["nvim" "-c" "DiffEditor $left $right $output"];
+        diff-instructions = false;
+      };
+
       aliases = {
         "e" = ["edit"];
         "logall" = ["log" "-r" "all()"];

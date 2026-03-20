@@ -1527,11 +1527,11 @@
         "unison-lang": "unison-lang"
       },
       "locked": {
-        "lastModified": 1773777221,
-        "narHash": "sha256-asTZGjgxHFTlHsQUrGxVPp/cWVunbT8jfYwZBBPoEAo=",
+        "lastModified": 1774047379,
+        "narHash": "sha256-97+NLkSgRP/OlZDzF3xmfvsffWKEtYfnQCgDZMHcLos=",
         "owner": "giodamelio",
         "repo": "neovim-configs-nix",
-        "rev": "1459b88996e3b4aec40ff66b78ac218dccab6cb2",
+        "rev": "db92f30629869c05fb95e99840a6655f021ffcbb",
         "type": "github"
       },
       "original": {
