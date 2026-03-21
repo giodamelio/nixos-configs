@@ -73,10 +73,14 @@
                 | each { from json }
                 | where method == "client-disconnected"
                 | where params.connection_count == 0
-                | take 1
                 | each {
-                    print "All VNC clients disconnected, shutting down wayvnc"
-                    wayvncctl wayvnc-exit out+err>| ignore
+                    # Grace period for output cycling (causes brief disconnect)
+                    sleep 60sec
+                    let clients = (wayvncctl --json client-list | from json | get clients | length)
+                    if $clients == 0 {
+                      print "All VNC clients disconnected, shutting down wayvnc"
+                      wayvncctl wayvnc-exit out+err>| ignore
+                    }
                 }
                 | ignore
             }
@@ -86,4 +90,3 @@
     };
   };
 }
-
