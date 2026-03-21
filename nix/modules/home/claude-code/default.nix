@@ -59,11 +59,12 @@ in {
           "$HOME/Documents/life/Projects/"
         ];
         roBinds = [
+          "/etc/nix"
+          "/usr/bin/env"
           "$HOME/.gitconfig"
           "$HOME/.config/git"
           "$HOME/.config/jj"
           "$HOME/.config/nix"
-          "/etc/nix"
           "$HOME/projects/giodamelio/agent-skills"
         ];
       };

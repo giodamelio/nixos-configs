@@ -11,6 +11,7 @@ in {
     wrappers = let
       defaultROBinds = [
         "/etc/nix"
+        "/usr/bin/env"
         "$HOME/.gitconfig"
         "$HOME/.config/git"
         "$HOME/.config/jj"
