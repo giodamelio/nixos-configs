@@ -8,35 +8,40 @@ in {
 
   gio.dont-fuck-my-system-up = {
     enable = true;
-    wrappers = {
+    wrappers = let
+      defaultROBinds = [
+        "/etc/nix"
+        "$HOME/.gitconfig"
+        "$HOME/.config/git"
+        "$HOME/.config/jj"
+        "$HOME/.config/nix"
+        "$HOME/projects/giodamelio/pi-stuff"
+        "$HOME/projects/giodamelio/agent-skills"
+        "$HOME/projects/nixos-configs"
+      ];
+      defaultRWBinds = [
+        "$HOME/Documents/life/Projects/"
+      ];
+    in {
       pi = {
         command = pi;
-        rwBinds = [
-          "$HOME/.omp"
-          "$HOME/.config/omp"
-        ];
-        roBinds = [
-          "$HOME/.gitconfig"
-          "$HOME/.config/git"
-          "$HOME/.config/jj"
-          "$HOME/.config/nix"
-          "/etc/nix"
-          "$HOME/projects/giodamelio/pi-stuff"
-        ];
+        roBinds = defaultROBinds;
+        rwBinds =
+          defaultRWBinds
+          ++ [
+            "$HOME/.omp"
+            "$HOME/.config/omp"
+          ];
       };
       omp = {
         command = omp;
-        rwBinds = [
-          "$HOME/.omp"
-          "$HOME/.config/omp"
-        ];
-        roBinds = [
-          "$HOME/.gitconfig"
-          "$HOME/.config/git"
-          "$HOME/.config/jj"
-          "$HOME/.config/nix"
-          "/etc/nix"
-        ];
+        roBinds = defaultROBinds;
+        rwBinds =
+          defaultRWBinds
+          ++ [
+            "$HOME/.omp"
+            "$HOME/.config/omp"
+          ];
       };
     };
   };

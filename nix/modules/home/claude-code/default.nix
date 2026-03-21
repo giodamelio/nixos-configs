@@ -56,6 +56,7 @@ in {
           "$HOME/.cache/claude"
           "$HOME/.cache/claude-cli-nodejs"
           "$HOME/.local/state/claude"
+          "$HOME/Documents/life/Projects/"
         ];
         roBinds = [
           "$HOME/.gitconfig"
