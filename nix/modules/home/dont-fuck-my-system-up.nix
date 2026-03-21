@@ -55,6 +55,10 @@
           BWRAP_ARGS+=(--unshare-net)
         '';
 
+        pidLine = lib.optionalString (!wrapper.sharePid) ''
+          BWRAP_ARGS+=(--unshare-pid)
+        '';
+
         extraArgsStr = lib.concatStringsSep " " (map lib.escapeShellArg wrapper.extraArgs);
         extraArgsSuffix =
           if wrapper.extraArgs == []
@@ -98,12 +102,12 @@
           --chdir "$PROJECT_DIR"
 
           # Namespaces
-          --unshare-pid
           --unshare-uts
           --die-with-parent
         )
 
         ${networkLine}
+        ${pidLine}
 
         # Read-only binds
         ${roBindLines}
@@ -114,6 +118,7 @@
         # Masked paths
         ${maskLines}
 
+        ${wrapper.preExec}
         exec bwrap "''${BWRAP_ARGS[@]}" -- ${lib.getExe wrapper.command}${extraArgsSuffix} "$@"
       '';
     };
@@ -195,6 +200,18 @@ in {
             type = lib.types.bool;
             default = true;
             description = "Enable network access inside the sandbox.";
+          };
+
+          sharePid = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Share PID namespace with host (disable --unshare-pid).";
+          };
+
+          preExec = lib.mkOption {
+            type = lib.types.lines;
+            default = "";
+            description = "Bash code to run just before exec. Runs outside the sandbox.";
           };
 
           projectDir = lib.mkOption {
