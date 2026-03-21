@@ -14,6 +14,7 @@
     flake.homeModules.hyprland
     flake.homeModules.sway
     flake.homeModules.waybar
+    flake.homeModules.wayvnc
     flake.homeModules.nix-index
     flake.homeModules.syncthing
     flake.homeModules.atuind
