@@ -39,6 +39,7 @@ in {
     ./netdata.nix # Real-time Infrastructure Monitoring
     ./miniflux.nix # RSS Feed Reader
     ./paperless.nix # Document Management
+    ./node-hp-scan-to.nix # HP Scanner to Paperless
 
     # Configure Networking with Systemd Networkd
     {
