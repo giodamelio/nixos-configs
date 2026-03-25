@@ -2,6 +2,7 @@
   pkgs,
   options,
   inputs,
+  perSystem,
   ...
 }: let
   optnixLib = inputs.optnix.mkLib pkgs;
@@ -12,6 +13,7 @@ in {
 
   programs.optnix = {
     enable = true;
+    package = perSystem.self.optnix;
 
     settings = {
       default_scope = "nixos";
