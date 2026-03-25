@@ -67,6 +67,7 @@ in {
 
     # Software Development tools
     flake.nixosModules.software-development
+    flake.nixosModules.embedded-development
 
     # Easy key rebinding
     flake.nixosModules.keyd
