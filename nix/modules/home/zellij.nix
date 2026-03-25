@@ -1,4 +1,5 @@
 {
+  flake,
   pkgs,
   lib,
   ...
@@ -50,7 +51,37 @@
     url = "https://github.com/hiasr/vim-zellij-navigator/releases/download/0.3.0/vim-zellij-navigator.wasm";
     hash = "sha256-d+Wi9i98GmmMryV0ST1ddVh+D9h3z7o0xIyvcxwkxY0=";
   };
+
+  zz = flake.lib.writeNushellApplication pkgs {
+    name = "zz";
+    runtimeInputs = with pkgs; [zellij skim];
+    source = ''
+      # Attach to a zellij session using fuzzy finder
+      def main [] {
+        let sessions = (zellij list-sessions --reverse
+          | lines
+          | where { |line| ($line | str trim) != "" }
+          | sort-by { |line| if ($line | str contains "EXITED") { 1 } else { 0 } })
+
+        if ($sessions | is-empty) {
+          print "No zellij sessions found"
+          exit 1
+        }
+
+        let selected = ($sessions | str join "\n" | sk --ansi --no-sort)
+
+        if ($selected | str trim) == "" {
+          exit 0
+        }
+
+        let session_name = ($selected | split row " " | first)
+        zellij attach $session_name
+      }
+    '';
+  };
 in {
+  home.packages = [zz];
+
   programs.zellij = {
     enable = true;
   };
