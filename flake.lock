@@ -2263,11 +2263,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1770000117,
-        "narHash": "sha256-kZ1eLvCxfN+6RYQdcWUdIf+2WuiNiAfbJq+VetT+kos=",
+        "lastModified": 1774559664,
+        "narHash": "sha256-a8FWQZgqaS7o484iH7dFK+F9t7oMahKbcH2piIwUwFc=",
         "owner": "~watersucks",
         "repo": "optnix",
-        "rev": "e3a8a63d8a9dcad01f499b2ece87db3545443f05",
+        "rev": "853323ece22fb1ffed19cea4ae22804032034a8e",
         "type": "sourcehut"
       },
       "original": {

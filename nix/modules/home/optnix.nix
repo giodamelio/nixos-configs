@@ -1,7 +1,6 @@
 {
   inputs,
   pkgs,
-  perSystem,
   ...
 }: let
   optnixLib = inputs.optnix.mkLib pkgs;
@@ -12,7 +11,6 @@ in {
 
   programs.optnix = {
     enable = true;
-    package = perSystem.self.optnix;
 
     settings = {
       scopes.home-manager = {
