@@ -99,5 +99,9 @@
     # Nix Module Options search based directly on modules themselves
     optnix.url = "sourcehut:~watersucks/optnix";
     optnix.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Physical boot selector switch via EFI shim
+    boot-selector-switch.url = "github:giodamelio/boot-selector-switch";
+    boot-selector-switch.inputs.nixpkgs.follows = "nixpkgs";
   };
 }

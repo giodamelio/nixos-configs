@@ -36,6 +36,7 @@ in
         pkgs.jq
         pkgs.vscode-json-languageserver
         pkgs.nixd
+        pkgs.efibootmgr
         deploy
       ]
       ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin []
