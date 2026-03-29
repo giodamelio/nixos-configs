@@ -1388,6 +1388,27 @@
         "type": "github"
       }
     },
+    "jj-hunk": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1774810026,
+        "narHash": "sha256-vwFaWqWmsUqJj1n0ddwj0CIAnu9jvkkjfY/Aa5Ld1HU=",
+        "owner": "giodamelio",
+        "repo": "jj-hunk",
+        "rev": "7c5f8287262bbf399ba3e888f3d23a98602d3cc6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "giodamelio",
+        "ref": "fix-nix-version",
+        "repo": "jj-hunk",
+        "type": "github"
+      }
+    },
     "just-every-code": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -2403,6 +2424,7 @@
         "giopkgs": "giopkgs",
         "handy": "handy",
         "home-manager": "home-manager",
+        "jj-hunk": "jj-hunk",
         "just-every-code": "just-every-code",
         "lilvault": "lilvault",
         "llm-agents": "llm-agents",

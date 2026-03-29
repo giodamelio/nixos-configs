@@ -103,5 +103,10 @@
     # Physical boot selector switch via EFI shim
     boot-selector-switch.url = "github:giodamelio/boot-selector-switch";
     boot-selector-switch.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Interactively split jj changes into hunks
+    # TODO: switch back to github:laulauland/jj-hunk once fix-nix-version is upstreamed
+    jj-hunk.url = "github:giodamelio/jj-hunk/fix-nix-version";
+    jj-hunk.inputs.nixpkgs.follows = "nixpkgs";
   };
 }

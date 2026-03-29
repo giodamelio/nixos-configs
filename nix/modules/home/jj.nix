@@ -1,6 +1,7 @@
 {
   pkgs,
   flake,
+  perSystem,
   ...
 }: let
   jj-push = flake.lib.writeNushellApplication pkgs {
@@ -52,12 +53,18 @@ in {
         "tug-" = ["bookmark" "move" "--from" "heads(::@- & bookmarks())" "--to" "@-"];
         "push" = ["util" "exec" "--" "jj-push"];
       };
+
+      merge-tools.jj-hunk = {
+        program = "jj-hunk";
+        edit-args = ["select" "$left" "$right"];
+      };
     };
   };
 
   home.packages = [
     pkgs.difftastic
     pkgs.lazyjj
+    perSystem.jj-hunk.default
     jj-push
   ];
 
