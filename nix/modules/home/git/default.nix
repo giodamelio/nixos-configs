@@ -49,6 +49,7 @@ in {
       "tmp/"
       ".direnv/"
       ".aider*"
+      ".sandbox-paths"
     ];
 
     includes = [

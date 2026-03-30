@@ -107,5 +107,8 @@
     # Interactively split jj changes into hunks
     jj-hunk.url = "github:laulauland/jj-hunk";
     jj-hunk.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Bubblewrap sandbox wrapper library
+    jail-nix.url = "sourcehut:~alexdavid/jail.nix";
   };
 }

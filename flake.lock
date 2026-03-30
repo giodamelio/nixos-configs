@@ -1388,6 +1388,21 @@
         "type": "github"
       }
     },
+    "jail-nix": {
+      "locked": {
+        "lastModified": 1772137954,
+        "narHash": "sha256-h4MGNbOo7L3RHi4uNFmsg5g17/DHXEfnv/xiG6BrNFQ=",
+        "owner": "~alexdavid",
+        "repo": "jail.nix",
+        "rev": "42b355c38ca63dab4904acc5c0d95f17954a8c9b",
+        "type": "sourcehut"
+      },
+      "original": {
+        "owner": "~alexdavid",
+        "repo": "jail.nix",
+        "type": "sourcehut"
+      }
+    },
     "jj-hunk": {
       "inputs": {
         "nixpkgs": [
@@ -2423,6 +2438,7 @@
         "giopkgs": "giopkgs",
         "handy": "handy",
         "home-manager": "home-manager",
+        "jail-nix": "jail-nix",
         "jj-hunk": "jj-hunk",
         "just-every-code": "just-every-code",
         "lilvault": "lilvault",

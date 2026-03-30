@@ -1,9 +1,12 @@
 {
   config,
+  flake,
   lib,
+  pkgs,
   perSystem,
   ...
 }: let
+  jailedClaude = flake.packages.${pkgs.stdenv.hostPlatform.system}.jailed-claude;
   claudeCode = perSystem.llm-agents.claude-code;
 in {
   options.programs.gio-claude-code = {
@@ -44,30 +47,11 @@ in {
   };
 
   config = lib.mkIf config.programs.gio-claude-code.enable {
-    gio.dont-fuck-my-system-up = {
-      enable = true;
-      wrappers.claude = {
-        command = claudeCode;
-        extraArgs = ["--dangerously-skip-permissions"];
-        rwBinds = [
-          "$HOME/.claude"
-          "$HOME/.claude.json"
-          "$HOME/.config/claude"
-          "$HOME/.cache/claude"
-          "$HOME/.cache/claude-cli-nodejs"
-          "$HOME/.local/state/claude"
-          "$HOME/Documents/life/Projects/"
-        ];
-        roBinds = [
-          "/etc/nix"
-          "/usr/bin/env"
-          "$HOME/.gitconfig"
-          "$HOME/.config/git"
-          "$HOME/.config/jj"
-          "$HOME/.config/nix"
-          "$HOME/projects/giodamelio/agent-skills"
-        ];
-      };
+    home.packages = [jailedClaude];
+
+    home.shellAliases = {
+      claude = lib.getExe jailedClaude;
+      claude-dangerous = lib.getExe claudeCode;
     };
 
     # Dynamically link agents and commands using home.file
@@ -76,7 +60,7 @@ in {
       lib.mapAttrs' (
         name: path: lib.nameValuePair ".claude/agents/${name}.md" {source = path;}
       )
-      config.programs.claude-code.agents
+      config.programs.gio-claude-code.agents
       //
       # Link commands (handle both simple paths and attrsets with markdown/script)
       lib.concatMapAttrs (
