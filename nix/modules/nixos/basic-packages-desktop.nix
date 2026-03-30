@@ -3,6 +3,7 @@
     systemPackages = with pkgs; [
       thunderbird
       obsidian
+      todoist-electron
       pavucontrol
       qutebrowser
       xdg-utils
