@@ -132,7 +132,7 @@ in {
         "custom/claude-usage" = {
           exec = "${waybar-claude-usage}/bin/waybar-claude-usage";
           return-type = "json";
-          interval = 120;
+          interval = 600; # 10 minutes
           tooltip = true;
         };
         memory = {
