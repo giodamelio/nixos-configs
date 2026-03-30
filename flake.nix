@@ -105,8 +105,7 @@
     boot-selector-switch.inputs.nixpkgs.follows = "nixpkgs";
 
     # Interactively split jj changes into hunks
-    # TODO: switch back to github:laulauland/jj-hunk once fix-nix-version is upstreamed
-    jj-hunk.url = "github:giodamelio/jj-hunk/fix-nix-version";
+    jj-hunk.url = "github:laulauland/jj-hunk";
     jj-hunk.inputs.nixpkgs.follows = "nixpkgs";
   };
 }

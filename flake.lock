@@ -1395,16 +1395,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1774810026,
-        "narHash": "sha256-vwFaWqWmsUqJj1n0ddwj0CIAnu9jvkkjfY/Aa5Ld1HU=",
-        "owner": "giodamelio",
+        "lastModified": 1774880900,
+        "narHash": "sha256-B1TMgUFd41fy0+snvkshyAXwwHaD3Fgvdp8E6NWL9AM=",
+        "owner": "laulauland",
         "repo": "jj-hunk",
-        "rev": "7c5f8287262bbf399ba3e888f3d23a98602d3cc6",
+        "rev": "7e14b879c37ced8497fbf86045be64c2397dda43",
         "type": "github"
       },
       "original": {
-        "owner": "giodamelio",
-        "ref": "fix-nix-version",
+        "owner": "laulauland",
         "repo": "jj-hunk",
         "type": "github"
       }
