@@ -132,5 +132,9 @@ in {
         ${mkZellijBinding "Alt l" "resize" "right"}
       }
     }
+
+    copy_command "wl-copy";
+    copy_on_select false;
+    mouse_mode true;
   '';
 }
