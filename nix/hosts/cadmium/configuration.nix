@@ -46,6 +46,7 @@ in {
 
     # Tools for programming with AI
     flake.nixosModules.code-editing-ai
+    flake.nixosModules.ollama
 
     # Setup user programs/services
     flake.nixosModules.modern-coreutils-replacements
