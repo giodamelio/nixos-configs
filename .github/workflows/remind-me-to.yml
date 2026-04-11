@@ -1,0 +1,17 @@
+name: Remind Me To
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+  schedule:
+    - cron: "0 9 * * 1" # Weekly on Monday at 9am UTC
+jobs:
+  remind-me-to:
+    name: Check Reminders
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: giodamelio/remind-me-to@v0.1.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
