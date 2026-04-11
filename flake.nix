@@ -63,12 +63,9 @@
     # Additional Helpful Std library
     nix-std.url = "github:chessai/nix-std";
 
-    # Awesome Launcher Program (Like Raycast)
-    vicinae.url = "github:vicinaehq/vicinae";
-    vicinae.inputs.nixpkgs.follows = "nixpkgs";
+    # Extensions for an Awesome Launcher Program (Like Raycast)
     vicinae-extensions.url = "github:vicinaehq/extensions";
     vicinae-extensions.inputs.nixpkgs.follows = "nixpkgs";
-    vicinae-extensions.inputs.vicinae.follows = "vicinae";
 
     # Define/Run Podman quadlets easily
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";

@@ -80,7 +80,7 @@ in {
           command = "${pkgs.firefox}/bin/firefox";
         }
         {
-          command = "${lib.getExe' perSystem.vicinae.default "vicinae"} server";
+          command = "${lib.getExe' config.programs.vicinae.package "vicinae"} server";
         }
         {
           command = "${lib.getExe perSystem.handy.default}";

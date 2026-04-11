@@ -1,19 +1,15 @@
 {
-  inputs,
+  pkgs,
   perSystem,
   ...
 }: {
-  imports = [
-    inputs.vicinae.homeManagerModules.default
-  ];
-
   home.packages = [
-    perSystem.vicinae.default
+    pkgs.vicinae
   ];
 
   # TODO: When started with SystemD, Vicinae files to launch many programs
   # Instead we will launch it with a sway startup command
-  services.vicinae = {
+  programs.vicinae = {
     enable = true;
     systemd = {
       enable = false;
