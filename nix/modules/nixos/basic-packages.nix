@@ -5,7 +5,7 @@
   ...
 }: let
   flakePkgs = flake.packages.${pkgs.stdenv.hostPlatform.system};
-  customNeovim = perSystem.neovim-configs.default;
+  customNeovim = perSystem.neovim-configs.light;
   inherit (perSystem) giopkgs;
 in {
   environment = {
