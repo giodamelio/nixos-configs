@@ -91,10 +91,7 @@ with lib; let
     '';
   in
     # Generate a derivation with the drop in in it
-    pkgs.runCommand "${serviceName}-credential-dropin" {
-      preferLocalBuild = true;
-      allowSubstitutes = false;
-    } ''
+    pkgs.runCommand "${serviceName}-credential-dropin" {} ''
       mkdir -p "$out/etc/systemd/system"
       mkdir -p "$out/etc/systemd/system/${serviceName}.service.d"
 
