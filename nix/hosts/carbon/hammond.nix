@@ -1,16 +1,4 @@
 _: {
-  systemd.network.networks."10-lan" = {
-    matchConfig.Name = "eno1";
-    networkConfig = {
-      Address = "10.30.69.191/16";
-      Gateway = "10.30.0.1";
-      DNS = ["127.0.0.1"];
-    };
-    linkConfig = {
-      RequiredForOnline = "routable";
-    };
-  };
-
   systemd.network.networks."20-hammond" = {
     matchConfig.Name = "enp0s20f0u6";
     networkConfig = {

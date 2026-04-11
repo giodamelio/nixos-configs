@@ -18,6 +18,7 @@ in {
     flake.nixosModules.nats
     flake.nixosModules.lan-dns
     flake.nixosModules.comin
+    flake.nixosModules.homelab
     flake.nixosModules.netdata-child
     flake.nixosModules.nfs-mesh
 
@@ -71,25 +72,14 @@ in {
       };
     }
 
-    # systemd-networkd configuration
+    # Firewall configuration
     {
       networking = {
-        useNetworkd = true;
-        useDHCP = false;
         firewall = {
           enable = true;
           allowPing = true;
         };
         nftables.enable = true;
-      };
-
-      systemd.network = {
-        enable = true;
-        networks."10-lan" = {
-          matchConfig.Name = "enp5s0";
-          networkConfig.DHCP = "yes";
-          linkConfig.RequiredForOnline = "routable";
-        };
       };
     }
 

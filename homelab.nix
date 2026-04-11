@@ -1,4 +1,27 @@
 {
+  networking = {
+    carbon = {
+      primaryInterface = "eno1";
+      interfaces = {
+        eno1 = {
+          address = "10.30.0.10";
+          prefixLength = 24;
+          gateway = "10.30.0.1";
+        };
+      };
+    };
+    gallium = {
+      primaryInterface = "enp5s0";
+      interfaces = {
+        enp5s0 = {
+          address = "10.30.0.11";
+          prefixLength = 24;
+          gateway = "10.30.0.1";
+        };
+      };
+    };
+  };
+
   nfs = {
     peers = {
       gallium = {

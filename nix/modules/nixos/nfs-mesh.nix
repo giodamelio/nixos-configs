@@ -4,8 +4,8 @@
   pkgs,
   ...
 }: let
-  homelab = import ../../../homelab.nix;
-  nfsCfg = homelab.nfs;
+  nfsCfg = config.gio.homelab.nfs;
+  homelabNet = config.gio.homelab.networking;
   hostname = config.networking.hostName;
 
   # Utility functions for deterministic UID/GID from share name
@@ -65,7 +65,7 @@
       chmod 644 /etc/wireguard-nfs-public-key
 
       echo "WireGuard NFS mesh public key: $PUBKEY"
-      echo "Add this to homelab.nix peers.${hostname}.wgPublicKey"
+      echo "Add this to homelab.nix nfs.peers.${hostname}.wgPublicKey"
     '';
   };
 
@@ -163,10 +163,16 @@ in {
       ListenPort = 51830;
     };
     wireguardPeers =
-      lib.mapAttrsToList (name: peer: {
+      lib.mapAttrsToList (name: peer: let
+        peerNet = homelabNet.${name} or null;
+        endpoint =
+          if peerNet != null
+          then peerNet.interfaces.${peerNet.primaryInterface}.address
+          else "${name}.gio.ninja";
+      in {
         PublicKey = peer.wgPublicKey;
         AllowedIPs = ["${peer.wgIp}/32"];
-        Endpoint = "${name}.gio.ninja:51830";
+        Endpoint = "${endpoint}:51830";
         PersistentKeepalive = 25;
       })
       otherPeers;

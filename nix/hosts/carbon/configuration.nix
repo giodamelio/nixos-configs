@@ -19,6 +19,7 @@ in {
     flake.nixosModules.nats
     flake.nixosModules.lan-dns
     flake.nixosModules.comin
+    flake.nixosModules.homelab
     flake.nixosModules.nfs-mesh
 
     # TODO: setup auto backup
@@ -41,12 +42,9 @@ in {
     ./paperless.nix # Document Management
     ./node-hp-scan-to.nix # HP Scanner to Paperless
 
-    # Configure Networking with Systemd Networkd
+    # Firewall configuration
     {
       networking = {
-        useNetworkd = true;
-        useDHCP = false;
-
         firewall = {
           enable = true;
           allowPing = true;
@@ -54,10 +52,6 @@ in {
         nftables = {
           enable = true;
         };
-      };
-
-      systemd.network = {
-        enable = true;
       };
     }
 
