@@ -8,6 +8,7 @@
     settings = {
       experimental-features = ["nix-command" "flakes"];
       extra-experimental-features = ["pipe-operators"];
+      allow-import-from-derivation = true;
       trusted-users = ["root" "@wheel"];
       substituters = [
         "https://cache.nixos.org"
