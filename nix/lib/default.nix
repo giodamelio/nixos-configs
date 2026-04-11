@@ -15,9 +15,10 @@
   # Prek hooks configuration and shell integration
   prek = pkgs: flake: let
     statix-pipe = import ../packages/statix-pipe.nix {inherit pkgs;};
+    remind-me-to = inputs.giopkgs.packages.${pkgs.stdenv.hostPlatform.system}.remind-me-to;
   in
     import ./prek.nix {
-      inherit pkgs statix-pipe;
+      inherit pkgs statix-pipe remind-me-to;
       treefmt = flake.lib.treefmt pkgs;
     };
 

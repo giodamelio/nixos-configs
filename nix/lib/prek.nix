@@ -2,6 +2,7 @@
   pkgs,
   treefmt,
   statix-pipe,
+  remind-me-to,
 }: let
   inherit (pkgs) lib;
 
@@ -103,6 +104,13 @@
             language = "system";
             pass_filenames = false;
           }
+          {
+            id = "remind-me-to";
+            name = "remind-me-to";
+            entry = "${lib.getExe remind-me-to}";
+            language = "system";
+            pass_filenames = false;
+          }
         ];
       }
     ];
@@ -117,6 +125,7 @@
     pkgs.stylua
     pkgs.selene
     pkgs.jq
+    remind-me-to
   ];
 in {
   inherit configFile packages;
