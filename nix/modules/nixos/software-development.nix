@@ -23,6 +23,7 @@ in {
     flakePackages.ghclone # Clone GitHub repos into ~/projects/<owner>/<repo>
     zed-editor # New fancy editor. Collaboration first. "Just works" first
     gh # Github CLI
+    perSystem.zmx.default # Terminal multiplexer written in Zig
 
     # Unison lang things
     perSystem.unison-lang.ucm-bin
