@@ -63,7 +63,7 @@ in {
       menu = "vicinae";
 
       # Use Wezterm as our terminal
-      terminal = "${pkgs.wezterm}/bin/wezterm";
+      terminal = "${perSystem.giopkgs.wezterm}/bin/wezterm";
 
       # Replace the built in bars with Waybar
       bars = [];
@@ -136,7 +136,7 @@ in {
       in
         lib.mkOptionDefault {
           "${modifier}+Return" = "exec ${lib.getExe sway-smart-terminal}";
-          "${modifier}+alt+Return" = "exec ${pkgs.wezterm}/bin/wezterm start --cwd $HOME";
+          "${modifier}+alt+Return" = "exec ${perSystem.giopkgs.wezterm}/bin/wezterm start --cwd $HOME";
 
           # I have gotten too used to MacOS...
           "${modifier}+space" = "exec vicinae toggle";

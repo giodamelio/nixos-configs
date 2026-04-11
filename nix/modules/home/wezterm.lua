@@ -136,6 +136,30 @@ wezterm.on('trigger-vim-with-scrollback', function(window, pane)
   os.remove(name)
 end)
 
+-- Write the current pane's working directory to /tmp
+local last_cwd = nil
+local function write_cwd(pane)
+  local cwd = pane:get_current_working_dir()
+  if cwd and cwd.file_path and cwd.file_path ~= last_cwd then
+    last_cwd = cwd.file_path
+    local f = io.open('/tmp/wezterm-cwd', 'w')
+    if f then
+      f:write(cwd.file_path)
+      f:close()
+    end
+  end
+end
+
+wezterm.on('pane-focus-changed', function(window, pane)
+  write_cwd(pane)
+end)
+
+wezterm.on('window-focus-changed', function(window, pane)
+  if window:is_focused() then
+    write_cwd(pane)
+  end
+end)
+
 -- Handle click-to-cd/open for paths
 wezterm.on('open-uri', function(window, pane, uri)
   -- Handle omp --resume commands
