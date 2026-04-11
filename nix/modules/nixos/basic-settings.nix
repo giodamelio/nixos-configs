@@ -25,6 +25,11 @@
     };
     registry = {
       stable.flake = inputs.nixpkgs-stable;
+      giopkgs.to = {
+        type = "github";
+        owner = "giodamelio";
+        repo = "giopkgs";
+      };
     };
   };
   security.sudo.wheelNeedsPassword = false;
