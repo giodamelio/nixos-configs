@@ -6,6 +6,8 @@
   # Import all required Home Manager modules that should be available on every system
   imports = [
     flake.homeModules.nix-activate
+    flake.homeModules.shpool
+    flake.homeModules.zmx
   ];
 
   options.gio.role = lib.mkOption {

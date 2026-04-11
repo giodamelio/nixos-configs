@@ -36,7 +36,6 @@ in {
 
       rage # Easy encryption
       cachix # Nix binary caching
-      devenv # Easy development environment management
       attic-client # Nix binary cache
       nix-output-monitor # Pretty cli output for Nix commands
       giopkgs.e2ecp # Easy cross computer file transfer. CLI or Browser

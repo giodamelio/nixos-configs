@@ -107,5 +107,13 @@
 
     # Bubblewrap sandbox wrapper library
     jail-nix.url = "sourcehut:~alexdavid/jail.nix";
+
+    # Easy project devshells
+    # TODO: Switch back to main when https://github.com/cachix/devenv/pull/2718 is merged.
+    # Tracking the PR branch for zsh, fish, and nushell shell support in interactive devenv sessions.
+    devenv.url = "github:cachix/devenv/zsh-shell-support";
+
+    # Terminal multiplexer in Zig
+    zmx.url = "github:neurosnap/zmx";
   };
 }

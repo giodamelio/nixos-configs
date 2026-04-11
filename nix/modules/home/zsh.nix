@@ -100,6 +100,16 @@
         }
         [[ -o zle ]] && compdef __zoxide_z_complete z
       '';
+
+      devenvAutoActivation = lib.mkAfter ''
+        eval "$(devenv hook zsh)"
+      '';
+
+      zmxCompletions = lib.mkAfter ''
+        if command -v zmx &> /dev/null; then
+          eval "$(zmx completions zsh)"
+        fi
+      '';
     in
       lib.mkMerge (
         [
@@ -109,6 +119,8 @@
           takeFunction
           taketmpFunction
           zoxideInteractive
+          devenvAutoActivation
+          zmxCompletions
         ]
         ++ (lib.optionals pkgs.stdenv.hostPlatform.isDarwin [homebrewShellEnv loadSecrets])
       );
