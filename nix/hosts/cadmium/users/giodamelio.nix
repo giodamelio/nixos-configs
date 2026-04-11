@@ -33,6 +33,8 @@
     stateVersion = "24.11";
   };
 
+  gio.role = "desktop";
+
   programs.home-manager.enable = true;
 
   # Configure nix-activate for NixOS

@@ -25,6 +25,8 @@
     stateVersion = "25.05";
   };
 
+  gio.role = "desktop";
+
   programs.home-manager.enable = true;
 
   # Configure nix-activate-config for Darwin

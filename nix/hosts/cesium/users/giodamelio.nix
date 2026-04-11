@@ -22,6 +22,8 @@
     stateVersion = "24.11";
   };
 
+  gio.role = "desktop";
+
   programs.home-manager.enable = true;
   programs.claude-code = {
     enable = true;
