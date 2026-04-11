@@ -71,7 +71,7 @@
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
 
     # Unison Programming Language
-    unison-lang.url = "github:giodamelio/unison-nix/giodamelio/init-ucm-desktop";
+    unison-lang.url = "github:ceedubs/unison-nix";
     unison-lang.inputs.nixpkgs.follows = "nixpkgs";
 
     # LLM Agents
