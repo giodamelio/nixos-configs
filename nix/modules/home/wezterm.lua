@@ -25,8 +25,7 @@ config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' } -- Disable ligature
 config.hide_tab_bar_if_only_one_tab = false
 config.use_fancy_tab_bar = true
 
--- TODO: Update this when there is highlighting support
--- See: https://github.com/wezterm/wezterm/issues/4077
+-- REMIND-ME-TO: Add hyperlink highlighting support issue_closed=github:wezterm/wezterm#4077
 config.hyperlink_rules = wezterm.default_hyperlink_rules()
 
 -- Click on directory/file paths to cd or open in vim
@@ -61,9 +60,8 @@ config.enable_scroll_bar = true
 -- Keep more scrollback lines
 config.scrollback_lines = 6000
 
--- Kitty Keyboard protocol disabled: WezTerm bug #6872 causes escape key
--- release events to leak as literal text in applications like OMP.
--- Re-enable once https://github.com/wezterm/wezterm/pull/6872 is merged.
+-- REMIND-ME-TO: Re-enable kitty keyboard protocol pr_released=github:wezterm/wezterm#6872
+-- Bug #6872 causes escape key release events to leak as literal text in applications like OMP.
 config.enable_kitty_keyboard = false
 
 -- Key Bindings

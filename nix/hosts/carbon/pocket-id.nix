@@ -5,8 +5,7 @@
     settings = {
       APP_URL = "https://login.gio.ninja";
       TRUST_PROXY = true;
-      # TODO: hardcoding this is probably a bad idea
-      # See: https://github.com/pocket-id/pocket-id/pull/799#issuecomment-3134806588
+      # REMIND-ME-TO: Stop hardcoding ENCRYPTION_KEY_FILE path nixpkg_version=nixpkgs-unstable:pocket-id@>=2.6.2
       # Maybe I can use mount path or something to make it work
       # ENCRYPTION_KEY_FILE = "\${CREDENTIALS_DIRECTORY}/pocket-id-encryption-key";
       ENCRYPTION_KEY_FILE = "/run/credentials/pocket-id.service/pocket-id-encryption-key";

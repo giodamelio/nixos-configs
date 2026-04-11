@@ -1,7 +1,6 @@
 {pkgs, ...}:
+# REMIND-ME-TO: Switch back to pkgs.statix tag_exists=github:oppiliappan/statix@>=0.6.0
 # Custom build of statix from after v0.5.8 that supports the |> pipe operator.
-# Track https://github.com/oppiliappan/statix/releases for a proper release
-# and switch back to pkgs.statix when it includes pipe support.
 pkgs.rustPlatform.buildRustPackage {
   pname = "statix";
   version = "0.5.8-unstable";

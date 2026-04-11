@@ -36,7 +36,7 @@ in {
     # The home manager module can't handle dicts well
     extraConfig = ''
       config.set("content.javascript.log_message.excludes", {
-        # See: https://github.com/qutebrowser/qutebrowser/issues/7557
+        # REMIND-ME-TO: Remove JS log message exclusion workaround issue_closed=github:qutebrowser/qutebrowser#7557
         'userscript:_qute_js': [
           "Uncaught InvalidStateError: Failed to set the 'selectionStart' property on 'HTMLInputElement': The input element's type ('email') does not support selection."
         ]

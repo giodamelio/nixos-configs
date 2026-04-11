@@ -18,8 +18,7 @@
     ];
 
     initContent = let
-      # Fix Vim Mode keybindings issue
-      # See: https://github.com/jeffreytse/zsh-vi-mode/issues/148#issuecomment-1566863380
+      # REMIND-ME-TO: Remove vim mode keybinding fix workaround nixpkg_version=nixpkgs-unstable:zsh-vi-mode@>=0.13.0
       vimModeKeybindingFix = lib.mkAfter ''
         zvm_after_init_commands+=("bindkey -M viins '^r' atuin-search-viins")
       '';
@@ -39,8 +38,7 @@
           # Setup Homebrew path on MacOS
           # Set the homebrew PATH after the NIX path so Nix executables take precedent
           # Not using `brew shellenv` since it always puts itself first in the $PATH
-          # Note: Hostname has to be hardcoded for now
-          # See: https://github.com/numtide/blueprint/issues/69
+          # REMIND-ME-TO: Stop hardcoding hostname issue_closed=github:numtide/blueprint#69
           export HOMEBREW_PREFIX="${brewPrefix}";
           export HOMEBREW_CELLAR="${brewPrefix}/Cellar";
           export HOMEBREW_REPOSITORY="${brewPrefix}";
