@@ -1,6 +1,7 @@
 {
   pkgs,
   treefmt,
+  statix-pipe,
 }: let
   inherit (pkgs) lib;
 
@@ -28,22 +29,6 @@
       ln -s ${seleneConfig} $out/selene.toml
       ln -s ${luaStdlib} $out/vim.yml
     '';
-  };
-
-  # New version of Statix that supports |> operator
-  statixPipeVersion = pkgs.rustPlatform.buildRustPackage {
-    pname = "statix";
-    version = "0.5.8";
-    src = pkgs.fetchFromGitHub {
-      owner = "oppiliappan";
-      repo = "statix";
-      rev = "f76adab8920438c39edbf3463b7a7150f9875617";
-      sha256 = "sha256-g1fFexvaHiW4qc3XfVaoqoCe2mp1yeaDG4wgaDgcuGM=";
-    };
-    cargoHash = "sha256-jiMv28kSqCfaYnVsE/q/EtaPmSrANvJYjI9FQ2+Biz8=";
-    buildFeatures = "json";
-    meta.mainProgram = "statix";
-    doCheck = !pkgs.stdenv.hostPlatform.isDarwin;
   };
 
   # Generate prek.toml
@@ -77,7 +62,7 @@
           {
             id = "statix";
             name = "statix";
-            entry = "${lib.getExe statixPipeVersion} check --format errfmt";
+            entry = "${lib.getExe statix-pipe} check --format errfmt";
             language = "system";
             files = "\\.nix$";
             pass_filenames = false;
@@ -126,7 +111,7 @@
   packages = [
     pkgs.prek
     pkgs.deadnix
-    statixPipeVersion
+    statix-pipe
     pkgs.flake-checker
     pkgs.shellcheck
     pkgs.stylua

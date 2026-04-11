@@ -3,18 +3,21 @@
 
   # Loaded up version of treefmt that has all the things available on it
   treefmt = pkgs: let
+    statix-pipe = import ../packages/statix-pipe.nix {inherit pkgs;};
     treefmtConfig = pkgs:
       import ../../treefmt.nix {
-        inherit pkgs;
+        inherit pkgs statix-pipe;
         inherit (inputs.treefmt-nix.lib) evalModule;
       };
   in
     (treefmtConfig pkgs).config.build;
 
   # Prek hooks configuration and shell integration
-  prek = pkgs: flake:
+  prek = pkgs: flake: let
+    statix-pipe = import ../packages/statix-pipe.nix {inherit pkgs;};
+  in
     import ./prek.nix {
-      inherit pkgs;
+      inherit pkgs statix-pipe;
       treefmt = flake.lib.treefmt pkgs;
     };
 
