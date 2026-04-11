@@ -148,7 +148,7 @@ local function write_cwd(pane)
   end
 end
 
-wezterm.on('pane-focus-changed', function(window, pane)
+wezterm.on('pane-focus-changed', function(_window, pane)
   write_cwd(pane)
 end)
 
