@@ -26,7 +26,7 @@
     efi.canTouchEfiVariables = true;
 
     boot-selector-switch = {
-      enable = true;
+      enable = false;
       package = perSystem.boot-selector-switch.efi-shim;
       installMode = "systemd-boot-entry";
       positionMap = {
