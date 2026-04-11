@@ -24,7 +24,6 @@ in
         pkgs.rage
         pkgs.pwgen
         pkgs.doggo
-        pkgs.opentofu
         pkgs.little_boxes
         pkgs.nil
         pkgs.nvd
@@ -34,7 +33,7 @@ in
         pkgs.nh
         pkgs.minio-client
         pkgs.jq
-        pkgs.vscode-json-languageserver
+
         pkgs.nixd
         pkgs.efibootmgr
         deploy
