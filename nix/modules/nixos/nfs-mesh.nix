@@ -79,7 +79,7 @@
       })
       hostExports;
   in
-    lib.concatMapStringsSep "\n" (entry: "${entry.path} 10.100.0.0/24(rw,sync,no_subtree_check,all_squash,anonuid=${toString entry.uid},anongid=${toString entry.gid})")
+    lib.concatMapStringsSep "\n" (entry: "${entry.path} 10.200.0.0/24(rw,sync,no_subtree_check,all_squash,anonuid=${toString entry.uid},anongid=${toString entry.gid})")
     pathEntries;
 
   # Collect all share IDs to check for collisions

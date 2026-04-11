@@ -21,7 +21,7 @@ in {
           networkConfig = {
             Address = "${ifCfg.address}/${toString ifCfg.prefixLength}";
             Gateway = ifCfg.gateway;
-            DNS = ["127.0.0.1"];
+            DNS = ["10.30.0.10" "10.30.0.11"];
           };
           linkConfig.RequiredForOnline = "routable";
         })

@@ -25,11 +25,11 @@
   nfs = {
     peers = {
       gallium = {
-        wgIp = "10.100.0.1";
+        wgIp = "10.200.0.1";
         wgPublicKey = "YMsduGtNNbhNbBpl6hkYTfMXWdQn7Xz7KrwRwojEVGE=";
       };
       carbon = {
-        wgIp = "10.100.0.2";
+        wgIp = "10.200.0.2";
         wgPublicKey = "P8wlozMnvqnqb+qo0azgmBFsdX93LpywZ7dV+zI5sjc=";
       };
     };
