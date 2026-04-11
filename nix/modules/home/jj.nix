@@ -64,6 +64,7 @@ in {
   home.packages = [
     pkgs.difftastic
     pkgs.lazyjj
+    pkgs.jjui
     perSystem.jj-hunk.default
     jj-push
   ];
