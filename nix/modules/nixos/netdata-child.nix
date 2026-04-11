@@ -5,6 +5,7 @@
 }: {
   imports = [
     ./netdata-integrations.nix
+    ./cronitor.nix
   ];
 
   services.netdata = {
@@ -28,6 +29,11 @@
           destination = carbon.gio.ninja:19999
           api key = file:/run/credentials/netdata.service/netdata-api-key
     '';
+  };
+
+  gio.cronitor = {
+    enable = true;
+    units = ["netdata"];
   };
 
   gio.credentials = {

@@ -1,7 +1,13 @@
 {flake, ...}: {
   imports = [
     flake.nixosModules.netdata-parent
+    flake.nixosModules.cronitor
   ];
+
+  gio.cronitor = {
+    enable = true;
+    units = ["netdata"];
+  };
 
   services.gio.reverse-proxy = {
     enable = true;
