@@ -155,6 +155,9 @@ end)
 wezterm.on('window-focus-changed', function(window, pane)
   if window:is_focused() then
     write_cwd(pane)
+  else
+    os.remove('/tmp/wezterm-cwd')
+    last_cwd = nil
   end
 end)
 
