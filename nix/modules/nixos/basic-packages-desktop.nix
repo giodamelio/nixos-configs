@@ -12,6 +12,7 @@
       mpv
       kdePackages.okular
       zathura
+      rpi-imager
     ];
     sessionVariables = {
       NIXOS_OZONE_WL = "1";

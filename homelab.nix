@@ -20,6 +20,16 @@
         };
       };
     };
+    rhodium = {
+      primaryInterface = "eth0";
+      interfaces = {
+        eth0 = {
+          address = "10.30.0.12";
+          prefixLength = 24;
+          gateway = "10.30.0.1";
+        };
+      };
+    };
   };
 
   nfs = {

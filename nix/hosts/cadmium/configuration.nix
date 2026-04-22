@@ -116,6 +116,9 @@ in {
     )
 
     (_: {
+      # Enable aarch64 emulation for cross-building RPi images
+      boot.binfmt.emulatedSystems = ["aarch64-linux"];
+
       virtualisation.docker = {
         enable = true;
       };

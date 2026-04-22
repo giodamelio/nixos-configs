@@ -43,7 +43,7 @@ in {
         ]
         ++ lib.optional (builtins.length (builtins.attrValues config.gio.services) > 0) "/etc/consul.d/services.json";
       extraConfig = {
-        bootstrap_expect = 2;
+        bootstrap_expect = 3;
         server = true;
         enable_syslog = true;
         retry_join = joinAddresses;

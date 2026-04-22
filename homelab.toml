@@ -60,6 +60,17 @@ sshDestination = "server@carbon.gio.ninja"
 [machines.carbon.consul]
 join_address = "carbon.gio.ninja"
 
+[machines.rhodium]
+hardwareDescription = "Raspberry Pi 4"
+physicalLocation = "minirack"
+useDescription = "Critical infrastructure DNS server"
+
+[machines.rhodium.deploy]
+sshDestination = "server@rhodium.gio.ninja"
+
+[machines.rhodium.consul]
+join_address = "rhodium.gio.ninja"
+
 [machines.hammond]
 hardwareDescription = "Intel NUC 5th Gen"
 hardwareModelNumber = "NUC5CPYH"
@@ -111,4 +122,5 @@ useDescription = "Hammond AI agent"
   "paperless",
   "ca",
 ]
+"rhodium.lan." = ["rhodium"]
 "jetkvm.lan." = ["jetkvm"]
