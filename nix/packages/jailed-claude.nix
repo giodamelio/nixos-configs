@@ -16,8 +16,6 @@ in
       (try-readonly "/etc/static")
       (try-readonly "/etc/profiles")
       overlay-home
-      work-in-cwd
-      (rw-paths-from-file ".sandbox-paths")
 
       # Claude-specific rw paths
       (try-readwrite (noescape "~/.claude"))
@@ -36,6 +34,10 @@ in
       (try-readonly (noescape "~/.config/jj"))
       (try-readonly (noescape "~/.config/nix"))
       (try-readonly (noescape "~/projects/giodamelio/agent-skills"))
+
+      # CWD bind must come after ro paths so it wins when they overlap
+      work-in-cwd
+      (rw-paths-from-file ".sandbox-paths")
 
       # Environment
       (unset-env "ANTHROPIC_API_KEY")
