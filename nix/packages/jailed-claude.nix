@@ -25,6 +25,7 @@ in
       (try-readwrite (noescape "~/.cache/claude-cli-nodejs"))
       (try-readwrite (noescape "~/.local/state/claude"))
       (try-readwrite (noescape "~/Documents/life/Projects/"))
+      (try-readwrite (noescape "~/projects/browser-use/browser-harness"))
 
       # Claude-specific ro paths
       (try-readonly "/etc/nix")
