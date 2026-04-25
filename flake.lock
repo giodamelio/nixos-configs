@@ -1042,11 +1042,11 @@
         "nixpkgs": "nixpkgs_9"
       },
       "locked": {
-        "lastModified": 1776881223,
-        "narHash": "sha256-ZckNWH/XvDa1IpqnAf1sS+ynDvzuTjNLCXoEQmRLVjM=",
+        "lastModified": 1777086239,
+        "narHash": "sha256-NV1mzcw+FclksEBlw+LoQo5lVQFrmM42/OyXOgksmns=",
         "owner": "giodamelio",
         "repo": "giopkgs",
-        "rev": "baf98b327f857a4bc865d25d994cd292b2ea12f5",
+        "rev": "806804501e2957c7e102d88d6cbd0198878ddb6b",
         "type": "github"
       },
       "original": {
