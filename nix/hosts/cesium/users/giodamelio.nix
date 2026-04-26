@@ -13,7 +13,6 @@
     flake.homeModules.atuind
     flake.homeModules.claude-code
     flake.homeModules.jj
-    flake.homeModules.pi
   ];
 
   home = {
@@ -25,15 +24,11 @@
   gio.role = "desktop";
 
   programs.home-manager.enable = true;
-  programs.claude-code = {
-    enable = true;
-  };
 
-  programs.opencode = {
+  # Configure Claude Code
+  programs.gio-claude-code = {
     enable = true;
-    settings = {
-      model = "anthropic/claude-sonnet-4-5";
-    };
+    installPackage = true;
   };
 
   # Configure nix-activate for NixOS
