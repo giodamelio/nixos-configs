@@ -155,6 +155,12 @@ end)
 wezterm.on('window-focus-changed', function(window, pane)
   if window:is_focused() then
     write_cwd(pane)
+
+    -- Workaround for wezterm clipboard paste bug on non-wlroots compositors (niri)
+    -- Re-offer clipboard data so native paste works
+    -- https://github.com/wezterm/wezterm/issues/7577
+    -- REMIND-ME-TO: Remove clipboard paste workaround date_passed=2026-10-28 issue_closed=github:wezterm/wezterm#7577
+    wezterm.run_child_process({ 'sh', '-c', 'wl-paste -n | wl-copy' })
   else
     os.remove('/tmp/wezterm-cwd')
     last_cwd = nil

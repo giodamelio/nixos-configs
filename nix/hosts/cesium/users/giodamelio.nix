@@ -15,6 +15,7 @@
     flake.homeModules.jj
     flake.homeModules.wezterm
     flake.homeModules.niri
+    flake.homeModules.noctalia
   ];
 
   home = {

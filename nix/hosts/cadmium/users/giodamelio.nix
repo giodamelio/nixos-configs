@@ -1,4 +1,10 @@
-{flake, ...}: {
+{
+  flake,
+  perSystem,
+  ...
+}: let
+  inherit (flake.lib.homelab.machines.cadmium) monitor-names;
+in {
   imports = [
     flake.homeModules.required
     flake.homeModules.lil-scripts
@@ -36,6 +42,26 @@
   gio.role = "desktop";
 
   programs.home-manager.enable = true;
+
+  # Configure waybar for sway
+  gio.waybar = {
+    enable = true;
+    windowManager = "sway";
+    fontSize = 20;
+    package = perSystem.giopkgs.waybar;
+    audioOutputSwitcher = true;
+    modules = {
+      left = ["sway/mode" "sway/workspaces"];
+      right = ["network" "network-graphs" "cpu" "memory" "custom/claude-usage" "pulseaudio" "tray" "custom/notification" "clock" "custom/power"];
+    };
+    monitors = {
+      main = monitor-names.middle;
+      secondary = [monitor-names.left monitor-names.right];
+    };
+    networkInterfaces = [
+      {name = "enp0*";}
+    ];
+  };
 
   # Configure nix-activate for NixOS
   gio.nix-activate-config.activation = {

@@ -115,5 +115,13 @@
 
     # Terminal multiplexer in Zig
     zmx.url = "github:neurosnap/zmx";
+
+    # Noctalia desktop shell (bar, launcher, notifications, lock screen)
+    noctalia.url = "github:noctalia-dev/noctalia-shell";
+    noctalia.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Niri Wayland compositor flake (NixOS + Home Manager modules)
+    niri.url = "github:sodiboo/niri-flake";
+    niri.inputs.nixpkgs.follows = "nixpkgs";
   };
 }

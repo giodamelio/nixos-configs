@@ -1,6 +1,7 @@
 {
   inputs,
   flake,
+  perSystem,
   ...
 }: let
   homelab = builtins.fromTOML (builtins.readFile ../../../homelab.toml);
@@ -17,6 +18,7 @@ in {
     flake.nixosModules.nh
     flake.nixosModules.optnix
     flake.nixosModules.basic-packages
+    flake.nixosModules.basic-packages-desktop
     flake.nixosModules.basic-settings
     flake.nixosModules.onepassword
     flake.nixosModules.fonts
@@ -38,11 +40,65 @@ in {
       }
     )
 
-    # Niri compositor
-    (_: {
+    # Niri compositor (via niri-flake)
+    inputs.niri.nixosModules.niri
+    ({lib, ...}: let
+      niriPackage = perSystem.giopkgs.niri.overrideAttrs (old: {
+        passthru =
+          old.passthru or {}
+          // {
+            providedSessions = ["niri"];
+          };
+        postFixup =
+          old.postFixup or ""
+          + ''
+            substituteInPlace $out/share/systemd/user/niri.service \
+              --replace-fail "ExecStart=niri" "ExecStart=$out/bin/niri"
+          '';
+      });
+    in {
       programs.niri.enable = true;
+      programs.niri.package = niriPackage;
 
       services.displayManager.ly.enable = true;
+
+      # Register niri systemd user units in /etc/systemd/user/ so Ly can
+      # find them. Setting PATH = null prevents NixOS from injecting a
+      # restricted PATH that would break spawned programs — niri inherits
+      # the user's full environment via niri-session's import-environment.
+      systemd.user.services.niri = {
+        description = "A scrollable-tiling Wayland compositor";
+        bindsTo = ["graphical-session.target"];
+        before = ["graphical-session.target" "xdg-desktop-autostart.target"];
+        wants = ["graphical-session-pre.target" "xdg-desktop-autostart.target"];
+        after = ["graphical-session-pre.target"];
+        environment.PATH = lib.mkForce null;
+        serviceConfig = {
+          Slice = "session.slice";
+          Type = "notify";
+          ExecStart = "${niriPackage}/bin/niri --session";
+        };
+      };
+
+      systemd.user.targets.niri-shutdown = {
+        description = "Shutdown running niri session";
+        conflicts = ["graphical-session.target" "graphical-session-pre.target"];
+        after = ["graphical-session.target" "graphical-session-pre.target"];
+        unitConfig = {
+          DefaultDependencies = false;
+          StopWhenUnneeded = true;
+        };
+      };
+
+      # Ensure systemd user services have the full NixOS PATH available
+      # (same approach as the Hyprland NixOS module)
+      systemd.user.extraConfig = ''
+        DefaultEnvironment="PATH=/run/wrappers/bin:/etc/profiles/per-user/%u/bin:/nix/var/nix/profiles/default/bin:/run/current-system/sw/bin"
+      '';
+
+      # Noctalia prerequisites
+      services.upower.enable = true;
+      services.power-profiles-daemon.enable = true;
 
       # Audio
       services.pipewire = {
