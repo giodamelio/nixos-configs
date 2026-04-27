@@ -16,6 +16,14 @@ ssh_keys = [
   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJwxJI1kvYY7wN9ps8W23kadHiqX8d/BJT/zI9oh0uDp giodamelio@cesium"
 ]
 
+## SSH keys for nix remote builder access
+remote_builder_keys = [
+  # Hammond
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBCyh/3f4nbOmINaD+dLuU4/uOAKBNu/r3cXS/Jx4uqu root@hammond",
+  # Cesium
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL1F26iEly+cAJDKqNRhWdXxrLisszNO10r0Ffv3TFZE root@cesium-nix-remote-builder",
+]
+
 ## All the machines
 
 [machines.gio-pixel-7]

@@ -20,6 +20,7 @@ in {
     flake.nixosModules.basic-settings
     flake.nixosModules.onepassword
     flake.nixosModules.fonts
+    flake.nixosModules.remote-builder-user
 
     # Create giodamelio user
     (
