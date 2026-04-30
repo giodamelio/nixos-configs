@@ -16,6 +16,7 @@
     flake.homeModules.wezterm
     flake.homeModules.niri
     flake.homeModules.noctalia
+    flake.homeModules.kde-connect
     flake.homeModules.satellite-wallpaper
   ];
 

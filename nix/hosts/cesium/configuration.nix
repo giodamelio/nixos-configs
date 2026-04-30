@@ -159,6 +159,9 @@ in {
       };
     })
 
+    # KDE Connect firewall ports (auto-enabled when any HM user enables kdeconnect)
+    flake.nixosModules.kde-connect
+
     (_: {
       boot.loader.systemd-boot.enable = true;
       boot.loader.efi.canTouchEfiVariables = true;
