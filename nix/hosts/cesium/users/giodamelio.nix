@@ -18,6 +18,7 @@
     flake.homeModules.noctalia
     flake.homeModules.kde-connect
     flake.homeModules.satellite-wallpaper
+    flake.homeModules.zed-editor
   ];
 
   home = {
