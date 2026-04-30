@@ -23,6 +23,7 @@ in {
     flake.nixosModules.onepassword
     flake.nixosModules.fonts
     flake.nixosModules.remote-builder-user
+    flake.nixosModules.pipewire
 
     # Create giodamelio user
     (
@@ -31,6 +32,7 @@ in {
           extraGroups = [
             "wheel"
             "networkmanager"
+            "audio"
           ];
           isNormalUser = true;
           shell = pkgs.zsh;
@@ -98,14 +100,6 @@ in {
 
       # Noctalia prerequisites
       services.upower.enable = true;
-      services.power-profiles-daemon.enable = true;
-
-      # Audio
-      services.pipewire = {
-        enable = true;
-        alsa.enable = true;
-        pulse.enable = true;
-      };
     })
 
     # Chromebook keyboard remapping
