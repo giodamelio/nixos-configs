@@ -153,6 +153,9 @@ in {
       };
     })
 
+    # Battery and power management
+    flake.nixosModules.battery-optimization
+
     # KDE Connect firewall ports (auto-enabled when any HM user enables kdeconnect)
     flake.nixosModules.kde-connect
 
