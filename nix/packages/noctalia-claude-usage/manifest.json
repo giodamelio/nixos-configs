@@ -1,0 +1,10 @@
+{
+  "id": "claude-usage",
+  "name": "Claude Usage",
+  "version": "1.0.0",
+  "author": "Giovanni d'Amelio",
+  "description": "Shows Claude API usage (5-hour and 7-day) in the bar",
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  }
+}
