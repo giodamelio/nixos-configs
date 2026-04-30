@@ -32,9 +32,29 @@ in {
           enabled = true;
           sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
         };
+        screen-toolkit = {
+          enabled = true;
+          sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
+        };
       };
     };
   };
+
+  # screen-toolkit dependencies (required + optional)
+  home.packages = with pkgs; [
+    grim # screenshot capture
+    slurp # region selection
+    wl-clipboard # clipboard integration
+    tesseract # OCR text extraction
+    imagemagick # image processing
+    zbar # QR/barcode scanning
+    curl # Google Lens reverse image search
+    ffmpeg # video encoding
+    jq # JSON parsing
+    wl-screenrec # screen recording
+    translate-shell # OCR translation
+    gifski # high-quality GIF encoding
+  ];
 
   # Symlink the plugin into noctalia's plugin directory
   home.file.".config/noctalia/plugins/claude-usage".source = claude-usage-plugin;
