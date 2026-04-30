@@ -13,6 +13,8 @@
   home.packages =
     [perSystem.giopkgs.niri]
     ++ (with pkgs; [
+      nautilus
+      xwayland-satellite
       libnotify
       wl-clipboard
       grim

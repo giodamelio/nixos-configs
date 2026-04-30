@@ -44,7 +44,11 @@ in {
 
     # Niri compositor (via niri-flake)
     inputs.niri.nixosModules.niri
-    ({lib, ...}: let
+    ({
+      lib,
+      pkgs,
+      ...
+    }: let
       niriPackage = perSystem.giopkgs.niri.overrideAttrs (old: {
         passthru =
           old.passthru or {}
@@ -61,6 +65,28 @@ in {
     in {
       programs.niri.enable = true;
       programs.niri.package = niriPackage;
+
+      # The gnome portal refuses to expose FileChooser without Mutter,
+      # so route it to the GTK portal explicitly.
+      xdg.portal.extraPortals = [pkgs.xdg-desktop-portal-gtk];
+      xdg.portal.config.niri = {
+        "org.freedesktop.impl.portal.FileChooser" = ["gtk"];
+      };
+
+      # Fix portal services starting before niri-session has exported
+      # WAYLAND_DISPLAY. See: https://github.com/sodiboo/niri-flake/issues/509
+      systemd.user.services.xdg-desktop-portal = {
+        after = ["xdg-desktop-autostart.target"];
+      };
+      systemd.user.services.xdg-desktop-portal-gtk = {
+        after = ["xdg-desktop-autostart.target"];
+      };
+      systemd.user.services.xdg-desktop-portal-gnome = {
+        after = ["xdg-desktop-autostart.target"];
+      };
+      systemd.user.services.niri-flake-polkit = {
+        after = ["xdg-desktop-autostart.target"];
+      };
 
       services.displayManager.ly.enable = true;
 
