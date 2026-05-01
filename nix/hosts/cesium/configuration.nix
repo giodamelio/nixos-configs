@@ -42,6 +42,12 @@ in {
       }
     )
 
+    ({pkgs, ...}: {
+      environment.systemPackages = [
+        pkgs.foot
+      ];
+    })
+
     # Niri compositor (via niri-flake)
     inputs.niri.nixosModules.niri
     ({
