@@ -8,6 +8,15 @@
 }: let
   jailedClaude = flake.packages.${pkgs.stdenv.hostPlatform.system}.jailed-claude;
   claudeCode = perSystem.llm-agents.claude-code;
+
+  # Wrap jailed-claude so it's also available as "claude" in PATH
+  claudeWrapper = pkgs.symlinkJoin {
+    name = "claude-wrapper";
+    paths = [jailedClaude];
+    postBuild = ''
+      ln -s ${lib.getExe jailedClaude} $out/bin/claude
+    '';
+  };
 in {
   options.programs.gio-claude-code = {
     enable = lib.mkEnableOption "Claude Code configuration management";
@@ -47,7 +56,7 @@ in {
   };
 
   config = lib.mkIf config.programs.gio-claude-code.enable {
-    home.packages = [jailedClaude];
+    home.packages = [claudeWrapper];
 
     home.shellAliases = {
       claude = lib.getExe jailedClaude;
