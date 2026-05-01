@@ -90,6 +90,11 @@ in {
 
       services.displayManager.ly.enable = true;
 
+      # Workaround for NixOS/nixpkgs#427414: ly's shell session pipes
+      # stdout/stderr to systemd-cat, making command output invisible.
+      # Disable journal redirect so shell logins behave normally.
+      services.displayManager.logToJournal = false;
+
       # Register niri systemd user units in /etc/systemd/user/ so Ly can
       # find them. Setting PATH = null prevents NixOS from injecting a
       # restricted PATH that would break spawned programs — niri inherits
