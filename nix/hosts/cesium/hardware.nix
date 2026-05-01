@@ -55,6 +55,13 @@ in {
 
   swapDevices = [];
 
+  # zram swap — 8GB compressed swap to prevent OOM kills during nix evaluation
+  zramSwap = {
+    enable = true;
+    memoryPercent = 100;
+    algorithm = "zstd";
+  };
+
   networking.useDHCP = lib.mkDefault true;
   networking.networkmanager.enable = true;
 
