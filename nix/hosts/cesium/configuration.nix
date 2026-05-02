@@ -54,6 +54,9 @@ in {
     # Development tools
     flake.nixosModules.software-development
 
+    # GVFS for Nautilus network share browsing (SMB, etc.)
+    {services.gvfs.enable = true;}
+
     # Random software
     {
       environment.systemPackages = [
