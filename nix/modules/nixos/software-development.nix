@@ -24,9 +24,5 @@ in {
     gh # Github CLI
     perSystem.zmx.default # Terminal multiplexer written in Zig
     perSystem.giopkgs.remind-me-to # CLI reminder tool
-
-    # Unison lang things
-    perSystem.unison-lang.ucm-bin
-    perSystem.unison-lang.ucm-desktop
   ];
 }
