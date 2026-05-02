@@ -12,6 +12,7 @@
       mpv
       kdePackages.okular
       zathura
+      foot
       rpi-imager
     ];
     sessionVariables = {
