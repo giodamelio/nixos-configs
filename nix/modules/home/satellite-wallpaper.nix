@@ -13,11 +13,24 @@
     name = "satellite-set-wallpaper";
     runtimeInputs = [satellite-earth-download];
     source = ''
+      use std/log
+
       def main [] {
-        let image = (satellite-earth-download ${cfg.source} --product ${cfg.product})
+        log info "Starting satellite wallpaper update"
+        let image = (satellite-earth-download ${cfg.source} --product ${cfg.product} | str trim)
+        log info $"Downloaded image: ($image)"
+
         let outputs = (niri msg --json outputs | from json | columns)
+        log info $"Found outputs: ($outputs)"
+
         for output in $outputs {
-          try { noctalia-shell ipc call wallpaper set $image $output }
+          log info $"Setting wallpaper on output: ($output)"
+          try {
+            noctalia-shell ipc call wallpaper set $image $output
+            log info $"Successfully set wallpaper on ($output)"
+          } catch {|e|
+            log error $"Failed to set wallpaper on ($output): ($e.msg)"
+          }
         }
       }
     '';

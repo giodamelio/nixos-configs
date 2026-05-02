@@ -7,6 +7,8 @@ flake.lib.writeNushellApplication pkgs {
   name = "satellite-earth-download";
   runtimeInputs = with pkgs; [curl imagemagick];
   source = ''
+    use std/log
+
     # Download the latest full-disk Earth image from a geostationary satellite
     # All imagery sourced from RAMMB/CIRA SLIDER (clean, no annotations)
     def main [
@@ -21,7 +23,7 @@ flake.lib.writeNushellApplication pkgs {
         "goes-west" => "goes-18",
         "himawari" => "himawari",
         _ => {
-          print -e $"Unknown source: ($source). Use: goes-east, goes-west, himawari"
+          log error $"Unknown source: ($source). Use: goes-east, goes-west, himawari"
           exit 1
         }
       }
@@ -33,22 +35,29 @@ flake.lib.writeNushellApplication pkgs {
         $"($cache)/satellite-earth/latest.png"
       }
 
+      log info $"Source: ($source) (($sat_id)), Product: ($product), Zoom: ($zoom), Output: ($output_path)"
+
       mkdir ($output_path | path dirname)
       let tile_dir = (mktemp -d)
+      log debug $"Tile directory: ($tile_dir)"
 
       # Get latest timestamp
+      log info "Fetching latest timestamp..."
       let latest = (curl -sf $"https://slider.cira.colostate.edu/data/json/($sat_id)/full_disk/($product)/latest_times.json" | from json)
       let timestamp = ($latest.timestamps_int.0 | into string)
       let year = ($timestamp | str substring 0..<4)
       let month = ($timestamp | str substring 4..<6)
       let day = ($timestamp | str substring 6..<8)
+      log info $"Latest timestamp: ($timestamp) (($year)-($month)-($day))"
 
       let zoom_pad = ($zoom | fill -a right -c '0' -w 2)
       let grid_size = (2 ** $zoom)
       let base_url = $"https://slider.cira.colostate.edu/data/imagery/($year)/($month)/($day)/($sat_id)---full_disk/($product)/($timestamp)/($zoom_pad)"
+      log debug $"Base URL: ($base_url)"
 
       # Download tiles
       let indices = (seq 0 ($grid_size - 1) | each {|x| $x | into int})
+      log info $"Downloading ($grid_size * $grid_size) tiles..."
       for row in $indices {
         for col in $indices {
           let rp = ($row | fill -a right -c '0' -w 3)
@@ -56,8 +65,10 @@ flake.lib.writeNushellApplication pkgs {
           curl -sf -o $"($tile_dir)/tile_($rp)_($cp).png" $"($base_url)/($rp)_($cp).png"
         }
       }
+      log info "Tiles downloaded"
 
       # Stitch tiles: columns horizontally per row, then rows vertically
+      log info "Stitching tiles..."
       for row in $indices {
         let rp = ($row | fill -a right -c '0' -w 3)
         let tiles = ($indices | each {|col| $"($tile_dir)/tile_($rp)_(($col | fill -a right -c '0' -w 3)).png" })
@@ -65,14 +76,17 @@ flake.lib.writeNushellApplication pkgs {
       }
       let rows = ($indices | each {|row| $"($tile_dir)/row($row).png" })
       magick ...$rows -append $"($tile_dir)/stitched.png"
+      log info "Stitching complete"
 
       # Optionally add border, then save
       if $border > 0 {
+        log info $"Adding ($border)px black border"
         magick $"($tile_dir)/stitched.png" -bordercolor black -border $border $output_path
       } else {
         mv $"($tile_dir)/stitched.png" $output_path
       }
 
+      log info $"Saved to: ($output_path)"
       print $output_path
       rm -rf $tile_dir
     }
