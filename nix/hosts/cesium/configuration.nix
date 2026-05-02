@@ -23,6 +23,7 @@ in {
     flake.nixosModules.onepassword
     flake.nixosModules.fonts
     flake.nixosModules.remote-builder-user
+    flake.nixosModules.attic-client
     flake.nixosModules.pipewire
 
     # Create giodamelio user
