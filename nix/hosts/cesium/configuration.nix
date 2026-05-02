@@ -191,6 +191,9 @@ in {
     # KDE Connect firewall ports (auto-enabled when any HM user enables kdeconnect)
     flake.nixosModules.kde-connect
 
+    # Development tools
+    flake.nixosModules.software-development
+
     # Random software
     {
       environment.systemPackages = [
