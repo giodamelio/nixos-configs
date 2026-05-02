@@ -191,6 +191,13 @@ in {
     # KDE Connect firewall ports (auto-enabled when any HM user enables kdeconnect)
     flake.nixosModules.kde-connect
 
+    # Random software
+    {
+      environment.systemPackages = [
+        perSystem.giopkgs.emdash
+      ];
+    }
+
     (_: {
       boot.loader.systemd-boot.enable = true;
       boot.loader.efi.canTouchEfiVariables = true;
