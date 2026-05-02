@@ -6,13 +6,17 @@
 }: let
   cfg = config.gio.attic-client;
 
-  post-build-hook = pkgs.writeShellScript "attic-post-build-hook" ''
-    set -euo pipefail
-    export PATH="${lib.makeBinPath [pkgs.attic-client]}:$PATH"
-    if [[ -n "''${OUT_PATHS:-}" ]]; then
+  post-build-hook = lib.getExe (pkgs.writeShellApplication {
+    name = "attic-post-build-hook";
+    runtimeInputs = [pkgs.attic-client];
+    text = ''
+      if [[ -n "''${OUT_PATHS:-}" ]]; then
+        # Word splitting is intentional: OUT_PATHS is a space-separated list from Nix
+      # shellcheck disable=SC2086
       attic push ${lib.escapeShellArg cfg.cache} $OUT_PATHS
-    fi
-  '';
+      fi
+    '';
+  });
 in {
   options.gio.attic-client = {
     cache = lib.mkOption {
