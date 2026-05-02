@@ -28,6 +28,7 @@ in {
     ./attic.nix # Nix binary cache
     ./jellyfin.nix # Home media server
     ./syncthing.nix # Cross device file syncing
+    ./samba.nix # SMB file sharing
 
     # Add some helpful programs
     (
