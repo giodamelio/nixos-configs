@@ -85,6 +85,7 @@ The configuration uses a modular approach:
 - Use `lib.pipe` for data transformations to improve readability
 - Prefer `lib.pipe` over deeply nested function calls when processing data through multiple steps
 - Example: `lib.pipe data [step1 step2 step3]` instead of `step3 (step2 (step1 data))`
+- Prefer `pkgs.writeShellApplication` over `pkgs.writeShellScript`/`pkgs.writeShellScriptBin` unless there is a good reason not to (e.g. the script must not use `set -euo pipefail`)
 
 ## Git Commit Guidelines
 
