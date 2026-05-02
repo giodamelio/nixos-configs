@@ -64,6 +64,19 @@ in {
           "tank/root"
         ];
       };
+
+      # Aggressive short-lived snapshot schedule for ~/tmp
+      services.sanoid.datasets."tank/giodamelio-tmp" = {
+        frequently = 36;
+        frequent_period = 10;
+        hourly = 24;
+        daily = 7;
+        monthly = 1;
+        yearly = 0;
+
+        autosnap = true;
+        autoprune = true;
+      };
     })
 
     # Software Development tools

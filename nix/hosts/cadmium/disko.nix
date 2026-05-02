@@ -73,6 +73,13 @@
                 mountpoint = "legacy";
               };
             };
+            giodamelio-tmp = {
+              type = "zfs_fs";
+              mountpoint = "/home/giodamelio/tmp";
+              options = {
+                mountpoint = "legacy";
+              };
+            };
           };
         };
       };
