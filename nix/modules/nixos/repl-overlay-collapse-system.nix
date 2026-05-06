@@ -1,3 +1,9 @@
+# UNUSED: This repl overlay requires the `repl-overlays` setting which is
+# not yet supported in Nix (only Lix). Kept for when Nix gains support.
+# REMIND-ME-TO: Re-enable repl-overlays pr_merged=github:NixOS/nix#10203
+# REMIND-ME-TO: Re-enable repl-overlays issue_closed=github:NixOS/nix#9940
+# REMIND-ME-TO: Re-enable repl-overlays issue_closed=github:NixOS/nix#13264
+#
 # Repl overlay that makes accessing any object path that has ${system} in it easier
 # Original attributes are available below original
 info: _final: attrs: let

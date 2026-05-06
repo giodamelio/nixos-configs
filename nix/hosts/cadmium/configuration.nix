@@ -8,7 +8,6 @@ in {
   imports = [
     inputs.home-manager.nixosModules.home-manager
 
-    flake.nixosModules.lix
     flake.nixosModules.wifi
     flake.nixosModules.nh
     flake.nixosModules.fonts

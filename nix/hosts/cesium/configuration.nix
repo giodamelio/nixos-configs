@@ -13,7 +13,6 @@ in {
     ./hardware.nix
 
     # Core system modules
-    flake.nixosModules.lix
     flake.nixosModules.wifi
     flake.nixosModules.nh
     flake.nixosModules.optnix
