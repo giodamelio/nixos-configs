@@ -15,6 +15,7 @@ in {
     flake.nixosModules.remote-builder-builder
     flake.nixosModules.optnix
     flake.nixosModules.client-mtls
+    flake.nixosModules.attic-client
 
     # Hardware stuff
     ./disko.nix
