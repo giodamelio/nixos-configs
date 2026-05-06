@@ -109,9 +109,7 @@
     jail-nix.url = "sourcehut:~alexdavid/jail.nix";
 
     # Easy project devshells
-    # REMIND-ME-TO: Switch devenv back to main branch pr_released=github:cachix/devenv#2718
-    # Tracking the PR branch for zsh, fish, and nushell shell support in interactive devenv sessions.
-    devenv.url = "github:cachix/devenv/zsh-shell-support";
+    devenv.url = "github:cachix/devenv";
 
     # Terminal multiplexer in Zig
     zmx.url = "github:neurosnap/zmx";
