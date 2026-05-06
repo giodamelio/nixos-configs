@@ -15,6 +15,8 @@
     paths = [jailedClaude];
     postBuild = ''
       ln -s ${lib.getExe jailedClaude} $out/bin/claude
+      # Also put the original (non-jailed) one in PATH as "claude-original"
+      ln -s ${lib.getExe claudeCode} $out/bin/claude-original
     '';
   };
 in {
