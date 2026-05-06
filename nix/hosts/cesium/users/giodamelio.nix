@@ -14,10 +14,8 @@
     flake.homeModules.claude-code
     flake.homeModules.jj
     flake.homeModules.wezterm
-    flake.homeModules.niri
-    flake.homeModules.noctalia
+    ../hm-niri.nix
     flake.homeModules.kde-connect
-    flake.homeModules.satellite-wallpaper
     flake.homeModules.zed-editor
   ];
 

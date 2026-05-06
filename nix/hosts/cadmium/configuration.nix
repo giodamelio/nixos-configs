@@ -86,6 +86,9 @@ in {
     # Easy key rebinding
     flake.nixosModules.keyd
 
+    # Niri compositor
+    ./niri.nix
+
     (
       {pkgs, ...}: {
         programs.sway = {

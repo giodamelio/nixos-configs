@@ -64,6 +64,7 @@ in {
     if [ ! -f "$HOME/.cache/noctalia-qs/.claude-usage-store-path" ] || \
        [ "$(cat "$HOME/.cache/noctalia-qs/.claude-usage-store-path" 2>/dev/null)" != "${claude-usage-plugin}" ]; then
       find "$HOME/.cache/noctalia-qs/qmlcache" -type f -delete 2>/dev/null || true
+      mkdir -p "$HOME/.cache/noctalia-qs"
       echo "${claude-usage-plugin}" > "$HOME/.cache/noctalia-qs/.claude-usage-store-path"
     fi
   '';
