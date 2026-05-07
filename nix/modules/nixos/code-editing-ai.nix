@@ -3,10 +3,10 @@
   perSystem,
   ...
 }: {
-  environment.systemPackages = with pkgs;
-  with perSystem.giopkgs; [
-    aider-chat
-    code-cursor
-    codebase-memory-mcp
+  environment.systemPackages = [
+    pkgs.aider-chat
+    pkgs.code-cursor
+    perSystem.giopkgs.codebase-memory-mcp
+    perSystem.mob.default
   ];
 }

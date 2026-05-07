@@ -121,5 +121,9 @@
     # Niri Wayland compositor flake (NixOS + Home Manager modules)
     niri.url = "github:sodiboo/niri-flake";
     niri.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Mob - AI agent tool
+    mob.url = "github:giodamelio/mob";
+    mob.inputs.nixpkgs.follows = "nixpkgs";
   };
 }
