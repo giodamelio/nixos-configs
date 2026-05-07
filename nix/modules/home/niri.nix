@@ -17,10 +17,12 @@
       xwayland-satellite
       libnotify
       wl-clipboard
-      grim
-      slurp
       swayidle
       brightnessctl
+      slurp # Allow selecting screen area (returns geometry)
+      grim # Takes screenshots
+      satty # Screenshot annotation
+      xdg-user-dirs # Easily get XDG dirs inside scripts
     ]);
 
   programs.niri.settings = {
