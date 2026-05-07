@@ -67,30 +67,41 @@
       "Super+Slash".action.show-hotkey-overlay = {};
 
       # Focus
-      "Mod+Left".action.focus-column-left = {};
-      "Mod+Right".action.focus-column-right = {};
-      "Mod+Up".action.focus-window-or-workspace-up = {};
-      "Mod+Down".action.focus-window-or-workspace-down = {};
-      "Mod+H".action.focus-column-left = {};
-      "Mod+L".action.focus-column-right = {};
+      "Mod+H".action.focus-column-or-monitor-left = {};
+      "Mod+L".action.focus-column-or-monitor-right = {};
       "Mod+K".action.focus-window-or-workspace-up = {};
       "Mod+J".action.focus-window-or-workspace-down = {};
 
+      # Focus Monitors
+      "Mod+Alt+H".action.focus-monitor-left = {};
+      "Mod+Alt+L".action.focus-monitor-right = {};
+
       # Move windows
-      "Mod+Shift+Left".action.move-column-left = {};
-      "Mod+Shift+Right".action.move-column-right = {};
-      "Mod+Shift+Up".action.move-window-up-or-to-workspace-up = {};
-      "Mod+Shift+Down".action.move-window-down-or-to-workspace-down = {};
-      "Mod+Shift+H".action.move-column-left = {};
-      "Mod+Shift+L".action.move-column-right = {};
+      ## Normal directions
+      "Mod+Shift+H".action.move-column-left-or-to-monitor-left = {};
+      "Mod+Shift+L".action.move-column-right-or-to-monitor-right = {};
       "Mod+Shift+K".action.move-window-up-or-to-workspace-up = {};
       "Mod+Shift+J".action.move-window-down-or-to-workspace-down = {};
+      ## Between monitors
+      "Mod+Shift+Alt+H".action.move-window-to-monitor-left = {};
+      "Mod+Shift+Alt+L".action.move-window-to-monitor-right = {};
+      "Mod+Shift+Alt+K".action.move-window-to-monitor-down = {};
+      "Mod+Shift+Alt+J".action.move-window-to-monitor-up = {};
+
+      # Columns
+      "Mod+Comma".action.consume-window-into-column = {};
+      "Mod+Period".action.expel-window-from-column = {};
+      "Mod+BracketLeft".action.consume-or-expel-window-left = {};
+      "Mod+BracketRight".action.consume-or-expel-window-right = {};
+      "Mod+T".action.toggle-column-tabbed-display = {};
 
       # Sizing
       "Mod+F".action.maximize-column = {};
       "Mod+Shift+F".action.fullscreen-window = {};
       "Mod+Minus".action.set-column-width = "-10%";
       "Mod+Equal".action.set-column-width = "+10%";
+      "Mod+Shift+Minus".action.set-window-height = "-10%";
+      "Mod+Shift+Equal".action.set-window-height = "+10%";
 
       # Workspaces
       "Mod+1".action.focus-workspace = 1;
@@ -109,8 +120,7 @@
       "Mod+WheelScrollUp".action.focus-workspace-up = {};
 
       # Screenshots
-      "Print".action.screenshot = {};
-      "Ctrl+Print".action.screenshot-screen = {};
+      "Print".action.spawn-sh = ''grim -t png -g "$(slurp -o -d -F monospace)" - | satty --filename - --copy-command=wl-copy --output-filename="$(xdg-user-dir PICTURES)/Screenshots/Screenshot from %Y-%m-%d %H:%M:%S.png" --actions-on-enter="save-to-file,exit" --actions-on-escape="save-to-clipboard,exit" --brush-smooth-history-size=5 --initial-tool=arrow --fullscreen=current-screen'';
       "Alt+Print".action.screenshot-window = {};
 
       # Toggle floating

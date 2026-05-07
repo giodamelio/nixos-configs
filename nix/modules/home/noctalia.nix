@@ -82,9 +82,6 @@ in {
       # Noctalia control center
       "Mod+S".action.spawn = ["noctalia-shell" "ipc" "call" "controlCenter" "toggle"];
 
-      # Noctalia settings
-      "Mod+Comma".action.spawn = ["noctalia-shell" "ipc" "call" "settings" "toggle"];
-
       # Media controls (Noctalia OSD)
       "XF86AudioRaiseVolume".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "increase"];
       "XF86AudioLowerVolume".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "decrease"];
