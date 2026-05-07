@@ -11,16 +11,6 @@
   allModules = cfg.modules.left ++ cfg.modules.center ++ cfg.modules.right;
   has = name: builtins.elem name allModules;
 
-  # Session target based on window manager
-  sessionTarget =
-    {
-      sway = "sway-session.target";
-      niri = "graphical-session.target";
-    }
-    .${
-      cfg.windowManager
-    };
-
   # Expand meta-module names to actual waybar module names
   networkModuleNames =
     if cfg.networkInterfaces == []
@@ -649,13 +639,20 @@ in {
       [pkgs.swaynotificationcenter]
       ++ lib.optional (has "custom/power") flakePackages.reboot-into-entry;
 
+    # Override the systemd service so waybar only starts for Sway,
+    # not for every graphical session
+    systemd.user.services.waybar = {
+      Unit = {
+        After = lib.mkForce ["graphical-session.target"];
+        PartOf = lib.mkForce ["sway-session.target" "tray.target"];
+      };
+      Install.WantedBy = lib.mkForce ["sway-session.target"];
+    };
+
     programs.waybar = {
       enable = true;
       inherit (cfg) package;
-      systemd = {
-        enable = true;
-        target = sessionTarget;
-      };
+      systemd.enable = true;
 
       settings =
         {main = mainBar;}
