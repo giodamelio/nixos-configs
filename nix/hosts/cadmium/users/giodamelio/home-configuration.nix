@@ -31,7 +31,7 @@ in {
     flake.homeModules.codex
     flake.homeModules.optnix
     # flake.homeModules.aoe
-    ../hm-niri.nix
+    ./niri.nix
   ];
 
   home = {

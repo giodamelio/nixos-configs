@@ -1,12 +1,6 @@
 {flake, ...}: let
   inherit (flake.lib.homelab.machines.cadmium) monitor-names;
 in {
-  imports = [
-    flake.homeModules.niri
-    flake.homeModules.noctalia
-    flake.homeModules.satellite-wallpaper
-  ];
-
   programs.niri.settings = {
     outputs = {
       "${monitor-names.middle}" = {

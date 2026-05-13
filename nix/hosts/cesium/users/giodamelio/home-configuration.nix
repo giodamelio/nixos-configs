@@ -14,7 +14,7 @@
     flake.homeModules.claude-code
     flake.homeModules.jj
     flake.homeModules.wezterm
-    ../hm-niri.nix
+    ./niri.nix
     flake.homeModules.kde-connect
     flake.homeModules.zed-editor
   ];

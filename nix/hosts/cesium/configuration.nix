@@ -45,6 +45,9 @@ in {
     # Niri compositor
     ./niri.nix
 
+    # Remote Wayland session to cadmium (WIP)
+    ./remote-wayland-cadmium.nix
+
     # Battery and power management
     flake.nixosModules.battery-optimization
 
