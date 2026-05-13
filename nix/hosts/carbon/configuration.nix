@@ -41,6 +41,7 @@ in {
     ./miniflux.nix # RSS Feed Reader
     ./paperless.nix # Document Management
     ./node-hp-scan-to.nix # HP Scanner to Paperless
+    ./hooks.nix # Webhook server (hooks.go.ninja)
 
     # Firewall configuration
     {
