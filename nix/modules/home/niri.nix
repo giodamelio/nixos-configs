@@ -1,8 +1,14 @@
 {
+  inputs,
   pkgs,
   perSystem,
   ...
 }: {
+  imports = [inputs.handy.homeManagerModules.default];
+
+  # Speech to text
+  services.handy.enable = true;
+
   home.pointerCursor = {
     name = "Adwaita";
     package = pkgs.adwaita-icon-theme;
@@ -23,6 +29,7 @@
       grim # Takes screenshots
       satty # Screenshot annotation
       xdg-user-dirs # Easily get XDG dirs inside scripts
+      wtype # For handy to type text
     ]);
 
   programs.niri.settings = {
@@ -136,6 +143,10 @@
 
       # Exit niri
       "Mod+Shift+E".action.quit = {};
+
+      # Voice to text (handy)
+      "Mod+Alt+Space".action.spawn = ["${pkgs.procps}/bin/pkill" "-USR2" "-n" "handy"];
+      "XF86Calculator".action.spawn = ["${pkgs.procps}/bin/pkill" "-USR2" "-n" "handy"];
 
       # Power controls
       "Mod+Shift+P".action.power-off-monitors = {};

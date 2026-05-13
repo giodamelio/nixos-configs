@@ -83,7 +83,8 @@
     just-every-code.inputs.nixpkgs.follows = "nixpkgs";
 
     # Handy Speach to Text
-    handy.url = "github:cpuguy83/nix-handy-stt/upstream_pr_680";
+    handy.url = "github:cjpais/Handy";
+    handy.inputs.nixpkgs.follows = "nixpkgs";
 
     # Run small declarative VMs easily
     microvm.url = "github:microvm-nix/microvm.nix";
