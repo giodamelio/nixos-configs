@@ -134,4 +134,5 @@ useDescription = "Hammond AI agent"
   "ca",
 ]
 "rhodium.lan." = ["rhodium"]
+"cesium.lan." = ["cesium"]
 "jetkvm.lan." = ["jetkvm"]
