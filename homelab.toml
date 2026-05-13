@@ -60,6 +60,9 @@ useDescription = "Hacking random projects while on Windows"
 hardwareDescription = "Cheap Lenovo Chromebook"
 useDescription = "Super portable travel machine"
 
+[machines.cesium.deploy]
+sshDestination = "giodamelio@cesium.gio.ninja"
+
 [machines.carbon]
 hardwareDescription = "HP EliteDesk Mini Computer"
 physicalLocation = "minirack"
