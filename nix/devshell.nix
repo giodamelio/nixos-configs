@@ -37,6 +37,8 @@ in
         pkgs.nixd
         pkgs.efibootmgr
         deploy
+
+        pkgs.go
       ]
       ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin []
       # Treefmt
