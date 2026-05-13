@@ -29,4 +29,14 @@ in {
   ];
 
   xdg.configFile."niri/single-display.kdl".source = singleDisplayConfig;
+
+  programs.niri.settings = {
+    # My old Microsoft keyboard doesn't have next/prev keys,
+    # so I use "My Favorites" buttons labeled 2 and 4.
+    # Those are mapped to XF86Launch6 and XF86Launch8 respectivly.
+    binds = {
+      "XF86Launch8".action.spawn = ["${lib.getExe pkgs.playerctl}" "next"];
+      "XF86Launch6".action.spawn = ["${lib.getExe pkgs.playerctl}" "previous"];
+    };
+  };
 }

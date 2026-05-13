@@ -121,6 +121,12 @@
 
       # Power controls
       "Mod+Shift+P".action.power-off-monitors = {};
+
+      # Media Keys
+      "XF86AudioPlay".action.spawn = ["${lib.getExe pkgs.playerctl}" "play-pause"];
+      "XF86AudioPause".action.spawn = ["${lib.getExe pkgs.playerctl}" "play-pause"];
+      "XF86AudioNext".action.spawn = ["${lib.getExe pkgs.playerctl}" "next"];
+      "XF86AudioPrev".action.spawn = ["${lib.getExe pkgs.playerctl}" "previous"];
     };
   };
 }
