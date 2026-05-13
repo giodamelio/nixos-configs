@@ -100,6 +100,8 @@
       "Mod+Shift+F".action.fullscreen-window = {};
       "Mod+Minus".action.set-column-width = "-10%";
       "Mod+Equal".action.set-column-width = "+10%";
+      "Mod+Backslash".action.set-column-width = "50%";
+      "Mod+Shift+Backslash".action.set-column-width = "100%";
       "Mod+Shift+Minus".action.set-window-height = "-10%";
       "Mod+Shift+Equal".action.set-window-height = "+10%";
 
