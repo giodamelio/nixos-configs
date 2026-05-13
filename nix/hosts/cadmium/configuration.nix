@@ -52,6 +52,7 @@ in {
     flake.nixosModules.modern-coreutils-replacements
     flake.nixosModules.monitoring
     ./3d-printing.nix
+    flake.nixosModules.printing
 
     # Autosnapshot ZFS and send to NAS
     flake.nixosModules.zfs-backup
