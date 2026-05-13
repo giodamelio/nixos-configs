@@ -24,6 +24,10 @@ in {
   programs.niri.enable = true;
   programs.niri.package = niriPackage;
 
+  environment.systemPackages = with pkgs; [
+    waypipe
+  ];
+
   # The gnome portal refuses to expose FileChooser without Mutter,
   # so route it to the GTK portal explicitly.
   xdg.portal.extraPortals = [pkgs.xdg-desktop-portal-gtk];
