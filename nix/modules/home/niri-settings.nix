@@ -28,7 +28,7 @@
     };
 
     spawn-at-startup = [
-      {argv = ["wezterm"];}
+      # {argv = [];}
     ];
 
     prefer-no-csd = true;
