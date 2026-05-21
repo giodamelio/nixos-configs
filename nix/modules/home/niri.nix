@@ -8,6 +8,8 @@
   imports = [
     inputs.handy.homeManagerModules.default
     flake.homeModules.noctalia
+    flake.homeModules.niri-launcher-binds
+    flake.homeModules.niri-launcher-desktop-entries
     flake.homeModules.satellite-wallpaper
     ./niri-settings.nix
   ];

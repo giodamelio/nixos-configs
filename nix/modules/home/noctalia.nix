@@ -74,22 +74,22 @@ in {
     spawn-at-startup = [
       {argv = ["noctalia-shell"];}
     ];
+  };
 
-    binds = {
-      # Noctalia launcher
-      "Mod+Space".action.spawn = ["noctalia-shell" "ipc" "call" "launcher" "toggle"];
+  gio.niri.binds = lib.mkIf (config.programs ? niri) {
+    # Noctalia launcher
+    "Mod+Space".action.spawn = ["noctalia-shell" "ipc" "call" "launcher" "toggle"];
 
-      # Noctalia control center
-      "Mod+S".action.spawn = ["noctalia-shell" "ipc" "call" "controlCenter" "toggle"];
+    # Noctalia control center
+    "Mod+S".action.spawn = ["noctalia-shell" "ipc" "call" "controlCenter" "toggle"];
 
-      # Media controls (Noctalia OSD)
-      "XF86AudioRaiseVolume".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "increase"];
-      "XF86AudioLowerVolume".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "decrease"];
-      "XF86AudioMute".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "muteOutput"];
+    # Media controls (Noctalia OSD)
+    "XF86AudioRaiseVolume".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "increase"];
+    "XF86AudioLowerVolume".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "decrease"];
+    "XF86AudioMute".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "muteOutput"];
 
-      # Screen Brightness
-      "XF86MonBrightnessUp".action.spawn = ["noctalia-shell" "ipc" "call" "brightness" "increase"];
-      "XF86MonBrightnessDown".action.spawn = ["noctalia-shell" "ipc" "call" "brightness" "decrease"];
-    };
+    # Screen Brightness
+    "XF86MonBrightnessUp".action.spawn = ["noctalia-shell" "ipc" "call" "brightness" "increase"];
+    "XF86MonBrightnessDown".action.spawn = ["noctalia-shell" "ipc" "call" "brightness" "decrease"];
   };
 }
