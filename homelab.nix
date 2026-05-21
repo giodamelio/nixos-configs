@@ -45,6 +45,17 @@
     };
 
     shares = {
+      forgejo = {
+        source = {
+          host = "gallium";
+          path = "/tank/forgejo";
+        };
+        mounts.carbon = {
+          path = "/mnt/forgejo-repos";
+          readOnly = false;
+        };
+      };
+
       paperless-ngx = {
         source = {
           host = "gallium";

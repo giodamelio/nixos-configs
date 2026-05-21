@@ -114,6 +114,7 @@ useDescription = "Hammond AI agent"
 ]
 "carbon.lan." = [
   "carbon",
+  "forgejo",
   "gatus",
   "login",
   "prometheus",

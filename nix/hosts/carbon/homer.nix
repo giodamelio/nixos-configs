@@ -57,6 +57,12 @@
             url = "https://paperless.gio.ninja";
             logo = dashboardLogo "paperless-ngx";
           }
+          {
+            name = "Forgejo";
+            subtitle = "Git Forge";
+            url = "https://forgejo.gio.ninja";
+            logo = dashboardLogo "forgejo";
+          }
         ];
       }
       {

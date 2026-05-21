@@ -39,6 +39,7 @@ in {
     ./hammond.nix # Static network configuration
     ./netdata.nix # Real-time Infrastructure Monitoring
     ./miniflux.nix # RSS Feed Reader
+    ./forgejo.nix # Git Forge
     ./paperless.nix # Document Management
     ./node-hp-scan-to.nix # HP Scanner to Paperless
     ./hooks.nix # Webhook server (hooks.go.ninja)
