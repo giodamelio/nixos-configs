@@ -126,5 +126,9 @@
     # Mob - AI agent tool
     mob.url = "github:giodamelio/mob";
     mob.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Affinity Suite (Designer, Photo, Publisher) via Wine
+    affinity-nix.url = "github:mrshmllow/affinity-nix";
+    affinity-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 }
