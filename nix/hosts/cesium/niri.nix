@@ -1,6 +1,14 @@
-{flake, ...}: {
+{
+  flake,
+  pkgs,
+  ...
+}: {
   imports = [
     flake.nixosModules.niri
+  ];
+
+  environment.systemPackages = with pkgs; [
+    wvkbd
   ];
 
   # Chromebook keyboard remapping
