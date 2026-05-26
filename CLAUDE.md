@@ -52,6 +52,62 @@ The configuration uses a modular approach:
 - Home Manager modules configure user environments
 - Machine-specific configurations in `hosts/` import relevant modules
 
+### Blueprint
+
+This repo uses [Blueprint](https://numtide.github.io/blueprint/main/getting-started/folder_structure/) to organize the flake. Blueprint autodetects files in conventional directories under a configurable prefix (here `nix/`) and maps them to flake outputs automatically — no manual wiring needed.
+
+#### How Autodetection Works
+
+Blueprint scans the `nix/` prefix directory for well-known folder names and file patterns. Each `.nix` file (or `<name>/default.nix` directory) found is automatically registered as a flake output:
+
+| Directory | Flake Output | Purpose |
+|-----------|-------------|---------|
+| `hosts/<hostname>/configuration.nix` | `nixosConfigurations.<hostname>` | NixOS machine configs |
+| `hosts/<hostname>/darwin-configuration.nix` | `darwinConfigurations.<hostname>` | macOS (nix-darwin) configs |
+| `hosts/<hostname>/users/<username>.nix` | `homeConfigurations.<user>@<host>` | Home Manager user configs |
+| `modules/nixos/<name>.nix` | `nixosModules.<name>` | NixOS modules |
+| `modules/home/<name>.nix` | `homeModules.<name>` | Home Manager modules |
+| `modules/darwin/<name>.nix` | `darwinModules.<name>` | nix-darwin modules |
+| `modules/<other>/<name>.nix` | `modules.<other>.<name>` | Other module types |
+| `packages/<pname>.nix` | `packages.<system>.<pname>` | Package definitions |
+| `lib/default.nix` | `lib` | Shared Nix functions |
+| `checks/<name>.nix` | `checks.<system>.<name>` | Flake checks |
+| `templates/<name>/` | `templates.<name>` | Flake templates |
+| `devshells/<name>.nix` | `devShells.<system>.<name>` | Dev environments |
+| `formatter.nix` | `formatter.<system>` | Code formatter |
+| `devshell.nix` | `devShells.<system>.default` | Default dev shell |
+
+#### Arguments Passed to Files
+
+Blueprint injects different arguments depending on the file type:
+
+**Per-system args** (available to packages, checks, devshells, formatter):
+- `inputs` — all flake inputs
+- `flake` — self-reference (shorthand for `inputs.self`)
+- `system` — current system string (e.g. `x86_64-linux`)
+- `perSystem` — flake input packages filtered to current system
+- `pkgs` — the configured nixpkgs instance
+
+**Host configuration files** (`hosts/<hostname>/configuration.nix`, `darwin-configuration.nix`):
+- `inputs`, `flake`, `perSystem`, `hostName`
+
+**Home Manager user files** (`hosts/<hostname>/users/<username>.nix`):
+- `inputs`, `flake`, `perSystem`, plus OS-specific args like `osConfig`
+- `home.username` and `home.homeDirectory` default based on the file path
+
+**Package files** (`packages/<pname>.nix`):
+- All per-system args plus `pname` (derived from the filename)
+
+**Library** (`lib/default.nix`):
+- `inputs`, `flake` (not per-system — lib is system-independent)
+
+**Modules** (`modules/**/*.nix`):
+- Standard NixOS/Home Manager module arguments. If the module function accepts `flake` or `inputs` parameters, Blueprint auto-applies them before exposing the module.
+
+#### Module Wrapping
+
+If a module's top-level function accepts `flake` or `inputs` as parameters, Blueprint calls those automatically before exposing the module. This means modules can access flake inputs without the host needing to pass them through `specialArgs`.
+
 ### Key Technologies
 - **Flake inputs**: Uses nixpkgs-unstable primary, nixpkgs-stable for select packages
 - **Blueprint**: Organizes flake structure cleanly
