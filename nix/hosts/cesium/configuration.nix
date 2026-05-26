@@ -16,6 +16,7 @@ in {
     flake.nixosModules.wifi
     flake.nixosModules.nh
     flake.nixosModules.optnix
+    flake.nixosModules.required
     flake.nixosModules.basic-packages
     flake.nixosModules.basic-packages-desktop
     flake.nixosModules.basic-settings

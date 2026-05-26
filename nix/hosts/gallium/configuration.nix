@@ -6,6 +6,7 @@ in {
     ./filesystems.nix
     ./hardware.nix
 
+    flake.nixosModules.required
     flake.nixosModules.basic-packages
     flake.nixosModules.basic-settings
     flake.nixosModules.credential

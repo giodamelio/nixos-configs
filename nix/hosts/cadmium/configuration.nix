@@ -40,6 +40,7 @@ in {
     )
 
     # Basic packages I want on every system
+    flake.nixosModules.required
     flake.nixosModules.basic-packages
     flake.nixosModules.basic-packages-desktop
     flake.nixosModules.basic-settings

@@ -22,6 +22,7 @@ in {
       programs.zsh.enable = true;
     })
 
+    flake.nixosModules.required
     flake.nixosModules.basic-packages
     flake.nixosModules.basic-settings
     flake.nixosModules.modern-coreutils-replacements
