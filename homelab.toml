@@ -136,6 +136,7 @@ useDescription = "Hammond AI agent"
   "miniflux",
   "paperless",
   "ca",
+  "yesman",
 ]
 "rhodium.lan." = ["rhodium"]
 "cesium.lan." = ["cesium"]
