@@ -125,7 +125,22 @@
       labels = [
         "ubuntu-latest:docker://node:22-bookworm"
         "debian-latest:docker://node:22-bookworm"
+        "nix:docker://nixos/nix"
         "native:host"
+      ];
+      hostPackages = with pkgs; [
+        attic-client
+        bash
+        coreutils
+        curl
+        gawk
+        git
+        gnused
+        natscli
+        nix
+        nodejs
+        openssh
+        wget
       ];
       settings = {
         log.level = "info";
