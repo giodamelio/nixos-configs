@@ -1,5 +1,6 @@
 {
   config,
+  flake,
   lib,
   pkgs,
   ...
@@ -164,6 +165,8 @@
       '';
     };
 in {
+  imports = [flake.nixosModules.reverse-proxy];
+
   options.gio.deployedApps = mkOption {
     type = types.attrsOf appType;
     default = {};
