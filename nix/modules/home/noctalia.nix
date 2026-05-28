@@ -88,6 +88,9 @@ in {
     "XF86AudioLowerVolume".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "decrease"];
     "XF86AudioMute".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "muteOutput"];
 
+    # Clipboard
+    "Mod+Shift+V".action.spawn = ["noctalia-shell" "ipc" "call" "launcher" "clipboard"];
+
     # Screen Brightness
     "XF86MonBrightnessUp".action.spawn = ["noctalia-shell" "ipc" "call" "brightness" "increase"];
     "XF86MonBrightnessDown".action.spawn = ["noctalia-shell" "ipc" "call" "brightness" "decrease"];
