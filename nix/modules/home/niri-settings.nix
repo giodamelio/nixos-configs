@@ -167,7 +167,7 @@
     };
 
     # Switch between floating and tiling focus
-    "Mod+Shift+V" = {
+    "Mod+Shift+T" = {
       action.switch-focus-between-floating-and-tiling = {};
       label = "Switch Floating/Tiling Focus";
     };
