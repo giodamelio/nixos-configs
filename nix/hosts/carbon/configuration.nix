@@ -46,6 +46,7 @@ in {
     ./node-hp-scan-to.nix # HP Scanner to Paperless
     ./hooks.nix # Webhook server (hooks.go.ninja)
     ./yesman.nix # Yesman test app (socket-activated)
+    ./eater-of-feeds.nix # Feed reader backend (Google Reader API)
 
     # Firewall configuration
     {
