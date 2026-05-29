@@ -1,7 +1,6 @@
 {
   pkgs,
   treefmt,
-  statix-pipe,
   remind-me-to,
 }: let
   inherit (pkgs) lib;
@@ -63,7 +62,7 @@
           {
             id = "statix";
             name = "statix";
-            entry = "${lib.getExe statix-pipe} check --format errfmt";
+            entry = "${lib.getExe pkgs.statix} check --format errfmt";
             language = "system";
             files = "\\.nix$";
             pass_filenames = false;
@@ -119,7 +118,7 @@
   packages = [
     pkgs.prek
     pkgs.deadnix
-    statix-pipe
+    pkgs.statix
     pkgs.flake-checker
     pkgs.shellcheck
     pkgs.stylua

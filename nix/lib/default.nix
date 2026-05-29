@@ -3,10 +3,9 @@
 
   # Loaded up version of treefmt that has all the things available on it
   treefmt = pkgs: let
-    statix-pipe = import ../packages/statix-pipe.nix {inherit pkgs;};
     treefmtConfig = pkgs:
       import ../../treefmt.nix {
-        inherit pkgs statix-pipe;
+        inherit pkgs;
         inherit (inputs.treefmt-nix.lib) evalModule;
       };
   in
@@ -14,11 +13,10 @@
 
   # Prek hooks configuration and shell integration
   prek = pkgs: flake: let
-    statix-pipe = import ../packages/statix-pipe.nix {inherit pkgs;};
     remind-me-to = inputs.giopkgs.packages.${pkgs.stdenv.hostPlatform.system}.remind-me-to;
   in
     import ./prek.nix {
-      inherit pkgs statix-pipe remind-me-to;
+      inherit pkgs remind-me-to;
       treefmt = flake.lib.treefmt pkgs;
     };
 

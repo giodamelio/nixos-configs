@@ -1,6 +1,5 @@
 {
   pkgs,
-  statix-pipe,
   evalModule,
   ...
 }:
@@ -15,11 +14,9 @@ evalModule pkgs {
   programs = {
     # Nix
     alejandra.enable = true;
-    deadnix.enable = true;
-    statix = {
-      enable = true;
-      package = statix-pipe;
-    };
+    # Since we run this after every Edit|Write in Claude Code, deadnix removing stuff was very annoying
+    # deadnix.enable = true;
+    statix.enable = true;
 
     # Lua
     stylua.enable = true;
