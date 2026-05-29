@@ -48,6 +48,17 @@ in {
       scopes = ["openid" "email" "profile"];
     };
 
+    # Instance-wide GitHub App, registered once on GitHub. Gates the
+    # /api/v1/hooks/github webhook handler (without it Gradient returns
+    # 503 "github app integration not configured"). The webhook secret is
+    # the same one webhookcatcher verifies at the edge before forwarding.
+    githubApp = {
+      enable = true;
+      appId = 3999286;
+      privateKeyFile = "/run/credentials/gradient-server.service/gradient_github_app_private_key";
+      webhookSecretFile = "/run/credentials/gradient-server.service/gradient_github_app_webhook_secret";
+    };
+
     state = {
       users.gio = {
         email = "gio@damelio.net";
@@ -59,6 +70,13 @@ in {
         display_name = "gio.ninja";
         private_key_file = "/run/credentials/gradient-server.service/gradient-org-private-key";
         created_by = "gio";
+        # Bind the GitHub App installation (on the `giodamelio` account) to this
+        # org. The auto-link matches org *name* to the GitHub login, which would
+        # require renaming this org from "default" to "giodamelio"; setting the
+        # installation id explicitly avoids that. The provisioner writes it on
+        # every reconcile and seeds the auto-managed `github` inbound/outbound
+        # integration rows that the nixos-configs push trigger references.
+        github_installation_id = 138901592;
       };
 
       workers.carbon-local = {
@@ -140,6 +158,21 @@ in {
         # plus the flake's own packages. Comma-separated include patterns.
         wildcard = "nixosConfigurations.*.config.system.build.toplevel,packages.x86_64-linux.*";
         created_by = "gio";
+
+        # Fire on pushes delivered via the GitHub App webhook. "github" is the
+        # reserved, auto-seeded inbound integration created when the org carries
+        # a github_installation_id (above); it is not declared in `integrations`.
+        triggers = [
+          {
+            type = "reporter_push";
+            integration = "github";
+            config = {
+              branches = ["main"];
+              tags = [];
+              releases_only = false;
+            };
+          }
+        ];
       };
 
       integrations = {
@@ -220,6 +253,8 @@ in {
     "gradient_integration_forgejo-inbound_secret"
     "gradient_integration_forgejo-outbound_token"
     "gradient_action_deploy-webhook_token"
+    "gradient_github_app_private_key"
+    "gradient_github_app_webhook_secret"
   ];
 
   systemd.services.gradient-worker.serviceConfig.LoadCredentialEncrypted = [
