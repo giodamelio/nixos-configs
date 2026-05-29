@@ -14,6 +14,7 @@ in {
       ripgrep # Better grep
       fd # Better find
       htop # Better top
+      btop # High level system resources overview
       tree # I always want this...
       zellij # Kinda like Tmux
       # usbutils # For lsusb command

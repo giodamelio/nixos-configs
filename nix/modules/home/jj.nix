@@ -21,7 +21,6 @@
 in {
   programs.jujutsu = {
     enable = true;
-    package = perSystem.giopkgs.jujutsu;
     settings = {
       user = {
         name = "Giovanni d'Amelio";

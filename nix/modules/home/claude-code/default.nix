@@ -58,7 +58,10 @@ in {
   };
 
   config = lib.mkIf config.programs.gio-claude-code.enable {
-    home.packages = [claudeWrapper];
+    home.packages = [
+      claudeWrapper
+      perSystem.llm-agents.rtk
+    ];
 
     home.shellAliases = {
       claude = lib.getExe jailedClaude;
