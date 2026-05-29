@@ -47,6 +47,7 @@ in {
     ./hooks.nix # Webhook server (hooks.go.ninja)
     ./yesman.nix # Yesman test app (socket-activated)
     ./eater-of-feeds.nix # Feed reader backend (Google Reader API)
+    ./solidtime.nix # Time Tracking
 
     # Firewall configuration
     {

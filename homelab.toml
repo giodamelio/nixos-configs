@@ -139,6 +139,7 @@ useDescription = "Hammond AI agent"
   "paperless",
   "ca",
   "yesman",
+  "solidtime",
   "eater-of-feeds",
 ]
 "rhodium.lan." = ["rhodium"]
