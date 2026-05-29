@@ -28,6 +28,7 @@ in {
     flake.homeModules.llm
     flake.homeModules.jj
     flake.homeModules.pi
+    flake.homeModules.slack
     flake.homeModules.codex
     flake.homeModules.optnix
     # flake.homeModules.aoe
