@@ -6,8 +6,8 @@
   ...
 }: let
   jail = import ../../lib/jail-combinators.nix {inherit pkgs inputs;};
-  inherit (perSystem.llm-agents) pi;
-  inherit (perSystem.giopkgs) omp tk;
+  inherit (perSystem.llm-agents) pi omp;
+  # inherit (perSystem.giopkgs) omp;
 
   commonPermissions = c:
     with c; [
@@ -45,7 +45,6 @@
   jailedOmp = jail "jailed-omp" omp commonPermissions;
 in {
   home.packages = [
-    tk
     jailedPi
     jailedOmp
   ];

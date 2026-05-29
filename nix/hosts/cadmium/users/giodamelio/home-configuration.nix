@@ -27,7 +27,7 @@ in {
     flake.homeModules.claude-code
     flake.homeModules.llm
     flake.homeModules.jj
-    # flake.homeModules.pi
+    flake.homeModules.pi
     flake.homeModules.codex
     flake.homeModules.optnix
     # flake.homeModules.aoe
