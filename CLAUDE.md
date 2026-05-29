@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a personal NixOS/Nix flake configuration repository that manages multiple machines across different platforms (NixOS, Darwin, WSL2). The repository uses the Blueprint flake organization pattern to structure configurations cleanly.
 
+## Important: New Files Must Be Git-Added
+
+This repo uses Jujutsu (jj) on top of Git. Nix flakes only see files that are tracked by Git, so whenever you create a new file, you must run `git add <path>` before it will be visible to any Nix command (builds, checks, etc.).
+
 ## Development Commands
 
 ### Building and Testing
@@ -124,6 +128,61 @@ If a module's top-level function accepts `flake` or `inputs` as parameters, Blue
 3. Add hardware.nix with hardware-specific settings
 4. Update homelab.toml with machine metadata
 5. Test with `nix flake check`
+
+### Adding a New Service to a Server
+
+Each service lives in its own file at `nix/hosts/<hostname>/<service>.nix`. When adding a new service, work through this checklist:
+
+#### Required for every service
+1. **Create the service file** at `nix/hosts/<hostname>/<service>.nix`
+2. **Import it** in `nix/hosts/<hostname>/configuration.nix`
+3. **Add DNS entry** in `homelab.toml` — add the subdomain to the host's CNAME list under `[dns."gio.ninja".cname]`
+4. **Reverse proxy** via `services.gio.reverse-proxy.virtualHosts.<subdomain>` — this creates `<subdomain>.gio.ninja` with automatic TLS via Cloudflare DNS
+5. **Consul registration** via `gio.services.<name>.consul` with a health check URL
+
+#### When the service needs a database
+- Use `services.postgresql.ensureDatabases` and `ensureUsers` for manual provisioning, or the service's own `database.createLocally` if available
+- Set up **peer authentication** via Unix socket (no passwords):
+  ```nix
+  services.postgresql = {
+    identMap = lib.mkAfter ''
+      <service> root <service>
+      <service> <service> <service>
+    '';
+    authentication = lib.mkAfter ''
+      local all <service> peer map=<service>
+    '';
+  };
+  ```
+- Connection string uses `DB_HOST=/run/postgresql` with the service's system user matching the PostgreSQL role
+
+#### When the service needs secrets
+- Use `gio.credentials` to load encrypted systemd credentials
+- For services that need secrets as environment variables, use `execStartWrapper.environment` to inject credential values
+- Encrypted credentials are created on the target host with `systemd-creds encrypt`
+- Credential files live at `/etc/credstore.encrypted/` on the host
+- At runtime, credentials are available at `$CREDENTIALS_DIRECTORY/<name>` or `/run/credentials/<service>.service/<name>`
+
+#### When the service needs NFS shared storage
+- Add the service user to the appropriate `nfs-<name>` group: `users.users.<service>.extraGroups = ["nfs-<name>"]`
+- Add systemd mount dependencies if the service must wait for the mount:
+  ```nix
+  systemd.services.<service> = {
+    after = ["mnt-<mount>\\x2d<name>.mount"];
+    requires = ["mnt-<mount>\\x2d<name>.mount"];
+  };
+  ```
+
+#### When the service uses OIDC (Pocket ID)
+- OIDC discovery URL: `https://login.gio.ninja/.well-known/openid-configuration`
+- Client ID and secret should be loaded via `gio.credentials`
+- Reference credential paths like `/run/credentials/<service>.service/<cred-name>`
+
+#### Service deployment patterns
+- **NixOS module**: For services with upstream NixOS support (e.g. `services.forgejo`, `services.mealie`)
+- **Container (Quadlet/OCI)**: For services that need isolation or don't have NixOS modules (e.g. grist, windmill workers)
+- **Deployed apps** (`gio.deployedApps`): For self-contained binaries deployed via CI/NATS (e.g. yesman)
+- **Custom systemd service**: For services from giopkgs or custom packages, with manual systemd unit definition
 
 ### Modifying Configurations
 - System changes go in `nix/modules/nixos/`
