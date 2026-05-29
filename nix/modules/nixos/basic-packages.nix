@@ -35,6 +35,7 @@ in {
       xh
 
       rage # Easy encryption
+      flakePkgs.systemd-creds-edit # Edit systemd-creds encrypted credentials in place
       cachix # Nix binary caching
       attic-client # Nix binary cache
       nix-output-monitor # Pretty cli output for Nix commands
