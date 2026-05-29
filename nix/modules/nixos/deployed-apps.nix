@@ -1,5 +1,6 @@
 {
   config,
+  options,
   flake,
   lib,
   pkgs,
@@ -12,7 +13,6 @@
 
   profileDir = name: "/nix/var/nix/profiles/per-user/deploy/${name}";
   profilePath = name: "${profileDir name}/profile";
-  credstorePath = cred: "/etc/gio-credentials/${cred}";
   socketPath = name: "/run/${name}/${name}.sock";
 
   listenAddr = name: appCfg:
@@ -91,81 +91,113 @@
         default = [];
         description = "List of credential names to load via LoadCredentialEncrypted.";
       };
+
+      gradient = mkOption {
+        default = {};
+        description = "Gradient binding for pull-based deploys via the gradient-deployer agent.";
+        type = types.submodule {
+          options.project = mkOption {
+            type = types.nullOr types.str;
+            default = null;
+            example = "default/yesman";
+            description = ''
+              Gradient "<org>/<project>" slug. When set, the gradient-deployer
+              agent manages this slot: on a webhook poke it pulls the latest
+              succeeded build for this project and deploys it. When null, the slot
+              is left to the legacy CI/script deploy path.
+            '';
+          };
+        };
+      };
     };
   });
 
   enabledApps = lib.filterAttrs (_: appCfg: appCfg.enable) cfg;
   unixReverseProxyApps = lib.filterAttrs (_: a: a.reverseProxy.enable && isUnixListener a) enabledApps;
 
+  # Slots the gradient-deployer agent manages (those that set gradient.project).
+  agentApps = lib.filterAttrs (_: a: a.gradient.project != null) enabledApps;
   hostname = config.networking.hostName;
+  gradientDeployer = flake.packages.${pkgs.stdenv.hostPlatform.system}.gradient-deployer;
 
-  # Nushell script that subscribes to NATS JetStream for deploy messages.
-  # Ensures stream/consumer exist on startup, then loops pulling messages.
-  mkSubscriberScript = name:
-    pkgs.writeTextFile {
-      name = "${name}-deploy-subscriber.nu";
+  # The Restate Virtual Object name. Encodes the host so each machine is a
+  # distinct Restate deployment (Restate routes one deployment per service name).
+  deployerService = "gradient-deployer-${hostname}";
+  deployerBind = "127.0.0.1:9080";
+
+  # Agent profile dirs must be owned by the agent user so it can update them
+  # without root; non-agent slots stay root-owned (legacy path unchanged).
+  profileOwner = name:
+    if enabledApps.${name}.gradient.project != null
+    then "gradient-deployer"
+    else "root";
+
+  # TOML config consumed by the gradient-deployer Restate service. Secrets are
+  # referenced by path (systemd credentials), never inlined.
+  deployerConfig = (pkgs.formats.toml {}).generate "gradient-deployer.toml" {
+    gradient = {
+      server = deployCfg.gradientServer;
+      api_key_file = "/run/credentials/gradient-deployer.service/gradient_deployer_api_key";
+    };
+    restate.service_name = deployerService;
+    slots =
+      lib.mapAttrs (name: appCfg: {
+        project = appCfg.gradient.project;
+        profile = profilePath name;
+        restart_unit = "${name}.service";
+      })
+      agentApps;
+  };
+
+  # Manual deploy: POST to the local Restate ingress to invoke a slot's
+  # Reconcile handler now, instead of waiting for a build webhook.
+  gradientDeployWrapper = pkgs.writeShellApplication {
+    name = "gradient-deploy";
+    runtimeInputs = [pkgs.curl];
+    text = ''
+      slot="''${1:-}"
+      if [[ -z "$slot" ]]; then
+        echo "usage: gradient-deploy <slot>" >&2
+        exit 1
+      fi
+      curl -sf -X POST "${config.gio.restate.ingressEndpoint}/${deployerService}/$slot/Reconcile" \
+        -H 'content-type: application/json' -d '{}'
+      echo
+    '';
+  };
+
+  mkDeployScript = name:
+    pkgs.writeShellApplication {
+      name = "deploy-${name}";
+      runtimeInputs = [pkgs.nix];
       text = ''
-        let app = "${name}"
-        let consumer = "${name}-${hostname}"
-        let profile = "${profilePath name}"
-        let nats = "${lib.getExe pkgs.natscli}"
-        let nix_env = "${pkgs.nix}/bin/nix-env"
-        let systemctl = "/run/current-system/sw/bin/systemctl"
+        store_path="$1"
+        if [[ "$store_path" != /nix/store/* ]]; then
+          echo "Error: argument must be a /nix/store/ path, got: $store_path" >&2
+          exit 1
+        fi
+        if ! nix-store --check-validity "$store_path" 2>/dev/null; then
+          echo "Error: $store_path not in local store. CI must fetch it before calling this script." >&2
+          exit 1
+        fi
+        nix profile install --profile ${profilePath name} "$store_path"
+        systemctl restart ${name}.service
+      '';
+    };
 
-        # Ensure the DEPLOY stream exists (idempotent)
-        let stream = (do { ^$nats stream add DEPLOY --subjects "deploy.>" --retention limits --max-msgs-per-subject 5 --storage file --replicas 1 --discard old --defaults } | complete)
-        if $stream.exit_code != 0 and not ($stream.stderr | str contains "already") {
-          print $"Stream setup warning: ($stream.stderr)"
-        }
-
-        # Ensure durable pull consumer exists (idempotent)
-        let cons = (do { ^$nats consumer add DEPLOY $consumer --pull --filter $"deploy.($app)" --deliver all --ack explicit --max-deliver 3 --defaults } | complete)
-        if $cons.exit_code != 0 and not ($cons.stderr | str contains "already") {
-          print $"Consumer setup warning: ($cons.stderr)"
-        }
-
-        print $"Subscriber ready: ($consumer) listening for deploy.($app)"
-
-        loop {
-          let result = (do { ^$nats consumer next DEPLOY $consumer --raw --timeout 30s } | complete)
-
-          if $result.exit_code != 0 {
-            continue
-          }
-
-          let store_path = ($result.stdout | str trim)
-          if ($store_path | is-empty) {
-            continue
-          }
-
-          # Validate the message looks like a nix store path
-          if not ($store_path | str starts-with "/nix/store/") {
-            print $"Ignoring invalid store path: ($store_path)"
-            continue
-          }
-
-          print $"Deploying ($store_path) to ($app)"
-
-          # Atomically switch the profile to the new store path
-          let install = (do { ^$nix_env --profile $profile --set $store_path } | complete)
-          if $install.exit_code != 0 {
-            print $"Deploy failed: ($install.stderr)"
-            continue
-          }
-
-          # sudo must be bare — it resolves via /run/wrappers for the setuid wrapper
-          let restart = (do { ^sudo $systemctl restart $"($app).service" } | complete)
-          if $restart.exit_code != 0 {
-            print $"Restart failed: ($restart.stderr)"
-            continue
-          }
-
-          print $"Deploy complete for ($app)"
-        }
+  mkRollbackScript = name:
+    pkgs.writeShellApplication {
+      name = "rollback-${name}";
+      runtimeInputs = [pkgs.nix];
+      text = ''
+        nix profile rollback --profile ${profilePath name}
+        systemctl restart ${name}.service
       '';
     };
 in {
-  imports = [flake.nixosModules.reverse-proxy];
+  imports = [
+    flake.nixosModules.reverse-proxy
+  ];
 
   options.gio.deployedApps = mkOption {
     type = types.attrsOf appType;
@@ -200,201 +232,313 @@ in {
       '';
       example = "ci-deploy:base64publickey==";
     };
+
+    appsCacheUrl = mkOption {
+      type = types.str;
+      default = "https://attic.gio.ninja/apps";
+      description = "URL of the Attic apps cache to substitute from during deploys.";
+    };
+
+    appsCachePublicKey = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = "Public key of the apps Attic cache for signature verification.";
+    };
+
+    gradientServer = mkOption {
+      type = types.str;
+      default = "https://gradient.gio.ninja";
+      description = "Base URL of the Gradient instance the deploy agent pulls builds from.";
+    };
   };
 
-  config = {
-    assertions =
-      (lib.mapAttrsToList (name: appCfg: {
-          assertion = appCfg.listener.type != "port" || appCfg.listener.port != null;
-          message = "gio.deployedApps.${name}: listener.port is required when type = \"port\"";
-        })
-        enabledApps)
-      ++ [
-        {
-          assertion = !(enabledApps ? "caddy");
-          message = "gio.deployedApps: app name \"caddy\" conflicts with the reverse proxy user";
-        }
-      ];
+  config = lib.mkMerge [
+    {
+      assertions =
+        (lib.mapAttrsToList (name: appCfg: {
+            assertion = appCfg.listener.type != "port" || appCfg.listener.port != null;
+            message = "gio.deployedApps.${name}: listener.port is required when type = \"port\"";
+          })
+          enabledApps)
+        ++ [
+          {
+            assertion = !(enabledApps ? "caddy");
+            message = "gio.deployedApps: app name \"caddy\" conflicts with the reverse proxy user";
+          }
+        ];
 
-    # Trust the CI signing key so app users can nix copy without being trusted-users
-    nix.settings.trusted-public-keys = lib.mkIf (deployCfg.signingPublicKey != null) [
-      deployCfg.signingPublicKey
-    ];
-
-    users.users =
-      (lib.mapAttrs (name: _: {
-          isSystemUser = true;
-          group = name;
-          home = "/var/lib/${name}";
-          createHome = false;
-        })
-        enabledApps)
-      // lib.optionalAttrs (unixReverseProxyApps != {}) {
-        # Add caddy to app groups so it can access unix sockets for reverse proxying
-        caddy.extraGroups = lib.mapAttrsToList (name: _: name) unixReverseProxyApps;
+      nix.settings = {
+        substituters = lib.mkIf (deployCfg.appsCacheUrl != "") [
+          deployCfg.appsCacheUrl
+        ];
+        trusted-public-keys = lib.mkMerge [
+          (lib.mkIf (deployCfg.signingPublicKey != null) [deployCfg.signingPublicKey])
+          (lib.mkIf (deployCfg.appsCachePublicKey != null) [deployCfg.appsCachePublicKey])
+        ];
+        trusted-users = lib.mkIf (enabledApps != {}) ["deploy-dispatch"];
       };
 
-    users.groups = lib.mapAttrs (_: _: {}) enabledApps;
+      environment.systemPackages =
+        lib.concatLists (lib.mapAttrsToList (name: _: [
+            (mkDeployScript name)
+            (mkRollbackScript name)
+          ])
+          enabledApps)
+        ++ lib.optional (agentApps != {}) gradientDeployWrapper;
 
-    systemd.tmpfiles.rules =
-      [
-        "d /nix/var/nix/profiles/per-user/deploy 0755 root root -"
-      ]
-      ++ lib.concatLists (lib.mapAttrsToList (name: _: [
-          "d /var/lib/${name} 0750 ${name} ${name} -"
-          "d ${profileDir name} 0755 ${name} ${name} -"
-        ])
-        enabledApps);
+      users.users =
+        (lib.mapAttrs (name: _: {
+            isSystemUser = true;
+            group = name;
+            home = "/var/lib/${name}";
+            createHome = false;
+          })
+          enabledApps)
+        // lib.optionalAttrs (enabledApps != {}) {
+          deploy-dispatch = {
+            isSystemUser = true;
+            group = "deploy-dispatch";
+            home = "/var/lib/deploy-dispatch";
+            createHome = true;
+          };
+        }
+        // lib.optionalAttrs (unixReverseProxyApps != {}) {
+          caddy.extraGroups = lib.mapAttrsToList (name: _: name) unixReverseProxyApps;
+        }
+        // lib.optionalAttrs (agentApps != {}) {
+          gradient-deployer = {
+            isSystemUser = true;
+            group = "gradient-deployer";
+            home = "/var/lib/gradient-deployer";
+            description = "Gradient pull-deploy agent";
+          };
+        };
 
-    # Scoped sudo: each app user can only restart their own service
-    security.sudo.extraRules =
-      lib.mapAttrsToList (name: _: {
-        users = [name];
-        commands = [
-          {
-            command = "/run/current-system/sw/bin/systemctl restart ${name}.service";
-            options = ["NOPASSWD"];
-          }
-        ];
-      })
-      enabledApps;
+      users.groups =
+        (lib.mapAttrs (_: _: {}) enabledApps)
+        // lib.optionalAttrs (enabledApps != {}) {
+          deploy-dispatch = {};
+        }
+        // lib.optionalAttrs (agentApps != {}) {
+          gradient-deployer = {};
+        };
 
-    systemd.services =
-      lib.concatMapAttrs (name: appCfg: {
-        ${name} = lib.mkMerge [
-          {
-            inherit (appCfg) description;
+      systemd.tmpfiles.rules =
+        [
+          "d /nix/var/nix/profiles/per-user/deploy 0755 root root -"
+        ]
+        ++ lib.concatLists (lib.mapAttrsToList (name: _: [
+            "d /var/lib/${name} 0750 ${name} ${name} -"
+            "d ${profileDir name} 0755 ${profileOwner name} ${profileOwner name} -"
+          ])
+          enabledApps);
 
-            serviceConfig = lib.mkMerge [
+      security.sudo.extraRules =
+        (lib.mapAttrsToList (name: _: {
+            users = [name];
+            commands = [
               {
-                User = name;
-                Group = name;
-                StateDirectory = name;
-                StateDirectoryMode = "0750";
-
-                ExecCondition = pkgs.writeShellScript "${name}-check" ''
-                  if [ ! -x ${profilePath name}/bin/${name} ]; then
-                    echo "${name} has not been deployed yet — run CI to deploy"
-                    exit 1
-                  fi
-                '';
-                ExecStart = "${profilePath name}/bin/${name}";
-
-                # Hardening
-                NoNewPrivileges = true;
-                ProtectSystem = "strict";
-                ProtectHome = true;
-                PrivateTmp = true;
-                PrivateDevices = true;
-                ProtectKernelTunables = true;
-                ProtectKernelModules = true;
-                ProtectControlGroups = true;
-                RestrictNamespaces = true;
-                LockPersonality = true;
-                RestrictRealtime = true;
-                RestrictSUIDSGID = true;
-                RemoveIPC = true;
+                command = "/run/current-system/sw/bin/systemctl restart ${name}.service";
+                options = ["NOPASSWD"];
               }
-              (mkIf (isUnixListener appCfg && !(isSocketActivated appCfg)) {
-                RuntimeDirectory = name;
-                RuntimeDirectoryMode = "0750";
+            ];
+          })
+          enabledApps)
+        ++ (lib.mapAttrsToList (name: _: {
+            users = ["deploy-dispatch"];
+            commands = [
+              {
+                command = "/run/current-system/sw/bin/deploy-${name} *";
+                options = ["NOPASSWD"];
+              }
+              {
+                command = "/run/current-system/sw/bin/rollback-${name}";
+                options = ["NOPASSWD"];
+              }
+            ];
+          })
+          enabledApps);
+
+      systemd.services = lib.mkMerge [
+        (lib.concatMapAttrs (name: appCfg: {
+            ${name} = lib.mkMerge [
+              {
+                inherit (appCfg) description;
+
+                serviceConfig = lib.mkMerge [
+                  {
+                    User = name;
+                    Group = name;
+                    StateDirectory = name;
+                    StateDirectoryMode = "0750";
+
+                    ExecCondition = pkgs.writeShellScript "${name}-check" ''
+                      if [ ! -x ${profilePath name}/bin/${name} ]; then
+                        echo "${name} has not been deployed yet — run CI to deploy"
+                        exit 1
+                      fi
+                    '';
+                    ExecStart = "${profilePath name}/bin/${name}";
+
+                    # Hardening
+                    NoNewPrivileges = true;
+                    ProtectSystem = "strict";
+                    ProtectHome = true;
+                    PrivateTmp = true;
+                    PrivateDevices = true;
+                    ProtectKernelTunables = true;
+                    ProtectKernelModules = true;
+                    ProtectControlGroups = true;
+                    RestrictNamespaces = true;
+                    LockPersonality = true;
+                    RestrictRealtime = true;
+                    RestrictSUIDSGID = true;
+                    RemoveIPC = true;
+                  }
+                  (mkIf (isUnixListener appCfg && !(isSocketActivated appCfg)) {
+                    RuntimeDirectory = name;
+                    RuntimeDirectoryMode = "0750";
+                  })
+                  (mkIf (appCfg.credentials != []) {
+                    LoadCredentialEncrypted =
+                      appCfg.credentials;
+                  })
+                ];
+
+                environment = lib.optionalAttrs (!(isSocketActivated appCfg)) {
+                  LISTEN_ADDR = listenAddr name appCfg;
+                };
+              }
+              (mkIf (isSocketActivated appCfg) {
+                requires = ["${name}.socket"];
+                after = ["${name}.socket"];
               })
-              (mkIf (appCfg.credentials != []) {
-                LoadCredentialEncrypted =
-                  map (c: "${c}:${credstorePath c}") appCfg.credentials;
+              (mkIf (!(isSocketActivated appCfg)) {
+                wantedBy = ["multi-user.target"];
+                after = ["network.target"];
               })
             ];
-
-            environment = lib.optionalAttrs (!(isSocketActivated appCfg)) {
-              LISTEN_ADDR = listenAddr name appCfg;
-            };
-          }
-          (mkIf (isSocketActivated appCfg) {
-            requires = ["${name}.socket"];
-            after = ["${name}.socket"];
           })
-          (mkIf (!(isSocketActivated appCfg)) {
+          enabledApps)
+
+        # The gradient-deployer agent — a Restate Virtual Object service. Long
+        # running (the Restate server calls it on :9080); real user, no DynamicUser
+        # since it writes profiles + restarts units. Registered with Restate via
+        # gio.restate.deployments below.
+        (lib.mkIf (agentApps != {}) {
+          gradient-deployer = {
+            description = "Gradient pull-deploy agent (Restate service)";
             wantedBy = ["multi-user.target"];
-            after = ["network.target"];
-          })
-        ];
+            after = ["network.target" "restate.service"];
+            wants = ["restate.service"];
+            # The reconcile steps shell out to nix-store/nix-env (realize the
+            # closure, point the profile) and systemctl (restart the unit), so
+            # those must be on the unit's PATH — systemd units don't inherit the
+            # system profile's bin dir.
+            path = [config.nix.package config.systemd.package];
+            environment =
+              {
+                HOME = "/var/lib/gradient-deployer";
+              }
+              // config.nix.envVars;
+            serviceConfig = {
+              Type = "simple";
+              User = "gradient-deployer";
+              Group = "gradient-deployer";
+              ExecStart = "${lib.getExe gradientDeployer} ${deployerConfig}";
+              Restart = "on-failure";
+              RestartSec = "5s";
+              StateDirectory = "gradient-deployer";
+              LoadCredentialEncrypted = ["gradient_deployer_api_key"];
 
-        # Deploy subscriber: pulls from NATS JetStream, installs via nix profile
-        "${name}-deploy-subscriber" = {
-          description = "Deploy subscriber for ${name}";
-          wantedBy = ["multi-user.target"];
-          after = ["network-online.target"];
-          wants = ["network-online.target"];
-
-          serviceConfig = {
-            ExecStart = "${pkgs.nushell}/bin/nu ${mkSubscriberScript name}";
-            User = name;
-            Group = name;
-            Restart = "always";
-            RestartSec = "10";
-            KillMode = "mixed";
-            TimeoutStopSec = "60";
-
-            # Hardening (NoNewPrivileges omitted — sudo needs privilege escalation)
-            ProtectSystem = "strict";
-            ProtectHome = true;
-            PrivateTmp = true;
-            PrivateDevices = true;
-            ProtectKernelTunables = true;
-            ProtectKernelModules = true;
-            ProtectControlGroups = true;
-            RestrictNamespaces = true;
-            LockPersonality = true;
-            RestrictRealtime = true;
-            RemoveIPC = true;
-
-            # Profile dir needs write access; nix store writes go through the daemon
-            ReadWritePaths = [
-              "${profileDir name}"
-            ];
+              # Hardening. ProtectSystem = "full" (not "strict") deliberately leaves
+              # /nix/var/nix and /run writable, so nix-env profile updates and the
+              # systemctl/D-Bus restart path keep working.
+              NoNewPrivileges = true;
+              ProtectSystem = "full";
+              ProtectHome = true;
+              PrivateTmp = true;
+              ProtectKernelTunables = true;
+              ProtectKernelModules = true;
+              ProtectControlGroups = true;
+              RestrictRealtime = true;
+              RestrictSUIDSGID = true;
+              LockPersonality = true;
+            };
           };
+        })
+      ];
 
-          path = ["/run/wrappers"];
-        };
-      })
+      # Socket units — only for unix-activated apps.
+      systemd.sockets = lib.concatMapAttrs (name: appCfg:
+        lib.optionalAttrs (isSocketActivated appCfg) {
+          ${name} = {
+            description = "Socket for ${appCfg.description}";
+            wantedBy = ["sockets.target"];
+            socketConfig = {
+              ListenStream = socketPath name;
+              SocketUser = name;
+              SocketGroup = name;
+              SocketMode = "0660";
+              RuntimeDirectory = name;
+              RuntimeDirectoryMode = "0750";
+            };
+          };
+        })
       enabledApps;
 
-    # Socket units — only for unix-activated apps
-    systemd.sockets = lib.concatMapAttrs (name: appCfg:
-      lib.optionalAttrs (isSocketActivated appCfg) {
-        ${name} = {
-          description = "Socket for ${appCfg.description}";
-          wantedBy = ["sockets.target"];
-          socketConfig = {
-            ListenStream = socketPath name;
-            SocketUser = name;
-            SocketGroup = name;
-            SocketMode = "0660";
-            RuntimeDirectory = name;
-            RuntimeDirectoryMode = "0750";
-          };
-        };
-      })
-    enabledApps;
+      # Allow the agent to restart only its managed app units, without sudo.
+      security.polkit = lib.mkIf (agentApps != {}) {
+        enable = true;
+        extraConfig = let
+          unitMatch =
+            lib.concatStringsSep " || "
+            (lib.mapAttrsToList (name: _: ''unit === "${name}.service"'') agentApps);
+        in ''
+          polkit.addRule(function(action, subject) {
+            if (subject.user !== "gradient-deployer") return polkit.Result.NO_MATCH;
+            if (action.id !== "org.freedesktop.systemd1.manage-units") return polkit.Result.NO_MATCH;
+            var unit = action.lookup("unit");
+            if (${unitMatch}) return polkit.Result.YES;
+            return polkit.Result.NO_MATCH;
+          });
+        '';
+      };
 
-    # Reverse proxy entries
-    services.gio.reverse-proxy.virtualHosts = lib.concatMapAttrs (name: appCfg:
-      lib.optionalAttrs appCfg.reverseProxy.enable {
-        ${appCfg.reverseProxy.subdomain} =
-          {
-            extraConfig = appCfg.reverseProxy.extraConfig;
-          }
-          // (
-            if appCfg.listener.type == "port"
-            then {
-              host = "127.0.0.1";
-              port = appCfg.listener.port;
+      # Reverse proxy entries for the per-app vhosts.
+      services.gio.reverse-proxy.virtualHosts = lib.concatMapAttrs (name: appCfg:
+        lib.optionalAttrs appCfg.reverseProxy.enable {
+          ${appCfg.reverseProxy.subdomain} =
+            {
+              extraConfig = appCfg.reverseProxy.extraConfig;
             }
-            else {
-              socket_path = socketPath name;
-            }
-          );
-      })
-    enabledApps;
-  };
+            // (
+              if appCfg.listener.type == "port"
+              then {
+                host = "127.0.0.1";
+                port = appCfg.listener.port;
+              }
+              else {
+                socket_path = socketPath name;
+              }
+            );
+        })
+      enabledApps;
+    }
+
+    # Register the agent's Restate endpoint so the Restate server discovers it.
+    # Only define this on hosts that actually import the restate module — the
+    # `gio.restate` option only exists there. Guarding with `options ? gio.restate`
+    # drops the whole attribute elsewhere (e.g. gallium), so non-restate hosts
+    # don't fail with "option gio.restate does not exist".
+    (lib.optionalAttrs (options ? gio.restate) {
+      gio.restate.deployments = lib.mkIf (agentApps != {}) {
+        gradient-deployer = {
+          endpoint = "http://${deployerBind}";
+          dependencies = ["gradient-deployer.service"];
+          restartTriggers = [gradientDeployer deployerConfig];
+        };
+      };
+    })
+  ];
 }
