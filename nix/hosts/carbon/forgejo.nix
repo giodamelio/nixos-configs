@@ -1,9 +1,69 @@
 {
-  config,
   lib,
   pkgs,
   ...
-}: {
+}: let
+  settingsFormat = pkgs.formats.yaml {};
+
+  mkRunner = name: {
+    url,
+    labels,
+    user,
+    group,
+    credential,
+    stateDir,
+    hostPackages ? [],
+    settings ? {},
+    extraServiceConfig ? {},
+    supplementaryGroups ? [],
+  }: let
+    configFile = settingsFormat.generate "runner-config-${name}.yaml" settings;
+    registrationScript = pkgs.writeShellApplication {
+      name = "register-runner-${name}";
+      runtimeInputs = [pkgs.forgejo-runner pkgs.coreutils];
+      text = ''
+        mkdir -p "/var/lib/${stateDir}/${name}"
+        cd "/var/lib/${stateDir}/${name}"
+
+        LABELS_WANTED="$(echo '${lib.concatStringsSep "\n" labels}' | sort)"
+        LABELS_CURRENT="$(cat .labels 2>/dev/null || echo "")"
+
+        if [ ! -e .runner ] || [ "$LABELS_WANTED" != "$LABELS_CURRENT" ]; then
+          rm -f .runner
+          # shellcheck source=/dev/null
+          . "$CREDENTIALS_DIRECTORY/${credential}"
+          act_runner register \
+            --no-interactive \
+            --instance ${lib.escapeShellArg url} \
+            --token "$TOKEN" \
+            --name ${lib.escapeShellArg name} \
+            --labels ${lib.escapeShellArg (lib.concatStringsSep "," labels)} \
+            --config ${configFile}
+          echo "$LABELS_WANTED" > .labels
+        fi
+      '';
+    };
+  in {
+    description = "Forgejo Runner (${name})";
+    after = ["network-online.target"];
+    wants = ["network-online.target"];
+    wantedBy = ["multi-user.target"];
+    path = hostPackages;
+    serviceConfig =
+      {
+        User = user;
+        Group = group;
+        StateDirectory = stateDir;
+        WorkingDirectory = "-/var/lib/${stateDir}/${name}";
+        ExecStartPre = ["${lib.getExe registrationScript}"];
+        ExecStart = "${pkgs.forgejo-runner}/bin/act_runner daemon --config ${configFile}";
+        Restart = "on-failure";
+        RestartSec = 2;
+        SupplementaryGroups = supplementaryGroups;
+      }
+      // extraServiceConfig;
+  };
+in {
   services.forgejo = {
     enable = true;
     package = pkgs.forgejo;
@@ -58,6 +118,10 @@
       repository = {
         DEFAULT_BRANCH = "main";
       };
+
+      webhook = {
+        ALLOWED_HOST_LIST = "gradient.gio.ninja";
+      };
     };
   };
 
@@ -82,7 +146,10 @@
         "forgejo-oidc-client-id"
         "forgejo-oidc-client-secret"
       ];
-      "gitea-runner-register-carbon".loadCredentialEncrypted = [
+      forgejo-runner-build.loadCredentialEncrypted = [
+        "forgejo-runner-env"
+      ];
+      forgejo-runner-deploy.loadCredentialEncrypted = [
         "forgejo-runner-env"
       ];
     };
@@ -114,90 +181,65 @@
     ];
   };
 
-  # Forgejo Actions runner (Podman containers + host-native)
-  services.gitea-actions-runner = {
-    package = pkgs.forgejo-runner;
-    instances.carbon = {
-      enable = true;
-      name = "carbon";
-      url = "https://forgejo.gio.ninja";
-      tokenFile = "/run/credentials/gitea-runner-carbon.service/forgejo-runner-env";
-      labels = [
-        "ubuntu-latest:docker://node:22-bookworm"
-        "debian-latest:docker://node:22-bookworm"
-        "nix:docker://nixos/nix"
-        "native:host"
-      ];
-      hostPackages = with pkgs; [
-        attic-client
-        bash
-        coreutils
-        curl
-        gawk
-        git
-        gnused
-        natscli
-        nix
-        nodejs
-        openssh
-        wget
-      ];
-      settings = {
-        log.level = "info";
-        runner = {
-          capacity = 2;
-          timeout = "3h";
-        };
-        container = {
-          network = "bridge";
-          privileged = false;
-        };
-      };
-    };
-  };
-
   virtualisation.podman.enable = true;
-
-  # The NixOS module puts runner registration in ExecStartPre with TOKEN from
-  # EnvironmentFile, but systemd can't load EnvironmentFile from credential paths.
-  # We use a drop-in to clear ExecStartPre/EnvironmentFile, and a separate oneshot
-  # that sources the credential then runs the module's registration script.
-  systemd.packages = [
-    (pkgs.runCommand "gitea-runner-carbon-cred-dropin" {} ''
-      mkdir -p "$out/etc/systemd/system/gitea-runner-carbon.service.d"
-      cat > "$out/etc/systemd/system/gitea-runner-carbon.service.d/60-clear-pre.conf" <<EOF
-      [Service]
-      EnvironmentFile=
-      ExecStartPre=
-      EOF
-    '')
-  ];
-
-  systemd.services.gitea-runner-register-carbon = let
-    registrationScript = builtins.head config.systemd.services.gitea-runner-carbon.serviceConfig.ExecStartPre;
-  in {
-    description = "Forgejo Runner Registration";
-    after = ["network-online.target"];
-    wants = ["network-online.target"];
-    before = ["gitea-runner-carbon.service"];
-    requiredBy = ["gitea-runner-carbon.service"];
-    serviceConfig = {
-      Type = "oneshot";
-      DynamicUser = true;
-      User = "gitea-runner";
-      StateDirectory = "gitea-runner";
-    };
-    script = ''
-      set -a
-      . "$CREDENTIALS_DIRECTORY/forgejo-runner-env"
-      set +a
-      exec ${registrationScript}
-    '';
-  };
 
   # Wait for NFS mount before starting Forgejo
   systemd.services.forgejo = {
     after = ["mnt-forgejo\\x2drepos.mount"];
     requires = ["mnt-forgejo\\x2drepos.mount"];
   };
+
+  systemd.services.forgejo-runner-build = mkRunner "forgejo-runner-build" {
+    url = "https://forgejo.gio.ninja";
+    labels = ["nix:host"];
+    user = "forgejo-runner";
+    group = "forgejo-runner";
+    credential = "forgejo-runner-env";
+    stateDir = "forgejo-runner";
+    hostPackages = with pkgs; [
+      attic-client
+      bash
+      coreutils
+      curl
+      gawk
+      git
+      gnused
+      nix
+      nodejs
+      openssh
+      wget
+    ];
+    settings = {
+      log.level = "info";
+      runner = {
+        capacity = 2;
+        timeout = "3h";
+      };
+    };
+  };
+
+  systemd.services.forgejo-runner-deploy = mkRunner "forgejo-runner-deploy" {
+    url = "https://forgejo.gio.ninja";
+    labels = ["deploy-carbon:host"];
+    user = "deploy-dispatch";
+    group = "deploy-dispatch";
+    credential = "forgejo-runner-env";
+    stateDir = "forgejo-runner-deploy";
+    hostPackages = with pkgs; [attic-client bash coreutils git nix];
+    settings = {
+      log.level = "info";
+      runner = {
+        capacity = 1;
+        timeout = "30m";
+      };
+    };
+  };
+
+  users.users.forgejo-runner = {
+    isSystemUser = true;
+    group = "forgejo-runner";
+    home = "/var/lib/forgejo-runner";
+    createHome = true;
+  };
+  users.groups.forgejo-runner = {};
 }
