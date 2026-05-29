@@ -32,6 +32,7 @@ in {
   # so route it to the GTK portal explicitly.
   xdg.portal.extraPortals = [pkgs.xdg-desktop-portal-gtk];
   xdg.portal.config.niri = {
+    default = ["gtk"];
     "org.freedesktop.impl.portal.FileChooser" = ["gtk"];
   };
 
@@ -39,6 +40,9 @@ in {
   # WAYLAND_DISPLAY. See: https://github.com/sodiboo/niri-flake/issues/509
   systemd.user.services.xdg-desktop-portal = {
     after = ["xdg-desktop-autostart.target"];
+    # Override the restricted PATH from the upstream unit so the portal
+    # can find and launch desktop apps (e.g. firefox for OpenURI).
+    environment.PATH = lib.mkForce "/run/wrappers/bin:/etc/profiles/per-user/%u/bin:/nix/var/nix/profiles/default/bin:/run/current-system/sw/bin";
   };
   systemd.user.services.xdg-desktop-portal-gtk = {
     after = ["xdg-desktop-autostart.target"];
