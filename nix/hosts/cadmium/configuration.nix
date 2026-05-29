@@ -55,6 +55,7 @@ in {
     ./3d-printing.nix
     flake.nixosModules.printing
     flake.nixosModules.photo-editing
+    flake.nixosModules.signal
 
     # Autosnapshot ZFS and send to NAS
     flake.nixosModules.zfs-backup
