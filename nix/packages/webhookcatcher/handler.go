@@ -2,6 +2,10 @@ package main
 
 import (
 	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
+	"crypto/subtle"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"log"
@@ -26,18 +30,21 @@ func (h *WebhookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if hook.Config.Auth != nil {
-		headerVal := r.Header.Get(hook.Config.Auth.Header)
-		if headerVal != hook.Secret {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
-			return
-		}
-	}
-
+	// Read the body up front: HMAC verification needs it, and the forward
+	// action replays it. Both reuse this single copy.
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "failed to read body", http.StatusInternalServerError)
 		return
+	}
+
+	// All verifiers must pass (AND).
+	for _, v := range hook.Verifiers {
+		if !verify(v, r, body) {
+			log.Printf("hook %s: verification failed (%s on header %s)", hook.Config.ID, v.Config.Type, v.Config.Header)
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
 	}
 
 	if hook.Config.Actions.Print != nil {
@@ -57,6 +64,41 @@ func (h *WebhookHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func verify(v ResolvedVerifier, r *http.Request, body []byte) bool {
+	headerVal := r.Header.Get(v.Config.Header)
+	switch v.Config.Type {
+	case VerifyHeaderSecret:
+		return subtle.ConstantTimeCompare([]byte(headerVal), []byte(v.Secret)) == 1
+	case VerifyBearer:
+		const prefix = "Bearer "
+		if !strings.HasPrefix(headerVal, prefix) {
+			return false
+		}
+		token := strings.TrimPrefix(headerVal, prefix)
+		return subtle.ConstantTimeCompare([]byte(token), []byte(v.Secret)) == 1
+	case VerifyHMAC:
+		return verifyHMAC(v.Secret, headerVal, body)
+	default:
+		// Unreachable: LoadConfig rejects unknown verify types.
+		return false
+	}
+}
+
+// verifyHMAC checks an `sha256=<hex>` header against HMAC-SHA256 of the body.
+func verifyHMAC(secret, headerVal string, body []byte) bool {
+	const prefix = "sha256="
+	if !strings.HasPrefix(headerVal, prefix) {
+		return false
+	}
+	got, err := hex.DecodeString(strings.TrimPrefix(headerVal, prefix))
+	if err != nil {
+		return false
+	}
+	mac := hmac.New(sha256.New, []byte(secret))
+	mac.Write(body)
+	return hmac.Equal(got, mac.Sum(nil))
 }
 
 func executePrint(r *http.Request, body []byte) {

@@ -13,14 +13,46 @@ type Config struct {
 }
 
 type HookConfig struct {
-	ID      string        `toml:"id"`
-	Auth    *AuthConfig   `toml:"auth"`
-	Actions ActionsConfig `toml:"actions"`
+	ID      string         `toml:"id"`
+	Verify  []VerifyConfig `toml:"verify"`
+	Actions ActionsConfig  `toml:"actions"`
 }
 
-type AuthConfig struct {
-	Header     string `toml:"header"`
-	SecretFile string `toml:"secret_file"`
+// VerifyType enumerates the supported request verification schemes.
+type VerifyType string
+
+const (
+	// VerifyHMAC checks an HMAC-SHA256 signature of the raw request body,
+	// keyed by the secret, against a header value. The header is expected to
+	// be `sha256=<hex>` (GitHub's X-Hub-Signature-256 scheme).
+	VerifyHMAC VerifyType = "hmac"
+	// VerifyHeaderSecret checks a header value for exact equality with the
+	// secret. Used by forges that send a static shared token (e.g. GitLab's
+	// X-Gitlab-Token).
+	VerifyHeaderSecret VerifyType = "header-secret"
+	// VerifyBearer checks an `Authorization: Bearer <secret>` header: the
+	// "Bearer " prefix is stripped and the remainder compared to the secret.
+	// Used by senders that emit a bearer token (e.g. Gradient's send_web_request).
+	VerifyBearer VerifyType = "bearer"
+)
+
+// validVerifyTypes is the set of accepted VerifyType values, used both for
+// validation and to render the allowed list in error messages.
+var validVerifyTypes = []VerifyType{VerifyHMAC, VerifyHeaderSecret, VerifyBearer}
+
+func (t VerifyType) valid() bool {
+	for _, v := range validVerifyTypes {
+		if t == v {
+			return true
+		}
+	}
+	return false
+}
+
+type VerifyConfig struct {
+	Type       VerifyType `toml:"type"`
+	Header     string     `toml:"header"`
+	SecretFile string     `toml:"secret_file"`
 }
 
 type ActionsConfig struct {
@@ -50,9 +82,12 @@ func LoadConfig(path string) (*Config, error) {
 		if hook.Actions.Forward != nil && hook.Actions.Forward.URL == "" {
 			return nil, fmt.Errorf("hook[%d] (%s): forward.url is required", i, hook.ID)
 		}
-		if hook.Auth != nil {
-			if hook.Auth.Header == "" || hook.Auth.SecretFile == "" {
-				return nil, fmt.Errorf("hook[%d] (%s): auth requires both header and secret_file", i, hook.ID)
+		for j, v := range hook.Verify {
+			if !v.Type.valid() {
+				return nil, fmt.Errorf("hook[%d] (%s): verify[%d]: invalid type %q (must be one of %v)", i, hook.ID, j, v.Type, validVerifyTypes)
+			}
+			if v.Header == "" || v.SecretFile == "" {
+				return nil, fmt.Errorf("hook[%d] (%s): verify[%d]: header and secret_file are required", i, hook.ID, j)
 			}
 		}
 	}
@@ -60,9 +95,14 @@ func LoadConfig(path string) (*Config, error) {
 	return &cfg, nil
 }
 
-type ResolvedHook struct {
-	Config HookConfig
+type ResolvedVerifier struct {
+	Config VerifyConfig
 	Secret string
+}
+
+type ResolvedHook struct {
+	Config    HookConfig
+	Verifiers []ResolvedVerifier
 }
 
 func ResolveHooks(cfg *Config) (map[string]*ResolvedHook, error) {
@@ -71,12 +111,15 @@ func ResolveHooks(cfg *Config) (map[string]*ResolvedHook, error) {
 	for _, hook := range cfg.Hook {
 		resolved := &ResolvedHook{Config: hook}
 
-		if hook.Auth != nil {
-			data, err := os.ReadFile(hook.Auth.SecretFile)
+		for _, v := range hook.Verify {
+			data, err := os.ReadFile(v.SecretFile)
 			if err != nil {
-				return nil, fmt.Errorf("hook %s: reading secret file: %w", hook.ID, err)
+				return nil, fmt.Errorf("hook %s: reading secret file %s: %w", hook.ID, v.SecretFile, err)
 			}
-			resolved.Secret = strings.TrimSpace(string(data))
+			resolved.Verifiers = append(resolved.Verifiers, ResolvedVerifier{
+				Config: v,
+				Secret: strings.TrimSpace(string(data)),
+			})
 		}
 
 		hooks[hook.ID] = resolved

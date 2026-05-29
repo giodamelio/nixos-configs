@@ -12,24 +12,25 @@ Takes exactly one argument: the absolute path to a TOML configuration file. Any 
 
 ## How it works
 
-1. Listens on a unix socket
+1. Listens on a unix socket (provided via systemd socket activation)
 2. Matches incoming requests by path — each hook is identified by a UUID in the URL path (e.g. `/a1b2c3d4-e5f6-7890-...`)
-3. Optionally verifies an auth header against a secret loaded from a file
+3. Optionally runs one or more verifiers against the request; all must pass
 4. Executes configured actions (forward the request, print it, etc.)
 
-Unmatched paths return 404. Failed auth returns 401.
+Unmatched paths return 404. Failed verification returns 401.
 
 ## Configuration
 
-```toml
-[server]
-socket = "/run/webhookcatcher/webhookcatcher.sock"
+The listen socket is **not** configured here — it comes from systemd socket
+activation (`LISTEN_FDS`, fd 3). The config file describes only hooks.
 
+```toml
 [[hook]]
 id = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 
-  [hook.auth]
-  header = "X-Webhook-Secret"
+  [[hook.verify]]
+  type = "hmac"
+  header = "X-Hub-Signature-256"
   secret_file = "/run/credentials/my-webhook.secret"
 
   [hook.actions.forward]
@@ -38,28 +39,35 @@ id = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
   [hook.actions.print]
 ```
 
-### `[server]`
-
-| Field    | Required | Description                     |
-|----------|----------|---------------------------------|
-| `socket` | yes      | Path to the unix socket to listen on |
-
 ### `[[hook]]`
 
 | Field | Required | Description                          |
 |-------|----------|--------------------------------------|
 | `id`  | yes      | UUID used as the URL path for this hook |
 
-### `[hook.auth]`
+### `[[hook.verify]]`
 
-Optional. If present, both fields are required. The request's header value must exactly match the trimmed contents of the secret file.
+Optional, repeatable. Each entry is a verifier; **all** declared verifiers
+must pass or the request is rejected with 401. Omit entirely to accept any
+request matching the hook id.
 
-| Field         | Description                                    |
-|---------------|------------------------------------------------|
-| `header`      | Name of the HTTP header to check               |
-| `secret_file` | Path to a file containing the expected value   |
+| Field         | Required | Description                                    |
+|---------------|----------|------------------------------------------------|
+| `type`        | yes      | Verifier kind: `hmac` or `header-secret`       |
+| `header`      | yes      | Name of the HTTP header to read                |
+| `secret_file` | yes      | Path to a file containing the secret           |
 
-Secrets are read from files (not stored in the config) so they can be provided via systemd credentials or similar mechanisms.
+Verifier types:
+
+- **`hmac`** — recomputes `HMAC-SHA256(rawBody, secret)` and compares (constant
+  time) against the header value, which must be formatted as `sha256=<hex>`
+  (GitHub's `X-Hub-Signature-256` scheme).
+- **`header-secret`** — compares the header value for exact equality with the
+  secret (constant time). Used by forges that send a static shared token
+  (e.g. GitLab's `X-Gitlab-Token`).
+
+Secrets are read from files (not stored in the config) so they can be provided
+via systemd credentials or similar mechanisms. Trailing whitespace is trimmed.
 
 ### `[hook.actions]`
 
