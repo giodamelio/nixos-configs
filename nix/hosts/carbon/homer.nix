@@ -63,6 +63,12 @@
             url = "https://forgejo.gio.ninja";
             logo = dashboardLogo "forgejo";
           }
+          {
+            name = "Gradient";
+            subtitle = "Nix CI";
+            url = "https://gradient.gio.ninja";
+            logo = "https://wavelens.io/gradient-logo.svg";
+          }
         ];
       }
       {

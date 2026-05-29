@@ -41,6 +41,7 @@ in {
     ./netdata.nix # Real-time Infrastructure Monitoring
     ./miniflux.nix # RSS Feed Reader
     ./forgejo.nix # Git Forge
+    ./gradient.nix # Nix CI System
     ./paperless.nix # Document Management
     ./node-hp-scan-to.nix # HP Scanner to Paperless
     ./hooks.nix # Webhook server (hooks.go.ninja)
@@ -130,7 +131,10 @@ in {
     # signed store paths to this host without needing trusted-users.
     # Secret key is stored as a Forgejo global Actions secret.
     {
-      gio.deploy.signingPublicKey = "ci-deploy:xZueE8MQl0HNBCpVI3YGoVPrbai9waVCufSoL6SThME=";
+      gio.deploy = {
+        signingPublicKey = "ci-deploy:xZueE8MQl0HNBCpVI3YGoVPrbai9waVCufSoL6SThME=";
+        appsCachePublicKey = "apps:hijArbPTcRxIxWq/tyrurLCfwuQVPccwKj/+gxhj4Qc=";
+      };
     }
   ];
 

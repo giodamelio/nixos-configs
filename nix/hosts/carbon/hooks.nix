@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   flake,
   ...
@@ -9,6 +10,37 @@
       {
         id = "print-test";
         actions.print = {};
+      }
+      # GitHub App webhooks for the private Gradient instance. GitHub delivers
+      # to https://hooks.gio.ninja:47291/<id>; we forward verbatim to Gradient,
+      # which verifies the X-Hub-Signature-256 HMAC itself. No [hook.auth] here:
+      # GitHub signs the body rather than sending a static shared-secret header.
+      {
+        id = "cf7ccf08-2541-49eb-903b-e7cd59dd10f2";
+        verify = [
+          {
+            type = "hmac";
+            header = "X-Hub-Signature-256";
+            secret_file = "/run/credentials/webhookcatcher.service/gradient_github_app_webhook_secret";
+          }
+        ];
+        actions.forward.url = "http://127.0.0.1:3002/api/v1/hooks/github";
+      }
+      # Gradient deploy webhook → gradient-deployer Restate service. Gradient's
+      # send_web_request can't target the loopback ingress directly (its SSRF
+      # guard blocks IP literals), so it posts here (a hostname) with a bearer;
+      # we verify it and forward to the local Restate ingress, which durably
+      # invokes the yesman slot's Reconcile handler.
+      {
+        id = "gradient-deploy-yesman";
+        verify = [
+          {
+            type = "bearer";
+            header = "Authorization";
+            secret_file = "/run/credentials/webhookcatcher.service/gradient_action_deploy-webhook_token";
+          }
+        ];
+        actions.forward.url = "${config.gio.restate.ingressEndpoint}/gradient-deployer-carbon/yesman/Reconcile";
       }
     ];
   };
@@ -47,6 +79,15 @@ in {
       ExecStart = "${webhookcatcher}/bin/webhookcatcher ${configFile}";
       Restart = "on-failure";
       DynamicUser = true;
+      # Decrypt the GitHub webhook secret into the unit's credentials dir so
+      # the hmac verifier can read it. Same credstore file Gradient uses.
+      # gradient_action_deploy-webhook_token is the shared bearer used to
+      # authenticate Gradient's deploy webhook (same secret the gradient-server
+      # sends).
+      LoadCredentialEncrypted = [
+        "gradient_github_app_webhook_secret"
+        "gradient_action_deploy-webhook_token"
+      ];
     };
   };
 

@@ -130,5 +130,18 @@
     # Affinity Suite (Designer, Photo, Publisher) via Wine
     affinity-nix.url = "github:mrshmllow/affinity-nix";
     affinity-nix.inputs.nixpkgs.follows = "nixpkgs";
+    # affinity-nix upstream pins flake-compat to the lix-project fork on
+    # git.lix.systems, served as a tarball whose locked URL carries a `?rev=`
+    # query that some evaluators (the gradient-worker) canonicalize away, breaking
+    # the lock ("mismatch in field 'url'"). Point it at the canonical edolstra
+    # flake-compat on GitHub instead — same API, github-type lock (no URL-query
+    # mismatch), and no git.lix.systems dependency.
+    affinity-nix.inputs.flake-compat.url = "github:edolstra/flake-compat";
+
+    # Nix-native CI system
+    # Pinned to a specific rev: HEAD moves fast and the API changes between
+    # releases. This rev includes the Actions framework (send_web_request /
+    # forge_status_report) used for deploy webhooks.
+    gradient.url = "github:wavelens/gradient/6fad2adba5b72f0ceabb7e27d924778ec78f1f38";
   };
 }

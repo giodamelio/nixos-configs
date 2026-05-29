@@ -228,6 +228,21 @@ in {
           }
         ];
       }
+      {
+        job_name = "gradient";
+        scheme = "https";
+        static_configs = [
+          {
+            targets = [
+              "gradient.gio.ninja"
+            ];
+          }
+        ];
+        authorization = {
+          type = "Bearer";
+          credentials_file = "/run/credentials/prometheus.service/gradient_metrics_token";
+        };
+      }
     ];
   };
 
