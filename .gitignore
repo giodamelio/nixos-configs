@@ -4,3 +4,7 @@ result
 tmp/
 prek.toml
 .claude/settings.local.json
+
+# Compiled Go binaries from a stray `go build` in a package dir (name == dir name)
+/nix/packages/gradient-deployer/gradient-deployer
+/nix/packages/webhookcatcher/webhookcatcher
