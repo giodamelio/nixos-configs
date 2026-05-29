@@ -17,6 +17,11 @@
   # Speech to text
   services.handy.enable = true;
 
+  gtk.iconTheme = {
+    name = "Adwaita";
+    package = pkgs.adwaita-icon-theme;
+  };
+
   home.pointerCursor = {
     name = "Adwaita";
     package = pkgs.adwaita-icon-theme;

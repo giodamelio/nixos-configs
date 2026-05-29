@@ -31,6 +31,13 @@
       # {argv = [];}
     ];
 
+    window-rules = [
+      {
+        matches = [{app-id = "io.gitlab.news_flash.NewsFlash";}];
+        default-column-width.proportion = 1.0;
+      }
+    ];
+
     prefer-no-csd = true;
     screenshot-path = "~/Pictures/Screenshots/%Y-%m-%d_%H-%M-%S.png";
   };
