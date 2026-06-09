@@ -268,6 +268,7 @@ in {
     settings = {
       maxConcurrentBuilds = 8;
       maxConcurrentEvaluations = 1;
+      buildMetrics = true;
     };
   };
 
