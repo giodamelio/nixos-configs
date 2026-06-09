@@ -128,16 +128,6 @@ in {
         programs.zsh.enable = true;
       }
     )
-
-    # CI deployment signing key — allows Forgejo Actions to nix copy
-    # signed store paths to this host without needing trusted-users.
-    # Secret key is stored as a Forgejo global Actions secret.
-    {
-      gio.deploy = {
-        signingPublicKey = "ci-deploy:xZueE8MQl0HNBCpVI3YGoVPrbai9waVCufSoL6SThME=";
-        appsCachePublicKey = "apps:hijArbPTcRxIxWq/tyrurLCfwuQVPccwKj/+gxhj4Qc=";
-      };
-    }
   ];
 
   nixpkgs.config.allowUnfree = true;

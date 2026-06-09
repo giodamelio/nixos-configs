@@ -101,10 +101,9 @@
             default = null;
             example = "default/yesman";
             description = ''
-              Gradient "<org>/<project>" slug. When set, the gradient-deployer
-              agent manages this slot: on a webhook poke it pulls the latest
-              succeeded build for this project and deploys it. When null, the slot
-              is left to the legacy CI/script deploy path.
+              Gradient "<org>/<project>" slug. The gradient-deployer agent
+              manages this slot: on a webhook poke it pulls the latest succeeded
+              build for this project and deploys it.
             '';
           };
         };
@@ -124,13 +123,6 @@
   # distinct Restate deployment (Restate routes one deployment per service name).
   deployerService = "gradient-deployer-${hostname}";
   deployerBind = "127.0.0.1:9080";
-
-  # Agent profile dirs must be owned by the agent user so it can update them
-  # without root; non-agent slots stay root-owned (legacy path unchanged).
-  profileOwner = name:
-    if enabledApps.${name}.gradient.project != null
-    then "gradient-deployer"
-    else "root";
 
   # TOML config consumed by the gradient-deployer Restate service. Secrets are
   # referenced by path (systemd credentials), never inlined.
@@ -165,35 +157,6 @@
       echo
     '';
   };
-
-  mkDeployScript = name:
-    pkgs.writeShellApplication {
-      name = "deploy-${name}";
-      runtimeInputs = [pkgs.nix];
-      text = ''
-        store_path="$1"
-        if [[ "$store_path" != /nix/store/* ]]; then
-          echo "Error: argument must be a /nix/store/ path, got: $store_path" >&2
-          exit 1
-        fi
-        if ! nix-store --check-validity "$store_path" 2>/dev/null; then
-          echo "Error: $store_path not in local store. CI must fetch it before calling this script." >&2
-          exit 1
-        fi
-        nix profile install --profile ${profilePath name} "$store_path"
-        systemctl restart ${name}.service
-      '';
-    };
-
-  mkRollbackScript = name:
-    pkgs.writeShellApplication {
-      name = "rollback-${name}";
-      runtimeInputs = [pkgs.nix];
-      text = ''
-        nix profile rollback --profile ${profilePath name}
-        systemctl restart ${name}.service
-      '';
-    };
 in {
   imports = [
     flake.nixosModules.reverse-proxy
@@ -219,32 +182,6 @@ in {
   };
 
   options.gio.deploy = {
-    signingPublicKey = mkOption {
-      type = types.nullOr types.str;
-      default = null;
-      description = ''
-        Public key for verifying CI-signed nix store paths.
-        Generate a keypair with:
-          nix key generate-secret --key-name ci-deploy > ci-deploy-secret-key
-          nix key convert-secret-to-public < ci-deploy-secret-key
-        Store the secret key as a Forgejo CI secret. Put the public key here.
-        CI signs paths with: nix store sign --key-file secret-key --recursive ./result
-      '';
-      example = "ci-deploy:base64publickey==";
-    };
-
-    appsCacheUrl = mkOption {
-      type = types.str;
-      default = "https://attic.gio.ninja/apps";
-      description = "URL of the Attic apps cache to substitute from during deploys.";
-    };
-
-    appsCachePublicKey = mkOption {
-      type = types.nullOr types.str;
-      default = null;
-      description = "Public key of the apps Attic cache for signature verification.";
-    };
-
     gradientServer = mkOption {
       type = types.str;
       default = "https://gradient.gio.ninja";
@@ -265,26 +202,14 @@ in {
             assertion = !(enabledApps ? "caddy");
             message = "gio.deployedApps: app name \"caddy\" conflicts with the reverse proxy user";
           }
-        ];
+        ]
+        ++ (lib.mapAttrsToList (name: appCfg: {
+            assertion = appCfg.gradient.project != null;
+            message = "gio.deployedApps.${name}: gradient.project is required — deploys are managed by the gradient-deployer agent";
+          })
+          enabledApps);
 
-      nix.settings = {
-        substituters = lib.mkIf (deployCfg.appsCacheUrl != "") [
-          deployCfg.appsCacheUrl
-        ];
-        trusted-public-keys = lib.mkMerge [
-          (lib.mkIf (deployCfg.signingPublicKey != null) [deployCfg.signingPublicKey])
-          (lib.mkIf (deployCfg.appsCachePublicKey != null) [deployCfg.appsCachePublicKey])
-        ];
-        trusted-users = lib.mkIf (enabledApps != {}) ["deploy-dispatch"];
-      };
-
-      environment.systemPackages =
-        lib.concatLists (lib.mapAttrsToList (name: _: [
-            (mkDeployScript name)
-            (mkRollbackScript name)
-          ])
-          enabledApps)
-        ++ lib.optional (agentApps != {}) gradientDeployWrapper;
+      environment.systemPackages = lib.optional (agentApps != {}) gradientDeployWrapper;
 
       users.users =
         (lib.mapAttrs (name: _: {
@@ -294,14 +219,6 @@ in {
             createHome = false;
           })
           enabledApps)
-        // lib.optionalAttrs (enabledApps != {}) {
-          deploy-dispatch = {
-            isSystemUser = true;
-            group = "deploy-dispatch";
-            home = "/var/lib/deploy-dispatch";
-            createHome = true;
-          };
-        }
         // lib.optionalAttrs (unixReverseProxyApps != {}) {
           caddy.extraGroups = lib.mapAttrsToList (name: _: name) unixReverseProxyApps;
         }
@@ -316,9 +233,6 @@ in {
 
       users.groups =
         (lib.mapAttrs (_: _: {}) enabledApps)
-        // lib.optionalAttrs (enabledApps != {}) {
-          deploy-dispatch = {};
-        }
         // lib.optionalAttrs (agentApps != {}) {
           gradient-deployer = {};
         };
@@ -329,34 +243,8 @@ in {
         ]
         ++ lib.concatLists (lib.mapAttrsToList (name: _: [
             "d /var/lib/${name} 0750 ${name} ${name} -"
-            "d ${profileDir name} 0755 ${profileOwner name} ${profileOwner name} -"
+            "d ${profileDir name} 0755 gradient-deployer gradient-deployer -"
           ])
-          enabledApps);
-
-      security.sudo.extraRules =
-        (lib.mapAttrsToList (name: _: {
-            users = [name];
-            commands = [
-              {
-                command = "/run/current-system/sw/bin/systemctl restart ${name}.service";
-                options = ["NOPASSWD"];
-              }
-            ];
-          })
-          enabledApps)
-        ++ (lib.mapAttrsToList (name: _: {
-            users = ["deploy-dispatch"];
-            commands = [
-              {
-                command = "/run/current-system/sw/bin/deploy-${name} *";
-                options = ["NOPASSWD"];
-              }
-              {
-                command = "/run/current-system/sw/bin/rollback-${name}";
-                options = ["NOPASSWD"];
-              }
-            ];
-          })
           enabledApps);
 
       systemd.services = lib.mkMerge [
@@ -374,7 +262,7 @@ in {
 
                     ExecCondition = pkgs.writeShellScript "${name}-check" ''
                       if [ ! -x ${profilePath name}/bin/${name} ]; then
-                        echo "${name} has not been deployed yet — run CI to deploy"
+                        echo "${name} has not been deployed yet — run 'gradient-deploy ${name}' or push to trigger a build"
                         exit 1
                       fi
                     '';

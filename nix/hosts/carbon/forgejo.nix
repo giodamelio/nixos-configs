@@ -149,9 +149,6 @@ in {
       forgejo-runner-build.loadCredentialEncrypted = [
         "forgejo-runner-env"
       ];
-      forgejo-runner-deploy.loadCredentialEncrypted = [
-        "forgejo-runner-env"
-      ];
     };
   };
 
@@ -214,23 +211,6 @@ in {
       runner = {
         capacity = 2;
         timeout = "3h";
-      };
-    };
-  };
-
-  systemd.services.forgejo-runner-deploy = mkRunner "forgejo-runner-deploy" {
-    url = "https://forgejo.gio.ninja";
-    labels = ["deploy-carbon:host"];
-    user = "deploy-dispatch";
-    group = "deploy-dispatch";
-    credential = "forgejo-runner-env";
-    stateDir = "forgejo-runner-deploy";
-    hostPackages = with pkgs; [attic-client bash coreutils git nix];
-    settings = {
-      log.level = "info";
-      runner = {
-        capacity = 1;
-        timeout = "30m";
       };
     };
   };
