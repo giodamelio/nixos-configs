@@ -1,5 +1,6 @@
 {
   inputs,
+  perSystem,
   config,
   lib,
   ...
@@ -9,6 +10,10 @@
 in {
   imports = [
     inputs.gradient.nixosModules.default
+  ];
+
+  environment.systemPackages = [
+    perSystem.gradient.gradient-cli
   ];
 
   services.gradient = {
