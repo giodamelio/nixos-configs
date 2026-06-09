@@ -155,6 +155,51 @@ in {
         ];
       };
 
+      projects.eater-of-feeds = {
+        organization = "default";
+        display_name = "Eater of Feeds";
+        repository = "https://forgejo.gio.ninja/giodamelio/eater-of-feeds.git";
+        wildcard = "packages.x86_64-linux.default";
+        created_by = "gio";
+
+        triggers = [
+          {
+            type = "reporter_push";
+            integration = "forgejo-inbound";
+            config = {
+              branches = ["main"];
+              tags = [];
+              releases_only = false;
+            };
+          }
+        ];
+
+        actions = [
+          # Report CI status back to Forgejo commits.
+          {
+            name = "forgejo-status";
+            type = "forge_status_report";
+            config = {
+              integration = "forgejo-outbound";
+            };
+          }
+          # Notify the gradient-deployer agent when an evaluation finishes
+          # successfully. Posts to webhookcatcher (a hostname — Gradient's SSRF
+          # guard blocks the loopback ingress directly), which verifies the
+          # shared bearer and forwards to the local Restate ingress →
+          # gradient-deployer's eater-of-feeds slot Reconcile handler.
+          {
+            name = "deploy-webhook";
+            type = "send_web_request";
+            events = ["evaluation.completed"];
+            config = {
+              url = "https://hooks.gio.ninja:47291/gradient-deploy-eater-of-feeds";
+              token_file = "/run/credentials/gradient-server.service/gradient_action_deploy-webhook_token";
+            };
+          }
+        ];
+      };
+
       projects.nixos-configs = {
         organization = "default";
         display_name = "NixOS Configs";

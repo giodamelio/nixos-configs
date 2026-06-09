@@ -42,6 +42,19 @@
         ];
         actions.forward.url = "${config.gio.restate.ingressEndpoint}/gradient-deployer-carbon/yesman/Reconcile";
       }
+      # Same as the yesman deploy webhook, for the eater-of-feeds slot. Reuses
+      # the shared deploy-webhook bearer; routing to the right slot is by URL.
+      {
+        id = "gradient-deploy-eater-of-feeds";
+        verify = [
+          {
+            type = "bearer";
+            header = "Authorization";
+            secret_file = "/run/credentials/webhookcatcher.service/gradient_action_deploy-webhook_token";
+          }
+        ];
+        actions.forward.url = "${config.gio.restate.ingressEndpoint}/gradient-deployer-carbon/eater-of-feeds/Reconcile";
+      }
     ];
   };
 in {
