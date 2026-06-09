@@ -142,6 +142,6 @@
     # Pinned to a specific rev: HEAD moves fast and the API changes between
     # releases. This rev includes the Actions framework (send_web_request /
     # forge_status_report) used for deploy webhooks.
-    gradient.url = "github:wavelens/gradient/6fad2adba5b72f0ceabb7e27d924778ec78f1f38";
+    gradient.url = "github:wavelens/gradient/6530b7aed15db4cc644669edb4b47db1c6dd65af";
   };
 }

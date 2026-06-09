@@ -13,7 +13,9 @@ in {
   ];
 
   environment.systemPackages = [
-    perSystem.gradient.gradient-cli
+    # Build the CLI with the `nix` cargo feature enabled (wavelens/gradient#368
+    # added the cargoFeatures arg to the gradient-cli package).
+    (perSystem.gradient.gradient-cli.override {cargoFeatures = ["nix"];})
   ];
 
   services.gradient = {
