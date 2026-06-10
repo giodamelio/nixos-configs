@@ -1,11 +1,25 @@
 {
   description = "My Personal Nix Configs";
 
-  outputs = inputs:
-    inputs.blueprint {
+  outputs = inputs: let
+    # Blueprint owns most outputs (hosts, packages, modules, devshells, ...).
+    bp = inputs.blueprint {
       inherit inputs;
       prefix = ./nix;
       nixpkgs.config.allowUnfree = true;
+    };
+
+    # den (a flake-parts module) owns, incrementally, the `nixosConfigurations`
+    # of migrated hosts. See the migration plan + https://github.com/denful/den.
+    fp = inputs.flake-parts.lib.mkFlake {inherit inputs;} (inputs.import-tree ./modules);
+  in
+    # Explicit ownership ledger — keep this carve LOUD (no recursiveUpdate). Move
+    # keys here as migration phases complete; "who owns what" is answerable here.
+    # Blueprint's `modules.*` output passes through untouched (den publishes none).
+    bp
+    // {
+      # den wins for any host it defines; Blueprint keeps the rest.
+      nixosConfigurations = bp.nixosConfigurations // fp.nixosConfigurations;
     }
     # Add the inputs to the outputs for easy access in `nix repl`;
     // {inherit inputs;};
@@ -143,5 +157,15 @@
     # releases. This rev includes the Actions framework (send_web_request /
     # forge_status_report) used for deploy webhooks.
     gradient.url = "github:wavelens/gradient/6530b7aed15db4cc644669edb4b47db1c6dd65af";
+
+    # flake-parts: den is built on top of it; we run it beside Blueprint
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
+
+    # Auto-import every module file under ./modules (den's fork)
+    import-tree.url = "github:denful/import-tree";
+
+    # den: aspect-oriented config framework we are incrementally migrating to
+    den.url = "github:denful/den";
   };
 }

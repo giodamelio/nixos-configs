@@ -134,7 +134,7 @@
     },
     "bun2nix": {
       "inputs": {
-        "flake-parts": "flake-parts_6",
+        "flake-parts": "flake-parts_7",
         "import-tree": "import-tree",
         "nixpkgs": [
           "handy",
@@ -558,6 +558,21 @@
         "type": "github"
       }
     },
+    "den": {
+      "locked": {
+        "lastModified": 1781132765,
+        "narHash": "sha256-QHZtVwVAAaHvl6Q2ZIr34SqtB82/IJa6JEJkeRNS4Mo=",
+        "owner": "denful",
+        "repo": "den",
+        "rev": "f5e79c37d9528917d69217f355a6a1294f31486c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "denful",
+        "repo": "den",
+        "type": "github"
+      }
+    },
     "devenv": {
       "inputs": {
         "cachix": "cachix",
@@ -952,6 +967,28 @@
         "type": "github"
       }
     },
+    "flake-parts_10": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "neovim-configs",
+          "nvf",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1769996383,
+        "narHash": "sha256-AnYjnFWgS49RlqX7LrC4uA+sCCDBj0Ry/WOJ5XWAsa0=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "57928607ea566b5db3ad13af0e57e921e6b12381",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
     "flake-parts_2": {
       "inputs": {
         "nixpkgs-lib": "nixpkgs-lib_2"
@@ -1038,44 +1075,7 @@
     },
     "flake-parts_6": {
       "inputs": {
-        "nixpkgs-lib": "nixpkgs-lib_3"
-      },
-      "locked": {
-        "lastModified": 1769996383,
-        "narHash": "sha256-AnYjnFWgS49RlqX7LrC4uA+sCCDBj0Ry/WOJ5XWAsa0=",
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "rev": "57928607ea566b5db3ad13af0e57e921e6b12381",
-        "type": "github"
-      },
-      "original": {
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "type": "github"
-      }
-    },
-    "flake-parts_7": {
-      "inputs": {
-        "nixpkgs-lib": "nixpkgs-lib_4"
-      },
-      "locked": {
-        "lastModified": 1754091436,
-        "narHash": "sha256-XKqDMN1/Qj1DKivQvscI4vmHfDfvYR2pfuFOJiCeewM=",
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "rev": "67df8c627c2c39c41dbec76a1f201929929ab0bd",
-        "type": "github"
-      },
-      "original": {
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "type": "github"
-      }
-    },
-    "flake-parts_8": {
-      "inputs": {
         "nixpkgs-lib": [
-          "llm-agents",
           "nixpkgs"
         ]
       },
@@ -1093,13 +1093,9 @@
         "type": "github"
       }
     },
-    "flake-parts_9": {
+    "flake-parts_7": {
       "inputs": {
-        "nixpkgs-lib": [
-          "neovim-configs",
-          "nvf",
-          "nixpkgs"
-        ]
+        "nixpkgs-lib": "nixpkgs-lib_3"
       },
       "locked": {
         "lastModified": 1769996383,
@@ -1107,6 +1103,45 @@
         "owner": "hercules-ci",
         "repo": "flake-parts",
         "rev": "57928607ea566b5db3ad13af0e57e921e6b12381",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "flake-parts_8": {
+      "inputs": {
+        "nixpkgs-lib": "nixpkgs-lib_4"
+      },
+      "locked": {
+        "lastModified": 1754091436,
+        "narHash": "sha256-XKqDMN1/Qj1DKivQvscI4vmHfDfvYR2pfuFOJiCeewM=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "67df8c627c2c39c41dbec76a1f201929929ab0bd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
+    "flake-parts_9": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "llm-agents",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1778716662,
+        "narHash": "sha256-m1Yf0wZ8j1OHjTc2UwHwyQRSnNeSgLJOd7q5Y45hzi4=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "f7c1a2d347e4c52d5fb8d10cb4d94b5884e546fb",
         "type": "github"
       },
       "original": {
@@ -2263,6 +2298,21 @@
         "type": "github"
       }
     },
+    "import-tree_2": {
+      "locked": {
+        "lastModified": 1778781969,
+        "narHash": "sha256-Jjuz5CmSkur8KvLDoGa+vylEp+RkQtv4mt/qcMznpH0=",
+        "owner": "denful",
+        "repo": "import-tree",
+        "rev": "d321337efd0f23a9eb14a42adb7b2c29313ab274",
+        "type": "github"
+      },
+      "original": {
+        "owner": "denful",
+        "repo": "import-tree",
+        "type": "github"
+      }
+    },
     "iserv-proxy": {
       "flake": false,
       "locked": {
@@ -2357,7 +2407,7 @@
     "lilvault": {
       "inputs": {
         "fenix": "fenix_2",
-        "flake-parts": "flake-parts_7",
+        "flake-parts": "flake-parts_8",
         "git-hooks-nix": "git-hooks-nix",
         "mcp-servers": "mcp-servers",
         "nixpkgs": [
@@ -2383,7 +2433,7 @@
       "inputs": {
         "blueprint": "blueprint_2",
         "bun2nix": "bun2nix_2",
-        "flake-parts": "flake-parts_8",
+        "flake-parts": "flake-parts_9",
         "nixpkgs": "nixpkgs_14",
         "systems": "systems_6",
         "treefmt-nix": "treefmt-nix_7"
@@ -3689,7 +3739,7 @@
     "nvf": {
       "inputs": {
         "flake-compat": "flake-compat_9",
-        "flake-parts": "flake-parts_9",
+        "flake-parts": "flake-parts_10",
         "mnw": "mnw",
         "ndg": "ndg",
         "nixpkgs": [
@@ -3901,12 +3951,15 @@
         "blueprint": "blueprint",
         "boot-selector-switch": "boot-selector-switch",
         "comin": "comin",
+        "den": "den",
         "devenv": "devenv",
         "disko": "disko",
+        "flake-parts": "flake-parts_6",
         "giopkgs": "giopkgs",
         "gradient": "gradient",
         "handy": "handy",
         "home-manager": "home-manager_2",
+        "import-tree": "import-tree_2",
         "jail-nix": "jail-nix",
         "jj-hunk": "jj-hunk",
         "just-every-code": "just-every-code",
