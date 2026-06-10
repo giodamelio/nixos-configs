@@ -9,14 +9,18 @@
 # Limit to a single host (one eval per side instead of full-fleet) with --host:
 #   nix run .#check-drv-drift -- --host carbon
 
-# basic-settings.nix bakes the whole flake into every host for emergency
-# recovery: environment.etc."nixos".source = flake (full source tree) and
-# environment.etc."nixos-revision".text = flake.rev (or dirtyRev). Both embed
-# repo-wide `self`, so ANY change anywhere drifts EVERY host's drvPath, which
-# would defeat the invariant. We disable both via extendModules on each side of
-# the compare — real deployed systems keep the recovery copy; the drift check
-# ignores it and sees only true config differences.
-const STRIP = ' (let r = builtins.tryEval ((c.extendModules { modules = [ ({ lib, ... }: { environment.etc."nixos".enable = lib.mkForce false; environment.etc."nixos-revision".enable = lib.mkForce false; }) ]; }).config.system.build.toplevel.drvPath); in if r.success then r.value else "(eval failed)")'
+# Several things bake flake-SOURCE-derived state into a host, so ANY repo change
+# rewrites them and drifts the host's drvPath even when its real config is
+# unchanged. We neutralize the known ones via extendModules on each side of the
+# compare — real deployed systems keep them; the drift check sees only true
+# config differences:
+#   - environment.etc."nixos".source = flake  (basic-settings, full source tree)
+#   - environment.etc."nixos-revision".text = flake.rev/dirtyRev (basic-settings)
+#   - programs.optnix  (nix/modules/nixos/optnix.nix bakes every option's
+#     declaration PATH — which contains ${self} — into a generated options.json)
+# The optnix strip is guarded by an option-existence check so hosts without the
+# module (the servers) don't error.
+const STRIP = ' (let r = builtins.tryEval ((c.extendModules { modules = [ ({ lib, options, ... }: { config = lib.mkMerge [ { environment.etc."nixos".enable = lib.mkForce false; environment.etc."nixos-revision".enable = lib.mkForce false; } (lib.mkIf (options.programs ? optnix) { programs.optnix.enable = lib.mkForce false; }) ]; }) ]; }).config.system.build.toplevel.drvPath); in if r.success then r.value else "(eval failed)")'
 
 # Evaluate toplevel drvPaths for a flakeref. With --host, evaluate just that
 # one host (cheap); otherwise map over every nixosConfiguration in one eval.
