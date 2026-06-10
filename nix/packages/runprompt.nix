@@ -8,8 +8,8 @@ in
     src = pkgs.fetchFromGitHub {
       owner = "chr15m";
       repo = "runprompt";
-      rev = "main";
-      hash = "sha256-1PkY8k4oImkuHce/58q+THWYXyHOlO636Ig1Tr2jeWc=";
+      rev = "255689ff567e304a717ae5521a30f691bb6a686a";
+      hash = "sha256-fvHlsdKL0n2NlHKDqJZa8rROmJWNL4wOzKDEl3wU9lw=";
     };
 
     dontBuild = true;
