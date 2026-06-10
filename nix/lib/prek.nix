@@ -2,6 +2,7 @@
   pkgs,
   treefmt,
   remind-me-to,
+  check-drv-drift,
 }: let
   inherit (pkgs) lib;
 
@@ -110,6 +111,15 @@
             language = "system";
             pass_filenames = false;
           }
+          {
+            id = "check-drv-drift";
+            name = "check-drv-drift";
+            entry = "${lib.getExe check-drv-drift}";
+            language = "system";
+            stages = ["pre-push"]; # full-fleet eval x2 — too slow for pre-commit
+            pass_filenames = false;
+            files = "(\\.nix$|^flake\\.lock$|^homelab\\.toml$)"; # skip lua/docs-only pushes
+          }
         ];
       }
     ];
@@ -125,11 +135,12 @@
     pkgs.selene
     pkgs.jq
     remind-me-to
+    check-drv-drift
   ];
 in {
   inherit configFile packages;
   shellHook = ''
     ln -sf ${configFile} prek.toml
-    ${lib.getExe pkgs.prek} install
+    ${lib.getExe pkgs.prek} install -t pre-commit -t pre-push
   '';
 }

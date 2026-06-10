@@ -17,6 +17,7 @@
   in
     import ./prek.nix {
       inherit pkgs remind-me-to;
+      inherit (flake.packages.${pkgs.stdenv.hostPlatform.system}) check-drv-drift;
       treefmt = flake.lib.treefmt pkgs;
     };
 
