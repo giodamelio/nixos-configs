@@ -20,6 +20,16 @@
     // {
       # den wins for any host it defines; Blueprint keeps the rest.
       nixosConfigurations = bp.nixosConfigurations // fp.nixosConfigurations;
+
+      # Same deal per system for packages and checks: den wins per name.
+      packages =
+        builtins.mapAttrs
+        (system: bpPkgs: bpPkgs // (fp.packages.${system} or {}))
+        bp.packages;
+      checks =
+        builtins.mapAttrs
+        (system: bpChecks: bpChecks // (fp.checks.${system} or {}))
+        bp.checks;
     }
     # Add the inputs to the outputs for easy access in `nix repl`;
     // {inherit inputs;};

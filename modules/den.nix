@@ -13,8 +13,9 @@
 }: {
   imports = [inputs.den.flakeModule];
 
-  # flake-parts needs the systems its per-system outputs target. We emit no
-  # perSystem outputs yet, so this only needs our hosts' platforms.
+  # flake-parts needs the systems its per-system outputs target. perSystem
+  # packages/checks defined under ./modules are merged into the final flake by
+  # the carve in flake.nix; this only needs our hosts' platforms.
   systems = ["x86_64-linux" "aarch64-linux"];
 
   # Most users get a Home Manager environment; matches the Blueprint convention.
