@@ -26,16 +26,20 @@
     source,
     runtimeInputs ? [],
     meta ? {},
+    passthru ? {},
+    # Forward process stdin to main's pipeline input ($in); without it $in is
+    # nothing in scripts. https://www.nushell.sh/book/scripts.html#subcommands
+    stdin ? false,
   }: let
     inherit (pkgs) lib;
   in
     pkgs.writeTextFile {
-      inherit name meta;
+      inherit name meta passthru;
       executable = true;
       destination = "/bin/${name}";
       text =
         ''
-          #!${pkgs.nushell}/bin/nu
+          #!${pkgs.nushell}/bin/nu${lib.optionalString stdin " --stdin"}
 
         ''
         + lib.optionalString (runtimeInputs != []) ''
