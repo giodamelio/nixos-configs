@@ -32,6 +32,15 @@
     '';
   };
 
+  check-ssh-data = pkgs.writeShellApplication {
+    name = "check-ssh-data";
+    text = ''
+      # The check derivation is linux-only.
+      [ "$(uname)" = "Darwin" ] && exit 0
+      nix build --no-link .#checks.x86_64-linux.ssh-data-complete
+    '';
+  };
+
   # Generate prek.toml
   configFile = (pkgs.formats.toml {}).generate "prek.toml" {
     default_stages = ["pre-commit" "pre-push"];
@@ -119,6 +128,15 @@
             stages = ["pre-push"]; # full-fleet eval x2 — too slow for pre-commit
             pass_filenames = false;
             files = "(\\.nix$|^flake\\.lock$|^homelab\\.toml$)"; # skip lua/docs-only pushes
+          }
+          {
+            id = "check-ssh-data";
+            name = "check-ssh-data";
+            entry = "${lib.getExe check-ssh-data}";
+            language = "system";
+            stages = ["pre-push"]; # needs a flake eval — not for the inner loop
+            pass_filenames = false;
+            files = "(\\.nix$|^modules/aspects/ssh/data/)";
           }
         ];
       }

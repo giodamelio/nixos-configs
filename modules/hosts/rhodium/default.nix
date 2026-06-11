@@ -16,6 +16,8 @@ in {
   # bundle arrives via den.default.
   den.hosts.aarch64-linux.rhodium = {
     role = "server";
+    # Not deployed yet; set ssh.hostKey and drop this once it's running.
+    ssh.enable = false;
     # Plain system account, no Home-Manager (empty classes) — matches the
     # original inline users.users.server (which had no HM).
     users.server.classes = [];

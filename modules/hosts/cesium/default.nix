@@ -17,6 +17,11 @@
   # role. The aspects named `cesium` and `giodamelio` attach by convention.
   den.hosts.x86_64-linux.cesium = {
     role = "desktop";
+    ssh.hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK5LTFNDeaPXdAFvl265BWiiu/UAS6q1CfgdutsYYyC8";
+    users.giodamelio.ssh = {
+      publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJwxJI1kvYY7wN9ps8W23kadHiqX8d/BJT/zI9oh0uDp";
+      accessTo.cadmium.giodamelio = true;
+    };
     # Per-host user wiring goes through the entity's `aspect` option (its
     # default is the bare den.aspects.giodamelio lookup; extra keys on the
     # entity itself are ignored freeform attrs), so the shared baseline must be

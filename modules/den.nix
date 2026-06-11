@@ -47,6 +47,9 @@
     den.aspects.basic-packages
     den.aspects.basic-settings
 
+    den.aspects.ssh-host-cert
+    den.aspects.ssh-access
+
     # Dual-class: CLIs on every system; overriding aliases only for HM users.
     den.aspects.modern-coreutils-replacements
 
