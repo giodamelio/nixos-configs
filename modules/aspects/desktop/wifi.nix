@@ -3,8 +3,5 @@
 _: {
   den.aspects.wifi.nixos = {
     networking.networkmanager.enable = true;
-
-    # Add user to group
-    users.users.giodamelio.extraGroups = ["networkmanager"];
   };
 }
