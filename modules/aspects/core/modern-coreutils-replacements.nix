@@ -1,7 +1,25 @@
 # modern-coreutils-replacements — eza/bat/ripgrep/dust/procs and friends, with
 # aliases. Converted from nix/modules/home/modern-coreutils-replacements.nix.
 # `osConfig` is provided automatically by the HM-on-NixOS integration.
+#
+# modern-coreutils-replacements-system (below) is deliberately a SEPARATE
+# aspect, not a `.nixos` half of this one: this aspect attaches to users, and
+# den forwards a user aspect's nixos half to the host — folding would silently
+# install the system packages on every host whose user has the HM aliases
+# (e.g. cesium, which never imported the system variant under Blueprint).
 _: {
+  # System-wide copies of the replacements, for root/other users. Converted
+  # from nix/modules/nixos/modern-coreutils-replacements.nix; attaches to hosts
+  # (currently cadmium).
+  den.aspects.modern-coreutils-replacements-system.nixos = {pkgs, ...}: {
+    environment.systemPackages = with pkgs; [
+      fd # find
+      procs # ps
+      sd # sed
+      dust # du
+    ];
+  };
+
   den.aspects.modern-coreutils-replacements.homeManager = {
     pkgs,
     osConfig ? null,

@@ -1,0 +1,97 @@
+# qutebrowser — keyboard-driven browser with my settings, search engines and
+# the 1password userscript (qutebrowser-1password.sh beside this file).
+# Converted from nix/modules/home/qutebrowser/.
+_: {
+  den.aspects.qutebrowser.homeManager = {
+    pkgs,
+    perSystem,
+    ...
+  }: let
+    inherit (pkgs) lib;
+  in {
+    programs.qutebrowser = {
+      enable = true;
+      package = perSystem.giopkgs.qutebrowser;
+
+      settings = {
+        # Dark mode by default
+        colors.webpage.preferred_color_scheme = "dark";
+
+        fonts.default_size = "14pt";
+        hints = {
+          mode = "letter";
+          # padding = mkPadding 3 3 3 3;
+          scatter = true;
+          uppercase = false;
+        };
+        tabs = {
+          # padding = mkPadding 1 5 5 1;
+          position = "left";
+          show = "always";
+        };
+
+        # Edit text with Neovim inside Wezterm
+        editor.command = ["wezterm" "start" "--always-new-process" "--" "nvim" "-c" "normal {line}G{column0}l" "{file}"];
+
+        # Set the default session name
+        session.default_name = "default";
+      };
+
+      # The home manager module can't handle dicts well
+      extraConfig = ''
+        config.set("content.javascript.log_message.excludes", {
+          # REMIND-ME-TO: Remove JS log message exclusion workaround issue_closed=github:qutebrowser/qutebrowser#7557
+          'userscript:_qute_js': [
+            "Uncaught InvalidStateError: Failed to set the 'selectionStart' property on 'HTMLInputElement': The input element's type ('email') does not support selection."
+          ]
+        })
+      '';
+
+      aliases = {
+        "1password" = "spawn --userscript 1password";
+      };
+
+      keyBindings = {
+        normal = {
+          "I" = "hint inputs --first";
+          "xx" = "config-cycle tabs.show always switching";
+        };
+      };
+
+      searchEngines = {
+        DEFAULT = "https://duckduckgo.com/?q={}";
+
+        # Nix stuff
+        nix-home-manager = "https://home-manager-options.extranix.com/?query={}&release=master";
+        nix-options = "https://search.nixos.org/options?channel=unstable&type=packages&query={}";
+        nix-packages = "https://search.nixos.org/packages?channel=unstable&type=packages&query={}";
+        noogle = "https://noogle.dev/q?term={}";
+        nixpkgs = "https://github.com/search?q=repo%3ANixOS%2Fnixpkgs%20{}&type=code";
+      };
+
+      quickmarks = {
+        # AWS Console Pages
+        "aws ecs" = "https://us-east-1.console.aws.amazon.com/ecs/v2/clusters?region=us-east-1";
+        "aws ecr registry" = "https://us-east-1.console.aws.amazon.com/ecr/private-registry/repositories?region=us-east-1";
+        "aws rds database" = "https://us-east-1.console.aws.amazon.com/rds/home?region=us-east-1#databases:";
+        "aws elasticache redis" = "https://us-east-1.console.aws.amazon.com/elasticache/home?region=us-east-1#/redis";
+        "aws secrets manager" = "https://us-east-1.console.aws.amazon.com/secretsmanager/listsecrets?region=us-east-1";
+      };
+    };
+
+    # Setup some userscripts
+    xdg.configFile."qutebrowser/userscripts/1password".source = lib.getExe (pkgs.writeShellApplication {
+      name = "qutebrowser-1password";
+      runtimeInputs = with pkgs; [python3 jq];
+      excludeShellChecks = ["SC2129"];
+      text = ./qutebrowser-1password.sh;
+    });
+
+    # Install some dependencies for userscripts
+    home.packages = with pkgs; [
+      # For qute-bitwarden
+      keyutils # To manipulate clipboard
+      wofi # For fuzzy selection
+    ];
+  };
+}

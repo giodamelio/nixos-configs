@@ -1,0 +1,62 @@
+# pi — the pi/omp LLM agents wrapped in a bubblewrap jail (jail.nix), with
+# -dangerous escape hatches. Converted from nix/modules/home/pi.nix. The jail
+# combinator library is a plain file import shared with Blueprint.
+{inputs, ...}: {
+  den.aspects.pi.homeManager = {
+    lib,
+    pkgs,
+    perSystem,
+    ...
+  }: let
+    jail = import ../../../nix/lib/jail-combinators.nix {inherit pkgs inputs;};
+    inherit (perSystem.llm-agents) pi omp;
+    # inherit (perSystem.giopkgs) omp;
+
+    commonPermissions = c:
+      with c; [
+        # NixOS essentials
+        network
+        (readwrite "/nix")
+        (try-readonly "/run")
+        (try-readonly "/etc/static")
+        (try-readonly "/etc/profiles")
+        overlay-home
+        work-in-cwd
+        (rw-paths-from-file ".sandbox-paths")
+
+        # Shared ro paths
+        (try-readonly "/etc/nix")
+        (try-readonly "/usr/bin/env")
+        (try-readonly (noescape "~/.gitconfig"))
+        (try-readonly (noescape "~/.config/git"))
+        (try-readonly (noescape "~/.config/jj"))
+        (try-readonly (noescape "~/.config/nix"))
+        (try-readonly (noescape "~/projects/giodamelio/pi-stuff"))
+        (try-readonly (noescape "~/projects/giodamelio/agent-skills"))
+        (try-readonly (noescape "~/projects/nixos-configs"))
+
+        # Shared rw paths
+        (try-readwrite (noescape "~/Documents/life/Projects/"))
+        (try-readwrite (noescape "~/.omp"))
+        (try-readwrite (noescape "~/.config/omp"))
+
+        # Environment
+        (unset-env "ANTHROPIC_API_KEY")
+      ];
+
+    jailedPi = jail "jailed-pi" pi commonPermissions;
+    jailedOmp = jail "jailed-omp" omp commonPermissions;
+  in {
+    home.packages = [
+      jailedPi
+      jailedOmp
+    ];
+
+    home.shellAliases = {
+      pi = lib.getExe jailedPi;
+      pi-dangerous = lib.getExe pi;
+      omp = lib.getExe jailedOmp;
+      omp-dangerous = lib.getExe omp;
+    };
+  };
+}

@@ -3,20 +3,39 @@
 # a cesium.nixos contribution).
 #
 # Wiring (the simple rule): the host includes the NixOS feature aspects; the
-# giodamelio user includes the Home-Manager feature aspects. The two folded
-# dual-class aspects (niri, kde-connect) go on the user — den applies their
-# `.nixos` half to the host automatically ("users shape their host").
+# giodamelio user includes the Home-Manager feature aspects. The shared user
+# baseline lives in modules/users/giodamelio.nix; only cesium-specific user
+# bits (primary-user/networkmanager, audio group, zed-editor, kde-connect) are
+# attached here, on this host's user entity. Folded dual-class aspects
+# (niri, kde-connect) attach to the user — den applies their `.nixos` half to
+# the host automatically ("users shape their host").
 #
 # Dropped vs Blueprint: nix/hosts/cesium/remote-wayland-cadmium.nix (the
 # waypipe-to-cadmium second-niri session) is intentionally not ported.
-{den, ...}: let
-  homelab = builtins.fromTOML (builtins.readFile ../../../homelab.toml);
-in {
+{den, ...}: {
   # Declare the host (platform from the attr path) with its user and machine
   # role. The aspects named `cesium` and `giodamelio` attach by convention.
   den.hosts.x86_64-linux.cesium = {
     role = "desktop";
-    users.giodamelio = {};
+    # Per-host user wiring goes through the entity's `aspect` option (its
+    # default is the bare den.aspects.giodamelio lookup; extra keys on the
+    # entity itself are ignored freeform attrs), so the shared baseline must be
+    # included explicitly here.
+    users.giodamelio.aspect.includes = [
+      # Shared baseline (modules/users/giodamelio.nix).
+      den.aspects.giodamelio
+
+      den.batteries.primary-user # wheel + networkmanager
+
+      # Account details beyond the shared baseline.
+      {user.extraGroups = ["audio"];} # merges with wheel+networkmanager from primary-user
+
+      # cesium-only Home-Manager features.
+      den.aspects.zed-editor
+
+      # Folded dual-class: HM half here, NixOS half forwarded to the host.
+      den.aspects.kde-connect
+    ];
   };
 
   # ---- Host: NixOS feature aspects ----
@@ -99,65 +118,10 @@ in {
 
     nixpkgs.config.allowUnfree = true;
 
-    # TODO: Revisit the host + user stateVersions (system 26.05, HM 24.11 below)
-    # once the den migration has soaked — bump deliberately after confirming no
-    # stateful service/data migrations are needed.
+    # TODO: Revisit the host + user stateVersions (system 26.05, HM 24.11 in
+    # modules/users/giodamelio.nix) once the den migration has soaked — bump
+    # deliberately after confirming no stateful service/data migrations are
+    # needed.
     system.stateVersion = "26.05";
-  };
-
-  # ---- User: Home-Manager feature aspects + the folded dual-class aspects ----
-  den.aspects.giodamelio = {
-    includes = [
-      # User account at OS + Home level. nix-activate/shpool/zmx come from
-      # den.default, so they are not listed here.
-      den.batteries.define-user
-      den.batteries.primary-user # wheel + networkmanager
-      (den.batteries.user-shell "zsh")
-
-      # Home-Manager features.
-      den.aspects.lil-scripts
-      den.aspects.modern-coreutils-replacements
-      den.aspects.git
-      den.aspects.neovim
-      den.aspects.zellij
-      den.aspects.starship
-      den.aspects.zsh
-      den.aspects.nushell
-      den.aspects.nix-index
-      den.aspects.atuind
-      den.aspects.claude-code
-      den.aspects.jj
-      den.aspects.wezterm
-      den.aspects.zed-editor
-
-      # Folded dual-class: HM half here, NixOS half forwarded to the host.
-      den.aspects.niri
-      den.aspects.kde-connect
-    ];
-
-    # Account details beyond what define-user/primary-user/user-shell provide.
-    # Uses den's `user` class (forwarded to users.users.giodamelio by the
-    # os-user battery), so the aspect never names users.users.<name> directly.
-    user = {
-      extraGroups = ["audio"]; # merges with wheel+networkmanager from primary-user
-      openssh.authorizedKeys.keys = homelab.ssh_keys;
-    };
-
-    homeManager = {
-      # TODO: HM stateVersion is still 24.11 (carried over from Blueprint).
-      # Update later, deliberately, once the den-migrated cesium has soaked.
-      home.stateVersion = "24.11";
-
-      programs.home-manager.enable = true;
-
-      # Configure Claude Code
-      programs.gio-claude-code = {
-        enable = true;
-        installPackage = true;
-      };
-
-      # Configure nix-activate for NixOS
-      gio.nix-activate-config.activation = {system = "nixos";};
-    };
   };
 }

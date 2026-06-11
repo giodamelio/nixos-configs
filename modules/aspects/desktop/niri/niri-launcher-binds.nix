@@ -32,44 +32,5 @@
 #   };
 # };
 _: {
-  den.aspects.niri-launcher-binds.homeManager = {
-    config,
-    lib,
-    ...
-  }: let
-    cfg = config.gio.niri.binds;
-  in {
-    options.gio.niri.binds = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.submodule {
-        options = {
-          action = lib.mkOption {
-            type = lib.types.anything;
-            description = "The Niri action. An attrset with exactly one key (the action name) and its value being the args.";
-          };
-
-          label = lib.mkOption {
-            type = lib.types.nullOr lib.types.str;
-            default = null;
-            description = "When non-null, a desktop entry is generated with this as the visible name in the launcher.";
-          };
-
-          icon = lib.mkOption {
-            type = lib.types.nullOr lib.types.str;
-            default = null;
-            description = "XDG icon name for the desktop entry. Only used when label is non-null.";
-          };
-        };
-      });
-      default = {};
-      description = "Niri keybinds with optional launcher labels.";
-    };
-
-    config = lib.mkIf (cfg != {}) {
-      programs.niri.settings.binds =
-        lib.mapAttrs (_key: entry: {
-          inherit (entry) action;
-        })
-        cfg;
-    };
-  };
+  den.aspects.niri-launcher-binds.homeManager = import ./_niri-launcher-binds.nix;
 }
