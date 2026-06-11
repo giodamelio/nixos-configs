@@ -1,0 +1,237 @@
+local io = require('io')
+local os = require('os')
+
+local wezterm = require('wezterm')
+local action = wezterm.action
+local smart_splits = wezterm.plugin.require('https://github.com/mrjones2014/smart-splits.nvim')
+
+local config = wezterm.config_builder()
+
+-- Color Scheme
+config.color_scheme = 'Molokai'
+
+-- Font Setup
+config.font = wezterm.font_with_fallback({
+  'JetBrainsMono Nerd Font Mono',
+  -- "Inconsolata Nerd Font",
+  'Symbols Nerd Font Mono',
+  'Noto Sans Mono',
+  'Noto Sans Symbols',
+  'Noto Sans Symbols 2',
+})
+config.font_size = 12.0
+config.harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' } -- Disable ligature
+
+config.hide_tab_bar_if_only_one_tab = false
+config.use_fancy_tab_bar = true
+
+-- REMIND-ME-TO: Add hyperlink highlighting support issue_closed=github:wezterm/wezterm#4077
+config.hyperlink_rules = wezterm.default_hyperlink_rules()
+
+-- Click on directory/file paths to cd or open in vim
+table.insert(config.hyperlink_rules, {
+  regex = [[(?:[.~]?/|(?<!\w)/)[^\s"'`<>|:]+]],
+  format = 'wezterm-path://$0',
+})
+
+-- Click on omp --resume commands to run them
+table.insert(config.hyperlink_rules, {
+  regex = [[omp --resume [0-9a-f]+]],
+  format = 'wezterm-omp://$0',
+})
+
+-- Click on claude --resume commands to run them
+table.insert(config.hyperlink_rules, {
+  regex = [[claude --resume (?:[0-9a-f-]+|".+?")]],
+  format = 'wezterm-claude://$0',
+})
+
+-- Minimize padding
+config.window_padding = {
+  left = 0,
+  right = 0,
+  top = 0,
+  bottom = 0,
+}
+
+-- Show scroll bar
+config.enable_scroll_bar = true
+
+-- Keep more scrollback lines
+config.scrollback_lines = 6000
+
+-- REMIND-ME-TO: Re-enable kitty keyboard protocol pr_released=github:wezterm/wezterm#6872
+-- Bug #6872 causes escape key release events to leak as literal text in applications like OMP.
+config.enable_kitty_keyboard = false
+
+-- Key Bindings
+config.keys = {
+  { key = 'l', mods = 'ALT', action = wezterm.action.ShowLauncher },
+  {
+    key = 'E',
+    mods = 'CTRL',
+    action = action.EmitEvent('trigger-vim-with-scrollback'),
+  },
+}
+
+-- Make Mouse scrolling smaller then a page
+config.mouse_bindings = {
+  {
+    event = { Down = { streak = 1, button = { WheelUp = 1 } } },
+    mods = 'NONE',
+    action = action.ScrollByLine(-3),
+  },
+  {
+    event = { Down = { streak = 1, button = { WheelDown = 1 } } },
+    mods = 'NONE',
+    action = action.ScrollByLine(3),
+  },
+}
+
+-- Windows only settings
+if wezterm.target_triple == 'x86_64-pc-windows-msvc' then
+  -- Load NixOS WSL2 by default
+  config.default_domain = 'WSL:NixOS'
+end
+
+smart_splits.apply_to_config(config, {
+  direction_keys = { 'h', 'j', 'k', 'l' },
+  modifiers = {
+    move = 'CTRL',
+    resize = 'META',
+  },
+})
+
+-- Allow opening the whole scrollback in vim
+wezterm.on('trigger-vim-with-scrollback', function(window, pane)
+  -- Retrieve the text from the pane
+  local text = pane:get_lines_as_text(pane:get_dimensions().scrollback_rows)
+
+  -- Create a temporary file to pass to vim
+  local name = os.tmpname()
+  local f = io.open(name, 'w+')
+  if f then
+    f:write(text)
+    f:flush()
+    f:close()
+  end
+
+  -- Open a new window running vim and tell it to open the file
+  window:perform_action(
+    action.SpawnCommandInNewWindow({
+      args = { 'vim', name },
+    }),
+    pane
+  )
+
+  -- Wait "enough" time for vim to read the file before we remove it.
+  -- The window creation and process spawn are asynchronous wrt. running
+  -- this script and are not awaitable, so we just pick a number.
+  --
+  -- Note: We don't strictly need to remove this file, but it is nice
+  -- to avoid cluttering up the temporary directory.
+  wezterm.sleep_ms(1000)
+  os.remove(name)
+end)
+
+-- Write the current pane's working directory to /tmp
+local last_cwd = nil
+local function write_cwd(pane)
+  local cwd = pane:get_current_working_dir()
+  if cwd and cwd.file_path and cwd.file_path ~= last_cwd then
+    last_cwd = cwd.file_path
+    local f = io.open('/tmp/wezterm-cwd', 'w')
+    if f then
+      f:write(cwd.file_path)
+      f:close()
+    end
+  end
+end
+
+wezterm.on('pane-focus-changed', function(_window, pane)
+  write_cwd(pane)
+end)
+
+wezterm.on('window-focus-changed', function(window, pane)
+  if window:is_focused() then
+    write_cwd(pane)
+
+    -- Workaround for wezterm clipboard paste bug on non-wlroots compositors (niri)
+    -- Re-offer clipboard data so native paste works
+    -- https://github.com/wezterm/wezterm/issues/7577
+    -- REMIND-ME-TO: Remove clipboard paste workaround date_passed=2026-10-28
+    wezterm.run_child_process({ 'sh', '-c', 'wl-paste -n | wl-copy' })
+  else
+    os.remove('/tmp/wezterm-cwd')
+    last_cwd = nil
+  end
+end)
+
+-- Handle click-to-cd/open for paths
+wezterm.on('open-uri', function(window, pane, uri)
+  -- Handle omp --resume commands
+  local omp_prefix = 'wezterm-omp://'
+  if uri:sub(1, #omp_prefix) == omp_prefix then
+    local cmd = uri:sub(#omp_prefix + 1)
+    wezterm.log_info('omp-resume: ' .. cmd)
+    pane:send_text(cmd .. '\n')
+    return false
+  end
+
+  -- Handle claude --resume commands
+  local claude_prefix = 'wezterm-claude://'
+  if uri:sub(1, #claude_prefix) == claude_prefix then
+    local cmd = uri:sub(#claude_prefix + 1)
+    wezterm.log_info('claude-resume: ' .. cmd)
+    pane:send_text(cmd .. '\n')
+    return false
+  end
+
+  -- Handle path clicks
+  local path_prefix = 'wezterm-path://'
+  if uri:sub(1, #path_prefix) == path_prefix then
+    local path = uri:sub(#path_prefix + 1)
+    wezterm.log_info('click-path: ' .. path)
+
+    -- Expand ~ and prepend cwd for relative paths
+    local expanded = path
+    if expanded:match('^~') then
+      expanded = expanded:gsub('^~', os.getenv('HOME') or '')
+    elseif not expanded:match('^/') then
+      local cwd_url = pane:get_current_working_dir()
+      if cwd_url then
+        expanded = cwd_url.file_path .. '/' .. expanded
+      end
+    end
+
+    -- Use realpath to normalize path and verify existence
+    local success, stdout, _ = wezterm.run_child_process({ 'realpath', '-e', expanded })
+
+    if success then
+      local normalized = stdout:gsub('\n$', '')
+      -- read_dir succeeds only for directories
+      local dir_ok, _ = pcall(wezterm.read_dir, normalized)
+      if dir_ok then
+        pane:send_text(wezterm.shell_join_args({ 'cd', normalized }) .. '\n')
+      else
+        -- It's a file - check if binary using file command
+        local mime_success, mime_out, _ = wezterm.run_child_process({ 'file', '--mime-encoding', '-b', normalized })
+        local is_binary = not mime_success or mime_out:match('binary')
+
+        if is_binary then
+          local _, type_out, _ = wezterm.run_child_process({ 'file', '-b', normalized })
+          local file_type = type_out:gsub('\n$', '')
+          window:toast_notification('WezTerm', file_type .. ': ' .. path, nil, 4000)
+        else
+          pane:send_text(wezterm.shell_join_args({ 'vim', normalized }) .. '\n')
+        end
+      end
+    else
+      window:toast_notification('WezTerm', 'Path does not exist: ' .. path, nil, 4000)
+    end
+
+    return false
+  end
+end)
+
+return config

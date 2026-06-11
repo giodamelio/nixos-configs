@@ -1,0 +1,103 @@
+# noctalia — the Noctalia shell (bar/launcher/control-center) with my plugin set
+# and screen-toolkit deps; wires niri keybinds/startup when niri is enabled.
+# Converted from nix/modules/home/noctalia.nix.
+#   - external noctalia input module imported via the file-scope `inputs` closure.
+#   - `flake.packages.<sys>.noctalia-claude-usage` -> `perSystem.self`.
+{inputs, ...}: {
+  den.aspects.noctalia.homeManager = {
+    config,
+    lib,
+    pkgs,
+    perSystem,
+    ...
+  }: let
+    claude-usage-plugin = perSystem.self.noctalia-claude-usage;
+  in {
+    imports = [inputs.noctalia.homeModules.default];
+
+    programs.noctalia-shell = {
+      enable = true;
+
+      plugins = {
+        version = 2;
+        sources = [
+          {
+            enabled = true;
+            name = "Noctalia Plugins";
+            url = "https://github.com/noctalia-dev/noctalia-plugins";
+          }
+        ];
+        states = {
+          claude-usage = {
+            enabled = true;
+            sourceUrl = "";
+          };
+          network-indicator = {
+            enabled = true;
+            sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
+          };
+          screen-toolkit = {
+            enabled = true;
+            sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
+          };
+        };
+      };
+    };
+
+    # screen-toolkit dependencies (required + optional)
+    home.packages = with pkgs; [
+      grim # screenshot capture
+      slurp # region selection
+      wl-clipboard # clipboard integration
+      tesseract # OCR text extraction
+      imagemagick # image processing
+      zbar # QR/barcode scanning
+      curl # Google Lens reverse image search
+      ffmpeg # video encoding
+      jq # JSON parsing
+      wl-screenrec # screen recording
+      translate-shell # OCR translation
+      gifski # high-quality GIF encoding
+    ];
+
+    # Symlink the plugin into noctalia's plugin directory
+    home.file.".config/noctalia/plugins/claude-usage".source = claude-usage-plugin;
+
+    # Clear Noctalia QML cache when the plugin changes so Qt picks up new code
+    home.activation.clearNoctaliaQmlCache = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      if [ ! -f "$HOME/.cache/noctalia-qs/.claude-usage-store-path" ] || \
+         [ "$(cat "$HOME/.cache/noctalia-qs/.claude-usage-store-path" 2>/dev/null)" != "${claude-usage-plugin}" ]; then
+        find "$HOME/.cache/noctalia-qs/qmlcache" -type f -delete 2>/dev/null || true
+        mkdir -p "$HOME/.cache/noctalia-qs"
+        echo "${claude-usage-plugin}" > "$HOME/.cache/noctalia-qs/.claude-usage-store-path"
+      fi
+    '';
+
+    # When niri is enabled, add noctalia keybindings and spawn the shell at startup
+    programs.niri.settings = lib.mkIf (config.programs ? niri) {
+      spawn-at-startup = [
+        {argv = ["noctalia-shell"];}
+      ];
+    };
+
+    gio.niri.binds = lib.mkIf (config.programs ? niri) {
+      # Noctalia launcher
+      "Mod+Space".action.spawn = ["noctalia-shell" "ipc" "call" "launcher" "toggle"];
+
+      # Noctalia control center
+      "Mod+S".action.spawn = ["noctalia-shell" "ipc" "call" "controlCenter" "toggle"];
+
+      # Media controls (Noctalia OSD)
+      "XF86AudioRaiseVolume".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "increase"];
+      "XF86AudioLowerVolume".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "decrease"];
+      "XF86AudioMute".action.spawn = ["noctalia-shell" "ipc" "call" "volume" "muteOutput"];
+
+      # Clipboard
+      "Mod+Shift+V".action.spawn = ["noctalia-shell" "ipc" "call" "launcher" "clipboard"];
+
+      # Screen Brightness
+      "XF86MonBrightnessUp".action.spawn = ["noctalia-shell" "ipc" "call" "brightness" "increase"];
+      "XF86MonBrightnessDown".action.spawn = ["noctalia-shell" "ipc" "call" "brightness" "decrease"];
+    };
+  };
+}
