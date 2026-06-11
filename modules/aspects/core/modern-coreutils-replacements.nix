@@ -23,11 +23,6 @@ _: {
         du = "dust";
         ps = pkgs.lib.getExe pkgs.procs;
         fdg = "fd --glob";
-
-        # Claude Code
-        cc = "claude";
-        ccr = "claude --resume";
-        ccc = "claude --continue";
       }
       // lib.optionalAttrs hasZedEditor {
         zed = "zeditor";
