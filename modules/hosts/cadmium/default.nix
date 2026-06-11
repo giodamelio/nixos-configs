@@ -101,7 +101,7 @@ in {
     den.aspects.modern-coreutils-replacements-system
     den.aspects.monitoring
     den.aspects.printing
-    den.aspects.photo-editing
+    den.aspects.affinity
     den.aspects.signal
     den.aspects.zfs-backup
 
