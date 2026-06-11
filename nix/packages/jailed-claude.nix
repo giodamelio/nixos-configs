@@ -42,6 +42,7 @@ in
 
       # Environment
       (unset-env "ANTHROPIC_API_KEY")
+      (set-env "HERDR_SOCKET_PATH" "/run/user/1000/herdr-proxy.sock")
 
       # Pass --dangerously-skip-permissions before user args
       (extra-args ["--dangerously-skip-permissions"])

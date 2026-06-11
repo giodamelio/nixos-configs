@@ -49,6 +49,7 @@ in {
       den.aspects.slack
       den.aspects.rss
       den.aspects.codex
+      den.aspects.herdr
 
       # Folded dual-class: HM half here, NixOS half forwarded to the host.
       den.aspects.optnix
