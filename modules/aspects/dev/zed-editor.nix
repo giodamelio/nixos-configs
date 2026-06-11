@@ -1,6 +1,4 @@
-# zed-editor — Zed with the jailed-claude ACP agent. Converted from
-# nix/modules/home/zed-editor.nix; the repo's own package is reached as
-# `perSystem.self`.
+# zed-editor — Zed with the jailed-claude ACP agent.
 _: {
   den.aspects.zed-editor.homeManager = {
     perSystem,
@@ -9,6 +7,9 @@ _: {
   }: let
     jailedClaude = perSystem.self.jailed-claude;
   in {
+    # Zed's CLI binary is named zeditor
+    home.shellAliases.zed = "zeditor";
+
     programs.zed-editor = {
       enable = true;
       installRemoteServer = true;

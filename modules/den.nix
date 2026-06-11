@@ -46,6 +46,9 @@
     den.aspects.basic-packages
     den.aspects.basic-settings
 
+    # Dual-class: CLIs on every system; overriding aliases only for HM users.
+    den.aspects.modern-coreutils-replacements
+
     # Always-on Home-Manager base for every user (the old `home-required`
     # bundle, now a default). nix-activate is wanted by every user; shpool/zmx
     # gate themselves on host.role, so they are inert on desktops. These are

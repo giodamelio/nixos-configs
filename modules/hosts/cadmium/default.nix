@@ -98,7 +98,6 @@ in {
     den.aspects.code-editing-ai
     den.aspects.ollama
 
-    den.aspects.modern-coreutils-replacements-system
     den.aspects.monitoring
     den.aspects.printing
     den.aspects.affinity

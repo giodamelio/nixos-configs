@@ -18,9 +18,9 @@ in {
       den.batteries.define-user
       (den.batteries.user-shell "zsh")
 
-      # Home-Manager features.
+      # Home-Manager features. modern-coreutils-replacements comes from
+      # den.default, so it is not listed here.
       den.aspects.lil-scripts
-      den.aspects.modern-coreutils-replacements
       den.aspects.git
       den.aspects.neovim
       den.aspects.zellij
