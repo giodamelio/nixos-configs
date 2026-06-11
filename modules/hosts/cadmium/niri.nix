@@ -75,7 +75,38 @@
         "1" = {open-on-output = monitor-names.middle;};
         "2" = {open-on-output = monitor-names.right;};
         "3" = {open-on-output = monitor-names.left;};
+        # Sorts after "1", so the empty workspace "1" stays in front on the middle monitor
+        "background" = {open-on-output = monitor-names.middle;};
       };
+
+      spawn-at-startup = [
+        {argv = ["thunderbird"];}
+        {argv = ["spotify"];}
+        {argv = ["io.gitlab.news_flash.NewsFlash"];}
+      ];
+
+      # Send the background apps to their workspace without stealing focus
+      window-rules = [
+        {
+          matches = [
+            {
+              app-id = "thunderbird";
+              at-startup = true;
+            }
+            {
+              app-id = "spotify";
+              at-startup = true;
+            }
+            {
+              app-id = "io.gitlab.news_flash.NewsFlash";
+              at-startup = true;
+            }
+          ];
+          open-on-workspace = "background";
+          open-focused = false;
+          default-column-width.proportion = 1.0;
+        }
+      ];
     };
   };
 }
