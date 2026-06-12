@@ -72,4 +72,9 @@
 
   # Only enabled secrets contribute anything.
   enabledSecrets = secrets: lib.filterAttrs (_name: secret: secret.enable) secrets;
+
+  # A secret produces its own value (vs. manual paste) when it has an enabled
+  # generator with a script. Used by both validation and the provision unit.
+  generatorActive = secret:
+    secret.generator != null && secret.generator.enable && secret.generator.script != null;
 }

@@ -135,8 +135,19 @@
       [])
   ];
 in {
-  perSystem = {pkgs, ...}: {
+  perSystem = {
+    pkgs,
+    config,
+    lib,
+    ...
+  }: {
     checks.fleet-secrets-lib = assert builtins.all (x: x) cases;
       pkgs.runCommand "fleet-secrets-lib" {} "echo ok > $out";
+
+    # Two-VM end-to-end test of the aspect's generated units.
+    checks.fleet-secrets-vm = pkgs.testers.runNixOSTest (import ./_test.nix {
+      inherit pkgs lib;
+      credsync = config.packages.credsync;
+    });
   };
 }
