@@ -9,7 +9,6 @@
   inherit (flake.lib.homelab.machines.cadmium) monitor-names;
   inherit (flake.packages.${pkgs.stdenv.hostPlatform.system}) sway-smart-terminal;
   modifier = "Mod4";
-  flameshotModified = pkgs.flameshot.override {enableWlrSupport = true;};
 in {
   imports = [
     flake.homeModules.vicinae
@@ -19,7 +18,6 @@ in {
     libnotify # For sending notifications
 
     # Setup good screenshots
-    flameshotModified # For nice screenshots
     grim # Required backend for Wayland screenshots
     slurp # For area selection (optional but recommended)
     wl-clipboard # For clipboard functionality
@@ -50,10 +48,6 @@ in {
   wayland.windowManager.sway = {
     enable = true;
     xwayland = true;
-
-    extraConfigEarly = ''
-      for_window [app_id="flameshot" title="flameshot"] border pixel 0, floating enable, fullscreen disable, move absolute position 0 0
-    '';
 
     config = {
       # Use the Windows/Apple key as our main modifier
@@ -155,13 +149,6 @@ in {
           "XF86Launch6" = "${playerctlCmd} previous";
           "XF86Launch7" = "${playerctlCmd} play-pause";
           "XF86Launch8" = "${playerctlCmd} next";
-
-          # Screenshots
-          "Print" = "exec flameshot gui";
-          "Shift+Print" = "exec flameshot gui --clipboard";
-          "${modifier}+Print" = "exec flameshot full --clipboard";
-          "${modifier}+Shift+Print" = "exec flameshot full --path ~/Pictures/Screenshots/";
-          "${modifier}+ctrl+Print" = "exec flameshot gui --delay 3000";
 
           # Voice to text
           "${modifier}+alt+space" = "exec ${lib.getExe' pkgs.procps "pkill"} -USR2 -n handy";
@@ -286,34 +273,6 @@ in {
       xdg-desktop-portal-gtk
     ];
   };
-
-  # Setup Flameshot for screenshots
-  services.flameshot = {
-    enable = true;
-    package = flameshotModified;
-    settings = {
-      General = {
-        # Basic settings
-        showStartupLaunchMessage = false;
-        savePath = "${config.home.homeDirectory}/Pictures/Screenshots";
-        savePathFixed = true;
-
-        # UI settings
-        drawColor = "#ff0000";
-        drawThickness = 2;
-
-        # Wayland specific (if needed)
-        useJpgForClipboard = false;
-        disabledGrimWarning = true;
-      };
-    };
-  };
-  # Override a few env vars
-  systemd.user.services.flameshot.Service.Environment = [
-    "QT_FONT_DPI=250"
-    "QT_ENABLE_HIGHDPI_SCALING=0.5"
-    "QT_AUTO_SCREEN_SCALE_FACTOR=0"
-  ];
 
   programs.swayr = {
     enable = true;
