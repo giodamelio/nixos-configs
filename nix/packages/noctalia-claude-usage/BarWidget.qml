@@ -46,12 +46,31 @@ Item {
     return Color.mPrimary;
   }
 
-  // Format a future date as "in Xh Ym"
+  // Format a duration in long form, e.g. "3 hours 20 minutes".
+  // No built-in for this: Qt's V4 engine ships no Intl.RelativeTimeFormat,
+  // and Noctalia's Time helper only emits the compact "3h 20m" form.
+  function formatLongDuration(totalSeconds) {
+    totalSeconds = Math.floor(totalSeconds);
+    var days = Math.floor(totalSeconds / 86400);
+    var hours = Math.floor((totalSeconds % 86400) / 3600);
+    var minutes = Math.floor((totalSeconds % 3600) / 60);
+
+    var parts = [];
+    if (days) parts.push(days + (days === 1 ? " day" : " days"));
+    if (hours) parts.push(hours + (hours === 1 ? " hour" : " hours"));
+    if (minutes) parts.push(minutes + (minutes === 1 ? " minute" : " minutes"));
+
+    if (parts.length === 0) return "less than a minute";
+    return parts.join(" ");
+  }
+
+  // Format a future date as "4:10pm (in 3 hours 20 minutes)"
   function formatTimeUntil(date) {
     if (!date) return "";
+    var clock = Qt.formatTime(date, "h:mmap");
     var seconds = Math.floor((date - Time.now) / 1000);
-    if (seconds <= 0) return "now";
-    return "in " + Time.formatVagueHumanReadableDuration(seconds);
+    if (seconds <= 0) return clock + " (now)";
+    return clock + " (in " + formatLongDuration(seconds) + ")";
   }
 
   // Read credentials from Claude Code
