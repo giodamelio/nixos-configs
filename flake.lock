@@ -1807,6 +1807,23 @@
         "type": "github"
       }
     },
+    "herdr": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1781297446,
+        "narHash": "sha256-5sdElBCppMGjLwv3NlMf7QCiv+Z0JynFw6iIcezoUGY=",
+        "owner": "giodamelio",
+        "repo": "herdr",
+        "rev": "796d525f3ea11134fd6c4d13019ae56dff982d06",
+        "type": "github"
+      },
+      "original": {
+        "owner": "giodamelio",
+        "ref": "jj-workspace-migration",
+        "repo": "herdr",
+        "type": "github"
+      }
+    },
     "hls-1.10": {
       "flake": false,
       "locked": {
@@ -3958,6 +3975,7 @@
         "giopkgs": "giopkgs",
         "gradient": "gradient",
         "handy": "handy",
+        "herdr": "herdr",
         "home-manager": "home-manager_2",
         "import-tree": "import-tree_2",
         "jail-nix": "jail-nix",

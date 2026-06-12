@@ -177,5 +177,10 @@
 
     # den: aspect-oriented config framework we are incrementally migrating to
     den.url = "github:denful/den";
+
+    # Personal fork of herdr — carries the bwrap agent-detection patch upstream,
+    # so we override llm-agents' herdr src with this instead of patching.
+    herdr.url = "github:giodamelio/herdr/jj-workspace-migration";
+    herdr.flake = false;
   };
 }
