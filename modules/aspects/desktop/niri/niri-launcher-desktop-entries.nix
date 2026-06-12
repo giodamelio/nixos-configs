@@ -7,6 +7,7 @@ _: {
   den.aspects.niri-launcher-desktop-entries.homeManager = {
     config,
     lib,
+    pkgs,
     ...
   }: let
     cfg = config.gio.niri.binds;
@@ -26,13 +27,19 @@ _: {
     escapeExecArg = s:
       builtins.replaceStrings ["%"] ["%%"] (toString s);
 
-    # Build the exec string from an action attrset
-    buildExec = action: let
+    # Build the exec string from an action attrset. `id` is the sanitized
+    # desktop-entry ID, used to name any generated helper script.
+    buildExec = id: action: let
       actionName = builtins.head (builtins.attrNames action);
       actionArgs = action.${actionName};
       argType = builtins.typeOf actionArgs;
     in
-      if argType == "set" && actionArgs == {}
+      # spawn-sh carries a full shell pipeline (pipes, $(), quotes, % codes)
+      # that can't be expressed as a .desktop Exec line. Render it to a script
+      # and point Exec at the bare store path — zero quoting hazard.
+      if actionName == "spawn-sh"
+      then "${pkgs.writeShellScript id actionArgs}"
+      else if argType == "set" && actionArgs == {}
       then "${niri} msg action ${actionName}"
       else if argType == "set"
       then builtins.trace "niri-launcher-binds: named attrset args not supported for action ${actionName}, using placeholder" "true"
@@ -56,7 +63,7 @@ _: {
           value =
             {
               name = "Niri: ${entry.label}";
-              exec = buildExec entry.action;
+              exec = buildExec (sanitizeId key) entry.action;
               terminal = false;
               categories = ["Utility"];
               noDisplay = false;
