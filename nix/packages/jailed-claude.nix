@@ -40,9 +40,16 @@ in
       work-in-cwd
       (rw-paths-from-file ".sandbox-paths")
 
+      # Drop --new-session: setsid() detaches from the controlling terminal so
+      # the kernel never delivers SIGWINCH and claude renders at a stale width.
+      # The flag only guards TIOCSTI input injection, already blocked by the
+      # kernel (dev.tty.legacy_tiocsti = 0 on 6.2+).
+      no-new-session
+
       # Environment
       (unset-env "ANTHROPIC_API_KEY")
       (set-env "HERDR_SOCKET_PATH" "/run/user/1000/herdr-proxy.sock")
+      (set-env "CLAUDE_CODE_NO_FLICKER" "1")
 
       # Pass --dangerously-skip-permissions before user args
       (extra-args ["--dangerously-skip-permissions"])
