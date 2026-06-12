@@ -72,6 +72,10 @@
         assert "updated" in out, f"expected 'updated', got: {out}"
         got = target.succeed(f"systemd-creds decrypt --name=api-token {cred} -")
         assert got == "secret1", f"target decrypted to {got!r}"
+        # credsync encrypts nameless, so the blob loads under any credential ID
+        # (this is what makes LoadCredentialEncrypted= renames/double-loads work).
+        aliased = target.succeed(f"systemd-creds decrypt --name=some-other-id {cred} -")
+        assert aliased == "secret1", f"nameless blob failed to load under alias: {aliased!r}"
 
     with subtest("second push is a no-op"):
         before = cred_stat()

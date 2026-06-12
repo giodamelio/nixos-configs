@@ -23,6 +23,12 @@ def creds-args [] {
     $env.CREDSYNC_CREDS_ARGS? | default "" | split row " " | where ($it | is-not-empty)
 }
 
+# Prefix of the per-credential systemd target signalled on change. Defaults to
+# "secret" so the unit is "secret-<name>.target" (fleet.secrets convention).
+def target-prefix [] {
+    $env.CREDSYNC_TARGET_PREFIX? | default "secret"
+}
+
 # Credential names end up in paths and systemd unit names; keep them tame.
 def check-name [name: string] {
     if not ($name =~ '^[a-zA-Z0-9_.-]+$') {
@@ -63,13 +69,17 @@ def "main write" [
     # Encrypt to a sibling temp file, then move into place atomically so a
     # failed encryption can never corrupt the existing credential.
     let tmp = (^mktemp -u -p $dir $"($name).XXXXXX" | str trim)
-    $incoming | ^systemd-creds encrypt ...(creds-args) $"--name=($name)" - $tmp
+    # Encrypt nameless (--name=): systemd embeds no name and skips name
+    # validation on load, so the blob can be loaded under any credential ID.
+    # This is what makes LoadCredentialEncrypted=<alias>:<name> renames and
+    # loading one blob twice under different IDs work.
+    $incoming | ^systemd-creds encrypt ...(creds-args) "--name=" - $tmp
     ^chmod 600 $tmp
     mv -f $tmp $path
 
     # Best-effort: the per-credential target only exists once an aspect
     # defines it; consumers use it to gate on the credential's presence.
-    let _ = (do { ^systemctl start $"credsync-($name).target" } | complete)
+    let _ = (do { ^systemctl start $"(target-prefix)-($name).target" } | complete)
 
     for unit in $restart_units {
         ^systemctl try-restart $unit
