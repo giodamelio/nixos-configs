@@ -39,6 +39,7 @@
     };
     registry = {
       stable.flake = inputs.nixpkgs-stable;
+      llm-agents.flake = inputs.llm-agents;
       giopkgs.to = {
         type = "github";
         owner = "giodamelio";
