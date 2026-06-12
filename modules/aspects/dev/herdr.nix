@@ -1,8 +1,9 @@
-_: {
+{inputs, ...}: {
   den.aspects.herdr.homeManager = {perSystem, ...}: {
     home.packages = [
-      (perSystem.llm-agents.herdr.overrideAttrs (oldAttrs: {
-        patches = (oldAttrs.patches or []) ++ [./herdr-bwrap.patch];
+      # Build herdr from our fork (carries the bwrap detection patch upstream).
+      (perSystem.llm-agents.herdr.overrideAttrs (_: {
+        src = inputs.herdr;
       }))
       perSystem.self.herdr-proxy
     ];
