@@ -53,6 +53,21 @@ inputs.jail-nix.lib.extend {
         RUNTIME_ARGS+=(--bind "$PWD" "$PWD" --chdir "$PWD")
       '');
 
+      # When CWD is a secondary jj workspace (e.g. a herdr worktree), its
+      # .jj/repo is a file holding a relative path to the backing repo's
+      # .jj/repo. The main workspace has a .jj/repo directory instead, so the
+      # -f test skips it. Resolve the pointer and bind the backing repo
+      # read-write so jj can reach its shared store from inside the sandbox.
+      bind-jj-workspace-repo = add-runtime ''
+        if [[ -f "$PWD/.jj/repo" ]]; then
+          JJ_REPO_PTR="$(realpath -m "$PWD/.jj/$(cat "$PWD/.jj/repo")")"
+          JJ_BACKING_REPO="''${JJ_REPO_PTR%/.jj/repo}"
+          if [[ "$JJ_BACKING_REPO" != "$PWD" && -d "$JJ_BACKING_REPO" ]]; then
+            RUNTIME_ARGS+=(--bind "$JJ_BACKING_REPO" "$JJ_BACKING_REPO")
+          fi
+        fi
+      '';
+
       # Override try-readwrite to use RUNTIME_ARGS so binds layer after overlay-home
       try-readwrite = path:
         add-runtime ''
