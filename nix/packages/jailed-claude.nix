@@ -38,6 +38,11 @@ in
 
       # CWD bind must come after ro paths so it wins when they overlap
       work-in-cwd
+
+      # Auto-bind the backing repo when CWD is a jj workspace/worktree
+      bind-jj-workspace-repo
+
+      # Allow adding other paths to the sandbox for cross repo work
       (rw-paths-from-file ".sandbox-paths")
 
       # Drop --new-session: setsid() detaches from the controlling terminal so
