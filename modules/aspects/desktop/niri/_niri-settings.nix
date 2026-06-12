@@ -7,7 +7,12 @@
   lib,
   pkgs,
   ...
-}: {
+}: let
+  # Select a region, annotate in satty: Enter saves to ~/Pictures/Screenshots,
+  # Esc copies to the clipboard. Shared by the Print key and the labeled
+  # Mod+Shift+S bind (which also generates a launcher entry).
+  screenshotRegion = ''grim -t png -g "$(slurp -o -d -F monospace)" - | satty --filename - --copy-command=wl-copy --output-filename="$(xdg-user-dir PICTURES)/Screenshots/Screenshot from %Y-%m-%d %H:%M:%S.png" --actions-on-enter="save-to-file,exit" --actions-on-escape="save-to-clipboard,exit" --brush-smooth-history-size=5 --initial-tool=arrow --fullscreen=current-screen'';
+in {
   programs.niri.settings = {
     input = {
       keyboard.xkb.layout = "us";
@@ -165,7 +170,12 @@
     "Mod+WheelScrollUp".action.focus-workspace-up = {};
 
     # Screenshots
-    "Print".action.spawn-sh = ''grim -t png -g "$(slurp -o -d -F monospace)" - | satty --filename - --copy-command=wl-copy --output-filename="$(xdg-user-dir PICTURES)/Screenshots/Screenshot from %Y-%m-%d %H:%M:%S.png" --actions-on-enter="save-to-file,exit" --actions-on-escape="save-to-clipboard,exit" --brush-smooth-history-size=5 --initial-tool=arrow --fullscreen=current-screen'';
+    "Print".action.spawn-sh = screenshotRegion;
+    "Mod+Shift+S" = {
+      action.spawn-sh = screenshotRegion;
+      label = "Screenshot Region";
+      icon = "screenshot";
+    };
     "Alt+Print" = {
       action.screenshot-window = {};
       label = "Screenshot Window";
