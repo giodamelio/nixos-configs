@@ -29,6 +29,18 @@ def target-prefix [] {
     $env.CREDSYNC_TARGET_PREFIX? | default "secret"
 }
 
+# Base ssh options, plus a dedicated push identity when CREDSYNC_SSH_IDENTITY is
+# set (the fleet.secrets per-host push key). IdentitiesOnly stops ssh from
+# offering ~/.ssh keys the receiver's forced-command would reject.
+def ssh-opts [] {
+    let id = ($env.CREDSYNC_SSH_IDENTITY? | default "")
+    if ($id | is-empty) {
+        [-o BatchMode=yes]
+    } else {
+        [-o BatchMode=yes -o IdentitiesOnly=yes -i $id]
+    }
+}
+
 # Credential names end up in paths and systemd unit names; keep them tame.
 def check-name [name: string] {
     if not ($name =~ '^[a-zA-Z0-9_.-]+$') {
@@ -115,7 +127,7 @@ def "main push" [
         [sudo -n credsync write $name ...$restart_units]
     }
 
-    let pushed = (do { $local.stdout | ^ssh -o BatchMode=yes $destination ...$remote_cmd } | complete)
+    let pushed = (do { $local.stdout | ^ssh ...(ssh-opts) $destination ...$remote_cmd } | complete)
     if $pushed.exit_code != 0 {
         error make {msg: $"push of ($name) to ($destination) failed: ($pushed.stderr | str trim)"}
     }

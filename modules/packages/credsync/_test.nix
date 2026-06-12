@@ -105,5 +105,43 @@
     with subtest("non-root destination goes through sudo"):
         out = source.succeed("credsync push api-token deploy@target")
         assert "unchanged" in out, f"expected 'unchanged', got: {out}"
+
+    with subtest("push honors CREDSYNC_SSH_IDENTITY"):
+        # A dedicated push key (the fleet.secrets per-host identity pattern).
+        source.succeed('ssh-keygen -t ed25519 -N "" -f /root/push_id')
+        idpub = source.succeed("cat /root/push_id.pub").strip()
+        target.succeed(f"printf '%s\\n' '{idpub}' >> /root/.ssh/authorized_keys")
+        out = source.succeed(
+            "CREDSYNC_SSH_IDENTITY=/root/push_id credsync push api-token root@target"
+        )
+        assert "unchanged" in out, f"expected 'unchanged', got: {out}"
+
+    with subtest("forced-command key only permits 'credsync write'"):
+        # Mirror the aspect's forced-command wrapper: this key may run nothing
+        # but `credsync write`. ${credsync} is interpolated at build time.
+        target.succeed(
+            "install -m700 /dev/stdin /root/forced.sh <<'EOF'\n"
+            "#!/bin/sh\n"
+            'case "$SSH_ORIGINAL_COMMAND" in\n'
+            "  'credsync write '*) ;;\n"
+            "  *) echo denied >&2; exit 1 ;;\n"
+            "esac\n"
+            "export PATH=${credsync}/bin:$PATH\n"
+            "exec $SSH_ORIGINAL_COMMAND\n"
+            "EOF"
+        )
+        target.succeed(
+            f"printf 'command=\"/root/forced.sh\",restrict %s\\n' '{idpub}'"
+            " > /root/.ssh/authorized_keys"
+        )
+        # A push (credsync write) is permitted and works end to end.
+        out = source.succeed(
+            "CREDSYNC_SSH_IDENTITY=/root/push_id credsync push api-token root@target"
+        )
+        assert "unchanged" in out, f"expected 'unchanged', got: {out}"
+        # Anything else over the same key is refused by the forced command.
+        source.fail(
+            "ssh -o BatchMode=yes -o IdentitiesOnly=yes -i /root/push_id root@target id"
+        )
   '';
 }
