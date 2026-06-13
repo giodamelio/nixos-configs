@@ -157,8 +157,19 @@
   ];
 in {
   inherit configFile packages;
-  shellHook = ''
-    ln -sf ${configFile} prek.toml
-    ${lib.getExe pkgs.prek} install -t pre-commit -t pre-push
-  '';
+  # prek install shells out to git to find the hooks dir. jj-only workspaces
+  # (e.g. herdr worktrees) have no .git, so skip install there — git hooks
+  # don't fire under jj anyway.
+  shellHook = lib.getExe (pkgs.writeShellApplication {
+    name = "prek-install-hooks";
+    runtimeInputs = [pkgs.git pkgs.prek];
+    text = ''
+      ln -sf ${configFile} prek.toml
+      if git rev-parse --git-dir >/dev/null 2>&1; then
+        prek install -t pre-commit -t pre-push
+      else
+        echo "prek: no git repo here (jj workspace?), skipping hook install" >&2
+      fi
+    '';
+  });
 }
