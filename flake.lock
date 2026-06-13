@@ -2613,11 +2613,11 @@
         "unison-lang": "unison-lang"
       },
       "locked": {
-        "lastModified": 1780711754,
-        "narHash": "sha256-9FTge5pFZKGlcAEpQU/FtnWrumXjn6P2YhiY3stIyV0=",
+        "lastModified": 1781470098,
+        "narHash": "sha256-CQlGtN5mnC9s3oHQAQWmPx097UINfXxB6/fO7Eyq1oM=",
         "owner": "giodamelio",
         "repo": "neovim-configs-nix",
-        "rev": "cceda50038421f060ba839128d79890a36ef1a6e",
+        "rev": "40eed41c15110a0274c7ada13f8419b06f33290e",
         "type": "github"
       },
       "original": {
