@@ -72,11 +72,16 @@
         };
       };
       workspaces = {
+        # niri-flake orders named workspaces by attribute key. The "0-" prefix
+        # sorts this before "1" so it sits on top of the middle monitor; the
+        # name attr keeps the display name (and open-on-workspace target) as "background".
+        "0-background" = {
+          name = "background";
+          open-on-output = monitor-names.middle;
+        };
         "1" = {open-on-output = monitor-names.middle;};
         "2" = {open-on-output = monitor-names.right;};
         "3" = {open-on-output = monitor-names.left;};
-        # Sorts after "1", so the empty workspace "1" stays in front on the middle monitor
-        "background" = {open-on-output = monitor-names.middle;};
       };
 
       spawn-at-startup = [
