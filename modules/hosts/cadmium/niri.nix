@@ -98,10 +98,9 @@
               app-id = "thunderbird";
               at-startup = true;
             }
-            {
-              app-id = "spotify";
-              at-startup = true;
-            }
+            # Spotify is slow to map its window and misses the at-startup window,
+            # so match it unconditionally — it always lives on background.
+            {app-id = "spotify";}
             {
               app-id = "io.gitlab.news_flash.NewsFlash";
               at-startup = true;
