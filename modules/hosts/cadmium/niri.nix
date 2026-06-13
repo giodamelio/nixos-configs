@@ -43,6 +43,19 @@
       # Those are mapped to XF86Launch6 and XF86Launch8 respectivly.
       "XF86Launch8".action.spawn = ["${lib.getExe pkgs.playerctl}" "next"];
       "XF86Launch6".action.spawn = ["${lib.getExe pkgs.playerctl}" "previous"];
+
+      # Toggle the background workspace: jump to it, or back to the previous
+      # workspace if already there.
+      "Mod+B" = {
+        action.spawn-sh = ''
+          if [ "$(niri msg --json workspaces | jq -r '[.[] | select(.is_focused) | .name][0] // ""')" = "background" ]; then
+            niri msg action focus-workspace-previous
+          else
+            niri msg action focus-workspace background
+          fi
+        '';
+        label = "Toggle Background Workspace";
+      };
     };
 
     # Three-monitor layout (was users/giodamelio/niri/three-monitor.nix)
