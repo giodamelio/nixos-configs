@@ -6,7 +6,7 @@
   inherit (import ./_types.nix {inherit lib;}) grantsOf userIdentitiesOf enabledHostsOf;
 
   domain = "gio.ninja";
-  dataDir = ./data;
+  dataDir = config.fleet.ssh.dataDir;
   userCaPath = dataDir + "/user-ca.pub";
   hasUserCa = builtins.pathExists userCaPath;
 

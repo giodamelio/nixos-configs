@@ -1,5 +1,9 @@
-{lib, ...}: let
-  dataDir = ./data;
+{
+  lib,
+  config,
+  ...
+}: let
+  dataDir = config.fleet.ssh.dataDir;
   hostCaPath = dataDir + "/host-ca.pub";
   hasHostCa = builtins.pathExists hostCaPath;
 

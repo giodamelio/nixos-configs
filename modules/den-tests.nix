@@ -4,18 +4,28 @@
   ...
 }: let
   # Every test fleet gets the real den modules (all aspects, schema, den.default)
-  # minus: the real machines; the test wiring (would recurse, so denTest
-  # declarations live under modules/checks/); and production fleet-data that
-  # references real hosts not present in a test fleet (clients.nix grants to
-  # cadmium/cesium, which would fail cross-host validation).
-  base =
+  # minus: the real machines (the /hosts/ subtree); and the specific files below.
+  # Whole subtrees are matched by infix (no rename risk); individual files are
+  # matched as exact repo-relative paths and asserted to exist — so renaming or
+  # moving one fails LOUD right here instead of silently re-including it and
+  # surfacing later as a baffling "unknown host cadmium" deep in a test eval.
+  excludedFiles = [
+    "modules/den-tests.nix" # this test wiring itself — would recurse
+    "modules/aspects/ssh/clients.nix" # grants to real hosts (cadmium/cesium) -> cross-host throw
+  ];
+  staleExclusions = lib.filter (f: !(builtins.pathExists (inputs.self + "/${f}"))) excludedFiles;
+
+  base = assert lib.assertMsg (staleExclusions == []) ''
+    den-tests.nix: test-fleet exclusion target(s) no longer exist (renamed or moved?):
+      ${lib.concatStringsSep "\n  " staleExclusions}
+    Update `excludedFiles` in modules/den-tests.nix to match.
+  '';
     inputs.import-tree.filterNot
     (
       p:
         lib.hasInfix "/hosts/" p
         || lib.hasInfix "/checks/" p
-        || lib.hasSuffix "/den-tests.nix" p
-        || lib.hasSuffix "/ssh/clients.nix" p
+        || lib.any (f: lib.hasSuffix "/${f}" p) excludedFiles
     )
     (inputs.self + "/modules");
 in {

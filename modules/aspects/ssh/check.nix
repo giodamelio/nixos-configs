@@ -5,7 +5,7 @@
 }: let
   inherit (import ./_types.nix {inherit lib;}) hostTargetsOf userIdentitiesOf;
 
-  dataDir = ./data;
+  dataDir = config.fleet.ssh.dataDir;
   denHosts = lib.concatMapAttrs (_system: hosts: hosts) config.den.hosts;
 
   enrolledHosts = builtins.attrNames (hostTargetsOf "gio.ninja" denHosts);

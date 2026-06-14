@@ -56,6 +56,16 @@ in {
   den.schema.fleet.imports = [
     {
       options.ssh = {
+        dataDir = lib.mkOption {
+          type = lib.types.path;
+          default = ./data;
+          description = ''
+            Directory of committed SSH CA pubkeys and signed certs
+            (host-ca.pub, user-ca.pub, certs/<host>-cert.pub,
+            certs/clients/<user@host>-cert.pub). Defaults to the in-repo data;
+            tests override it to point the aspects at throwaway fixtures.
+          '';
+        };
         externalClients = lib.mkOption {
           type = lib.types.attrsOf (lib.types.submodule {options = identityOptions;});
           default = {};

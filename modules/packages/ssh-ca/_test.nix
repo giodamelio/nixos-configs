@@ -1,10 +1,19 @@
-{ssh-ca}: {
+{
+  ssh-ca,
+  pkgs,
+}: {
   name = "ssh-ca";
 
   nodes.machine = {
     environment.systemPackages = [ssh-ca];
     # No TPM in the test VM; systemd-creds needs an explicit key choice.
     environment.variables.SSH_CA_CREDS_ARGS = "--with-key=auto";
+    # For the cert-auth round-trip: provides the sshd privsep user + /run/sshd.
+    services.openssh.enable = true;
+    # "testhost" is the host cert's principal; resolve it to this VM.
+    networking.extraHosts = "127.0.0.1 testhost";
+    # The client cert's principal is giodamelio@testhost; the user must exist.
+    users.users.giodamelio.isNormalUser = true;
   };
 
   testScript = ''
@@ -105,5 +114,46 @@
 
     with subtest("sync refuses a non-repo path"):
         machine.fail("ssh-ca sync --repo /root/not-a-repo")
+
+    # The CA's whole point: its certs must authenticate. Stand up a second sshd
+    # presenting the signed host cert + trusting the user CA, then connect with
+    # the signed client cert — proving host-cert trust (no TOFU) and user-cert
+    # auth end to end. "testhost" stays a principal across the re-sign above.
+    with subtest("CA-signed host and user certs authenticate over ssh"):
+        machine.succeed("mkdir -p /run/sshd")
+
+        machine.succeed("rm -f /root/sshd-cert.conf")
+        for line in [
+            "Port 2222",
+            "HostKey /root/hostkey",
+            "HostCertificate /var/lib/ssh-ca/certs/testhost-cert.pub",
+            "TrustedUserCAKeys /var/lib/ssh-ca/user-ca.pub",
+            "AuthorizedPrincipalsFile /etc/ssh/auth_principals/%u",
+            "PasswordAuthentication no",
+            # PAM, like the system sshd: a NixOS normal user has a locked
+            # password, which UsePAM no would reject as an invalid user.
+            "UsePAM yes",
+        ]:
+            machine.succeed(f"echo '{line}' >> /root/sshd-cert.conf")
+        # sshd reads the principals file as the target user, so it must be in a
+        # path that user can traverse (not /root, mode 0700).
+        machine.succeed("mkdir -p /etc/ssh/auth_principals")
+        machine.succeed("echo giodamelio@testhost > /etc/ssh/auth_principals/giodamelio")
+        machine.succeed("${pkgs.openssh}/bin/sshd -f /root/sshd-cert.conf")
+        machine.wait_for_open_port(2222)
+
+        host_ca = machine.succeed("cat /var/lib/ssh-ca/host-ca.pub").strip()
+        machine.succeed("install -d -m700 /root/.ssh")
+        machine.succeed(f"echo '@cert-authority testhost {host_ca}' > /root/.ssh/known_hosts")
+        machine.succeed("cp /var/lib/ssh-ca/certs/clients/phone-cert.pub /root/clientkey-cert.pub")
+
+        # StrictHostKeyChecking=yes => the host cert must verify via the CA (no
+        # TOFU); the user cert principal (giodamelio@testhost) must match the
+        # principals file for user giodamelio.
+        machine.succeed(
+            "${pkgs.openssh}/bin/ssh -p 2222 -o StrictHostKeyChecking=yes "
+            "-o UserKnownHostsFile=/root/.ssh/known_hosts -i /root/clientkey "
+            "giodamelio@testhost true"
+        )
   '';
 }
