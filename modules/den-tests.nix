@@ -4,11 +4,19 @@
   ...
 }: let
   # Every test fleet gets the real den modules (all aspects, schema, den.default)
-  # minus the real machines and the test wiring — the latter would recurse, so
-  # denTest declarations must live under modules/checks/.
+  # minus: the real machines; the test wiring (would recurse, so denTest
+  # declarations live under modules/checks/); and production fleet-data that
+  # references real hosts not present in a test fleet (clients.nix grants to
+  # cadmium/cesium, which would fail cross-host validation).
   base =
     inputs.import-tree.filterNot
-    (p: lib.hasInfix "/hosts/" p || lib.hasInfix "/checks/" p || lib.hasSuffix "/den-tests.nix" p)
+    (
+      p:
+        lib.hasInfix "/hosts/" p
+        || lib.hasInfix "/checks/" p
+        || lib.hasSuffix "/den-tests.nix" p
+        || lib.hasSuffix "/ssh/clients.nix" p
+    )
     (inputs.self + "/modules");
 in {
   options.perSystem = inputs.flake-parts.lib.mkPerSystemOption ({
