@@ -1,11 +1,6 @@
-# Eval-time unit tests for the fleet.secrets inversion/emission helpers in
-# _lib.nix — the bug-prone core (credential-directive table, copy-set
-# derivation, name handling). Runtime transport is covered by the credsync VM
-# test; the full per-host expansion is exercised by building real den hosts.
 {lib, ...}: let
   l = import ./_lib.nix {inherit lib;};
 
-  # Minimal stand-ins matching the attrs the helpers actually read.
   site = attrs:
     {
       enable = true;
@@ -35,115 +30,102 @@
     inherit services;
   };
 
-  expect = name: actual: expected:
-    if actual == expected
-    then true
-    else throw "fleet-secrets-lib: ${name}: got ${builtins.toJSON actual}, want ${builtins.toJSON expected}";
-
-  cases = [
-    # --- credentialDirective emission table ---
-    (expect "directive/default" (l.credentialDirective "foo" (site {})) "LoadCredentialEncrypted=foo")
-    (expect "directive/rename" (l.credentialDirective "foo" (site {credential.name = "alias";})) "LoadCredentialEncrypted=alias:foo")
-    (expect "directive/source" (l.credentialDirective "foo" (site {
+  t = expr: expected: {inherit expr expected;};
+in {
+  # Pure eval tests for the fleet.secrets emission helpers in _lib.nix (the
+  # bug-prone core). Run with fastest: `fastest --flake .#tests fleet-secrets`.
+  # Case names avoid "/" — fastest cannot address slashed attr names.
+  flake.tests.fleet-secrets = {
+    directive-default = t (l.credentialDirective "foo" (site {})) "LoadCredentialEncrypted=foo";
+    directive-rename = t (l.credentialDirective "foo" (site {credential.name = "alias";})) "LoadCredentialEncrypted=alias:foo";
+    directive-source = t (l.credentialDirective "foo" (site {
       credential = {
         name = "alias";
         source = "other-blob";
       };
-    })) "LoadCredentialEncrypted=alias:other-blob")
-    (expect "directive/plain+source" (l.credentialDirective "foo" (site {
+    })) "LoadCredentialEncrypted=alias:other-blob";
+    directive-plain-source = t (l.credentialDirective "foo" (site {
       credential = {
         name = "alias";
         source = "/run/x.sock";
         encrypted = false;
       };
-    })) "LoadCredential=alias:/run/x.sock")
-    (expect "directive/plain+source-noname" (l.credentialDirective "foo" (site {
+    })) "LoadCredential=alias:/run/x.sock";
+    directive-plain-source-noname = t (l.credentialDirective "foo" (site {
       credential = {
         source = "/p";
         encrypted = false;
       };
-    })) "LoadCredential=foo:/p")
+    })) "LoadCredential=foo:/p";
 
-    # --- credentialId / sitePath ---
-    (expect "credId/default" (l.credentialId "foo" (site {})) "foo")
-    (expect "credId/override" (l.credentialId "foo" (site {credential.name = "bar";})) "bar")
-    (expect "sitePath/default" (l.sitePath "foo" (site {unit = "svc";})) "/run/credentials/svc.service/foo")
-    (expect "sitePath/rename" (l.sitePath "foo" (site {
+    cred-id-default = t (l.credentialId "foo" (site {})) "foo";
+    cred-id-override = t (l.credentialId "foo" (site {credential.name = "bar";})) "bar";
+    site-path-default = t (l.sitePath "foo" (site {unit = "svc";})) "/run/credentials/svc.service/foo";
+    site-path-rename = t (l.sitePath "foo" (site {
       unit = "svc";
       credential.name = "bar";
-    })) "/run/credentials/svc.service/bar")
+    })) "/run/credentials/svc.service/bar";
 
-    # --- copySet: enabled use-hosts minus origin, ∪ copyTo ---
-    (expect "copySet"
-      (l.copySet {
-        origin = "a";
-        copyTo = ["c"];
-        use = {
-          a = useHost {};
-          b = useHost {};
-          d = {
-            enable = false;
-            services = {};
-          };
+    copy-set = t (l.copySet {
+      origin = "a";
+      copyTo = ["c"];
+      use = {
+        a = useHost {};
+        b = useHost {};
+        d = {
+          enable = false;
+          services = {};
         };
-      })
-      ["b" "c"])
+      };
+    }) ["b" "c"];
 
-    # --- holdsSecret ---
-    (expect "holds/origin" (l.holdsSecret {
+    holds-origin =
+      t (l.holdsSecret {
         origin = "a";
         copyTo = [];
         use = {};
       } "a")
-      true)
-    (expect "holds/copy" (l.holdsSecret {
+      true;
+    holds-copy =
+      t (l.holdsSecret {
         origin = "a";
         copyTo = ["x"];
         use = {};
       } "x")
-      true)
-    (expect "holds/none" (l.holdsSecret {
+      true;
+    holds-none =
+      t (l.holdsSecret {
         origin = "a";
         copyTo = [];
         use = {};
       } "z")
-      false)
+      false;
 
-    # --- screamingSnake / validName ---
-    (expect "snake" (l.screamingSnake "forgejo-runner-token") "FORGEJO_RUNNER_TOKEN")
-    (expect "name/ok" (l.validName "foo-bar1") true)
-    (expect "name/upper" (l.validName "Foo") false)
-    (expect "name/underscore" (l.validName "foo_bar") false)
+    snake = t (l.screamingSnake "forgejo-runner-token") "FORGEJO_RUNNER_TOKEN";
+    name-ok = t (l.validName "foo-bar1") true;
+    name-upper = t (l.validName "Foo") false;
+    name-underscore = t (l.validName "foo_bar") false;
 
-    # --- enabledSitesOn: honors host- and site-level enable ---
-    (expect "sites/names"
-      (map (e: e.siteName) (l.enabledSitesOn {
-          use.h = useHost {
-            keep = site {};
-            drop = site {enable = false;};
-          };
-        }
-        "h"))
-      ["keep"])
-    (expect "sites/host-disabled"
-      (l.enabledSitesOn {
-        use.h = {
-          enable = false;
-          services.x = site {};
-        };
-      } "h")
-      [])
-  ];
-in {
+    sites-names = t (map (e: e.siteName) (l.enabledSitesOn {
+      use.h = useHost {
+        keep = site {};
+        drop = site {enable = false;};
+      };
+    } "h")) ["keep"];
+    sites-host-disabled = t (l.enabledSitesOn {
+      use.h = {
+        enable = false;
+        services.x = site {};
+      };
+    } "h") [];
+  };
+
   perSystem = {
     pkgs,
     config,
     lib,
     ...
   }: {
-    checks.fleet-secrets-lib = assert builtins.all (x: x) cases;
-      pkgs.runCommand "fleet-secrets-lib" {} "echo ok > $out";
-
     # Two-VM end-to-end test of the aspect's generated units.
     checks.fleet-secrets-vm = pkgs.testers.runNixOSTest (import ./_test.nix {
       inherit pkgs lib;
