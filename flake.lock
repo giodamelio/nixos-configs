@@ -684,6 +684,26 @@
         "type": "gitlab"
       }
     },
+    "fastest": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1779819723,
+        "narHash": "sha256-8+oqF8Mb/6X7IDkmr5bMP0FKudo8qu62PwKQk9kXeSU=",
+        "owner": "denful",
+        "repo": "fastest",
+        "rev": "36645f32c3ea3f77d029afca0e796ae1dc3889d8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "denful",
+        "repo": "fastest",
+        "type": "github"
+      }
+    },
     "fenix": {
       "inputs": {
         "nixpkgs": [
@@ -3971,6 +3991,7 @@
         "den": "den",
         "devenv": "devenv",
         "disko": "disko",
+        "fastest": "fastest",
         "flake-parts": "flake-parts_6",
         "giopkgs": "giopkgs",
         "gradient": "gradient",

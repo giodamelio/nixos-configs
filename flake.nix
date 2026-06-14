@@ -30,6 +30,9 @@
         builtins.mapAttrs
         (system: bpChecks: bpChecks // (fp.checks.${system} or {}))
         bp.checks;
+
+      # den-only: eval test suites for fastest (`fastest --flake .#tests`).
+      tests = fp.tests or {};
     }
     # Add the inputs to the outputs for easy access in `nix repl`;
     // {inherit inputs;};
@@ -177,6 +180,10 @@
 
     # den: aspect-oriented config framework we are incrementally migrating to
     den.url = "github:denful/den";
+
+    # Parallel eval-test runner (nix-unit compatible) for den.tests
+    fastest.url = "github:denful/fastest";
+    fastest.inputs.nixpkgs.follows = "nixpkgs";
 
     # Personal fork of herdr — carries the bwrap agent-detection patch upstream,
     # so we override llm-agents' herdr src with this instead of patching.
