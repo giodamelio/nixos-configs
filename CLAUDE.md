@@ -202,6 +202,11 @@ Each service lives in its own file at `nix/hosts/<hostname>/<service>.nix`. When
 - Example: `lib.pipe data [step1 step2 step3]` instead of `step3 (step2 (step1 data))`
 - Prefer `pkgs.writeShellApplication` over `pkgs.writeShellScript`/`pkgs.writeShellScriptBin` unless there is a good reason not to (e.g. the script must not use `set -euo pipefail`)
 
+### Code Comments
+- Write small **why** comments only — never **what** comments that restate the code
+- Do **not** add big descriptive comment blocks at the top of files; the filename and code should convey what it is (one terse orienting line at most, if truly needed)
+- Keep only short inline notes that explain a non-obvious reason
+
 ## Git Commit Guidelines
 
 ### Commit Message Style
