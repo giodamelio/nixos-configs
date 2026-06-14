@@ -181,6 +181,10 @@
     # den: aspect-oriented config framework we are incrementally migrating to
     den.url = "github:denful/den";
 
+    # Typed DNS zone DSL (records merge across modules); backs fleet.dns.
+    dns.url = "github:nix-community/dns.nix";
+    dns.inputs.nixpkgs.follows = "nixpkgs";
+
     # Parallel eval-test runner (nix-unit compatible) for den.tests
     fastest.url = "github:denful/fastest";
     fastest.inputs.nixpkgs.follows = "nixpkgs";
