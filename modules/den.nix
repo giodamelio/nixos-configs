@@ -52,6 +52,10 @@
 
     den.aspects.fleet-secrets
 
+    # Authoritative DNS; self-gates on the per-host dns.serve.enable fact (inert
+    # until a host enables it). Multiple hosts may serve the same replicated zone.
+    den.aspects.dns-server
+
     # Dual-class: CLIs on every system; overriding aliases only for HM users.
     den.aspects.modern-coreutils-replacements
 
