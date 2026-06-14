@@ -3,6 +3,7 @@
   treefmt,
   remind-me-to,
   check-drv-drift,
+  fastest,
 }: let
   inherit (pkgs) lib;
 
@@ -138,6 +139,15 @@
             pass_filenames = false;
             files = "(\\.nix$|^modules/aspects/ssh/data/)";
           }
+          {
+            id = "fastest";
+            name = "fastest";
+            entry = "${lib.getExe fastest} --flake .#tests";
+            language = "system";
+            stages = ["pre-push"]; # flake eval — not for the inner loop
+            pass_filenames = false;
+            files = "\\.nix$";
+          }
         ];
       }
     ];
@@ -154,6 +164,7 @@
     pkgs.jq
     remind-me-to
     check-drv-drift
+    fastest
   ];
 in {
   inherit configFile packages;

@@ -14,9 +14,10 @@
   # Prek hooks configuration and shell integration
   prek = pkgs: flake: let
     remind-me-to = inputs.giopkgs.packages.${pkgs.stdenv.hostPlatform.system}.remind-me-to;
+    fastest = inputs.fastest.packages.${pkgs.stdenv.hostPlatform.system}.fastest;
   in
     import ./prek.nix {
-      inherit pkgs remind-me-to;
+      inherit pkgs remind-me-to fastest;
       inherit (flake.packages.${pkgs.stdenv.hostPlatform.system}) check-drv-drift;
       treefmt = flake.lib.treefmt pkgs;
     };
