@@ -1810,11 +1810,11 @@
     "herdr": {
       "flake": false,
       "locked": {
-        "lastModified": 1781297446,
-        "narHash": "sha256-5sdElBCppMGjLwv3NlMf7QCiv+Z0JynFw6iIcezoUGY=",
+        "lastModified": 1781538033,
+        "narHash": "sha256-OcssVKi9jG90NN018MZZOQuuqTDphLi9dh/Y7Hos3Ng=",
         "owner": "giodamelio",
         "repo": "herdr",
-        "rev": "796d525f3ea11134fd6c4d13019ae56dff982d06",
+        "rev": "d772dbf835fc7294f04aaabba3fff20a682e3ab2",
         "type": "github"
       },
       "original": {
