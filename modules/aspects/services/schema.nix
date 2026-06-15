@@ -277,6 +277,22 @@ in {
             default = "";
             description = "Human-readable description of the service.";
           };
+
+          options.unit = mkOption {
+            type = types.str;
+            default = name;
+            defaultText = lib.literalExpression "<service name>";
+            description = "systemd unit (without .service) this service runs as.";
+          };
+
+          options.mounts = mkOption {
+            type = types.listOf types.str;
+            default = [];
+            description = ''
+              fleet.nfs mount names this service needs before it starts. The
+              nfs-wait bridge orders `unit` after each mount's readiness target.
+            '';
+          };
         }));
       };
     }

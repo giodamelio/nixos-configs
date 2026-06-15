@@ -56,6 +56,11 @@
     # until a host enables it). Multiple hosts may serve the same replicated zone.
     den.aspects.dns-server
 
+    # NFS + WireGuard mesh; self-gates on the per-host nfs.enable fact. The
+    # services-nfs-wait bridge is inert until a service declares `mounts`.
+    den.aspects.nfs
+    den.aspects.services-nfs-wait
+
     # Dual-class: CLIs on every system; overriding aliases only for HM users.
     den.aspects.modern-coreutils-replacements
 
