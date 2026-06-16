@@ -15,7 +15,6 @@ _: {
           description = "demo app exercising all facets";
           endpoint = {
             backend.port = 8080; # domain defaults to "app"
-            mtls = false;
             extraConfig = "encode gzip";
           };
           healthcheck = {

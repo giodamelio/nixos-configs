@@ -105,6 +105,9 @@ in {
     name-ok = t (l.validName "foo-bar1") true;
     name-upper = t (l.validName "Foo") false;
     name-underscore = t (l.validName "foo_bar") false;
+    name-dot-rejected = t (l.validName "consul-encrypt.json") false;
+    credid-dot-ok = t (l.validCredentialId "consul-encrypt.json") true;
+    credid-upper-rejected = t (l.validCredentialId "Foo.json") false;
 
     sites-names = t (map (e: e.siteName) (l.enabledSitesOn {
       use.h = useHost {

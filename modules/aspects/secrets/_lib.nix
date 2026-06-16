@@ -1,8 +1,14 @@
 {lib}: rec {
-  # Secret names and credential ids end up in literal systemd unit names and
-  # credential ids, so keep them to a tame, never-escaped charset.
+  # Secret names end up in literal systemd unit names AND feed screamingSnake for
+  # env-wrapper variables, so keep them to a tame, never-escaped charset.
   nameRe = "[a-z0-9-]+";
   validName = name: builtins.match nameRe name != null;
+
+  # Credential ids are only filenames (/run/credentials/<unit>/<id>), so a dot is
+  # allowed — e.g. "consul-encrypt.json" for tools that key config format off the
+  # extension. (systemd permits dots in credential ids.)
+  credentialIdRe = "[a-z0-9.-]+";
+  validCredentialId = name: builtins.match credentialIdRe name != null;
 
   # "forgejo-runner-token" -> "FORGEJO_RUNNER_TOKEN". Names are validated to
   # [a-z0-9-]+, so only "-" needs collapsing. The env-wrapper variable default.

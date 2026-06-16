@@ -11,6 +11,7 @@
   inherit
     (l)
     validName
+    validCredentialId
     flattenHosts
     credentialId
     enabledSitesOn
@@ -110,8 +111,8 @@
         })
         g.needs)
       ++ map (e: {
-        ok = validName (credentialId secretName e.site);
-        msg = "credential id '${credentialId secretName e.site}' must match [a-z0-9-]+";
+        ok = validCredentialId (credentialId secretName e.site);
+        msg = "credential id '${credentialId secretName e.site}' must match [a-z0-9.-]+";
       })
       sites
       ++ map (e: {

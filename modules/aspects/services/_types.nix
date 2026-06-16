@@ -33,7 +33,6 @@
   healthchecksOf = facetEntries "healthchecks";
   prometheusEndpointsOf = facetEntries "prometheus-endpoints";
   dashboardsOf = facetEntries "dashboards";
-  consulRegistrationsOf = facetEntries "consuls";
 
   # Service endpoints as a dns.nix `subdomains` fragment: { <domain> = ...; }.
   # When the owning host is static the domain gets A records straight to its

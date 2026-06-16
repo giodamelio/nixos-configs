@@ -58,20 +58,25 @@ in {
                 default = null;
                 description = "Upstream unix socket path (instead of host:port).";
               };
+              backend.protocol = mkOption {
+                type = types.enum ["http" "h2c"];
+                default = "http";
+                description = "Upstream transport: http (default) or h2c (HTTP/2 cleartext, e.g. gRPC backends).";
+              };
               port = mkOption {
                 type = types.int;
                 default = 443;
                 description = "Public port the reverse proxy listens on.";
               };
+              tls = mkOption {
+                type = types.bool;
+                default = true;
+                description = "Serve over HTTPS (Cloudflare-DNS TLS). false = plain HTTP (pair with port = 80; mainly for tests/internal).";
+              };
               proxy = mkOption {
                 type = types.bool;
                 defaultText = lib.literalExpression "backend is set";
                 description = "Emit a reverse-proxy vhost. Defaults true when a backend is set, false for DNS-only.";
-              };
-              mtls = mkOption {
-                type = types.bool;
-                default = false;
-                description = "Require client-certificate (mTLS) verification.";
               };
               extraConfig = mkOption {
                 type = types.lines;
@@ -214,30 +219,6 @@ in {
               };
             };
           };
-
-          # consul — service registration. Checks are NOT declared here; they are
-          # derived from the healthcheck facet by the consul generator.
-          consulType = types.submodule {
-            options = {
-              name = mkOption {
-                type = types.str;
-                default = name;
-                defaultText = lib.literalExpression "<service name>";
-                description = "Consul service name.";
-              };
-              address = mkOption {
-                type = types.str;
-                default = "${name}.gio.ninja";
-                defaultText = lib.literalExpression "<service name>.gio.ninja";
-                description = "Registered address (FQDN or IP).";
-              };
-              port = mkOption {
-                type = types.int;
-                default = 443;
-                description = "Registered port.";
-              };
-            };
-          };
         in {
           imports = [
             (mkFacet {
@@ -264,13 +245,53 @@ in {
               elemType = dashboardType;
               pluralDesc = "Homer dashboard tiles.";
             })
-            (mkFacet {
-              singular = "consul";
-              plural = "consuls";
-              elemType = consulType;
-              pluralDesc = "Consul service registrations.";
-            })
           ];
+
+          # consul — registration is ON by default (set enable = false to skip).
+          # Unlike the plural facets, a service has exactly one registration.
+          # name/address/port left null are derived by the renderer from the
+          # service's primary endpoint; checks are derived from the healthchecks.
+          options.consul = mkOption {
+            default = {};
+            description = "Consul service registration (on by default).";
+            type = types.submodule {
+              options = {
+                enable = mkOption {
+                  type = types.bool;
+                  default = true;
+                  description = "Register this service in Consul.";
+                };
+                name = mkOption {
+                  type = types.str;
+                  default = name;
+                  defaultText = lib.literalExpression "<service name>";
+                  description = "Consul service name.";
+                };
+                address = mkOption {
+                  type = types.nullOr types.str;
+                  default = null;
+                  defaultText = lib.literalExpression "<primary endpoint>.<zone>";
+                  description = "Registered address (FQDN or IP); null = derive from the primary endpoint.";
+                };
+                port = mkOption {
+                  type = types.nullOr types.int;
+                  default = null;
+                  defaultText = lib.literalExpression "<primary endpoint port>";
+                  description = "Registered port; null = derive from the primary endpoint (else 443).";
+                };
+                tags = mkOption {
+                  type = types.listOf types.str;
+                  default = [];
+                  description = "Consul service tags.";
+                };
+                meta = mkOption {
+                  type = types.attrsOf types.str;
+                  default = {};
+                  description = "Consul service metadata.";
+                };
+              };
+            };
+          };
 
           options.description = mkOption {
             type = types.str;

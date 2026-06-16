@@ -65,6 +65,15 @@
     den.aspects.nfs
     den.aspects.services-nfs-wait
 
+    # Consul cluster; self-gates on host.consul.enable. The services-consul
+    # renderer registers each local service (on by default) once an agent runs.
+    den.aspects.consul
+    den.aspects.services-consul
+
+    # fleet.services -> Caddy vhosts on the owning host. Self-gates on the host
+    # having serving endpoints (reverse-proxy aspect is pulled in by deployed-apps).
+    den.aspects.services-reverse-proxy
+
     # Dual-class: CLIs on every system; overriding aliases only for HM users.
     den.aspects.modern-coreutils-replacements
 
