@@ -8,12 +8,14 @@ _: {
       # Two hosts both serve DNS; each contributes its IP to ns.gio.ninja.
       den.hosts.x86_64-linux.alpha = {
         ssh.hostKey = null; # enabled hosts must set this (even to null)
-        dns.ip = "10.0.0.5"; # -> alpha.gio.ninja A 10.0.0.5 (derived)
+        # eth0 won't match the VM's vlan NIC, so the render is inert on hardware
+        # while the fact still drives the derived A record.
+        network.interfaces.eth0.address = "10.0.0.5"; # -> alpha.gio.ninja A 10.0.0.5
         dns.serve.enable = true;
       };
       den.hosts.x86_64-linux.beta = {
         ssh.hostKey = null;
-        dns.ip = "10.0.0.6";
+        network.interfaces.eth0.address = "10.0.0.6";
         dns.serve.enable = true; # only declared (not booted); still contributes records
       };
 
@@ -38,7 +40,7 @@ _: {
       with subtest("explicit A record resolves"):
           alpha.succeed("dig +short @127.0.0.1 static.gio.ninja A | grep -x 10.0.0.9")
 
-      with subtest("a host's dns.ip becomes an A record"):
+      with subtest("a host's network address becomes an A record"):
           alpha.succeed("dig +short @127.0.0.1 alpha.gio.ninja A | grep -x 10.0.0.5")
 
       with subtest("explicit CNAME resolves"):

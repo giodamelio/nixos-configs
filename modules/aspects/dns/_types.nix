@@ -1,9 +1,8 @@
-{lib}: rec {
-  # Hosts that declare a static IP -> { <host>.A = [ip]; } subzone fragment, so
-  # <host>.<zone> resolves directly.
+{lib}: let
+  net = import ../network/_lib.nix {inherit lib;};
+in rec {
+  # Static hosts -> { <host>.A = [addr...]; } subzone fragment, so <host>.<zone>
+  # resolves directly. Addresses come from host.network (dynamic hosts get none).
   hostARecords = denHosts:
-    lib.pipe denHosts [
-      (lib.filterAttrs (_name: host: (host.dns.ip or null) != null))
-      (lib.mapAttrs (_name: host: {A = [host.dns.ip];}))
-    ];
+    lib.mapAttrs (_name: host: {A = net.addressesOf host;}) (net.staticHosts denHosts);
 }

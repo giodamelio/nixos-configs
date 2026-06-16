@@ -10,7 +10,7 @@ _: {
       # declaring it here proves the full schema evaluates in a real fleet.
       den.hosts.x86_64-linux.app-host = {
         ssh.hostKey = null;
-        dns.ip = "10.0.0.10"; # so the service domain promotes to an A record
+        network.interfaces.eth0.address = "10.0.0.10"; # so the service domain promotes to an A record
         services.app = {
           description = "demo app exercising all facets";
           endpoint = {

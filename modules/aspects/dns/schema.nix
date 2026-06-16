@@ -13,15 +13,6 @@
         description = "Whether this host takes part in the fleet DNS system.";
       };
 
-      # Stopgap host-networking fact until a real network aspect exists. A host
-      # with a static IP gets an A record (and service domains on it resolve to
-      # that IP instead of a CNAME).
-      options.dns.ip = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
-        default = null;
-        description = "Static LAN IP of this host, or null if not known.";
-      };
-
       # Run the authoritative DNS server on this host. A submodule (not a bare
       # bool) so server-specific settings can be added later. Any number of
       # hosts may enable it; each serves the same fleet zones (replicated).

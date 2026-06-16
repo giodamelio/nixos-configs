@@ -56,6 +56,10 @@
     # until a host enables it). Multiple hosts may serve the same replicated zone.
     den.aspects.dns-server
 
+    # Static/dynamic host networking; self-gates on host.network.mode (inert for
+    # the default `unmanaged`). Other fleet systems derive addresses from it.
+    den.aspects.network
+
     # NFS + WireGuard mesh; self-gates on the per-host nfs.enable fact. The
     # services-nfs-wait bridge is inert until a service declares `mounts`.
     den.aspects.nfs

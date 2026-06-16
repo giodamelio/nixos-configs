@@ -36,17 +36,18 @@
   consulRegistrationsOf = facetEntries "consuls";
 
   # Service endpoints as a dns.nix `subdomains` fragment: { <domain> = ...; }.
-  # When the owning host has a known IP the domain gets an A record straight to
-  # it; otherwise a CNAME to "<host>.lan." (resolved upstream). This is how
-  # fleet.services contributes to fleet.dns.zones.
+  # When the owning host is static the domain gets A records straight to its
+  # address(es); otherwise a CNAME to "<host>.lan." (resolved upstream). This is
+  # how fleet.services contributes to fleet.dns.zones.
   serviceZoneRecords = denHosts: let
+    net = import ../network/_lib.nix {inherit lib;};
     recordFor = ep: let
-      ip = (denHosts.${ep.host} or {}).dns.ip or null;
+      addrs = net.addressesOf (denHosts.${ep.host} or {});
     in {
       name = ep.domain;
       value =
-        if ip != null
-        then {A = [ip];}
+        if addrs != []
+        then {A = addrs;}
         else {CNAME = ["${ep.host}.lan."];};
     };
   in
