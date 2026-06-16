@@ -110,6 +110,42 @@ in {
       icon = "go-up";
     };
 
+    # Reorder entire workspaces within the monitor
+    # Deliberately awkward combos so they don't clash with future binds.
+    "Mod+Ctrl+Shift+Prior" = {
+      action.move-workspace-up = {};
+      label = "Move Workspace Up";
+      icon = "go-up";
+    };
+    "Mod+Ctrl+Shift+Next" = {
+      action.move-workspace-down = {};
+      label = "Move Workspace Down";
+      icon = "go-down";
+    };
+
+    # Move entire workspaces between monitors
+    # Deliberately awkward combos so they don't clash with future binds.
+    "Mod+Ctrl+Shift+H" = {
+      action.move-workspace-to-monitor-left = {};
+      label = "Move Workspace to Monitor Left";
+      icon = "go-previous";
+    };
+    "Mod+Ctrl+Shift+L" = {
+      action.move-workspace-to-monitor-right = {};
+      label = "Move Workspace to Monitor Right";
+      icon = "go-next";
+    };
+    "Mod+Ctrl+Shift+K" = {
+      action.move-workspace-to-monitor-down = {};
+      label = "Move Workspace to Monitor Down";
+      icon = "go-down";
+    };
+    "Mod+Ctrl+Shift+J" = {
+      action.move-workspace-to-monitor-up = {};
+      label = "Move Workspace to Monitor Up";
+      icon = "go-up";
+    };
+
     # Columns
     "Mod+Comma" = {
       action.consume-window-into-column = {};
