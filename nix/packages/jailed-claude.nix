@@ -35,6 +35,7 @@ in
       (try-readonly (noescape "~/.config/jj"))
       (try-readonly (noescape "~/.config/nix"))
       (try-readonly (noescape "~/projects/giodamelio/agent-skills"))
+      (try-readonly (noescape "~/.config/google-chrome/DevToolsActivePort"))
 
       # CWD bind must come after ro paths so it wins when they overlap
       work-in-cwd
