@@ -2611,11 +2611,11 @@
         "unison-lang": "unison-lang"
       },
       "locked": {
-        "lastModified": 1781470098,
-        "narHash": "sha256-CQlGtN5mnC9s3oHQAQWmPx097UINfXxB6/fO7Eyq1oM=",
+        "lastModified": 1781633308,
+        "narHash": "sha256-OFgZShPvQ567Aln5/yvbEhl42iuWqwLiFgwRnYR4xnY=",
         "owner": "giodamelio",
         "repo": "neovim-configs-nix",
-        "rev": "40eed41c15110a0274c7ada13f8419b06f33290e",
+        "rev": "cf0c244ae486f866a6ff8395dbe54c1f9b78eaa3",
         "type": "github"
       },
       "original": {
@@ -3506,11 +3506,11 @@
     },
     "nixpkgs_16": {
       "locked": {
-        "lastModified": 1781359544,
-        "narHash": "sha256-iUuzKQcyXvopYDDzFpMK5eQKP3WIJExYny2kJtbgUcE=",
+        "lastModified": 1777826146,
+        "narHash": "sha256-wQ/iN5Zp5VIa3ebBibijPnLyKhor+xEbDy4d0goa9Zs=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "9f11f828c213641c2369a9f1fa31fe31557e3156",
+        "rev": "73c703c22422b8951895a960959dbbaca7296492",
         "type": "github"
       },
       "original": {
