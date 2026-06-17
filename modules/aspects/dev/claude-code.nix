@@ -19,6 +19,14 @@ _: {
     jailedClaude = perSystem.self.jailed-claude;
     claudeCode = perSystem.llm-agents.claude-code;
 
+    # No-operand `rtk read` (what the hook rewrites a bare cat/head/tail into)
+    # crash-exits 127 instead of reading stdin like cat. Patch reads stdin.
+    # REMIND-ME-TO: Drop rtk-read-stdin.patch issue_closed=github:rtk-ai/rtk#2095
+    # REMIND-ME-TO: Drop rtk-read-stdin.patch issue_closed=github:rtk-ai/rtk#2369
+    rtk = perSystem.llm-agents.rtk.overrideAttrs (old: {
+      patches = (old.patches or []) ++ [./rtk-read-stdin.patch];
+    });
+
     # Wrap jailed-claude so it's also available as "claude" in PATH
     claudeWrapper = pkgs.symlinkJoin {
       name = "claude-wrapper";
@@ -70,7 +78,7 @@ _: {
     config = lib.mkIf config.programs.gio-claude-code.enable {
       home.packages = [
         claudeWrapper
-        perSystem.llm-agents.rtk
+        rtk
       ];
 
       home.shellAliases = {
