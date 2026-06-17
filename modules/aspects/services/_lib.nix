@@ -102,4 +102,19 @@
     // lib.optionalAttrs (head.scheme != "http") {inherit (head) scheme;}
     // lib.optionalAttrs (head.params != {}) {inherit (head) params;}
     // lib.optionalAttrs (head.auth != null) {authorization = mkAuth head.auth;};
+
+  # A dashboard facet entry -> a homer item (subtitle/logo only when set).
+  dashboardToItem = d:
+    {
+      name = d.title;
+      inherit (d) url;
+    }
+    // lib.optionalAttrs (d.subtitle != null) {inherit (d) subtitle;}
+    // lib.optionalAttrs (d.logo != null) {inherit (d) logo;};
+
+  # A category + its dashboard entries -> a homer service group.
+  homerGroupOf = category: entries: {
+    name = category;
+    items = map dashboardToItem entries;
+  };
 }

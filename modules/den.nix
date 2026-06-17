@@ -77,6 +77,9 @@
     # fleet.services -> Prometheus scrape configs. Self-gates on host.prometheus.enable.
     den.aspects.services-prometheus
 
+    # fleet.services -> the Homer dashboard. Self-gates on host.homer.enable.
+    den.aspects.services-homer
+
     # Dual-class: CLIs on every system; overriding aliases only for HM users.
     den.aspects.modern-coreutils-replacements
 

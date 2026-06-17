@@ -52,6 +52,19 @@
       auth = null;
     }
     // attrs;
+  # a flattened dashboard entry
+  di = attrs:
+    {
+      host = "h";
+      service = "s";
+      key = "default";
+      category = "Services";
+      title = "S";
+      subtitle = null;
+      logo = null;
+      url = "https://s";
+    }
+    // attrs;
   t = expr: expected: {inherit expr expected;};
 in {
   flake.tests.fleet-services = {
@@ -209,5 +222,34 @@ in {
         credentials_file = "/run/x";
       };
     scrape-params = t (l.scrapeConfigOf "consul" [(pe {params.format = ["prometheus"];})]).params {format = ["prometheus"];};
+
+    # homer dashboard items + groups
+    homer-item-min = t (l.dashboardToItem (di {})) {
+      name = "S";
+      url = "https://s";
+    };
+    homer-item-full =
+      t (l.dashboardToItem (di {
+        subtitle = "sub";
+        logo = "l";
+      })) {
+        name = "S";
+        url = "https://s";
+        subtitle = "sub";
+        logo = "l";
+      };
+    homer-group = t (l.homerGroupOf "Media" [(di {title = "A";}) (di {title = "B";})]) {
+      name = "Media";
+      items = [
+        {
+          name = "A";
+          url = "https://s";
+        }
+        {
+          name = "B";
+          url = "https://s";
+        }
+      ];
+    };
   };
 }

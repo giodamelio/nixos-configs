@@ -58,4 +58,11 @@
     l = import ./_lib.nix {inherit lib;};
   in
     lib.mapAttrsToList l.scrapeConfigOf (lib.groupBy (e: e.job) (prometheusEndpointsOf denHosts));
+
+  # All declared dashboards across the fleet -> homer `services` groups (one group
+  # per category, items in declaration order).
+  homerServicesOf = denHosts: let
+    l = import ./_lib.nix {inherit lib;};
+  in
+    lib.mapAttrsToList l.homerGroupOf (lib.groupBy (d: d.category) (dashboardsOf denHosts));
 }
