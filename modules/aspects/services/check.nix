@@ -37,6 +37,21 @@
     endpoints = attrs.endpoints or {};
     healthchecks = attrs.healthchecks or {};
   };
+  # a flattened prometheus-endpoint entry (as facetEntries produces)
+  pe = attrs:
+    {
+      host = "h";
+      service = "s";
+      key = "default";
+      target = "localhost:9090";
+      scheme = "http";
+      path = "/metrics";
+      job = "s";
+      labels = {};
+      params = {};
+      auth = null;
+    }
+    // attrs;
   t = expr: expected: {inherit expr expected;};
 in {
   flake.tests.fleet-services = {
@@ -132,5 +147,67 @@ in {
     # fleet-wide domain uniqueness (drives the build-blocking assertion)
     dup-domains = t (l.duplicateDomains [{domain = "a";} {domain = "b";} {domain = "a";}]) ["a"];
     dup-none = t (l.duplicateDomains [{domain = "a";} {domain = "b";}]) [];
+
+    # prometheus scrape_config from facet entries
+    scrape-basic = t (l.scrapeConfigOf "node" [(pe {target = "localhost:9000";})]) {
+      job_name = "node";
+      static_configs = [{targets = ["localhost:9000"];}];
+    };
+    scrape-multi-host =
+      t
+      (l.scrapeConfigOf "node" [
+        (pe {
+          target = "localhost:9000";
+          labels.host = "carbon";
+        })
+        (pe {
+          target = "gallium.gio.ninja:9000";
+          labels.host = "gallium";
+        })
+      ]).static_configs [
+        {
+          targets = ["localhost:9000"];
+          labels.host = "carbon";
+        }
+        {
+          targets = ["gallium.gio.ninja:9000"];
+          labels.host = "gallium";
+        }
+      ];
+    scrape-https-path = t (let
+      c = l.scrapeConfigOf "immich_api" [
+        (pe {
+          scheme = "https";
+          path = "/metrics/api";
+        })
+      ];
+    in {inherit (c) metrics_path scheme;}) {
+      metrics_path = "/metrics/api";
+      scheme = "https";
+    };
+    scrape-default-omits =
+      t (let
+        c = l.scrapeConfigOf "x" [(pe {})];
+      in {
+        hasPath = c ? metrics_path;
+        hasScheme = c ? scheme;
+      }) {
+        hasPath = false;
+        hasScheme = false;
+      };
+    scrape-auth =
+      t
+      (l.scrapeConfigOf "garage" [
+        (pe {
+          auth = {
+            credentials = null;
+            credentialsFile = "/run/x";
+          };
+        })
+      ]).authorization {
+        type = "Bearer";
+        credentials_file = "/run/x";
+      };
+    scrape-params = t (l.scrapeConfigOf "consul" [(pe {params.format = ["prometheus"];})]).params {format = ["prometheus"];};
   };
 }

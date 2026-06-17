@@ -135,8 +135,9 @@ in {
             };
           };
 
-          # prometheus-endpoint — "exposes Prometheus metrics here". job defaults
-          # to the service name.
+          # prometheus-endpoint — "exposes Prometheus metrics here". job defaults to
+          # the service name; a service with several endpoints must set distinct
+          # `job`s (e.g. immich_api / immich_microservices) so they don't collide.
           prometheusEndpointType = types.submodule {
             options = {
               target = mkOption {

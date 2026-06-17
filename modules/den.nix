@@ -74,6 +74,9 @@
     # having serving endpoints (reverse-proxy aspect is pulled in by deployed-apps).
     den.aspects.services-reverse-proxy
 
+    # fleet.services -> Prometheus scrape configs. Self-gates on host.prometheus.enable.
+    den.aspects.services-prometheus
+
     # Dual-class: CLIs on every system; overriding aliases only for HM users.
     den.aspects.modern-coreutils-replacements
 

@@ -51,4 +51,11 @@
     };
   in
     builtins.listToAttrs (map recordFor (endpointsOf denHosts));
+
+  # All declared prometheus-endpoints across the fleet -> prometheus scrapeConfigs,
+  # grouped by job (one scrape_config per job, a static_config per declaring host).
+  scrapeConfigsOf = denHosts: let
+    l = import ./_lib.nix {inherit lib;};
+  in
+    lib.mapAttrsToList l.scrapeConfigOf (lib.groupBy (e: e.job) (prometheusEndpointsOf denHosts));
 }

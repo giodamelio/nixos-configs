@@ -81,4 +81,25 @@
     port = ep.backend.port;
     socket_path = ep.backend.socket;
   };
+
+  # A prometheus `job` name + its prometheus-endpoint entries -> one prometheus
+  # scrape_config. Entries sharing a job become multiple static_configs (the same
+  # exporter across several hosts). Job-level fields (metrics_path/scheme/params/
+  # authorization) come from the first entry — entries in one job share them.
+  scrapeConfigOf = job: entries: let
+    head = lib.head entries;
+    mkAuth = a:
+      {type = "Bearer";}
+      // lib.optionalAttrs (a.credentials != null) {inherit (a) credentials;}
+      // lib.optionalAttrs (a.credentialsFile != null) {credentials_file = a.credentialsFile;};
+    mkStatic = e: {targets = [e.target];} // lib.optionalAttrs (e.labels != {}) {inherit (e) labels;};
+  in
+    {
+      job_name = job;
+      static_configs = map mkStatic entries;
+    }
+    // lib.optionalAttrs (head.path != "/metrics") {metrics_path = head.path;}
+    // lib.optionalAttrs (head.scheme != "http") {inherit (head) scheme;}
+    // lib.optionalAttrs (head.params != {}) {inherit (head) params;}
+    // lib.optionalAttrs (head.auth != null) {authorization = mkAuth head.auth;};
 }
