@@ -247,9 +247,10 @@ in {
     };
 
     # Media Keys
-    "XF86AudioPlay".action.spawn = ["${lib.getExe pkgs.playerctl}" "play-pause"];
-    "XF86AudioPause".action.spawn = ["${lib.getExe pkgs.playerctl}" "play-pause"];
-    "XF86AudioNext".action.spawn = ["${lib.getExe pkgs.playerctl}" "next"];
-    "XF86AudioPrev".action.spawn = ["${lib.getExe pkgs.playerctl}" "previous"];
+    # Prefer Spotify when it's running, fall back to any other player (e.g. Firefox)
+    "XF86AudioPlay".action.spawn = ["${lib.getExe pkgs.playerctl}" "-p" "spotify,%any" "play-pause"];
+    "XF86AudioPause".action.spawn = ["${lib.getExe pkgs.playerctl}" "-p" "spotify,%any" "play-pause"];
+    "XF86AudioNext".action.spawn = ["${lib.getExe pkgs.playerctl}" "-p" "spotify,%any" "next"];
+    "XF86AudioPrev".action.spawn = ["${lib.getExe pkgs.playerctl}" "-p" "spotify,%any" "previous"];
   };
 }
