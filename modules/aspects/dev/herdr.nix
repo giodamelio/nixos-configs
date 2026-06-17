@@ -2,8 +2,17 @@
   den.aspects.herdr.homeManager = {perSystem, ...}: {
     home.packages = [
       # Build herdr from our fork (carries the bwrap detection patch upstream).
-      (perSystem.llm-agents.herdr.overrideAttrs (_: {
+      # The fork's Cargo.lock differs from upstream, so the cargo vendor dir
+      # hashes differently. Upstream's cargoHash is read from args (not finalAttrs),
+      # so overrideAttrs can't set it; instead override the FOD hash on the inner
+      # vendorStaging derivation that fetchCargoVendor produces.
+      (perSystem.llm-agents.herdr.overrideAttrs (old: {
         src = inputs.herdr;
+        cargoDeps = old.cargoDeps.overrideAttrs (vendor: {
+          vendorStaging = vendor.vendorStaging.overrideAttrs (_: {
+            outputHash = "sha256-NHVSdXlGsqhI/Mij28TvdW0f6IKOglNgpBNb2sFXocI=";
+          });
+        });
       }))
       perSystem.self.herdr-proxy
     ];
