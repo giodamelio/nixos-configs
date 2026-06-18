@@ -35,7 +35,7 @@ in {
     ./restate.nix # Distributed application platform
     ./windmill.nix # Workflow Engine
     ./grist.nix # Spreadsheets on steroids
-    ./home-assistant.nix # Home Automation
+    ./home-assistant/default.nix # Home Automation
     ./openbao.nix # Secret Automation
     ./hammond.nix # Static network configuration
     ./netdata.nix # Real-time Infrastructure Monitoring
