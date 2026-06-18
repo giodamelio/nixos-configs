@@ -33,6 +33,43 @@ in {
                   type = lib.types.str;
                   description = "Default gateway address";
                 };
+                ula = lib.mkOption {
+                  type = lib.types.nullOr lib.types.str;
+                  default = null;
+                  example = "fd12:3456:789a:30::10/64";
+                  description = ''
+                    Optional static ULA (Unique Local Address) with prefix
+                    length. Assigned alongside the IPv4 address and any
+                    RA-derived GUA, giving the host a stable, internet-private
+                    IPv6 address for internal services (e.g. as a DNS server).
+                  '';
+                };
+                vlans = lib.mkOption {
+                  type = lib.types.listOf (lib.types.submodule {
+                    options = {
+                      name = lib.mkOption {
+                        type = lib.types.str;
+                        description = "Name of the VLAN sub-interface";
+                      };
+                      id = lib.mkOption {
+                        type = lib.types.int;
+                        description = "VLAN ID (802.1Q tag)";
+                      };
+                      subnets = lib.mkOption {
+                        type = lib.types.listOf lib.types.str;
+                        default = [];
+                        description = ''
+                          Subnet ranges (IPv4 and/or IPv6 CIDRs) belonging to
+                          this VLAN. When set, forwarding to/from the VLAN is
+                          dropped so this host never routes between the VLAN and
+                          the rest of the network.
+                        '';
+                      };
+                    };
+                  });
+                  default = [];
+                  description = "Tagged VLAN sub-interfaces on this interface";
+                };
               };
             });
             description = "Per-interface static network configuration";
