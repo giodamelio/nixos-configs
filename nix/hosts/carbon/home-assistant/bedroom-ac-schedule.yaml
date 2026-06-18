@@ -1,0 +1,243 @@
+# ============================================================================
+# Bedroom AC Schedule  —  Home Assistant package
+# ----------------------------------------------------------------------------
+# Goal:   reach 70 °F by 8:00 PM, hold overnight, turn OFF at 9:00 AM.
+# Start:  computed dynamically so cooling begins only as late as needed to hit
+#         70 by 8 PM; the lead time floats with outdoor temp and self-calibrates.
+# Manual: HA commands the AC at only THREE moments — pre-cool start, the 8 PM
+#         hold, and the 9 AM off — and never re-asserts between them, so manual
+#         changes stick. To skip a night, toggle off input_boolean.ac_precool_enable.
+#
+# ENTITIES — all wired for your setup already:
+#   climate.bedroom_midea_ac          -> the AC (verify this id in Developer Tools > States)
+#   Room temp + outdoor temp default to the AC's built-in sensor and your Met.no
+#   weather entity. If you add a dedicated room sensor (recommended — the AC's
+#   sensor reads cool right at the unit), change ONE line in "AC Room Temp" below.
+# ============================================================================
+
+input_boolean:
+  ac_precool_enable:
+    name: Bedroom AC Schedule Enabled
+    icon: mdi:snowflake-thermometer
+  ac_precool_active:        # internal: true during an active pre-cool ramp
+    name: Pre-Cool Ramp Active
+    icon: mdi:progress-clock
+
+input_number:
+  ac_target_temp:
+    {name: "Pre-Cool Target Temp", min: 61, max: 86, step: 1, unit_of_measurement: "°F", icon: mdi:thermometer, initial: 70}
+  ac_safety_margin:
+    {name: "Pre-Cool Safety Margin", min: 1.0, max: 2.0, step: 0.05, icon: mdi:shield-clock, initial: 1.25}
+  ac_max_runtime:
+    {name: "Pre-Cool Max Runtime", min: 30, max: 360, step: 10, unit_of_measurement: "min", icon: mdi:timer-alert, initial: 240}
+
+  # learned cooling rates (°F/min) per outdoor bucket; seeded with rough guesses
+  # for a ~14k BTU portable, then overwritten with measured values over time.
+  ac_rate_cool: {name: "Rate (cool outdoor <75F)", min: 0.05, max: 1.5, step: 0.01, unit_of_measurement: "°F/min", initial: 0.50}
+  ac_rate_mild: {name: "Rate (mild outdoor 75-85F)", min: 0.05, max: 1.5, step: 0.01, unit_of_measurement: "°F/min", initial: 0.35}
+  ac_rate_warm: {name: "Rate (warm outdoor 85-95F)", min: 0.05, max: 1.5, step: 0.01, unit_of_measurement: "°F/min", initial: 0.25}
+  ac_rate_hot:  {name: "Rate (hot outdoor >95F)", min: 0.05, max: 1.5, step: 0.01, unit_of_measurement: "°F/min", initial: 0.15}
+
+  ac_cycle_start_temp:
+    {name: "Cycle Start Temp", min: 40, max: 110, step: 0.1, unit_of_measurement: "°F", initial: 75}
+
+input_text:
+  ac_cycle_bucket:
+    {name: "Cycle Outdoor Bucket", max: 8}
+
+input_datetime:
+  ac_target_time:                       # be at target by this time
+    {name: "Pre-Cool Target Time", has_date: false, has_time: true, initial: "20:00:00"}
+  ac_off_time:                          # shut off at this time
+    {name: "Pre-Cool Off Time", has_date: false, has_time: true, initial: "09:00:00"}
+  ac_cycle_started_at:
+    {name: "Cycle Started At", has_date: true, has_time: true}
+
+template:
+  - sensor:
+      # ---- TEMPERATURE SOURCES (the two lines you might swap) --------------
+      - name: AC Room Temp
+        unique_id: ac_room_temp
+        unit_of_measurement: "°F"
+        # The AC's temperature, exposed as a sensor entity. (This reads near the
+        # unit, so it tends to stop short of truly chilling the room; swap for a
+        # standalone bedroom sensor here later if you add one.)
+        state: "{{ states('sensor.bedroom_midea_ac_temperature') }}"
+
+      - name: AC Outdoor Temp
+        unique_id: ac_outdoor_temp
+        unit_of_measurement: "°F"
+        # Defaults to your Met.no weather entity. Verify the id in
+        # Developer Tools > States (could be weather.home / weather.met_no / etc.)
+        state: "{{ state_attr('weather.forecast_home','temperature') }}"
+      # ---------------------------------------------------------------------
+
+      - name: AC Cooling Rate Estimate
+        unique_id: ac_cooling_rate_estimate
+        unit_of_measurement: "°F/min"
+        state: >
+          {% set ot = states('sensor.ac_outdoor_temp') | float(70) %}
+          {% if ot < 75 %}{{ states('input_number.ac_rate_cool') | float(0.50) }}
+          {% elif ot < 85 %}{{ states('input_number.ac_rate_mild') | float(0.35) }}
+          {% elif ot < 95 %}{{ states('input_number.ac_rate_warm') | float(0.25) }}
+          {% else %}{{ states('input_number.ac_rate_hot') | float(0.15) }}{% endif %}
+
+      - name: AC Outdoor Bucket
+        unique_id: ac_outdoor_bucket
+        state: >
+          {% set ot = states('sensor.ac_outdoor_temp') | float(70) %}
+          {% if ot < 75 %}cool
+          {% elif ot < 85 %}mild
+          {% elif ot < 95 %}warm
+          {% else %}hot{% endif %}
+
+      - name: AC Minutes To Target
+        unique_id: ac_minutes_to_target
+        unit_of_measurement: "min"
+        state: >
+          {% set indoor = states('sensor.ac_room_temp') | float(0) %}
+          {% set target = states('input_number.ac_target_temp') | float(70) %}
+          {% set rate   = states('sensor.ac_cooling_rate_estimate') | float(0.3) %}
+          {% set drop = indoor - target %}
+          {% if drop <= 0 or rate <= 0 %}0
+          {% else %}{{ [ (drop / rate) | round(0), 360 ] | min }}{% endif %}
+
+      - name: AC Minutes Until Deadline
+        unique_id: ac_minutes_until_deadline
+        unit_of_measurement: "min"
+        state: >
+          {% set t = state_attr('input_datetime.ac_target_time','timestamp') %}
+          {% if t is none %}9999
+          {% else %}
+            {% set now_s = now().timestamp() %}
+            {% set midnight = now().replace(hour=0,minute=0,second=0,microsecond=0).timestamp() %}
+            {% set target_today = midnight + t %}
+            {% set target_s = target_today if target_today > now_s else target_today + 86400 %}
+            {{ ((target_s - now_s) / 60) | round(0) }}
+          {% endif %}
+
+  - binary_sensor:
+      # Should the dynamic pre-cool RAMP run now? True once we're within
+      # (estimated minutes * margin) of the 8 PM deadline and still above target.
+      - name: AC Should Precool
+        unique_id: ac_should_precool
+        icon: mdi:snowflake-alert
+        state: >
+          {% set need   = states('sensor.ac_minutes_to_target') | float(0) %}
+          {% set margin = states('input_number.ac_safety_margin') | float(1.25) %}
+          {% set until  = states('sensor.ac_minutes_until_deadline') | float(9999) %}
+          {% set indoor = states('sensor.ac_room_temp') | float(0) %}
+          {% set target = states('input_number.ac_target_temp') | float(70) %}
+          {{ is_state('input_boolean.ac_precool_enable','on')
+             and indoor > target
+             and until <= (need * margin) }}
+
+automation:
+  # ---- 1) Dynamic pre-cool ramp: start as late as possible to hit 70 by 8 PM,
+  #         and learn the real cooling rate when target is reached. -----------
+  - id: ac_precool_ramp
+    alias: "Bedroom AC Schedule: ramp controller"
+    mode: single
+    trigger:
+      - {platform: time_pattern, minutes: "/5"}
+      - {platform: state, entity_id: sensor.ac_room_temp}
+    condition:
+      - {condition: state, entity_id: input_boolean.ac_precool_enable, state: "on"}
+    action:
+      - choose:
+          # START the ramp (one command only)
+          - conditions:
+              - "{{ is_state('binary_sensor.ac_should_precool','on') }}"
+              - "{{ is_state('input_boolean.ac_precool_active','off') }}"
+            sequence:
+              - {service: input_boolean.turn_on, target: {entity_id: input_boolean.ac_precool_active}}
+              - service: input_datetime.set_datetime
+                target: {entity_id: input_datetime.ac_cycle_started_at}
+                data: {datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"}
+              - service: input_number.set_value
+                target: {entity_id: input_number.ac_cycle_start_temp}
+                data: {value: "{{ states('sensor.ac_room_temp') | float }}"}
+              - service: input_text.set_value
+                target: {entity_id: input_text.ac_cycle_bucket}
+                data: {value: "{{ states('sensor.ac_outdoor_bucket') }}"}
+              - {service: climate.set_hvac_mode, target: {entity_id: climate.bedroom_midea_ac}, data: {hvac_mode: cool}}
+              - service: climate.set_temperature
+                target: {entity_id: climate.bedroom_midea_ac}
+                data: {temperature: "{{ states('input_number.ac_target_temp') | float }}"}
+
+          # REACHED target -> learn (EMA into the bucket), then mark inactive.
+          - conditions:
+              - "{{ is_state('input_boolean.ac_precool_active','on') }}"
+              - "{{ states('sensor.ac_room_temp') | float(99) <= states('input_number.ac_target_temp') | float(70) }}"
+            sequence:
+              - variables:
+                  bucket: "{{ states('input_text.ac_cycle_bucket') }}"
+                  started: "{{ state_attr('input_datetime.ac_cycle_started_at','timestamp') | float(now().timestamp()) }}"
+                  elapsed: "{{ (now().timestamp() - started) / 60 }}"
+                  observed: >
+                    {% set st = states('input_number.ac_cycle_start_temp') | float %}
+                    {% set tg = states('input_number.ac_target_temp') | float %}
+                    {{ ((st - tg) / elapsed) if elapsed > 0 else 0 }}
+              - if:
+                  - "{{ elapsed >= 10 and (observed|float) >= 0.05 and (observed|float) <= 1.5 and bucket in ['cool','mild','warm','hot'] }}"
+                then:
+                  - service: input_number.set_value
+                    target: {entity_id: "input_number.ac_rate_{{ bucket }}"}
+                    data:
+                      value: >
+                        {% set old = states('input_number.ac_rate_' ~ bucket) | float(0.3) %}
+                        {{ (old * 0.7 + (observed|float) * 0.3) | round(3) }}
+              - {service: input_boolean.turn_off, target: {entity_id: input_boolean.ac_precool_active}}
+
+          # TIMEOUT -> couldn't make it (too hot out). Notify, stop the ramp.
+          - conditions:
+              - "{{ is_state('input_boolean.ac_precool_active','on') }}"
+              - >
+                {{ (now().timestamp() -
+                    (state_attr('input_datetime.ac_cycle_started_at','timestamp') | float(now().timestamp()))) / 60
+                   >= states('input_number.ac_max_runtime') | float(240) }}
+            sequence:
+              - service: persistent_notification.create
+                data:
+                  title: "Bedroom AC Schedule: target not reached"
+                  message: >
+                    Ran the max runtime but the bedroom is still
+                    {{ states('sensor.ac_room_temp') }}°F
+                    (target {{ states('input_number.ac_target_temp') }}°F,
+                    outdoor {{ states('sensor.ac_outdoor_temp') }}°F).
+              - {service: input_boolean.turn_off, target: {entity_id: input_boolean.ac_precool_active}}
+
+  # ---- 2) 8 PM: lock in the overnight hold (one command). ------------------
+  - id: ac_hold_start
+    alias: "Bedroom AC Schedule: 8 PM hold start"
+    mode: single
+    trigger:
+      - {platform: time, at: input_datetime.ac_target_time}
+    condition:
+      - {condition: state, entity_id: input_boolean.ac_precool_enable, state: "on"}
+    action:
+      - {service: climate.set_hvac_mode, target: {entity_id: climate.bedroom_midea_ac}, data: {hvac_mode: cool}}
+      - service: climate.set_temperature
+        target: {entity_id: climate.bedroom_midea_ac}
+        data: {temperature: "{{ states('input_number.ac_target_temp') | float }}"}
+
+  # ---- 3) 9 AM: turn off and release (one command). ------------------------
+  - id: ac_morning_off
+    alias: "Bedroom AC Schedule: 9 AM off"
+    mode: single
+    trigger:
+      - {platform: time, at: input_datetime.ac_off_time}
+    condition:
+      - {condition: state, entity_id: input_boolean.ac_precool_enable, state: "on"}
+    action:
+      - {service: input_boolean.turn_off, target: {entity_id: input_boolean.ac_precool_active}}
+      - {service: climate.set_hvac_mode, target: {entity_id: climate.bedroom_midea_ac}, data: {hvac_mode: "off"}}
+
+  # ---- 4) Disabled -> stop managing (does NOT touch the AC itself). --------
+  - id: ac_precool_cleanup
+    alias: "Bedroom AC Schedule: cleanup when disabled"
+    mode: single
+    trigger:
+      - {platform: state, entity_id: input_boolean.ac_precool_enable, to: "off"}
+    action:
+      - {service: input_boolean.turn_off, target: {entity_id: input_boolean.ac_precool_active}}
