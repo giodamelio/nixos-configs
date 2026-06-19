@@ -112,18 +112,27 @@ against a fixed baseline.
 - [ ] `nix path-info --derivation .#nixosConfigurations.{carbon,gallium}.config.system.build.toplevel` recorded.
 **Dependencies:** None. **Scope:** XS. **Files:** `tasks/baseline/*`.
 
-#### Task 1: Port pure-infra modules to den aspects
-**Description:** Convert the host-agnostic Blueprint modules that both hosts import
-and that have no fleet dimension: `send-metrics`, `nats`, `comin`,
-`netdata` (parent for carbon, child for gallium), and confirm `onepassword` is
-appropriate on servers (split a server variant if not). Mechanical conversions
-mirroring the existing `monitoring`/`zfs-backup` aspects.
+#### Task 1: Port pure-infra modules to den aspects — comin only
+**Description:** Only `comin` turned out to be a context-free mechanical
+conversion; it is done (`modules/aspects/server/comin.nix`). Reading the sources
+showed the rest each carry a fleet-modeling decision and are **deferred into the
+host tasks** where they are drift-testable:
+- `nats` → its `nats-ws` reverse-proxy vhost must become a `fleet.services`
+  endpoint owned by **one** host (both hosts run the cluster); → Task 12 (carbon).
+- `send-metrics` → **overlaps the existing `monitoring` aspect** (both define
+  node+zfs exporters, different ports) + adds Alloy/Loki + postgres exporter;
+  reconcile with `monitoring` per host; → Tasks 3 & 12.
+- `netdata` → `gio.credentials` becomes `fleet.secrets`: `netdata-api-key` is
+  shared carbon→gallium (parent/child streaming), plus pushover tokens (carbon)
+  and `cronitor` (gallium child); → parent in Task 12, child in Task 3.
+- `onepassword` server fit → confirm during host tasks.
 **Acceptance criteria:**
-- [ ] `modules/aspects/.../{send-metrics,nats,comin,netdata-parent,netdata-child}.nix` exist as den aspects.
-- [ ] Each gates appropriately (host-attached, inert elsewhere).
+- [x] `modules/aspects/server/comin.nix` exists; host-attached, inert elsewhere.
+- [x] Remaining modules re-assigned to Tasks 3/12 (see those tasks).
 **Verification:**
-- [ ] `nix flake check` green; aspects referenced from a scratch host eval cleanly.
-**Dependencies:** None. **Scope:** M. **Files:** 4-5 new aspect files.
+- [x] `nix-instantiate --parse` ok; rhodium `toplevel.drvPath` evaluates with the
+  new file loaded via import-tree (full `.nixos`-body check deferred to first host use).
+**Dependencies:** None. **Scope:** S (was M). **Files:** `modules/aspects/server/comin.nix`.
 
 #### Task 2: Settle the cross-cutting decisions (write them down)
 **Description:** Resolve and document the four decisions that block service ports:
@@ -375,11 +384,13 @@ netdata-*,reverse-proxy,consul,nfs-mesh,monitoring,zfs-backup,…}.nix` and
   Consul via the `webUi` on the host/VPN only. (Simpler than GET-only; mtls is
   gone — see [[mtls-ditched]].)
 
-**Still to confirm during Task 2 (lookups, not blockers):**
-- **Static IPs:** read carbon/gallium interface names + addresses from
-  `homelab.toml` for `host.network.interfaces` (carbon binds `eno1`, gallium
-  `enp5s0`; gallium consul/samba reference `10.30.0.11`).
-- **Consul topology:** `server`/`bootstrap_expect` across carbon + gallium (+
-  rhodium when live); two server hosts means `bootstrap_expect = 2` unless rhodium
-  joins as a server.
-- **stateVersion:** keep `25.11` for both (matches Blueprint) — confirm no bump.
+**Resolved (Task 2 lookups):**
+- **Network mode → dynamic (no static facts).** `homelab.toml` carries no host IPs;
+  the fleet is DNS/CNAME-based (services CNAME to `<host>.lan.`, e.g.
+  `immich → gallium.lan.`). Keep carbon/gallium `network.mode = "unmanaged"`/dhcp so
+  the dns aspect emits CNAMEs to `<host>.lan.` — drift-preserving. gallium's
+  `10.30.0.11` (samba/consul check) stays a literal; carbon binds `eno1`, gallium `enp5s0`.
+- **Consul `bootstrap_expect` → auto-derived.** The den consul aspect computes it
+  from `consul.server = true` hosts (old module hardcoded 3). Set carbon + gallium
+  `server = true`; expect 2 until rhodium (currently `ssh.enable = false`) is live, then 3.
+- **stateVersion → `25.11`** for both (matches Blueprint); no bump during migration.

@@ -3,13 +3,13 @@
 See `tasks/plan.md` for full task detail, acceptance criteria, and rationale.
 
 ## Phase 0 — Foundations (no host cutover)
-- [ ] 0. Capture baseline drvs for carbon + gallium (`tasks/baseline/`)
-- [ ] 1. Port pure-infra modules to aspects: send-metrics, nats, comin, netdata(parent/child), onepassword(server)
-- [ ] 2. Settle + document decisions: envfiles · static net facts · dns-server host · consul topology
-- [ ] **Checkpoint:** flake check green, baselines captured, decisions signed off
+- [x] 0. Capture baseline drvs for carbon + gallium (`tasks/baseline/`)
+- [x] 1. Port pure-infra modules to aspects — **comin only**. nats/send-metrics/netdata each carry a fleet-modeling decision (endpoint ownership / monitoring overlap / shared secrets) and are **deferred into the host tasks** (3 gallium, 12 carbon) where they're drift-testable.
+- [x] 2. Decisions settled: envfiles→decompose · dns-server→carbon+gallium · consul vhost→dropped · network→dynamic/CNAME (no static facts) · bootstrap_expect→auto-derived · stateVersion→25.11
+- [x] **Checkpoint:** baselines captured, comin landed (rhodium eval clean), decisions signed off → Phase 0 complete
 
 ## Phase 1 — gallium (7 services)
-- [ ] 3. gallium scaffolding (den.hosts, hw, ZFS filesystems, user, host facts) — no services
+- [ ] 3. gallium scaffolding (den.hosts, hw, ZFS filesystems, user, host facts) — no services. **Deferred infra here:** netdata-child (fleet.secrets api-key + cronitor), send-metrics (reconcile w/ monitoring aspect), nats agent.
 - [ ] 4. postgresql aspect (peer-auth base)
 - [ ] 5. syncthing (pattern shakedown)
 - [ ] 6. samba (SMB export + fw isolation)
@@ -21,7 +21,7 @@ See `tasks/plan.md` for full task detail, acceptance criteria, and rationale.
 - [ ] **Checkpoint:** drv parity → delete `nix/hosts/gallium/` → flake check → deploy → human review
 
 ## Phase 2 — carbon (~24 services)
-- [ ] 12. carbon scaffolding (den.hosts, hw, disko, user, dns.serve, hammond net, consul webUi, GET-only consul vhost no-mtls)
+- [ ] 12. carbon scaffolding (den.hosts, hw, disko, user, dns.serve, hammond net, consul webUi; **drop** read-only consul vhost). **Deferred infra here:** netdata-parent (fleet.secrets api-key shared→gallium + pushover tokens), send-metrics (reconcile w/ monitoring), nats owner (cluster + `nats-ws` fleet.services endpoint).
 - [ ] 13. postgresql aspect
 - [ ] 14. pocket-id (OIDC provider — runtime dep of many)
 - [ ] 15. mealie
