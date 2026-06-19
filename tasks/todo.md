@@ -15,7 +15,7 @@ See `tasks/plan.md` for full task detail, acceptance criteria, and rationale.
 - [x] 6. samba — SMB share + LAN fw on enp5s0 + consul TCP check (no endpoint; explicit consul address/port).
 - [x] 7. attic — fleet.secrets credential use-site (LoadCredentialEncrypted dropin on atticd) + atticd.environmentFile points at the cred path (replaces the envfile shell-wrapper; flat KEY=value assumed). Endpoint+consul. atticadm wrapper kept verbatim.
 - [x] 8. garage — 4 endpoints (s3/*.s3/*.web/admin) + 3 fleet.secrets (garage-{rpc-secret,admin-token,metrics-token}, hyphenated; settings paths updated) + dedicated user. garage-metrics-token also used by carbon prometheus (added in Task 24).
-- [ ] 9. immich (shared pg + metrics proxies + prometheus)
+- [x] 9. immich — daemon (createDB on shared pg) + SQL metrics exporter + vhost with 3 /metrics/* proxy blocks (endpoint.extraConfig) + consul. prometheus scrape declared in Task 24 (carbon).
 - [ ] 10. jellyfin (5 daemons, media group, GPU)
 - [ ] 11. fleet.nfs exports (forgejo-repos, paperless) — carbon depends on this
 - [ ] **Checkpoint:** drv parity → delete `nix/hosts/gallium/` → flake check → deploy → human review
