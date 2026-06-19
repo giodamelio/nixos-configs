@@ -13,7 +13,7 @@ See `tasks/plan.md` for full task detail, acceptance criteria, and rationale.
 - [x] 4. postgresql aspect (base server + pgcli; shared, included by gallium)
 - [x] 5. syncthing — fleet.services pattern validated (caddy vhost + consul reg match Blueprint). NOTE: endpoint needs explicit `backend.host="localhost"` (null isn't auto-resolved).
 - [x] 6. samba — SMB share + LAN fw on enp5s0 + consul TCP check (no endpoint; explicit consul address/port).
-- [ ] 7. attic (fleet.secrets envfile case)
+- [x] 7. attic — fleet.secrets credential use-site (LoadCredentialEncrypted dropin on atticd) + atticd.environmentFile points at the cred path (replaces the envfile shell-wrapper; flat KEY=value assumed). Endpoint+consul. atticadm wrapper kept verbatim.
 - [ ] 8. garage (S3, multi-endpoint, 3 secrets) — carbon/gradient depends on this
 - [ ] 9. immich (shared pg + metrics proxies + prometheus)
 - [ ] 10. jellyfin (5 daemons, media group, GPU)
