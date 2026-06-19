@@ -1,11 +1,12 @@
 # ============================================================================
 # Bedroom AC Schedule  —  Home Assistant package
 # ----------------------------------------------------------------------------
-# Goal:   reach 70 °F by 8:00 PM, hold overnight, turn OFF at 9:00 AM.
+# Goal:   reach 70 °F by 8:00 PM, hold overnight, turn OFF in the morning
+#         (9:00 AM weekdays, 11:00 AM weekends).
 # Start:  computed dynamically so cooling begins only as late as needed to hit
 #         70 by 8 PM; the lead time floats with outdoor temp and self-calibrates.
 # Manual: HA commands the AC at only THREE moments — pre-cool start, the 8 PM
-#         hold, and the 9 AM off — and never re-asserts between them, so manual
+#         hold, and the morning off — and never re-asserts between them, so manual
 #         changes stick. To skip a night, toggle off input_boolean.ac_precool_enable.
 #
 # ENTITIES — all wired for your setup already:
@@ -48,8 +49,10 @@ input_text:
 input_datetime:
   ac_target_time:                       # be at target by this time
     {name: "Pre-Cool Target Time", has_date: false, has_time: true, initial: "20:00:00"}
-  ac_off_time:                          # shut off at this time
-    {name: "Pre-Cool Off Time", has_date: false, has_time: true, initial: "09:00:00"}
+  ac_off_time:                          # shut off at this time (Mon–Fri mornings)
+    {name: "Pre-Cool Off Time (Weekday)", has_date: false, has_time: true, initial: "09:00:00"}
+  ac_off_time_weekend:                  # shut off at this time (Sat/Sun mornings)
+    {name: "Pre-Cool Off Time (Weekend)", has_date: false, has_time: true, initial: "11:00:00"}
   ac_cycle_started_at:
     {name: "Cycle Started At", has_date: true, has_time: true}
 
@@ -221,14 +224,20 @@ automation:
         target: {entity_id: climate.bedroom_midea_ac}
         data: {temperature: "{{ states('input_number.ac_target_temp') | float }}"}
 
-  # ---- 3) 9 AM: turn off and release (one command). ------------------------
+  # ---- 3) Morning off: turn off and release (one command). Weekday time runs
+  #         Mon–Fri, weekend time runs Sat/Sun; each trigger only fires the off
+  #         on the days it applies to. ----------------------------------------
   - id: ac_morning_off
-    alias: "Bedroom AC Schedule: 9 AM off"
+    alias: "Bedroom AC Schedule: morning off"
     mode: single
     trigger:
-      - {platform: time, at: input_datetime.ac_off_time}
+      - {platform: time, at: input_datetime.ac_off_time, id: weekday}
+      - {platform: time, at: input_datetime.ac_off_time_weekend, id: weekend}
     condition:
       - {condition: state, entity_id: input_boolean.ac_precool_enable, state: "on"}
+      # Honor the weekday trigger only Mon–Fri, the weekend trigger only Sat/Sun.
+      - condition: template
+        value_template: "{{ (trigger.id == 'weekend') == (now().weekday() >= 5) }}"
     action:
       - {service: input_boolean.turn_off, target: {entity_id: input_boolean.ac_precool_active}}
       - {service: climate.set_hvac_mode, target: {entity_id: climate.bedroom_midea_ac}, data: {hvac_mode: "off"}}
