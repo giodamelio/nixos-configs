@@ -36,21 +36,31 @@ in {
       };
     };
 
-    # The `server` system account (no Home-Manager): wheel for passwordless sudo
-    # (from basic-settings), docker + sound as on the old host, fleet SSH keys.
-    users.server = {
-      classes = [];
-      aspect.includes = [
-        den.batteries.define-user
-        (den.batteries.user-shell "zsh")
-        {
-          user = {
-            extraGroups = ["wheel" "docker" "sound"];
-            openssh.authorizedKeys.keys = homelab.ssh_keys;
-          };
-        }
-      ];
-    };
+    # The `server` user with its Home-Manager environment (the old
+    # homeModules.users-server: git/neovim/zsh/atuin/lil-scripts + nix-activate;
+    # shpool/zmx/modern-coreutils arrive via den.default for HM users). wheel
+    # gives passwordless sudo (basic-settings); docker + sound as on the old host.
+    users.server.aspect.includes = [
+      den.batteries.define-user
+      (den.batteries.user-shell "zsh")
+
+      den.aspects.lil-scripts
+      den.aspects.git
+      den.aspects.neovim
+      den.aspects.zsh
+      den.aspects.atuin
+      {
+        user = {
+          extraGroups = ["wheel" "docker" "sound"];
+          openssh.authorizedKeys.keys = homelab.ssh_keys;
+        };
+        homeManager = {
+          home.stateVersion = "25.05";
+          programs.git.enable = true;
+          gio.nix-activate-config.activation = {system = "nixos";};
+        };
+      }
+    ];
   };
 
   # Host NixOS feature aspects (the old Blueprint imports that den.default does
