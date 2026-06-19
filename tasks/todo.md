@@ -9,7 +9,7 @@ See `tasks/plan.md` for full task detail, acceptance criteria, and rationale.
 - [x] **Checkpoint:** baselines captured, comin landed (rhodium eval clean), decisions signed off → Phase 0 complete
 
 ## Phase 1 — gallium (7 services)
-- [ ] 3. gallium scaffolding (den.hosts, hw, ZFS filesystems, user, host facts) — no services. **Deferred infra here:** netdata-child (fleet.secrets api-key + cronitor), send-metrics (reconcile w/ monitoring aspect), nats agent.
+- [x] 3. gallium scaffolding (den.hosts + hw + ZFS fs + server user + facts: role/consul/dns.serve/static-network/zfs_backup/firewall). Evals clean. **Network corrected to static** (den aspects need it). **Deferred infra → Task 11:** netdata-child, send-metrics, nats.
 - [ ] 4. postgresql aspect (peer-auth base)
 - [ ] 5. syncthing (pattern shakedown)
 - [ ] 6. samba (SMB export + fw isolation)

@@ -385,11 +385,15 @@ netdata-*,reverse-proxy,consul,nfs-mesh,monitoring,zfs-backup,…}.nix` and
   gone — see [[mtls-ditched]].)
 
 **Resolved (Task 2 lookups):**
-- **Network mode → dynamic (no static facts).** `homelab.toml` carries no host IPs;
-  the fleet is DNS/CNAME-based (services CNAME to `<host>.lan.`, e.g.
-  `immich → gallium.lan.`). Keep carbon/gallium `network.mode = "unmanaged"`/dhcp so
-  the dns aspect emits CNAMEs to `<host>.lan.` — drift-preserving. gallium's
-  `10.30.0.11` (samba/consul check) stays a literal; carbon binds `eno1`, gallium `enp5s0`.
+- **Network mode → static (CORRECTED).** Initially scoped as dynamic, but the den
+  consul/nfs/dns aspects derive bind-interface/address via `net.theInterface`,
+  which *throws* for non-static hosts — servers must be `network.mode = "static"`.
+  Facts come from the root `homelab.nix` (`gio.homelab.networking`): gallium =
+  `enp5s0` `10.30.0.11/24` gw `10.30.0.1` ula `fd7f:148b:0a27:30::11/64`; carbon =
+  `eno1` `10.30.0.10/24` gw `10.30.0.1` ula `…::10/64` + VLAN `iot0` id 4. The den
+  `network` aspect renders systemd-networkd identically to the old
+  `homelab/static-network.nix`. Note: service DNS records become **A records** (to
+  the static host) instead of the old `<host>.lan.` CNAMEs — expected migration diff.
 - **Consul `bootstrap_expect` → auto-derived.** The den consul aspect computes it
   from `consul.server = true` hosts (old module hardcoded 3). Set carbon + gallium
   `server = true`; expect 2 until rhodium (currently `ssh.enable = false`) is live, then 3.
