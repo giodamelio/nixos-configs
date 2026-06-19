@@ -64,8 +64,8 @@ in {
   };
 
   # Host NixOS feature aspects (the old Blueprint imports that den.default does
-  # not already provide). send-metrics / netdata-child / nats arrive in the NFS
-  # + infra task.
+  # not already provide). The netdata child rides in its own file (netdata.nix),
+  # like the per-service files.
   den.aspects.gallium.includes = [
     den.aspects.lil-scripts
     den.aspects.onepassword
