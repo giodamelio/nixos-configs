@@ -62,6 +62,8 @@ in {
     den.aspects.comin
     den.aspects.zfs-backup
     den.aspects.postgresql
+    den.aspects.nats
+    den.aspects.send-metrics
   ];
 
   # Host-specific config (merges with hardware.nix + filesystems.nix).

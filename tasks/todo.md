@@ -17,8 +17,8 @@ See `tasks/plan.md` for full task detail, acceptance criteria, and rationale.
 - [x] 8. garage — 4 endpoints (s3/*.s3/*.web/admin) + 3 fleet.secrets (garage-{rpc-secret,admin-token,metrics-token}, hyphenated; settings paths updated) + dedicated user. garage-metrics-token also used by carbon prometheus (added in Task 24).
 - [x] 9. immich — daemon (createDB on shared pg) + SQL metrics exporter + vhost with 3 /metrics/* proxy blocks (endpoint.extraConfig) + consul. prometheus scrape declared in Task 24 (carbon).
 - [x] 10. jellyfin — jellyfin/prowlarr/sonarr/radarr/sabnzbd daemons + media group + QSV GPU + sabnzbd ExecStart override. 6 endpoints (nzbget consul.enable=false), 5 consul regs. Verified 10 total consul names match Blueprint.
-- [ ] 11. fleet.nfs exports (forgejo-repos, paperless) — carbon depends on this
-- [ ] **Checkpoint:** drv parity → delete `nix/hosts/gallium/` → flake check → deploy → human review
+- [x] 11. nats + send-metrics ported as shared aspects (gallium includes both; gallium owns nats-ws endpoint). **BLOCKED-on-carbon (moved to carbon phase):** fleet.nfs exports (mesh needs carbon as a den peer) and netdata-child (api-key origin=carbon must be a den host).
+- [ ] **Checkpoint:** build + check-drv-drift (DRIFT_ALLOW=gallium) → review diffs → flake check. **NO delete, NO deploy** (await user goahead).
 
 ## Phase 2 — carbon (~24 services)
 - [ ] 12. carbon scaffolding (den.hosts, hw, disko, user, dns.serve, hammond net, consul webUi; **drop** read-only consul vhost). **Deferred infra here:** netdata-parent (fleet.secrets api-key shared→gallium + pushover tokens), send-metrics (reconcile w/ monitoring), nats owner (cluster + `nats-ws` fleet.services endpoint).
@@ -35,6 +35,7 @@ See `tasks/plan.md` for full task detail, acceptance criteria, and rationale.
 - [ ] 23. homer (reconcile generated dashboards vs hand-written)
 - [ ] 24. prometheus server (fleet scrape set; after gallium)
 - [ ] 25. gatus status page
+- [ ] 11b (carbon-phase). fleet.nfs mesh + exports (gallium↔carbon: forgejo /tank/forgejo, paperless-ngx /tank/paperless) — declare once carbon is a den host. netdata-child on gallium (api-key origin=carbon) + netdata-parent on carbon.
 - [ ] 26. forgejo (+ runner; needs gallium NFS + OIDC)
 - [ ] 27. paperless (NFS + OIDC + gotenberg; envfile case)
 - [ ] 28. solidtime (PHP-FPM + app key)
