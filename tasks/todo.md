@@ -10,7 +10,7 @@ See `tasks/plan.md` for full task detail, acceptance criteria, and rationale.
 
 ## Phase 1 — gallium (7 services)
 - [x] 3. gallium scaffolding (den.hosts + hw + ZFS fs + server user + facts: role/consul/dns.serve/static-network/zfs_backup/firewall). Evals clean. **Network corrected to static** (den aspects need it). **Deferred infra → Task 11:** netdata-child, send-metrics, nats.
-- [ ] 4. postgresql aspect (peer-auth base)
+- [x] 4. postgresql aspect (base server + pgcli; shared, included by gallium)
 - [ ] 5. syncthing (pattern shakedown)
 - [ ] 6. samba (SMB export + fw isolation)
 - [ ] 7. attic (fleet.secrets envfile case)

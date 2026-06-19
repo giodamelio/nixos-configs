@@ -61,6 +61,7 @@ in {
     den.aspects.onepassword
     den.aspects.comin
     den.aspects.zfs-backup
+    den.aspects.postgresql
   ];
 
   # Host-specific config (merges with hardware.nix + filesystems.nix).
