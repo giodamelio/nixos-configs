@@ -146,6 +146,25 @@
       enableBashIntegration = true;
       enableZshIntegration = true;
       nix-direnv.enable = true;
+
+      # Auto-redirect Cargo build output to a per-project dir on the
+      # unsnapshotted ~/.cache/builds dataset for any project that has a
+      # Cargo.toml. Runs on every direnv load (no per-.envrc line needed).
+      # Keyed off the topmost ancestor holding a Cargo.toml — the workspace
+      # root in the common case, so members share one target dir — with a path
+      # hash to disambiguate same-named projects. Non-Rust dirs are left on the
+      # global CARGO_TARGET_DIR fallback.
+      stdlib = ''
+        _cargo_auto_target() {
+          local dir="$PWD" root=""
+          while [ "$dir" != "/" ]; do
+            [ -e "$dir/Cargo.toml" ] && root="$dir"
+            dir="$(dirname "$dir")"
+          done
+          [ -n "$root" ] && export CARGO_TARGET_DIR="$HOME/.cache/builds/cargo/$(basename "$root")-$(printf '%s' "$root" | sha1sum | cut -c1-8)"
+        }
+        _cargo_auto_target
+      '';
     };
   };
 }

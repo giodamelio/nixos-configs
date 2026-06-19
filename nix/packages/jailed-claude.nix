@@ -22,6 +22,7 @@ in
       (try-readwrite (noescape "~/.claude.json"))
       (try-readwrite (noescape "~/.config/claude"))
       (try-readwrite (noescape "~/.cache/claude"))
+      (try-readwrite (noescape "~/.cache/builds"))
       (try-readwrite (noescape "~/.cache/claude-cli-nodejs"))
       (try-readwrite (noescape "~/.local/state/claude"))
       (try-readwrite (noescape "~/Documents/life/Projects/"))

@@ -203,6 +203,12 @@ in {
     };
     programs.ssh.startAgent = true;
 
+    # Send Cargo build artifacts to the unsnapshotted tank/giodamelio-build
+    # dataset (mounted at ~/.cache/builds) so target/ churn never lands in home
+    # snapshots. Set at the PAM session level (not home.sessionVariables) so it
+    # reaches every shell, including nushell, regardless of shell type.
+    environment.sessionVariables.CARGO_TARGET_DIR = "/home/giodamelio/.cache/builds/cargo";
+
     networking.hostId = "3c510ad9";
 
     nixpkgs.config.allowUnfree = true;

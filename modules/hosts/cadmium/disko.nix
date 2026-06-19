@@ -85,6 +85,17 @@
                   mountpoint = "legacy";
                 };
               };
+              # Build/scratch outputs (Cargo target dir, etc). Mounted on a
+              # subdir of ~/.cache so it doesn't shadow the existing cache.
+              # Deliberately kept out of sanoid — these are regenerable and
+              # churn heavily, so snapshotting them just balloons disk usage.
+              giodamelio-build = {
+                type = "zfs_fs";
+                mountpoint = "/home/giodamelio/.cache/builds";
+                options = {
+                  mountpoint = "legacy";
+                };
+              };
             };
           };
         };
