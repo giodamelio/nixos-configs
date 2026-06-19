@@ -7,6 +7,12 @@ _: {
         accessTo.cadmium.giodamelio = true;
         accessTo.cesium.giodamelio = true;
       };
+
+      android-vm = {
+        publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILanfYGZL/3V3xRjvstyCuNJIQ0VZSGllrt+3xRsikLY";
+        accessTo.cadmium.giodamelio = true;
+        accessTo.cesium.giodamelio = true;
+      };
     };
 
     revocations = {
