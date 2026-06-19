@@ -132,14 +132,25 @@ in {
       discord
     ];
 
-    # Autosnapshot ZFS and send to NAS
+    # Autosnapshot ZFS and send to NAS. tank/nix gets a shorter schedule below.
     gio.zfs_backup = {
       enable = true;
       datasets = [
         "tank/home"
-        "tank/nix"
         "tank/root"
       ];
+    };
+
+    # Short schedule for the reproducible Nix store; long retention pins GC'd
+    # store paths and balloons disk usage.
+    services.sanoid.datasets."tank/nix" = {
+      hourly = 6;
+      daily = 3;
+      monthly = 0;
+      yearly = 0;
+
+      autosnap = true;
+      autoprune = true;
     };
 
     # Aggressive short-lived snapshot schedule for ~/tmp
