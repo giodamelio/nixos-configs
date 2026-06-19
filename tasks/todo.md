@@ -12,7 +12,7 @@ See `tasks/plan.md` for full task detail, acceptance criteria, and rationale.
 - [x] 3. gallium scaffolding (den.hosts + hw + ZFS fs + server user + facts: role/consul/dns.serve/static-network/zfs_backup/firewall). Evals clean. **Network corrected to static** (den aspects need it). **Deferred infra → Task 11:** netdata-child, send-metrics, nats.
 - [x] 4. postgresql aspect (base server + pgcli; shared, included by gallium)
 - [x] 5. syncthing — fleet.services pattern validated (caddy vhost + consul reg match Blueprint). NOTE: endpoint needs explicit `backend.host="localhost"` (null isn't auto-resolved).
-- [ ] 6. samba (SMB export + fw isolation)
+- [x] 6. samba — SMB share + LAN fw on enp5s0 + consul TCP check (no endpoint; explicit consul address/port).
 - [ ] 7. attic (fleet.secrets envfile case)
 - [ ] 8. garage (S3, multi-endpoint, 3 secrets) — carbon/gradient depends on this
 - [ ] 9. immich (shared pg + metrics proxies + prometheus)
