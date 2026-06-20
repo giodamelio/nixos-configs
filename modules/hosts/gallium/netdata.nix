@@ -1,22 +1,10 @@
 # netdata child on gallium — streams metrics to carbon's netdata parent
-# (carbon.gio.ninja:19999, still Blueprint until carbon migrates). Brought
-# forward ahead of the carbon phase so monitoring keeps reporting across the
-# first den cutover and we can see if the deploy breaks anything.
-#
-# The shared stream api-key moves from gio.credentials to a fleet.secrets
-# credential use-site on netdata.service; stream.conf still reads it from
-# /run/credentials/netdata.service/netdata-api-key, so the path is unchanged.
-#
-# TEMPORARY origin: the key is really carbon's (the parent owns it and validates
-# children against it), but carbon isn't a den host yet, so fleet.secrets can't
-# use origin = "carbon". It is pinned manually on gallium — paste carbon's
-# EXISTING value with `credsync write` so the live parent accepts the stream; a
-# freshly generated key would be rejected. When carbon migrates, flip origin to
-# carbon and add the parent use-site (the value stays identical).
+# (carbon.gio.ninja:19999). The shared stream api-key is a fleet.secrets credential
+# (declared on the carbon parent, origin=carbon; this child is a use-site); it is
+# read from /run/credentials/netdata.service/netdata-api-key.
 #
 # cronitor (the dead-man's-switch the Blueprint child also carried) is NOT ported
-# here — the parent's own health alarms cover a child going stale. Port it
-# separately if the watchdog is still wanted.
+# here — the parent's own health alarms cover a child going stale.
 # Converted from nix/modules/nixos/netdata-child.nix + netdata-integrations.nix.
 _: {
   den.aspects.gallium.nixos = {
@@ -66,13 +54,7 @@ _: {
     '');
   };
 
-  # Shared stream key. Manual (no generator) + temporary gallium origin — see the
-  # header. Credential lands at /run/credentials/netdata.service/netdata-api-key.
-  fleet.secrets.netdata-api-key = {
-    origin = "gallium";
-    use.gallium.services.netdata = {
-      type = "credential";
-      restartOnChange = true;
-    };
-  };
+  # The shared netdata-api-key is now declared in modules/hosts/carbon/netdata.nix
+  # (origin=carbon, the parent); this child is a use-site there. It still reads the
+  # key from /run/credentials/netdata.service/netdata-api-key.
 }

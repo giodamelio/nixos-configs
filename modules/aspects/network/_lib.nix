@@ -15,6 +15,18 @@
     then lib.mapAttrsToList (_n: i: i.address) host.network.interfaces
     else [];
 
+  # Static ULA (IPv6) addresses on a host, with the /prefix stripped — for AAAA
+  # records. Interfaces without a `ula` contribute nothing ([] when not static).
+  ulasOf = host:
+    if isStatic host
+    then
+      lib.pipe host.network.interfaces [
+        lib.attrValues
+        (lib.filter (i: i.ula != null))
+        (map (i: lib.head (lib.splitString "/" i.ula)))
+      ]
+    else [];
+
   # Exactly-one accessors for readers that can only consume a single value
   # (consul bind, nfs endpoint). The throw on >1 is deliberate: it's the signal to
   # introduce interface roles the day a host grows a second, purpose-distinct NIC.

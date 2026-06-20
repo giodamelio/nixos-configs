@@ -41,12 +41,14 @@
   serviceZoneRecords = denHosts: let
     net = import ../network/_lib.nix {inherit lib;};
     recordFor = ep: let
-      addrs = net.addressesOf (denHosts.${ep.host} or {});
+      host = denHosts.${ep.host} or {};
+      addrs = net.addressesOf host;
+      ulas = net.ulasOf host;
     in {
       name = ep.domain;
       value =
         if addrs != []
-        then {A = addrs;}
+        then {A = addrs;} // lib.optionalAttrs (ulas != []) {AAAA = ulas;}
         else {CNAME = ["${ep.host}.lan."];};
     };
   in
