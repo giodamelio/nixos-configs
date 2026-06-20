@@ -39,6 +39,13 @@ in {
       };
     };
 
+    # NFS mesh client: mounts gallium's /tank/forgejo + /tank/paperless over
+    # WireGuard (mounts declared in nfs.nix). WG keys are auto-generated.
+    nfs = {
+      enable = true;
+      wgIp = "10.200.0.2";
+    };
+
     # The `server` user with its Home-Manager environment (the old
     # homeModules.users-server). Matches gallium's server user; carbon's account
     # was wheel-only (no docker/sound).
