@@ -79,6 +79,7 @@ _: {
       home.packages = [
         claudeWrapper
         rtk
+        perSystem.llm-agents.td
       ];
 
       home.shellAliases = {
