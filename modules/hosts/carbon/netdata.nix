@@ -56,10 +56,9 @@ _: {
         local all netdata peer map=netdata
       '';
     };
-    systemd.services.postgresql-setup.script =
-      lib.mkIf config.services.postgresql.enable (lib.mkAfter ''
-        psql -tAc "GRANT pg_monitor TO netdata"
-      '');
+    systemd.services.postgresql-setup.script = lib.mkIf config.services.postgresql.enable (lib.mkAfter ''
+      psql -tAc "GRANT pg_monitor TO netdata"
+    '');
 
     networking.firewall.allowedTCPPorts = [19999];
   };

@@ -89,18 +89,17 @@ _: {
     consul.enable = false;
   };
 
-  # Shared verification secrets (also sent/signed by gradient-server). Legacy
-  # underscore credstore names hyphenated for fleet.secrets.
+  # Shared verification secrets. webhookcatcher reads them from its credential dir
+  # (direct path); gradient-server reads them via the underscore-id mapping in
+  # gradient.nix (credstore blob), so it needs no use-site here.
   fleet.secrets = {
     gradient-github-app-webhook-secret = {
       origin = "carbon";
       use.carbon.services.webhookcatcher.type = "credential";
-      use.carbon.services.gradient-server.type = "credential";
     };
     gradient-action-deploy-webhook-token = {
       origin = "carbon";
       use.carbon.services.webhookcatcher.type = "credential";
-      use.carbon.services.gradient-server.type = "credential";
     };
   };
 }

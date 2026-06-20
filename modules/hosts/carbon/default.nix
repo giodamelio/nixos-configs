@@ -36,6 +36,16 @@ in {
         prefixLength = 24;
         gateway = "10.30.0.1";
         ula = "fd7f:148b:0a27:30::10/64";
+        vlans = [
+          {
+            name = "iot0";
+            id = 4;
+            subnets = [
+              "10.40.0.0/16"
+              "2604:5500:70cf:fd00::/64"
+            ];
+          }
+        ];
       };
     };
 

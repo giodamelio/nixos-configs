@@ -265,17 +265,32 @@
       '';
     };
 
-    # The module derives LoadCredential[Encrypted] entries from the *File paths
-    # (legacy underscore names). Clear both lists so fleet.secrets' dropins are the
-    # sole source of the (hyphenated) credentials.
-    systemd.services.gradient-server.serviceConfig = {
-      LoadCredential = lib.mkForce [];
-      LoadCredentialEncrypted = lib.mkForce [];
-    };
-    systemd.services.gradient-worker.serviceConfig = {
-      LoadCredential = lib.mkForce [];
-      LoadCredentialEncrypted = lib.mkForce [];
-    };
+    # The gradient module reads each secret from %d/<underscore-id> (its own
+    # LoadCredential sources them from the *File paths). fleet.secrets can only
+    # name blobs [a-z0-9-], so map each module credential id to the hyphenated
+    # credstore blob: LoadCredentialEncrypted=<id>:<blob>, which wins over the
+    # module's circular LoadCredential (last-wins, as Blueprint did). The module's
+    # own non-secret LoadCredential (gradient_database_url, gradient_state) is left
+    # untouched. The blobs are delivered to the credstore by fleet.secrets (origin
+    # carbon, below).
+    systemd.services.gradient-server.serviceConfig.LoadCredentialEncrypted = [
+      "gradient_jwt_secret:gradient-jwt-secret"
+      "gradient_crypt_secret:gradient-crypt-secret"
+      "gradient_oidc_client_secret:gradient-oidc-client-secret"
+      "gradient_s3_secret_access_key:gradient-s3-secret-key"
+      "gradient_metrics_token:gradient-metrics-token"
+      "gradient_org_default_private_key:gradient-org-private-key"
+      "gradient_cache_main_signing_key:gradient-cache-signing-key"
+      "gradient_worker_${workerUuid}_token:gradient-worker-token"
+      "gradient_integration_forgejo-inbound_secret:gradient-forgejo-webhook-secret"
+      "gradient_integration_forgejo-outbound_token:gradient-forgejo-access-token"
+      "gradient_action_deploy-webhook_token:gradient-action-deploy-webhook-token"
+      "gradient_github_app_private_key:gradient-github-app-private-key"
+      "gradient_github_app_webhook_secret:gradient-github-app-webhook-secret"
+    ];
+    systemd.services.gradient-worker.serviceConfig.LoadCredentialEncrypted = [
+      "gradient_worker_peers:gradient-worker-peers"
+    ];
 
     # Frontend-root vhost needs the package store path → set here (perSystem/config
     # scope), not in the fleet endpoint.
@@ -320,36 +335,30 @@
   };
 
   # All gradient secrets are existing/coordinated values → manual (paste with
-  # `credsync write`). The two webhook secrets shared with hooks are declared in
-  # hooks.nix (use-sites on both units). gradient-metrics-token also gets a
-  # prometheus use-site in Phase F (merges with this declaration).
+  # `credsync write`). gradient-server/worker read them via the underscore
+  # credential ids mapped above, so they only need to reach the credstore
+  # (origin=carbon, no use-site). metrics-token also has a prometheus use-site
+  # (direct path read); the deployer api key is read directly by the agent. The
+  # two webhook secrets shared with hooks are declared in hooks.nix (credstore +
+  # a webhookcatcher use-site).
   fleet.secrets = let
-    onServer = {
-      origin = "carbon";
-      use.carbon.services.gradient-server.type = "credential";
-    };
+    inCredstore = {origin = "carbon";};
   in {
-    gradient-jwt-secret = onServer;
-    gradient-crypt-secret = onServer;
-    # Also read by carbon's prometheus to scrape gradient (Bearer).
+    gradient-jwt-secret = inCredstore;
+    gradient-crypt-secret = inCredstore;
+    gradient-s3-secret-key = inCredstore;
+    gradient-oidc-client-secret = inCredstore;
+    gradient-org-private-key = inCredstore;
+    gradient-cache-signing-key = inCredstore;
+    gradient-worker-token = inCredstore;
+    gradient-github-app-private-key = inCredstore;
+    gradient-forgejo-webhook-secret = inCredstore;
+    gradient-forgejo-access-token = inCredstore;
+    gradient-worker-peers = inCredstore;
     gradient-metrics-token = {
       origin = "carbon";
-      use.carbon.services.gradient-server.type = "credential";
       use.carbon.services.prometheus.type = "credential";
     };
-    gradient-s3-secret-key = onServer;
-    gradient-oidc-client-secret = onServer;
-    gradient-org-private-key = onServer;
-    gradient-cache-signing-key = onServer;
-    gradient-worker-token = onServer;
-    gradient-github-app-private-key = onServer;
-    gradient-forgejo-webhook-secret = onServer;
-    gradient-forgejo-access-token = onServer;
-    gradient-worker-peers = {
-      origin = "carbon";
-      use.carbon.services.gradient-worker.type = "credential";
-    };
-    # Consumed by the deployed-apps gradient-deployer agent (eater/yesman slots).
     gradient-deployer-api-key = {
       origin = "carbon";
       use.carbon.services.gradient-deployer.type = "credential";
