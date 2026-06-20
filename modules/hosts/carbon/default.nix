@@ -79,7 +79,13 @@ in {
   ];
 
   # Host-specific config (merges with hardware.nix + disko.nix + service files).
-  den.aspects.carbon.nixos = {lib, ...}: {
+  den.aspects.carbon.nixos = {
+    lib,
+    pkgs,
+    ...
+  }: {
+    environment.systemPackages = [pkgs.pgcli]; # was carbon's postgresql.nix
+
     networking = {
       hostId = "3a06cc0b";
       firewall = {
