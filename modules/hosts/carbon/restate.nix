@@ -203,5 +203,6 @@ _: {
       port = 443;
     };
     healthcheck.target = "https://admin.restate.gio.ninja/health";
+    "prometheus-endpoint".target = "localhost:5122";
   };
 }

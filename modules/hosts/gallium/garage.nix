@@ -89,6 +89,11 @@ _: {
       port = 443;
     };
     healthcheck.target = "https://admin.garage.gio.ninja/health";
+    "prometheus-endpoint" = {
+      target = "admin.garage.gio.ninja";
+      scheme = "https";
+      auth.credentialsFile = "/run/credentials/prometheus.service/garage-metrics-token";
+    };
   };
 
   # Secret names are hyphenated (fleet.secrets requires [a-z0-9-]); the blobs are
@@ -106,6 +111,7 @@ _: {
     garage-metrics-token = {
       origin = "gallium";
       use.gallium.services.garage.type = "credential";
+      use.carbon.services.prometheus.type = "credential"; # carbon prometheus scrape
     };
   };
 }

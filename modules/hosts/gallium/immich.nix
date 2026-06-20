@@ -109,5 +109,24 @@ _: {
       '';
     };
     healthcheck.target = "https://immich.gio.ninja/";
+    # Scraped by carbon's prometheus (api/microservices/sql-exporter via the
+    # /metrics/* proxy paths above). Matches the Blueprint immich_* jobs.
+    "prometheus-endpoints" = {
+      api = {
+        target = "immich.gio.ninja";
+        path = "/metrics/api";
+        job = "immich_api";
+      };
+      microservices = {
+        target = "immich.gio.ninja";
+        path = "/metrics/microservices";
+        job = "immich_microservices";
+      };
+      stats = {
+        target = "immich.gio.ninja";
+        path = "/metrics/stats";
+        job = "immich_stats";
+      };
+    };
   };
 }

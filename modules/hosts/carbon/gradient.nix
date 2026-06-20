@@ -312,6 +312,11 @@
       proxy = false;
     };
     healthcheck.target = "https://gradient.gio.ninja/api/health";
+    "prometheus-endpoint" = {
+      target = "gradient.gio.ninja";
+      scheme = "https";
+      auth.credentialsFile = "/run/credentials/prometheus.service/gradient-metrics-token";
+    };
   };
 
   # All gradient secrets are existing/coordinated values → manual (paste with
@@ -326,7 +331,12 @@
   in {
     gradient-jwt-secret = onServer;
     gradient-crypt-secret = onServer;
-    gradient-metrics-token = onServer;
+    # Also read by carbon's prometheus to scrape gradient (Bearer).
+    gradient-metrics-token = {
+      origin = "carbon";
+      use.carbon.services.gradient-server.type = "credential";
+      use.carbon.services.prometheus.type = "credential";
+    };
     gradient-s3-secret-key = onServer;
     gradient-oidc-client-secret = onServer;
     gradient-org-private-key = onServer;

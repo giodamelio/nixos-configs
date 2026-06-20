@@ -1,0 +1,163 @@
+# homer — dashboard homepage (homer.gio.ninja). Served by the den homer renderer
+# (host.homer.enable) from fleet.homer. The curated Blueprint tiles are ported via
+# extraServices; the old separate admin.yml view is folded into a third "Admin"
+# group (the renderer serves a single config). Converted from
+# nix/hosts/carbon/homer.nix.
+_: let
+  dashboardLogo = name: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/${name}.png";
+in {
+  den.hosts.x86_64-linux.carbon.homer.enable = true;
+
+  fleet.homer = {
+    title = "Gio's Homelab";
+    extraServices = [
+      {
+        name = "Services";
+        icon = "";
+        items = [
+          {
+            name = "PocketID";
+            subtitle = "Centralized Auth";
+            url = "https://login.gio.ninja";
+            logo = dashboardLogo "pocket-id";
+          }
+          {
+            name = "Mealie";
+            subtitle = "Recipe Manager";
+            url = "https://mealie.gio.ninja";
+            logo = dashboardLogo "mealie";
+          }
+          {
+            name = "Immich";
+            subtitle = "Photo/Video Sync";
+            url = "https://immich.gio.ninja";
+            logo = dashboardLogo "immich";
+          }
+          {
+            name = "Windmill";
+            subtitle = "Workflow engine for automations";
+            url = "https://windmill.gio.ninja";
+            logo = dashboardLogo "windmill";
+          }
+          {
+            name = "Gatus";
+            subtitle = "Status Page";
+            url = "https://gatus.gio.ninja";
+            logo = "https://gatus.gio.ninja/logo-512x512.png";
+          }
+          {
+            name = "Home Assistant";
+            subtitle = "Home automation";
+            url = "https://home-assistant.gio.ninja";
+            logo = dashboardLogo "home-assistant";
+          }
+          {
+            name = "Miniflux";
+            subtitle = "RSS Feed Reader";
+            url = "https://miniflux.gio.ninja";
+            logo = dashboardLogo "miniflux";
+          }
+          {
+            name = "Paperless";
+            subtitle = "Document Management";
+            url = "https://paperless.gio.ninja";
+            logo = dashboardLogo "paperless-ngx";
+          }
+          {
+            name = "Forgejo";
+            subtitle = "Git Forge";
+            url = "https://forgejo.gio.ninja";
+            logo = dashboardLogo "forgejo";
+          }
+          {
+            name = "Gradient";
+            subtitle = "Nix CI";
+            url = "https://gradient.gio.ninja";
+            logo = "https://wavelens.io/gradient-logo.svg";
+          }
+        ];
+      }
+      {
+        name = "Media";
+        icon = "";
+        items = [
+          {
+            name = "Jellyfin";
+            subtitle = "Media Server";
+            url = "https://jellyfin.gio.ninja";
+            logo = dashboardLogo "jellyfin";
+          }
+          {
+            name = "SABnzbd";
+            subtitle = "Usenet Binary Newsreader";
+            url = "https://sabnzbd.gio.ninja";
+            logo = dashboardLogo "sabnzbd";
+          }
+          {
+            name = "Prowlarr";
+            subtitle = "Index Manager";
+            url = "https://prowlarr.gio.ninja";
+            logo = dashboardLogo "prowlarr";
+          }
+          {
+            name = "Sonarr";
+            subtitle = "TV Show Tracker";
+            url = "https://sonarr.gio.ninja";
+            logo = dashboardLogo "sonarr";
+          }
+          {
+            name = "Radarr";
+            subtitle = "Movie Tracker";
+            url = "https://radarr.gio.ninja";
+            logo = dashboardLogo "radarr";
+          }
+        ];
+      }
+      {
+        name = "Admin";
+        icon = "";
+        items = [
+          {
+            name = "Unifi Controller";
+            subtitle = "LAN Admin UI";
+            url = "https://unifi.gio.ninja:8443";
+            logo = dashboardLogo "unifi";
+          }
+          {
+            name = "Grafana";
+            subtitle = "Metrics/Logs Dashboard";
+            url = "https://grafana.gio.ninja";
+            logo = dashboardLogo "grafana";
+          }
+          {
+            name = "Prometheus";
+            subtitle = "Metrics Collector";
+            url = "https://prometheus.gio.ninja";
+            logo = dashboardLogo "prometheus";
+          }
+          {
+            name = "OpenBao";
+            subtitle = "Secrets Management";
+            url = "https://openbao.gio.ninja";
+            logo = "https://openbao.org/img/favicon.svg";
+          }
+          {
+            name = "Netdata";
+            subtitle = "Real-time Infrastructure Monitoring";
+            url = "https://netdata.gio.ninja";
+            logo = dashboardLogo "netdata";
+          }
+        ];
+      }
+    ];
+  };
+
+  # DNS/consul/healthcheck; the renderer provides the vhost.
+  den.hosts.x86_64-linux.carbon.services.homer = {
+    endpoint = {
+      domain = "homer";
+      proxy = false;
+    };
+    healthcheck.target = "https://homer.gio.ninja";
+  };
+}
