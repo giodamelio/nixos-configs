@@ -1,0 +1,116 @@
+--- a/pkg/monitor/clipboard.go
++++ b/pkg/monitor/clipboard.go
+@@ -1,7 +1,9 @@
+ package monitor
+
+ import (
++	"encoding/base64"
+ 	"fmt"
++	"os"
+ 	"os/exec"
+ 	"runtime"
+ 	"strings"
+@@ -12,19 +14,38 @@
+ // copyToClipboard copies text to the system clipboard.
+ // Uses pbcopy on macOS, xclip on Linux, clip.exe on Windows.
+ func copyToClipboard(text string) error {
++	// When the local clipboard tool would target the wrong place — SSH (the
++	// remote machine), a tmux/zellij multiplexer (intercepts the pty), or a herdr
++	// sandbox (Wayland socket walled off) — push to the terminal's own clipboard
++	// via an OSC 52 escape instead. OSC 52 is terminal-driven, so it works the
++	// same on every OS. Fall through to the platform tools if it can't reach a
++	// terminal.
++	if preferOSC52() {
++		if err := copyViaOSC52(text); err == nil {
++			return nil
++		}
++	}
++
+ 	var cmd *exec.Cmd
+
+ 	switch runtime.GOOS {
+ 	case "darwin":
+ 		cmd = exec.Command("pbcopy")
+ 	case "linux":
+-		// Try xclip first, fall back to xsel
+-		if _, err := exec.LookPath("xclip"); err == nil {
+-			cmd = exec.Command("xclip", "-selection", "clipboard")
+-		} else if _, err := exec.LookPath("xsel"); err == nil {
+-			cmd = exec.Command("xsel", "--clipboard", "--input")
+-		} else {
+-			return fmt.Errorf("no clipboard tool found (install xclip or xsel)")
++		// On Wayland prefer wl-copy, then fall back to xclip and xsel.
++		if os.Getenv("WAYLAND_DISPLAY") != "" {
++			if _, err := exec.LookPath("wl-copy"); err == nil {
++				cmd = exec.Command("wl-copy")
++			}
++		}
++		if cmd == nil {
++			if _, err := exec.LookPath("xclip"); err == nil {
++				cmd = exec.Command("xclip", "-selection", "clipboard")
++			} else if _, err := exec.LookPath("xsel"); err == nil {
++				cmd = exec.Command("xsel", "--clipboard", "--input")
++			} else {
++				return fmt.Errorf("no clipboard tool found (install wl-clipboard, xclip, or xsel)")
++			}
+ 		}
+ 	case "windows":
+ 		cmd = exec.Command("clip.exe")
+@@ -52,6 +73,57 @@
+ 	return cmd.Wait()
+ }
+
++// preferOSC52 reports whether copy should go through an OSC 52 escape rather than
++// a local clipboard tool: in SSH, a tmux/zellij multiplexer, or a herdr sandbox,
++// the local tool targets the wrong machine, is intercepted, or is walled off from
++// the display.
++func preferOSC52() bool {
++	return os.Getenv("SSH_CONNECTION") != "" ||
++		os.Getenv("SSH_TTY") != "" ||
++		os.Getenv("TMUX") != "" ||
++		os.Getenv("ZELLIJ") != "" ||
++		os.Getenv("HERDR_ENV") != ""
++}
++
++// copyViaOSC52 copies text to the terminal's clipboard with an OSC 52 escape.
++// This reaches the clipboard of the machine the user is actually looking at,
++// even across SSH, a multiplexer, or a sandbox. The terminal emulator must
++// support OSC 52 (most modern ones do, including iTerm2/Ghostty/WezTerm/foot/
++// kitty); support can't be detected, so a successful write doesn't guarantee the
++// paste buffer was set.
++func copyViaOSC52(text string) error {
++	enc := base64.StdEncoding.EncodeToString([]byte(text))
++
++	// Terminals commonly cap the OSC 52 payload; bail rather than emit a sequence
++	// that gets silently truncated.
++	if len(enc) > 100000 {
++		return fmt.Errorf("content too large for OSC 52 clipboard (%d bytes)", len(text))
++	}
++
++	seq := fmt.Sprintf("\x1b]52;c;%s\x07", enc)
++
++	// tmux only forwards the sequence to the outer terminal when it's wrapped in a
++	// DCS passthrough (and the user has `set-clipboard on`); each inner ESC must
++	// be doubled.
++	if os.Getenv("TMUX") != "" {
++		seq = "\x1bPtmux;" + strings.ReplaceAll(seq, "\x1b", "\x1b\x1b") + "\x1b\\"
++	}
++
++	// Write to the controlling terminal so the escape lands even when stdout is
++	// redirected or piped.
++	tty, err := os.OpenFile("/dev/tty", os.O_WRONLY, 0)
++	if err != nil {
++		return err
++	}
++	defer tty.Close()
++
++	if _, err := tty.WriteString(seq); err != nil {
++		return err
++	}
++
++	return nil
++}
++
+ // formatIssueAsMarkdown formats an issue as markdown for clipboard.
+ func formatIssueAsMarkdown(issue *models.Issue) string {
+ 	var sb strings.Builder

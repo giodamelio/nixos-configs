@@ -27,6 +27,13 @@ _: {
       patches = (old.patches or []) ++ [./rtk-read-stdin.patch];
     });
 
+    # Teach td's clipboard support two things it lacks upstream: wl-copy for
+    # Wayland, and OSC 52 (used when in SSH/tmux) so copy reaches the terminal's
+    # own clipboard instead of the wrong/absent local one.
+    td = perSystem.llm-agents.td.overrideAttrs (old: {
+      patches = (old.patches or []) ++ [./td-clipboard.patch];
+    });
+
     # Wrap jailed-claude so it's also available as "claude" in PATH
     claudeWrapper = pkgs.symlinkJoin {
       name = "claude-wrapper";
@@ -79,7 +86,7 @@ _: {
       home.packages = [
         claudeWrapper
         rtk
-        perSystem.llm-agents.td
+        td
       ];
 
       home.shellAliases = {
