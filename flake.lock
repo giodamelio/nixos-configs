@@ -1810,16 +1810,16 @@
     "herdr": {
       "flake": false,
       "locked": {
-        "lastModified": 1781718537,
-        "narHash": "sha256-yAgdZr8YsItRaIjU6LB1BPFVDXxdwp1Y/C6R3iy0KR8=",
+        "lastModified": 1782007231,
+        "narHash": "sha256-xXtvkpA9/c43qL32EwmI/sTU/xB6nvG1XX5D5xEP5fM=",
         "owner": "giodamelio",
         "repo": "herdr",
-        "rev": "6d11287ffdbcebd970da329dbbaba9545c61417f",
+        "rev": "e8ca3d16deaba1002861efb5ceeb6a08a8682178",
         "type": "github"
       },
       "original": {
         "owner": "giodamelio",
-        "ref": "jj-workspace-migration",
+        "ref": "combined-branch",
         "repo": "herdr",
         "type": "github"
       }

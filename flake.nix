@@ -179,7 +179,7 @@
 
     # Personal fork of herdr — carries the bwrap agent-detection patch upstream,
     # so we override llm-agents' herdr src with this instead of patching.
-    herdr.url = "github:giodamelio/herdr/jj-workspace-migration";
+    herdr.url = "github:giodamelio/herdr/combined-branch";
     herdr.flake = false;
   };
 }
