@@ -87,6 +87,9 @@ _: {
         claudeWrapper
         rtk
         td
+        perSystem.llm-agents.beads-rust
+        perSystem.llm-agents.beads-viewer
+        perSystem.llm-agents.backlog-md
       ];
 
       home.shellAliases = {
