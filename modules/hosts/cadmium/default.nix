@@ -35,7 +35,7 @@ in {
 
       # Account details beyond the shared baseline. No primary-user here: it
       # would add the networkmanager group, which cadmium never had.
-      {user.extraGroups = ["wheel" "docker" "sound"];}
+      {user.extraGroups = ["wheel" "docker" "sound" "dialout"];}
 
       # cadmium-only Home-Manager features.
       den.aspects.qutebrowser
