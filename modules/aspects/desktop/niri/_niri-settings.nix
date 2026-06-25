@@ -46,6 +46,23 @@ in {
         matches = [{app-id = "io.gitlab.news_flash.NewsFlash";}];
         default-column-width.proportion = 1.0;
       }
+      # Thunderbird calendar reminder/alarm dialog: float it in the top-right
+      # instead of letting it grab a full tiling column. No size override, so
+      # it keeps its own preferred dimensions.
+      {
+        matches = [
+          {
+            app-id = "^thunderbird$";
+            title = "^Reminders$";
+          }
+        ];
+        open-floating = true;
+        default-floating-position = {
+          x = 16;
+          y = 16;
+          relative-to = "top-right";
+        };
+      }
     ];
 
     prefer-no-csd = true;
