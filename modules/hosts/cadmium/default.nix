@@ -211,6 +211,12 @@ in {
 
     networking.hostId = "3c510ad9";
 
+    # The 26.11 default, opted into early. When false, ZFS refuses to import a
+    # pool still marked as in use by another system (hostid mismatch) instead of
+    # forcing it — which prevents two hosts writing the same pool and corrupting
+    # it (e.g. after a disk moves or an unclean shutdown leaves the pool held).
+    boot.zfs.forceImportRoot = false;
+
     nixpkgs.config.allowUnfree = true;
 
     system.stateVersion = "25.11";
