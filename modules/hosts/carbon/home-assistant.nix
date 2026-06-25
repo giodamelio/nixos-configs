@@ -1,7 +1,7 @@
 # home-assistant — home automation (home-assistant.gio.ninja) + zwave-js on the
-# HubZ serial controller. The zwave-js secrets file moves to a fleet.secrets
-# credential (credential id keeps the .json suffix so secretsConfigFile is
-# unchanged). Converted from nix/hosts/carbon/home-assistant.nix.
+# HubZ serial controller. The zwave-js secret moves to a fleet.secrets credential.
+# The upstream module hardcodes the credential name `secrets.json` (ExecStartPre
+# merges %d/secrets.json), so the fleet credential MUST be named secrets.json.
 _: {
   den.aspects.carbon.nixos = {lib, ...}: {
     services.home-assistant = {
@@ -14,6 +14,8 @@ _: {
           # Seattle, not my house
           latitude = "47.608013";
           longitude = "-122.335167";
+
+          packages.bedroom_ac_schedule = "!include ${./bedroom-ac-schedule.yaml}";
         };
 
         http = {
@@ -72,18 +74,35 @@ _: {
         "met"
         "radio_browser"
         "esphome"
+        "matter"
       ];
     };
 
     services.zwave-js = {
       enable = true;
       serialPort = "/dev/serial/by-id/usb-Silicon_Labs_HubZ_Smart_Home_Controller_515015BA-if00-port0";
-      secretsConfigFile = "/run/credentials/zwave-js.service/zwavejs-secrets.json";
+      secretsConfigFile = "/run/credentials/zwave-js.service/secrets.json";
       port = 3333;
     };
-    # The module wires its own LoadCredential for secretsConfigFile; clear it so
-    # the fleet.secrets credential dropin is the sole source.
+    # The module's own LoadCredential (secrets.json:secretsConfigFile) is cleared
+    # so the fleet.secrets credential dropin is the sole source of %d/secrets.json.
     systemd.services.zwave-js.serviceConfig.LoadCredential = lib.mkForce [];
+
+    services.matter-server = {
+      enable = true;
+      # Bind to the IOT VLAN so Matter discovery (link-local + mDNS) is on the
+      # same L2 as the devices; HA reaches it over localhost.
+      extraArgs.primary-interface = "iot0";
+    };
+
+    # Scoped to iot0; carbon's input firewall would otherwise drop these.
+    networking.firewall.interfaces.iot0 = {
+      # mDNS discovery (5353) + Matter operational/commissioning (5540).
+      allowedUDPPorts = [5353 5540];
+      # Raw :8123 for commissioning from a phone on the IOT VLAN (HA is normally
+      # behind Caddy on :443). Safe to remove once commissioning is done.
+      allowedTCPPorts = [8123];
+    };
   };
 
   den.hosts.x86_64-linux.carbon.services.home-assistant = {
@@ -99,7 +118,7 @@ _: {
     origin = "carbon";
     use.carbon.services.zwave-js = {
       type = "credential";
-      credential.name = "zwavejs-secrets.json";
+      credential.name = "secrets.json";
     };
   };
 }
