@@ -22,15 +22,18 @@ inputs.jail-nix.lib.extend {
       # Read paths from a file and bind them read-write at runtime
       rw-paths-from-file = filename:
         add-runtime ''
-          SANDBOX_PATHS_FILE="$PWD/${filename}"
+          SANDBOX_PATHS_FILE="$(realpath -m -- "$PWD/${filename}")"
           if [[ -f "$SANDBOX_PATHS_FILE" ]]; then
             while IFS= read -r line || [[ -n "$line" ]]; do
               [[ -z "$line" || "$line" == \#* ]] && continue
               line="''${line/#\~/$HOME}"
+              # bwrap needs absolute paths, so resolve relative entries (e.g. ../Data) against $PWD
+              line="$(realpath -m -- "$line")"
               if [[ -e "$line" ]]; then
                 RUNTIME_ARGS+=(--bind "$line" "$line")
               fi
             done < "$SANDBOX_PATHS_FILE"
+            # ro-bind the file itself last so the agent can't edit it to widen its own sandbox
             RUNTIME_ARGS+=(--ro-bind "$SANDBOX_PATHS_FILE" "$SANDBOX_PATHS_FILE")
           fi
         '';
