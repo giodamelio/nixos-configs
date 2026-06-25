@@ -51,6 +51,7 @@ in {
       den.aspects.codex
       den.aspects.herdr
       den.aspects.tuicr
+      den.aspects.camoufox
 
       # Folded dual-class: HM half here, NixOS half forwarded to the host.
       den.aspects.optnix
