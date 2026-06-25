@@ -37,6 +37,14 @@ _: {
       '';
     };
 
+    # nixpkgs' netdata module only grants CAP_NET_ADMIN when it detects a
+    # systemd-networkd wireguard netdev; the wg-nfs mesh now uses an imperative
+    # wg-nfs.service the heuristic can't see, so restore it for WG-iface metrics.
+    systemd.services.netdata.serviceConfig = {
+      AmbientCapabilities = ["CAP_NET_ADMIN"];
+      CapabilityBoundingSet = ["CAP_NET_ADMIN"];
+    };
+
     # netdata postgres collector (was netdata-integrations.nix). gallium runs
     # postgres, so grant netdata a read-only monitoring role over a peer socket.
     services.postgresql = lib.mkIf config.services.postgresql.enable {
