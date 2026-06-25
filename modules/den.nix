@@ -70,6 +70,10 @@
     den.aspects.consul
     den.aspects.services-consul
 
+    # Caddy modular service (multi-instance). Self-gates on gio.caddy.instances
+    # being non-empty; inert until a host defines an instance.
+    den.aspects.caddy
+
     # fleet.services -> Caddy vhosts on the owning host. Self-gates on the host
     # having serving endpoints (reverse-proxy aspect is pulled in by deployed-apps).
     den.aspects.services-reverse-proxy
