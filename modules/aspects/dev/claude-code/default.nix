@@ -5,9 +5,9 @@
 #   - `perSystem.llm-agents.{claude-code,rtk}` are module args from the
 #     per-system aspect.
 #
-# Note: the Blueprint module shipped example agent/command markdown beside it,
-# but those are only wired in when a host sets `programs.gio-claude-code.agents`
-# / `.commands` explicitly (cesium does not), so no asset files are carried here.
+# The example agent/command markdown lives in ./agents and ./commands; a host
+# only gets them when it sets `programs.gio-claude-code.agents` / `.commands`
+# (cesium doesn't; calcium references them by relative path).
 _: {
   den.aspects.claude-code.homeManager = {
     config,

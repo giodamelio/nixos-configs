@@ -31,11 +31,11 @@
     installPackage = true;
     agents = {};
     commands = {
-      plan-save = ../../../modules/home/claude-code/commands/plan-save.md;
-      plan-load = ../../../modules/home/claude-code/commands/plan-load.md;
+      plan-save = ../../../modules/aspects/dev/claude-code/commands/plan-save.md;
+      plan-load = ../../../modules/aspects/dev/claude-code/commands/plan-load.md;
       pre-commit = {
-        markdown = ../../../modules/home/claude-code/commands/pre-commit.md;
-        script = ../../../modules/home/claude-code/commands/pre-commit.sh;
+        markdown = ../../../modules/aspects/dev/claude-code/commands/pre-commit.md;
+        script = ../../../modules/aspects/dev/claude-code/commands/pre-commit.sh;
       };
     };
   };
