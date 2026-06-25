@@ -192,5 +192,12 @@
     # so we override llm-agents' herdr src with this instead of patching.
     herdr.url = "github:giodamelio/herdr/combined-branch";
     herdr.flake = false;
+
+    # Camoufox anti-detect browser + automation tooling. Using my fork's
+    # add-camoufox-bin branch for the camoufox-bin wrapped variants.
+    # REMIND-ME-TO: Switch back to upstream camoufox-nix pr_merged=github:maximoffua/camoufox-nix#2
+    # camoufox-nix.url = "github:maximoffua/camoufox-nix";
+    camoufox-nix.url = "github:giodamelio/camoufox-nix/add-camoufox-bin";
+    camoufox-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 }
