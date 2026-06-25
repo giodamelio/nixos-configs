@@ -23,6 +23,24 @@ def creds-args [] {
     $env.CREDSYNC_CREDS_ARGS? | default "" | split row " " | where ($it | is-not-empty)
 }
 
+# Prefix of the per-credential systemd target signalled on change. Defaults to
+# "secret" so the unit is "secret-<name>.target" (fleet.secrets convention).
+def target-prefix [] {
+    $env.CREDSYNC_TARGET_PREFIX? | default "secret"
+}
+
+# Base ssh options, plus a dedicated push identity when CREDSYNC_SSH_IDENTITY is
+# set (the fleet.secrets per-host push key). IdentitiesOnly stops ssh from
+# offering ~/.ssh keys the receiver's forced-command would reject.
+def ssh-opts [] {
+    let id = ($env.CREDSYNC_SSH_IDENTITY? | default "")
+    if ($id | is-empty) {
+        [-o BatchMode=yes]
+    } else {
+        [-o BatchMode=yes -o IdentitiesOnly=yes -i $id]
+    }
+}
+
 # Credential names end up in paths and systemd unit names; keep them tame.
 def check-name [name: string] {
     if not ($name =~ '^[a-zA-Z0-9_.-]+$') {
@@ -63,13 +81,17 @@ def "main write" [
     # Encrypt to a sibling temp file, then move into place atomically so a
     # failed encryption can never corrupt the existing credential.
     let tmp = (^mktemp -u -p $dir $"($name).XXXXXX" | str trim)
-    $incoming | ^systemd-creds encrypt ...(creds-args) $"--name=($name)" - $tmp
+    # Encrypt nameless (--name=): systemd embeds no name and skips name
+    # validation on load, so the blob can be loaded under any credential ID.
+    # This is what makes LoadCredentialEncrypted=<alias>:<name> renames and
+    # loading one blob twice under different IDs work.
+    $incoming | ^systemd-creds encrypt ...(creds-args) "--name=" - $tmp
     ^chmod 600 $tmp
     mv -f $tmp $path
 
     # Best-effort: the per-credential target only exists once an aspect
     # defines it; consumers use it to gate on the credential's presence.
-    let _ = (do { ^systemctl start $"credsync-($name).target" } | complete)
+    let _ = (do { ^systemctl start $"(target-prefix)-($name).target" } | complete)
 
     for unit in $restart_units {
         ^systemctl try-restart $unit
@@ -105,7 +127,7 @@ def "main push" [
         [sudo -n credsync write $name ...$restart_units]
     }
 
-    let pushed = (do { $local.stdout | ^ssh -o BatchMode=yes $destination ...$remote_cmd } | complete)
+    let pushed = (do { $local.stdout | ^ssh ...(ssh-opts) $destination ...$remote_cmd } | complete)
     if $pushed.exit_code != 0 {
         error make {msg: $"push of ($name) to ($destination) failed: ($pushed.stderr | str trim)"}
     }

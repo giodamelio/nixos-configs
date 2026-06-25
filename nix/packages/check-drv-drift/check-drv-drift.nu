@@ -6,8 +6,14 @@
 # Base defaults to the local `main` bookmark (the known-good point migration
 # work branches from). Pass a different revset as the first argument, e.g.
 #   nix run .#check-drv-drift -- @-
-# Limit to a single host (one eval per side instead of full-fleet) with --host:
+# Limit to a single host with --host:
 #   nix run .#check-drv-drift -- --host carbon
+#
+# The base side is materialized as a throwaway jj workspace checked out at the
+# base rev and evaluated as a plain `path:` flakeref. We do NOT use
+# `git+file:.?rev=` — nix's git fetcher shells out to `git fetch` which, in this
+# environment, misparses `file:/…` as an ssh host and fails. Pass --base-path to
+# reuse an existing workspace instead of creating a throwaway one.
 
 # Several things bake flake-SOURCE-derived state into a host, so ANY repo change
 # rewrites them and drifts the host's drvPath even when its real config is
@@ -18,26 +24,63 @@
 #   - environment.etc."nixos-revision".text = flake.rev/dirtyRev (basic-settings)
 #   - programs.optnix  (nix/modules/nixos/optnix.nix bakes every option's
 #     declaration PATH — which contains ${self} — into a generated options.json)
-# The optnix strip is guarded by an option-existence check so hosts without the
-# module (the servers) don't error.
-const STRIP = ' (let r = builtins.tryEval ((c.extendModules { modules = [ ({ lib, options, ... }: { config = lib.mkMerge [ { environment.etc."nixos".enable = lib.mkForce false; environment.etc."nixos-revision".enable = lib.mkForce false; } (lib.mkIf (options.programs ? optnix) { programs.optnix.enable = lib.mkForce false; }) ]; }) ]; }).config.system.build.toplevel.drvPath); in if r.success then r.value else "(eval failed)")'
+# The optnix strip uses `optionalAttrs` (NOT `mkIf`): a `mkIf false` on
+# `programs.optnix.enable` still introduces the `programs.optnix` path and trips
+# the unknown-option check on hosts without the module (the servers).
+# optionalAttrs collapses to `{}` so the path never appears.
+const STRIP = ' (let r = builtins.tryEval ((c.extendModules { modules = [ ({ lib, options, ... }: { config = lib.mkMerge [ { environment.etc."nixos".enable = lib.mkForce false; environment.etc."nixos-revision".enable = lib.mkForce false; } (lib.optionalAttrs (options.programs ? optnix) { programs.optnix.enable = lib.mkForce false; }) ]; }) ]; }).config.system.build.toplevel.drvPath); in if r.success then r.value else "(eval failed)")'
 
-# Evaluate toplevel drvPaths for a flakeref. With --host, evaluate just that
-# one host (cheap); otherwise map over every nixosConfiguration in one eval.
-def drv-paths [flakeref: string, host?: string] {
-  if ($host | is-empty) {
-    nix eval --json $"($flakeref)#nixosConfigurations" --apply $"cs: builtins.mapAttrs \(_: c:($STRIP)) cs" |
-      from json
-  } else {
-    let p = (nix eval --raw $"($flakeref)#nixosConfigurations.($host)" --apply $"c:($STRIP)")
-    {($host): $p}
-  }
+# Names of all nixosConfigurations in a flakeref.
+def host-names [flakeref: string] {
+  nix eval --json $"($flakeref)#nixosConfigurations" --apply "cs: builtins.attrNames cs" | from json
 }
 
-def main [base: string = "main", --host: string] {
-  let base_rev = jj log -r $base --no-graph -T commit_id | str trim
-  let old = drv-paths $"git+file:.?rev=($base_rev)" $host
-  let new = drv-paths "." $host
+# Evaluate ONE host's stripped toplevel drvPath. Per-host (not a single
+# mapAttrs over the fleet) so that a host whose drvPath needs an IFD that fails
+# to BUILD — e.g. a broken fixed-output derivation — yields "(eval failed)" for
+# just that host instead of aborting the whole comparison. tryEval cannot catch
+# IFD build failures, so we detect them via the process exit code here.
+def drv-path-one [flakeref: string, host: string] {
+  let res = (do { nix eval --raw $"($flakeref)#nixosConfigurations.($host)" --apply $"c:($STRIP)" } | complete)
+  let out = ($res.stdout | str trim)
+  if $res.exit_code == 0 and ($out | is-not-empty) { $out } else { "(eval failed)" }
+}
+
+def main [base: string = "main", --host: string, --base-path: string] {
+  let base_rev = (jj log -r $base --no-graph -T commit_id | str trim)
+
+  # Resolve the base flakeref, creating a throwaway workspace unless one was
+  # supplied. ws_name is non-empty only for a workspace we must clean up.
+  let ws = (
+    if ($base_path | is-not-empty) {
+      {ref: $"path:($base_path)", name: ""}
+    } else {
+      let name = $"drv-drift-($base_rev | str substring 0..12)"
+      let path = $"/tmp/($name)"
+      try { jj workspace forget $name } catch { }
+      rm -rf $path
+      jj workspace add --revision $base_rev $path | ignore
+      {ref: $"path:($path)", name: $name, path: $path}
+    }
+  )
+
+  let hosts = (
+    if ($host | is-empty) {
+      ((host-names $ws.ref) ++ (host-names ".")) | uniq | sort
+    } else { [$host] }
+  )
+
+  let report = $hosts | each {|h|
+    let o = (drv-path-one $ws.ref $h)
+    let n = (drv-path-one "." $h)
+    {host: $h, drift: ($o != $n), old: $o, new: $n}
+  }
+
+  # Tear down the throwaway workspace (no-op when --base-path was given).
+  if ($ws.name | is-not-empty) {
+    try { jj workspace forget $ws.name } catch { }
+    rm -rf $ws.path
+  }
 
   let allow = (
     $env.DRIFT_ALLOW?
@@ -47,16 +90,10 @@ def main [base: string = "main", --host: string] {
     | where {|s| $s != "" }
   )
 
-  let hosts = (($old | columns) ++ ($new | columns)) | uniq | sort
-  let report = $hosts | each {|h|
-    let o = if $h in ($old | columns) { $old | get $h } else { "(absent)" }
-    let n = if $h in ($new | columns) { $new | get $h } else { "(absent)" }
-    {host: $h, drift: ($o != $n), allowed: ($h in $allow), old: $o, new: $n}
-  }
+  let table = $report | each {|r| {host: $r.host, drift: $r.drift, allowed: ($r.host in $allow)} }
+  print ($table | table)
 
-  print ($report | select host drift allowed | table)
-
-  let bad = $report | where {|r| $r.drift and (not $r.allowed) }
+  let bad = $report | where {|r| $r.drift and (not ($r.host in $allow)) }
   if ($bad | is-not-empty) {
     print ""
     print "Unexpected drift — review before pushing:"

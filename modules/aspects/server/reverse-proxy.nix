@@ -1,6 +1,7 @@
 # reverse-proxy — Caddy reverse proxy with automatic Cloudflare-DNS TLS.
-# den aspect converted from nix/modules/nixos/reverse-proxy.nix (pure module,
-# no Blueprint args). Provides services.gio.reverse-proxy.virtualHosts.
+# The single host-level Caddy-shaping layer: fleet.services renders endpoints
+# through it, and deployed-apps targets it directly. Converted from
+# nix/modules/nixos/reverse-proxy.nix.
 _: {
   den.aspects.reverse-proxy.nixos = {
     pkgs,
@@ -12,8 +13,27 @@ _: {
       enable = mkEnableOption "Caddy reverse proxy service";
 
       virtualHosts = mkOption {
-        type = types.attrsOf (types.submodule {
+        type = types.attrsOf (types.submodule ({name, ...}: {
           options = {
+            domain = mkOption {
+              type = types.str;
+              default = name;
+              defaultText = literalExpression "<attr name>";
+              description = "Subdomain label under gio.ninja (a leading * is a wildcard).";
+            };
+
+            listenPort = mkOption {
+              type = types.int;
+              default = 443;
+              description = "Public port Caddy serves this vhost on.";
+            };
+
+            tls = mkOption {
+              type = types.bool;
+              default = true;
+              description = "Serve HTTPS via Cloudflare-DNS TLS. false = plain HTTP (no credential needed).";
+            };
+
             host = mkOption {
               type = types.nullOr types.str;
               default = null;
@@ -35,87 +55,85 @@ _: {
               example = "/run/openbao/openbao.sock";
             };
 
+            protocol = mkOption {
+              type = types.enum ["http" "h2c"];
+              default = "http";
+              description = "Upstream transport: http or h2c (HTTP/2 cleartext).";
+            };
+
             reverseProxy = mkOption {
               type = types.bool;
               default = true;
-              description = "Automatically configure reverse_proxy directive";
+              description = "Emit the automatic reverse_proxy directive. Set false to drive routing entirely from extraConfig.";
             };
 
             extraConfig = mkOption {
               type = types.lines;
               default = "";
             };
-
-            mtls = mkOption {
-              type = types.bool;
-              default = false;
-              description = "Enable mTLS client certificate verification for this vhost";
-            };
           };
-        });
+        }));
         default = {};
         description = "Virtual hosts configuration for the reverse proxy";
-        example = literalExpression ''
-          {
-            "example" = {
-              host = "localhost";
-              port = 8080;
-            };
-            "api" = {
-              host = "127.0.0.1";
-              port = 3000;
-            };
-            "openbao" = {
-              socket_path = "/run/openbao/openbao.sock";
-            };
-          }
-        '';
-      };
-
-      mtlsRootCaCertPath = mkOption {
-        type = types.nullOr types.str;
-        default = null;
-        description = "Path to root CA certificate for mTLS client verification";
       };
     };
 
-    config = lib.mkIf config.services.gio.reverse-proxy.enable {
-      assertions =
-        lib.flatten (
-          lib.mapAttrsToList (
-            hostname: cfg: {
-              assertion = (cfg.socket_path != null) != (cfg.host != null && cfg.port != null);
-              message = "Virtual host '${hostname}' must specify either socket_path OR both host and port";
-            }
-          )
-          config.services.gio.reverse-proxy.virtualHosts
-        )
-        ++ [
-          {
-            assertion = let
-              anyMtls = lib.any (cfg: cfg.mtls) (lib.attrValues config.services.gio.reverse-proxy.virtualHosts);
-            in
-              !anyMtls || config.services.gio.reverse-proxy.mtlsRootCaCertPath != null;
-            message = "mtlsRootCaCertPath must be set when any virtualHost has mtls enabled";
-          }
-        ];
+    config = lib.mkIf config.services.gio.reverse-proxy.enable (let
+      vhosts = config.services.gio.reverse-proxy.virtualHosts;
 
-      # Setup Caddy as a reverse proxy
-      systemd.services.caddy.serviceConfig = {
-        LoadCredentialEncrypted = [
-          "caddy-cloudflare-api-token"
-        ];
-        Environment = [
-          "CLOUDFLARE_API_TOKEN_FILE=%d/caddy-cloudflare-api-token"
-        ];
+      # A backend is only required when we emit the automatic reverse_proxy; with
+      # reverseProxy = false the extraConfig owns routing (file_server, php_fastcgi,
+      # custom handles), so no upstream need be set.
+      backendTarget = cfg:
+        if cfg.socket_path != null
+        then "unix/${cfg.socket_path}"
+        else "${cfg.host}:${toString cfg.port}";
+
+      proxyDirective = cfg:
+        if cfg.protocol == "h2c"
+        then ''
+          reverse_proxy ${backendTarget cfg} {
+            transport http {
+              versions h2c
+            }
+          }
+        ''
+        else "reverse_proxy ${backendTarget cfg}";
+
+      # Open every distinct public port the vhosts listen on (80/443 + any custom).
+      listenPorts = lib.unique (map (cfg: cfg.listenPort) (lib.attrValues vhosts));
+
+      # The Cloudflare token is only needed by HTTPS vhosts. With every vhost on
+      # plain HTTP (tls = false) the credential is omitted entirely — so Caddy
+      # starts without it (e.g. in VM tests, which have no token).
+      anyTls = lib.any (cfg: cfg.tls) (lib.attrValues vhosts);
+
+      scheme = cfg:
+        if cfg.tls
+        then "https"
+        else "http";
+      stdPort = cfg:
+        if cfg.tls
+        then 443
+        else 80;
+    in {
+      assertions =
+        lib.mapAttrsToList (hostname: cfg: {
+          assertion = !cfg.reverseProxy || ((cfg.socket_path != null) != (cfg.host != null && cfg.port != null));
+          message = "reverse-proxy vhost '${hostname}': with reverseProxy = true, set either socket_path OR both host and port";
+        })
+        vhosts;
+
+      systemd.services.caddy.serviceConfig = lib.mkIf anyTls {
+        LoadCredentialEncrypted = ["caddy-cloudflare-api-token"];
+        Environment = ["CLOUDFLARE_API_TOKEN_FILE=%d/caddy-cloudflare-api-token"];
       };
+
       services.caddy = {
         enable = true;
 
         package = pkgs.caddy.withPlugins {
-          plugins = [
-            "github.com/caddy-dns/cloudflare@v0.2.1"
-          ];
+          plugins = ["github.com/caddy-dns/cloudflare@v0.2.1"];
           hash = "sha256-I0FjQOfFaGlOEJlQECmYNBKjIY4CIg5aCCQ/ORmnrSU=";
         };
 
@@ -125,49 +143,27 @@ _: {
 
         virtualHosts =
           lib.mapAttrs' (
-            hostname: cfg:
-              lib.nameValuePair "https://${hostname}.gio.ninja" {
+            _name: cfg: let
+              addr = "${scheme cfg}://${cfg.domain}.gio.ninja${lib.optionalString (cfg.listenPort != stdPort cfg) ":${toString cfg.listenPort}"}";
+            in
+              lib.nameValuePair addr {
                 extraConfig = ''
-                  tls {
-                    dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
-                    resolvers 1.1.1.1
-                    ${lib.optionalString (cfg.mtls && config.services.gio.reverse-proxy.mtlsRootCaCertPath != null) ''
-                    client_auth {
-                      mode verify_if_given
-                      trust_pool file {
-                        pem_file ${config.services.gio.reverse-proxy.mtlsRootCaCertPath}
-                      }
+                  ${lib.optionalString cfg.tls ''
+                    tls {
+                      dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
+                      resolvers 1.1.1.1
                     }
                   ''}
-                  }
-
-                  ${lib.optionalString cfg.mtls ''
-                    # Matches when client didn't present a valid certificate
-                    @no_client_cert expression {tls_client_subject} == ""
-                    handle @no_client_cert {
-                      respond "mTLS client certificate required" 403
-                    }
-                  ''}
-
                   ${cfg.extraConfig}
 
-                  ${
-                    lib.optionalString cfg.reverseProxy (
-                      if cfg.socket_path != null
-                      then "reverse_proxy unix/${cfg.socket_path}"
-                      else "reverse_proxy ${cfg.host}:${toString cfg.port}"
-                    )
-                  }
+                  ${lib.optionalString cfg.reverseProxy (proxyDirective cfg)}
                 '';
               }
           )
-          config.services.gio.reverse-proxy.virtualHosts;
+          vhosts;
       };
 
-      networking.firewall.allowedTCPPorts = [
-        80
-        443
-      ];
-    };
+      networking.firewall.allowedTCPPorts = [80] ++ listenPorts;
+    });
   };
 }

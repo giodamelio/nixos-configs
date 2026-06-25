@@ -24,6 +24,13 @@ remote_builder_keys = [
   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL1F26iEly+cAJDKqNRhWdXxrLisszNO10r0Ffv3TFZE root@cesium-nix-remote-builder",
 ]
 
+## credsync push identities (fleet.secrets)
+## One ed25519 public key per host, printed on first boot by
+## credsync-push-keygen.service. Paste each here so receivers authorize the
+## pushing host (forced-command, locked to `credsync write`).
+[credsync_push_keys]
+# rhodium = "ssh-ed25519 AAAA... credsync-push@rhodium"
+
 ## All the machines
 
 [machines.gio-pixel-7]

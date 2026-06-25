@@ -50,6 +50,36 @@
     den.aspects.ssh-host-cert
     den.aspects.ssh-access
 
+    den.aspects.fleet-secrets
+
+    # Authoritative DNS; self-gates on the per-host dns.serve.enable fact (inert
+    # until a host enables it). Multiple hosts may serve the same replicated zone.
+    den.aspects.dns-server
+
+    # Static/dynamic host networking; self-gates on host.network.mode (inert for
+    # the default `unmanaged`). Other fleet systems derive addresses from it.
+    den.aspects.network
+
+    # NFS + WireGuard mesh; self-gates on the per-host nfs.enable fact. The
+    # services-nfs-wait bridge is inert until a service declares `mounts`.
+    den.aspects.nfs
+    den.aspects.services-nfs-wait
+
+    # Consul cluster; self-gates on host.consul.enable. The services-consul
+    # renderer registers each local service (on by default) once an agent runs.
+    den.aspects.consul
+    den.aspects.services-consul
+
+    # fleet.services -> Caddy vhosts on the owning host. Self-gates on the host
+    # having serving endpoints (reverse-proxy aspect is pulled in by deployed-apps).
+    den.aspects.services-reverse-proxy
+
+    # fleet.services -> Prometheus scrape configs. Self-gates on host.prometheus.enable.
+    den.aspects.services-prometheus
+
+    # fleet.services -> the Homer dashboard. Self-gates on host.homer.enable.
+    den.aspects.services-homer
+
     # Dual-class: CLIs on every system; overriding aliases only for HM users.
     den.aspects.modern-coreutils-replacements
 

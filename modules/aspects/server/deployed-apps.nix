@@ -141,7 +141,7 @@
       deployerConfig = (pkgs.formats.toml {}).generate "gradient-deployer.toml" {
         gradient = {
           server = deployCfg.gradientServer;
-          api_key_file = "/run/credentials/gradient-deployer.service/gradient_deployer_api_key";
+          api_key_file = "/run/credentials/gradient-deployer.service/gradient-deployer-api-key";
         };
         restate.service_name = deployerService;
         slots =
@@ -345,7 +345,7 @@
                   Restart = "on-failure";
                   RestartSec = "5s";
                   StateDirectory = "gradient-deployer";
-                  LoadCredentialEncrypted = ["gradient_deployer_api_key"];
+                  LoadCredentialEncrypted = ["gradient-deployer-api-key"];
 
                   # Hardening. ProtectSystem = "full" (not "strict") deliberately leaves
                   # /nix/var/nix and /run writable, so nix-env profile updates and the

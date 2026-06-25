@@ -7,7 +7,7 @@
       runtimeInputs = with pkgs; [step-cli openssh systemd jq openssl coreutils];
       source = builtins.readFile ./ssh-ca.nu;
 
-      passthru.tests.vm = pkgs.testers.runNixOSTest (import ./_test.nix {inherit ssh-ca;});
+      passthru.tests.vm = pkgs.testers.runNixOSTest (import ./_test.nix {inherit ssh-ca pkgs;});
 
       meta.description = "File-based SSH certificate authority (step-managed, no daemon)";
       meta.platforms = pkgs.lib.platforms.linux;

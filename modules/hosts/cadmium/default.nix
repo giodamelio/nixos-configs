@@ -100,7 +100,6 @@ in {
     den.aspects.fonts
     den.aspects.onepassword
     den.aspects.remote-builder-builder
-    den.aspects.client-mtls
     den.aspects.attic-client
     den.aspects.basic-packages-desktop
 
