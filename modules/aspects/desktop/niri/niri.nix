@@ -20,6 +20,7 @@
     den.aspects.niri-launcher-desktop-entries
     den.aspects.satellite-wallpaper
     den.aspects.niri-settings
+    den.aspects.screen-lock
   ];
 
   den.aspects.niri.nixos = {
@@ -134,6 +135,9 @@
       inputs.handy.homeManagerModules.default
     ];
 
+    # niri blanks the displays on idle and wakes them on input automatically.
+    gio.screen-lock.displayOffCommand = "${perSystem.giopkgs.niri}/bin/niri msg action power-off-monitors";
+
     # Speech to text
     services.handy.enable = true;
 
@@ -156,7 +160,6 @@
         xwayland-satellite
         libnotify
         wl-clipboard
-        swayidle
         brightnessctl
         slurp # Allow selecting screen area (returns geometry)
         grim # Takes screenshots

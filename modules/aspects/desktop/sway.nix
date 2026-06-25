@@ -347,41 +347,8 @@
       };
     };
 
-    programs.swaylock = {
-      enable = true;
-      package = pkgs.swaylock-effects;
-      settings = {
-        screenshots = true;
-        effect-blur = "7x5";
-        indicator = true;
-        clock = true;
-      };
-    };
-
-    # Add an entry to lock the screen to XDG Desktop so Rofi can pick it up
-    xdg.desktopEntries.swaylock = {
-      name = "Lock Screen";
-      exec = "swaylock";
-    };
+    # Screen locking + idle blanking are owned by the screen-lock aspect.
 
     services.cliphist.enable = true;
-
-    # Turn the screen off after awhile
-    services.swayidle = {
-      enable = true;
-      timeouts = [
-        # { timeout = 5; command = "swaylock"; }
-        # { timeout = 5; command = "touch /home/giodamelio/should-have-locked"; }
-        # { timeout = 5; command = "swaymsg output * dpms off"; resumeCommand = "swaymsg output * dpms on"; }
-
-        # exec swayidle -w \
-        # timeout 1800 'media pause' \
-        # timeout 1800 $locker \
-        # timeout 900 'swaymsg "output * dpms off"' \
-        # timeout 15 'if pgrep -x swaylock; then swaymsg "output * dpms off"; fi' \
-        # resume 'swaymsg "output * dpms on"' \
-        # before-sleep $locker
-      ];
-    };
   };
 }
