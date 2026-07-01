@@ -100,6 +100,7 @@ in {
     den.aspects.nh
     den.aspects.fonts
     den.aspects.onepassword
+    den.aspects.yubikey
     den.aspects.remote-builder-builder
     den.aspects.attic-client
     den.aspects.basic-packages-desktop

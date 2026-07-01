@@ -51,6 +51,7 @@
     den.aspects.optnix
     den.aspects.basic-packages-desktop
     den.aspects.onepassword
+    den.aspects.yubikey
     den.aspects.fonts
     den.aspects.remote-builder-user
     den.aspects.attic-client
