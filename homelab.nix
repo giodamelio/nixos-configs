@@ -42,6 +42,17 @@
         };
       };
     };
+    strontium = {
+      # USB lan78xx NIC — path-based predictable name, confirmed on hardware
+      primaryInterface = "enu1u1u1";
+      interfaces = {
+        enu1u1u1 = {
+          address = "10.30.0.13";
+          prefixLength = 24;
+          gateway = "10.30.0.1";
+        };
+      };
+    };
   };
 
   nfs = {

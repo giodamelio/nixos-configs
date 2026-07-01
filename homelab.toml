@@ -92,6 +92,15 @@ sshDestination = "server@rhodium.gio.ninja"
 [machines.rhodium.consul]
 join_address = "rhodium.gio.ninja"
 
+[machines.strontium]
+hardwareDescription = "Raspberry Pi 3B+"
+physicalLocation = "minirack"
+useDescription = "Certificate authority and secret manager"
+
+[machines.strontium.deploy]
+# TEMP: static IP directly; restore strontium.gio.ninja once DNS serves it
+sshDestination = "server@10.30.0.13"
+
 [machines.hammond]
 hardwareDescription = "Intel NUC 5th Gen"
 hardwareModelNumber = "NUC5CPYH"
@@ -150,5 +159,6 @@ useDescription = "Hammond AI agent"
   "eater-of-feeds",
 ]
 "rhodium.lan." = ["rhodium"]
+"strontium.lan." = ["strontium"]
 "cesium.lan." = ["cesium"]
 "jetkvm.lan." = ["jetkvm"]
