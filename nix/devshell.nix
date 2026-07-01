@@ -22,6 +22,12 @@ in
         pkgs.nix-init
         pkgs.nushell
         pkgs.rage
+        # CA + age secrets tooling (strontium)
+        pkgs.age
+        pkgs.age-plugin-yubikey
+        pkgs.step-cli
+        pkgs.paper-age
+        pkgs.qrencode
         pkgs.pwgen
         pkgs.doggo
         pkgs.little_boxes

@@ -52,6 +52,12 @@
 
     den.aspects.fleet-secrets
 
+    # Read-only agevault manifest facts (fleet.credentials.available/.manifest)
+    # + opt-in eval-time verification. The age-based successor to fleet-secrets,
+    # run additively during the migration. Inert unless a host sets
+    # fleet.credentials.verify.
+    den.aspects.fleet-credentials
+
     # Authoritative DNS; self-gates on the per-host dns.serve.enable fact (inert
     # until a host enables it). Multiple hosts may serve the same replicated zone.
     den.aspects.dns-server
