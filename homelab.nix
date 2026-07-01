@@ -33,9 +33,9 @@
       };
     };
     rhodium = {
-      primaryInterface = "eth0";
+      primaryInterface = "end0";
       interfaces = {
-        eth0 = {
+        end0 = {
           address = "10.30.0.12";
           prefixLength = 24;
           gateway = "10.30.0.1";

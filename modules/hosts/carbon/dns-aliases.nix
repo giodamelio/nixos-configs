@@ -9,7 +9,6 @@ _: {
   fleet.dns.zones."gio.ninja".subdomains = {
     cadmium.CNAME = ["cadmium.lan."];
     cesium.CNAME = ["cesium.lan."];
-    rhodium.CNAME = ["rhodium.lan."];
     unifi.CNAME = ["unifi.lan."];
     jetkvm.CNAME = ["jetkvm.lan."];
     # step-ca on strontium (its own port, not behind Caddy) — CNAME to

@@ -87,7 +87,8 @@ physicalLocation = "minirack"
 useDescription = "Critical infrastructure DNS server"
 
 [machines.rhodium.deploy]
-sshDestination = "server@rhodium.gio.ninja"
+# TEMP: static IP directly; restore rhodium.gio.ninja once DNS serves it
+sshDestination = "server@10.30.0.12"
 
 [machines.rhodium.consul]
 join_address = "rhodium.gio.ninja"

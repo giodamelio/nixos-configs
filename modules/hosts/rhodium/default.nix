@@ -4,11 +4,7 @@
 # over `inputs` from their file scope — so this host needs no `instantiate`
 # specialArgs bridge and no inputs.self.nixosModules.* imports. den's default
 # nixosSystem builds it.
-{
-  inputs,
-  den,
-  ...
-}: let
+{den, ...}: let
   homelab = builtins.fromTOML (builtins.readFile ../../../homelab.toml);
 in {
   # Declare the host (platform comes from the attr path) with its server user.
@@ -16,11 +12,26 @@ in {
   # bundle arrives via den.default.
   den.hosts.aarch64-linux.rhodium = {
     role = "server";
-    # Not deployed yet; set ssh.hostKey and drop this once it's running.
-    ssh.enable = false;
+
+    # ed25519 host key (ssh-keyscan 10.30.0.12). Schema-required for an enabled
+    # host, but currently unread — the only consumer, hostTargetsOf, is dead
+    # since the step-ca cutover (verification is CA-name-based now). Kept for
+    # fleet consistency; slated for fleet-wide removal (see MIGRATION.md). First
+    # cert is minted by ca-enroll-host on strontium.
+    ssh.hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAkE6PN130cM8CjSe1NcwKfjXX7niAxiXpVzX+N5NdVH";
     # Plain system account, no Home-Manager (empty classes) — matches the
     # original inline users.users.server (which had no HM).
     users.server.classes = [];
+
+    # Static networking rendered by the network aspect (see gallium).
+    network = {
+      mode = "static";
+      interfaces.end0 = {
+        address = "10.30.0.12";
+        prefixLength = 24;
+        gateway = "10.30.0.1";
+      };
+    };
   };
 
   den.aspects.rhodium.nixos = {
@@ -30,45 +41,54 @@ in {
     ...
   }: {
     imports = [
-      inputs.nixos-hardware.nixosModules.raspberry-pi-4
-      "${modulesPath}/installer/sd-card/sd-image.nix"
+      # Raw sd-image.nix leaves the firmware partition empty (no start4.elf,
+      # config.txt, u-boot) — the aarch64 variant is what makes the Pi bootable.
+      # Mainline kernel, no nixos-hardware: its downstream kernel + u-boot combo
+      # is the breakage-prone path and nothing here needs it.
+      "${modulesPath}/installer/sd-card/sd-image-aarch64.nix"
 
       # Hardware (was nix/hosts/rhodium/hardware.nix).
       {
         networking.hostName = "rhodium";
         sdImage.compressImage = false;
         console.enable = true;
-        boot.kernelParams = [
-          "console=ttyAMA0,115200n8"
+        # Mainline kernel puts the GPIO-header mini UART on ttyS1. mkAfter so
+        # our console= lands last (= /dev/console, stage-1 shell on serial)
+        # after the wrong-for-Pi4 defaults sd-image-aarch64 appends.
+        boot.kernelParams = lib.mkAfter [
+          "earlycon=uart8250,mmio32,0xfe215040"
+          "keep_bootcon"
           "loglevel=7"
-          "earlycon"
+          "console=ttyS1,115200n8"
         ];
+        # Pi 4 USB (VL805) — nixos-hardware used to provide these
+        boot.initrd.availableKernelModules = ["pcie-brcmstb" "reset-raspberrypi"];
+        # Headless, ethernet-only — no Bluetooth, no WiFi. All front-ends must be
+        # listed or they'd pull core modules in as dependencies despite the blacklist.
+        boot.blacklistedKernelModules = [
+          "hci_uart"
+          "btbcm"
+          "btsdio"
+          "bluetooth"
+          "brcmfmac"
+          "brcmutil"
+        ];
+        # TEMPORARY: serial-console autologin for bring-up debugging; remove once deployed
+        services.getty.autologinUser = "server";
         hardware.enableRedistributableFirmware = lib.mkDefault true;
         # No ZFS on this host
         boot.supportedFilesystems.zfs = lib.mkForce false;
-        # Allow missing modules — the RPi kernel doesn't have dw-hdmi
-        # which vc4 depends on, but it's not needed at boot
         boot.initrd.allowMissingModules = true;
       }
 
-      # Temporary DHCP networking until static IP is confirmed working.
+      # Interface/addressing comes from the network aspect (host.network above)
       {
         networking = {
-          useNetworkd = true;
-          useDHCP = false;
           firewall = {
             enable = true;
             allowPing = true;
           };
           nftables.enable = true;
-        };
-        systemd.network = {
-          enable = true;
-          networks."10-lan" = {
-            matchConfig.Name = "eth0";
-            networkConfig.DHCP = "yes";
-            linkConfig.RequiredForOnline = "routable";
-          };
         };
       }
 
