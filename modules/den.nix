@@ -90,6 +90,12 @@
     # fleet.services -> the Homer dashboard. Self-gates on host.homer.enable.
     den.aspects.services-homer
 
+    # Per-host Telegraf health-verdict collector (SMART/disk/zpool -> :62790,
+    # metric detail on :62791) and the Gatus fleet monitor that polls it. Both
+    # self-gate on host facts (monitor.enable / monitor.hub).
+    den.aspects.health-collector
+    den.aspects.fleet-monitor
+
     # Dual-class: CLIs on every system; overriding aliases only for HM users.
     den.aspects.modern-coreutils-replacements
 
