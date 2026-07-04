@@ -99,6 +99,7 @@
 
       spawn-at-startup = [
         {argv = ["thunderbird"];}
+        {argv = ["todoist-electron"];}
         {argv = ["spotify"];}
         {argv = ["io.gitlab.news_flash.NewsFlash"];}
       ];
@@ -109,6 +110,10 @@
           matches = [
             {
               app-id = "thunderbird";
+              at-startup = true;
+            }
+            {
+              app-id = "Todoist";
               at-startup = true;
             }
             # Spotify is slow to map its window and misses the at-startup window,

@@ -66,6 +66,7 @@
     den.aspects.pipewire
     den.aspects.battery-optimization
     den.aspects.software-development
+    den.aspects.todoist
   ];
 
   # ---- Host: cesium-specific config (merges with ./hardware.nix) ----

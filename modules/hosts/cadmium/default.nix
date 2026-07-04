@@ -121,6 +121,7 @@ in {
     den.aspects.printing
     den.aspects.affinity
     den.aspects.signal
+    den.aspects.todoist
     den.aspects.zfs-backup
 
     # Software Development tools
