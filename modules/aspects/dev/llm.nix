@@ -12,6 +12,7 @@ _: {
           llm-gemini
           llm-openrouter
           llm-deepseek
+          llm-ollama
 
           # Tools
           llm-tools-datasette
