@@ -1,0 +1,28 @@
+#compdef agevault
+
+# Thin stub: agevault's `__complete` backend computes every candidate level
+# (subcommands, then dynamic host and secret names). We pass only the
+# already-completed words; zsh filters by the typed prefix. Logic lives in
+# modules/packages/agevault/agevault.nu, never here.
+local -a prev out comps
+local line val files=0
+
+prev=(${words[2,CURRENT-1]})
+out=("${(@f)$(agevault __complete $prev 2>/dev/null)}")
+
+for line in $out; do
+  [[ -z $line ]] && continue
+  if [[ $line == '%files' ]]; then
+    files=1
+    continue
+  fi
+  val=${line%%$'\t'*}
+  if [[ $val == $line ]]; then
+    comps+=($val)
+  else
+    comps+=("$val:${line#*$'\t'}")
+  fi
+done
+
+(( ${#comps} )) && _describe -t agevault 'agevault' comps
+(( files )) && _files

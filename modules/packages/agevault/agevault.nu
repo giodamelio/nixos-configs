@@ -351,6 +351,43 @@ def "main generate-toml" [] {
     print $"wrote manifest: ($dest)"
 }
 
+# Completion backend for the shell stubs shipped in share/. Given the words
+# already typed after `agevault` (the current partial word excluded), print the
+# candidates for the next word, one per line as `value` or
+# `value<TAB>description`. A lone `%files` line asks the shell to also offer
+# filename completion. Shells filter by the current prefix themselves; the same
+# list-hosts / host-secret-names helpers back the real commands, so there is one
+# source of truth.
+def "main __complete" [...words: string] {
+    let n = ($words | length)
+
+    if $n == 0 {
+        [
+            "cat\tdecrypt a secret to stdout"
+            "write\tencrypt a secret from stdin (-) or a file"
+            "edit\tdecrypt into $EDITOR then re-encrypt (creates if missing)"
+            "rm\tdelete a secret"
+            "push\tdeliver secret(s) into hosts' credstore over ssh"
+            "rekey\tre-encrypt every secret to recipients.txt"
+            "generate-toml\twrite the names-only TOML manifest"
+        ] | str join (char newline) | print
+        return
+    }
+
+    let sub = ($words | first)
+    if $sub not-in ["cat" "edit" "rm" "write" "push"] { return }
+
+    if $n == 1 {
+        let hosts = (list-hosts)
+        if ($hosts | is-not-empty) { $hosts | str join (char newline) | print }
+    } else if $n == 2 {
+        let names = (host-secret-names ($words | get 1))
+        if ($names | is-not-empty) { $names | str join (char newline) | print }
+    } else if $n == 3 and $sub == "write" {
+        ["-\tread the secret from stdin" "%files"] | str join (char newline) | print
+    }
+}
+
 def main [] {
     print "agevault - age-backed secret manager for the fleet"
     print ""
