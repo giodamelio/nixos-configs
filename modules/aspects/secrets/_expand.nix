@@ -7,6 +7,8 @@
   hostName, # the host this module is for
   credsync, # the credsync package
   pushKeys, # homelab.toml [credsync_push_keys]
+  pushUser ? "server", # non-root SSH user (passwordless sudo) that receives pushes
+  enablePushes ? true, # emit the push oneshots + hourly retry timers
 }: {
   config,
   pkgs,
@@ -304,7 +306,7 @@ in {
           })
           originSecrets)
         # push oneshots per destination
-        ++ lib.flatten (lib.mapAttrsToList (
+        ++ lib.optionals enablePushes (lib.flatten (lib.mapAttrsToList (
             name: s:
               map (dest: let
                 restartUnits =
@@ -325,10 +327,10 @@ in {
                 };
               }) (copySet s)
           )
-          originSecrets)
+          originSecrets))
       );
 
-      systemd.timers = lib.mkMerge (lib.flatten (lib.mapAttrsToList (
+      systemd.timers = lib.mkIf enablePushes (lib.mkMerge (lib.flatten (lib.mapAttrsToList (
           name: s:
             map (dest: {
               "secret-push-${name}@${dest}" = {
@@ -342,7 +344,7 @@ in {
               };
             }) (copySet s)
         )
-        originSecrets));
+        originSecrets)));
     }
 
     # --- Holders: path + target watching the blob ---

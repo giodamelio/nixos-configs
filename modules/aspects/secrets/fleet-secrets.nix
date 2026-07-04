@@ -27,6 +27,7 @@
   # Full registry (incl. disabled) for needs lookups; enabled set for emission.
   allSecrets = config.fleet.secrets;
   secrets = enabledSecrets allSecrets;
+  pushesEnabled = config.fleet.secretsPush.enable;
   denHosts = flattenHosts config.den.hosts;
   hostExists = name: denHosts ? ${name};
 
@@ -146,5 +147,6 @@ in {
       hostName = host.name;
       credsync = perSystem.self.credsync;
       inherit pushKeys;
+      enablePushes = pushesEnabled;
     } {inherit config pkgs;};
 }

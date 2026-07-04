@@ -174,6 +174,14 @@ in {
           tmp/fleet-secrets.md.
         '';
       };
+
+      # Off during the agevault migration: retires the credsync push oneshots
+      # and their hourly retry timers fleet-wide. Provision/holder units stay.
+      options.secretsPush.enable = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Emit the credsync push units/timers that deliver secrets to their copy set.";
+      };
     }
   ];
 }
