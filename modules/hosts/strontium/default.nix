@@ -11,6 +11,9 @@ _: {
     };
     users.server.classes = [];
 
+    # Run the health-collector and be polled by the fleet monitor.
+    monitor.enable = true;
+
     # Static networking rendered by the network aspect (see gallium).
     network = {
       mode = "static";

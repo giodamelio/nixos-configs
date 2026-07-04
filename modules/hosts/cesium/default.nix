@@ -18,6 +18,14 @@
   den.hosts.x86_64-linux.cesium = {
     role = "desktop";
     ssh.hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK5LTFNDeaPXdAFvl265BWiiu/UAS6q1CfgdutsYYyC8";
+
+    # Collect + expose health, shown on the dashboard but never paged (a travel
+    # laptop that's often offline).
+    monitor = {
+      enable = true;
+      alert = false;
+    };
+
     users.giodamelio.ssh = {
       publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJwxJI1kvYY7wN9ps8W23kadHiqX8d/BJT/zI9oh0uDp";
       accessTo.cadmium.giodamelio = true;

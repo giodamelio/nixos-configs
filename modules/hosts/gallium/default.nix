@@ -22,6 +22,9 @@ in {
       server = true;
     };
 
+    # Run the health-collector and be polled by the fleet monitor.
+    monitor.enable = true;
+
     # Authoritative DNS replica (carbon serves the same zone; see fleet.dns).
     dns.serve.enable = true;
 
