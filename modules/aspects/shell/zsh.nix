@@ -5,7 +5,13 @@
 #     `inputs.self.darwinConfigurations.thorium` via the file-scope `inputs`
 #     closure. Only forced on Darwin (under `optionals isDarwin`), so on Linux
 #     hosts the cross-host reference is never evaluated.
-{inputs, ...}: {
+{
+  inputs,
+  den,
+  ...
+}: {
+  den.aspects.zsh.includes = [den.aspects.devshell-completion-sync];
+
   den.aspects.zsh.homeManager = {
     pkgs,
     lib,
