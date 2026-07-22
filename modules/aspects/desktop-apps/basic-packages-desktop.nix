@@ -11,6 +11,7 @@ _: {
         xdg-utils
         vlc
         firefox
+        zapzap
         mpv
         kdePackages.okular
         zathura
