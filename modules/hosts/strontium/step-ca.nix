@@ -34,7 +34,7 @@
           exit 0
         fi
 
-        pw="$CREDENTIALS_DIRECTORY/step-ca-provisioner-password"
+        pw="$CREDENTIALS_DIRECTORY/step_ca_provisioner_password"
         work="$(mktemp -d)"
         trap 'rm -rf "$work"' EXIT
 
@@ -92,7 +92,7 @@
     };
   in {
     # agevault delivers the provisioner password (asserted against secrets.toml).
-    fleet.credentials.needs = ["step-ca-provisioner-password"];
+    fleet.credentials.needs = ["step_ca_provisioner_password"];
 
     users.groups.step-ca = {};
     users.users.step-ca = {
@@ -121,7 +121,7 @@
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
-        LoadCredentialEncrypted = ["step-ca-provisioner-password"];
+        LoadCredentialEncrypted = ["step_ca_provisioner_password"];
         ExecStart = lib.getExe initScript;
       };
     };

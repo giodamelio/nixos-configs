@@ -28,6 +28,9 @@ _: {
 
     available = manifest.${host.name} or [];
     missing = builtins.filter (n: !(builtins.elem n available)) cfg.needs;
+    # agevault credential names are snake_case; a dash means a stale hyphenated
+    # name that agevault won't deliver under that spelling.
+    dashed = builtins.filter (lib.hasInfix "-") cfg.needs;
   in {
     options.fleet.credentials = {
       manifestFile = lib.mkOption {
@@ -43,7 +46,7 @@ _: {
       needs = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [];
-        example = ["secrets.json" "netdata-api-key"];
+        example = ["secrets.json" "netdata_api_key"];
         description = ''
           Credential names this host consumes from agevault. Declaring one
           asserts at eval time that agevault can deliver it -- i.e. that it is
@@ -72,6 +75,10 @@ _: {
       {
         assertion = missing == [];
         message = "fleet.credentials: ${host.name} needs credential(s) not in the agevault manifest (${toString cfg.manifestFile}): ${lib.concatStringsSep ", " missing}. Add each with `agevault edit ${host.name} <name>` (auto-runs generate-toml) and commit the manifest, or drop it from fleet.credentials.needs.";
+      }
+      {
+        assertion = dashed == [];
+        message = "fleet.credentials: ${host.name} needs credential(s) with a dash in the name: ${lib.concatStringsSep ", " dashed}. agevault credential names are snake_case — rename the secret and its use-sites to use underscores.";
       }
     ];
   };

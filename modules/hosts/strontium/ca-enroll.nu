@@ -5,9 +5,9 @@
 # paste command for the target host.
 #   sudo ca-enroll-host <hostname>
 def main [host: string] {
-  let cred = "/run/credentials/ca-enroll-token.service/step-ca-provisioner-password"
+  let cred = "/run/credentials/ca-enroll-token.service/step_ca_provisioner_password"
   let token = (
-    systemd-run --pipe --collect --quiet --unit=ca-enroll-token -p LoadCredentialEncrypted=step-ca-provisioner-password step ca token $host --ssh --host --principal $host --principal $"($host).gio.ninja" --provisioner bootstrap --provisioner-password-file $cred --ca-url https://ca.gio.ninja --root /var/lib/gio-ca/root.crt
+    systemd-run --pipe --collect --quiet --unit=ca-enroll-token -p LoadCredentialEncrypted=step_ca_provisioner_password step ca token $host --ssh --host --principal $host --principal $"($host).gio.ninja" --provisioner bootstrap --provisioner-password-file $cred --ca-url https://ca.gio.ninja --root /var/lib/gio-ca/root.crt
     | str trim
   )
 

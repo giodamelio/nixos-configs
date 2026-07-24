@@ -34,8 +34,8 @@ _: {
   }: {
     # agevault delivers these (asserted against secrets.toml at eval time).
     fleet.credentials.needs = [
-      "restic-password"
-      "restic-s3-credentials"
+      "restic_password"
+      "restic_s3_credentials"
     ];
 
     imports = [
@@ -108,7 +108,7 @@ _: {
           repository = "s3:https://s3.garage.gio.ninja/strontium-backups";
           # The auto wrapper doesn't load the systemd credential correctly, so we create one ourselves below
           createWrapper = false;
-          passwordFile = "/run/credentials/restic-backups-strontium.service/restic-password";
+          passwordFile = "/run/credentials/restic-backups-strontium.service/restic_password";
           paths = ["/var/lib/gio-ca" "/var/lib/step-ca"];
           initialize = true;
           timerConfig.OnCalendar = "daily";
@@ -117,12 +117,12 @@ _: {
 
         systemd.services.restic-backups-strontium = {
           serviceConfig.LoadCredentialEncrypted = [
-            "restic-password"
-            "restic-s3-credentials"
+            "restic_password"
+            "restic_s3_credentials"
           ];
           environment = {
             AWS_DEFAULT_REGION = "garage";
-            AWS_SHARED_CREDENTIALS_FILE = "/run/credentials/restic-backups-strontium.service/restic-s3-credentials";
+            AWS_SHARED_CREDENTIALS_FILE = "/run/credentials/restic-backups-strontium.service/restic_s3_credentials";
           };
         };
 
@@ -131,12 +131,12 @@ _: {
         environment.systemPackages = [
           (pkgs.writeShellScriptBin "restic-strontium" ''
             exec ${pkgs.systemd}/bin/systemd-run --pipe --collect --quiet --unit=restic-strontium-cli \
-              -p LoadCredentialEncrypted=restic-password \
-              -p LoadCredentialEncrypted=restic-s3-credentials \
+              -p LoadCredentialEncrypted=restic_password \
+              -p LoadCredentialEncrypted=restic_s3_credentials \
               -E RESTIC_REPOSITORY=s3:https://s3.garage.gio.ninja/strontium-backups \
               -E AWS_DEFAULT_REGION=garage \
-              -E RESTIC_PASSWORD_FILE=/run/credentials/restic-strontium-cli.service/restic-password \
-              -E AWS_SHARED_CREDENTIALS_FILE=/run/credentials/restic-strontium-cli.service/restic-s3-credentials \
+              -E RESTIC_PASSWORD_FILE=/run/credentials/restic-strontium-cli.service/restic_password \
+              -E AWS_SHARED_CREDENTIALS_FILE=/run/credentials/restic-strontium-cli.service/restic_s3_credentials \
               ${pkgs.restic}/bin/restic "$@"
           '')
         ];
