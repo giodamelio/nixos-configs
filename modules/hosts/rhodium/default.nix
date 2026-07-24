@@ -35,13 +35,10 @@ in {
 
     # Authoritative DNS replica (gallium and carbon serve the same zone).
     dns.serve.enable = true;
-
-    # Runs the health-collector, and is the fleet monitor (Gatus) hub.
-    monitor = {
-      enable = true;
-      hub = true;
-    };
   };
+
+  # Run the heartbeat collector (pushes to its own Healthchecks check).
+  den.aspects.rhodium.includes = [den.aspects.server-heartbeat];
 
   den.aspects.rhodium.nixos = {
     modulesPath,

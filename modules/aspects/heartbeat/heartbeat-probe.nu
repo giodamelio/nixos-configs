@@ -1,4 +1,4 @@
-# health-probe — emit influx line protocol for telegraf's exec inputs.
+# heartbeat-probe — emit influx line protocol for telegraf's exec inputs.
 # One subcommand per signal; each prints a single measurement line (or nothing).
 
 # Count of systemd units in the failed state (dead / crash-looping).
@@ -22,7 +22,7 @@ def "main zpool" [] {
 def "main ssh-cert" [] {
   let cert = "/var/lib/step-ssh/ssh_host_ed25519_key-cert.pub"
   if not ($cert | path exists) { return }
-  let line = (^ssh-keygen -L -f $cert | lines | filter {|l| $l | str contains "Valid:"} | first)
+  let line = (^ssh-keygen -L -f $cert | lines | where {|l| $l | str contains "Valid:"} | first)
   let valid_to = ($line | split row " to " | last | str trim)
   if $valid_to == "forever" { return }
   let secs = ((($valid_to | into datetime) - (date now)) / 1sec | into int)

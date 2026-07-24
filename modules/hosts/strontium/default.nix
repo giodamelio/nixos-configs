@@ -1,6 +1,6 @@
 # strontium — Raspberry Pi 3B+ SD-image host: CA + secret manager
 # (docs/pi-ca-secrets-plan.md). Base scaffold only; step-ca lands later.
-_: {
+{den, ...}: {
   # Same shape as rhodium: role=server attaches the shared `server` user aspect,
   # base bundle arrives via den.default.
   den.hosts.aarch64-linux.strontium = {
@@ -10,9 +10,6 @@ _: {
       hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHgIZEMTZZT4Wldwboskghc3aaGbA8BB5gs86hLh+ppR";
     };
     users.server.classes = [];
-
-    # Run the health-collector and be polled by the fleet monitor.
-    monitor.enable = true;
 
     # Static networking rendered by the network aspect (see gallium).
     network = {
@@ -25,6 +22,9 @@ _: {
       };
     };
   };
+
+  # Run the heartbeat collector (pushes to its own Healthchecks check).
+  den.aspects.strontium.includes = [den.aspects.server-heartbeat];
 
   den.aspects.strontium.nixos = {
     modulesPath,
