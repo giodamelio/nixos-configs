@@ -5,7 +5,13 @@
 # the fail path (URL/fail) pages with the reason. No central hub. Attached to a
 # host by including den.aspects.server-heartbeat. The raw metrics are also served
 # on :62791 for debugging and for the future rich-metrics layer to scrape.
-{inputs, ...}: {
+{
+  inputs,
+  den,
+  ...
+}: {
+  den.aspects.heartbeat.includes = [den.aspects.telegraf];
+
   den.aspects.heartbeat.nixos = {
     lib,
     config,
@@ -138,21 +144,6 @@
         }
       ];
     };
-
-    configFile = (pkgs.formats.toml {}).generate "heartbeat.conf" telegrafConf;
-
-    # Reads this host's Healthchecks ping URL from the systemd credential and
-    # hands it to Telegraf via ${HC_URL} (outputs.http.url isn't a secret-capable
-    # field, so env substitution — not a secretstore — is the delivery path).
-    runner = pkgs.writeShellApplication {
-      name = "heartbeat-run";
-      runtimeInputs = [pkgs.coreutils pkgs.telegraf];
-      text = ''
-        HC_URL="$(cat "$CREDENTIALS_DIRECTORY/healthcheck_url")"
-        export HC_URL
-        exec telegraf --config ${configFile}
-      '';
-    };
   in {
     options.gio.heartbeat = {
       metricsPort = mkOption {
@@ -214,35 +205,36 @@
     # Attached only where a host includes den.aspects.server-heartbeat, so
     # attachment is the enablement — no separate on/off fact.
     config = {
-      fleet.credentials.needs = ["healthcheck_url"];
+      # outputs.http.url is not a secret-capable field, so the ping URL is
+      # exported into the environment and interpolated at config load. Declaring
+      # this also asserts the credential and loads it onto the unit.
+      fleet.credentials.unit_wrappers.heartbeat.environment.HC_URL = "healthcheck_url";
 
-      systemd.services.heartbeat = {
-        description = "Telegraf health verdict -> Healthchecks push";
-        wantedBy = ["multi-user.target"];
-        after = ["network.target"];
+      gio.telegraf.instances.heartbeat = {
+        settings = telegrafConf;
+
+        # Root: NVMe admin passthrough and /dev/zfs are both root-only, so
+        # capability-scoping would still need CAP_SYS_ADMIN. Sandboxed below.
+        user = "root";
         path = [pkgs.smartmontools pkgs.nvme-cli] ++ lib.optional zfsEnabled pkgs.zfs;
 
-        serviceConfig = {
-          ExecStart = lib.getExe runner;
-          LoadCredentialEncrypted = ["healthcheck_url"];
-          Restart = "always";
-          RestartSec = 10;
+        systemd.service = {
+          description = "Telegraf health verdict -> Healthchecks push";
+          after = ["network.target"];
 
-          # Root: NVMe admin passthrough and /dev/zfs are both root-only, so
-          # capability-scoping would still need CAP_SYS_ADMIN. Sandboxed below.
-          # No SystemCallFilter — it'd risk breaking SMART/zpool ioctls silently.
-          NoNewPrivileges = true;
-          ProtectHome = true;
-          ProtectSystem = "strict"; # verdict is in-memory; nothing is written
-          PrivateTmp = true;
-          ProtectControlGroups = true;
-          ProtectKernelModules = true;
-          ProtectKernelTunables = true;
-          RestrictAddressFamilies = ["AF_INET" "AF_INET6" "AF_UNIX"];
-          RestrictNamespaces = true;
-          RestrictRealtime = true;
-          LockPersonality = true;
-          MemoryDenyWriteExecute = true;
+          # Beyond the hardening the telegraf service already defaults to. No
+          # SystemCallFilter — it'd risk breaking SMART/zpool ioctls silently.
+          serviceConfig = {
+            # Framework default is 5s; keep this host's original backoff.
+            RestartSec = 10;
+            ProtectControlGroups = true;
+            ProtectKernelModules = true;
+            ProtectKernelTunables = true;
+            RestrictNamespaces = true;
+            RestrictRealtime = true;
+            LockPersonality = true;
+            MemoryDenyWriteExecute = true;
+          };
         };
       };
 

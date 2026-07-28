@@ -20,7 +20,6 @@
     den.aspects.niri-launcher-desktop-entries
     den.aspects.satellite-wallpaper
     den.aspects.niri-settings
-    den.aspects.screen-lock
   ];
 
   den.aspects.niri.nixos = {
@@ -115,13 +114,18 @@
 
     # Ensure systemd user services have the full NixOS PATH available
     # (same approach as the Hyprland NixOS module)
-    systemd.user.extraConfig = ''
-      DefaultEnvironment="PATH=/run/wrappers/bin:/etc/profiles/per-user/%u/bin:/nix/var/nix/profiles/default/bin:/run/current-system/sw/bin"
-    '';
+    systemd.user.settings.Manager.DefaultEnvironment = ''"PATH=/run/wrappers/bin:/etc/profiles/per-user/%u/bin:/nix/var/nix/profiles/default/bin:/run/current-system/sw/bin"'';
 
     # Noctalia prerequisites
     services.upower.enable = true;
+
+    # brightnessctl prefers the logind API, but falls back to writing
+    # /sys/class/backlight directly when there is no active seat session.
+    # These rules make that fallback work for the video/input groups.
+    services.udev.packages = [pkgs.brightnessctl];
   };
+
+  den.aspects.niri.user.extraGroups = ["video"];
 
   # Home-Manager half (was nix/modules/home/niri.nix). The sibling home modules
   # it used to import are pulled in via den.aspects.niri.includes above; the
@@ -134,9 +138,6 @@
     imports = [
       inputs.handy.homeManagerModules.default
     ];
-
-    # niri blanks the displays on idle and wakes them on input automatically.
-    gio.screen-lock.displayOffCommand = "${perSystem.giopkgs.niri}/bin/niri msg action power-off-monitors";
 
     # Speech to text
     services.handy.enable = true;
@@ -166,6 +167,7 @@
         satty # Screenshot annotation
         xdg-user-dirs # Easily get XDG dirs inside scripts
         wtype # For handy to type text
+        mission-center # GUI system usage monitor
       ]);
   };
 }

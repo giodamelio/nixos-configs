@@ -11,10 +11,9 @@ in {
   den.hosts.x86_64-linux.gallium = {
     role = "server";
 
-    # Deployed host, but its ed25519 host key isn't recorded here yet, so it is
-    # not a cert sign target. ssh stays enabled (access grants still apply); fill
-    # in the real public key later to issue a host certificate.
-    ssh.hostKey = null;
+    # ed25519 host key (ssh-keyscan gallium.gio.ninja); enrolls gallium as a cert
+    # sign target so peers verify it via the host CA instead of failing on TOFU.
+    ssh.hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPdhRUNcKpvd949OChBtkPTytHF6gxGgPuKhyDaAQgEg";
 
     # Consul server (bind interface + retry_join derive from host.network).
     consul = {
@@ -42,6 +41,8 @@ in {
     nfs = {
       enable = true;
       wgIp = "10.200.0.1";
+      # LAN IP peers dial for the tunnel; a bare hostname doesn't resolve on the peer.
+      endpoint = "10.30.0.11";
     };
 
     # The `server` user with its Home-Manager environment (the old
@@ -57,6 +58,7 @@ in {
       den.aspects.neovim
       den.aspects.zsh
       den.aspects.atuin
+      den.aspects.claude-code
       {
         user = {
           extraGroups = ["wheel" "docker" "sound"];
@@ -66,6 +68,11 @@ in {
           home.stateVersion = "25.05";
           programs.git.enable = true;
           gio.nix-activate-config.activation = {system = "nixos";};
+
+          programs.gio-claude-code = {
+            enable = true;
+            installPackage = true;
+          };
         };
       }
     ];
@@ -83,6 +90,7 @@ in {
     den.aspects.nats
     den.aspects.send-metrics
     den.aspects.server-heartbeat
+    den.aspects.rayfish
   ];
 
   # Host-specific config (merges with hardware.nix + filesystems.nix).

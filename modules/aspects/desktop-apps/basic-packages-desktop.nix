@@ -1,11 +1,12 @@
 # basic-packages-desktop — GUI apps + 1Password GUI for desktop hosts.
 # Converted from nix/modules/nixos/basic-packages-desktop.nix.
-_: {
+{den, ...}: {
+  den.aspects.basic-packages-desktop.includes = [den.aspects.obsidian];
+
   den.aspects.basic-packages-desktop.nixos = {pkgs, ...}: {
     environment = {
       systemPackages = with pkgs; [
         thunderbird
-        obsidian
         pavucontrol
         qutebrowser
         xdg-utils

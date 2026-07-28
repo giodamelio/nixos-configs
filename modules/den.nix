@@ -48,6 +48,7 @@
     den.aspects.basic-settings
 
     den.aspects.ssh-host-cert
+    den.aspects.ssh-host-cert-renew
     den.aspects.ssh-access
 
     den.aspects.fleet-secrets

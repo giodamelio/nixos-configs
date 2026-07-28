@@ -16,7 +16,10 @@ _: {
   }: {
     services.netdata = {
       enable = true;
-      package = perSystem.giopkgs.netdata;
+      # Feed it our nixpkgs' netdata, as carbon does. Bare, giopkgs supplies its
+      # own older pin, which predates the plugins.d/go.d.plugin -> godplugin
+      # rename the nixpkgs module's security.wrapper expects.
+      package = perSystem.giopkgs.netdata.override {inherit (pkgs) netdata;};
       enableAnalyticsReporting = false;
 
       config = {

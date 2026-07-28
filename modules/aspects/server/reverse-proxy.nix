@@ -12,6 +12,21 @@ _: {
     options.services.gio.reverse-proxy = with lib; {
       enable = mkEnableOption "Caddy reverse proxy service";
 
+      # agevault names are snake_case, so a host managed by it cannot use the
+      # hyphenated legacy id. Default stays legacy for the carbon/gallium blobs
+      # placed by hand; agevault hosts override.
+      #
+      # TODO: temporary migration knob — delete it. Move carbon's and gallium's
+      # tokens into agevault as `caddy_cloudflare_api_token`, then hardcode that
+      # name here and drop this option and its two override sites. Every host
+      # should be on agevault; this exists only so rhodium didn't have to regress
+      # to a hand-placed blob. See tmp/TODO.md.
+      cloudflareCredential = mkOption {
+        type = types.str;
+        default = "caddy-cloudflare-api-token";
+        description = "systemd credential id holding the Cloudflare DNS API token, loaded by caddy for TLS.";
+      };
+
       virtualHosts = mkOption {
         type = types.attrsOf (types.submodule ({name, ...}: {
           options = {
@@ -80,6 +95,7 @@ _: {
 
     config = lib.mkIf config.services.gio.reverse-proxy.enable (let
       vhosts = config.services.gio.reverse-proxy.virtualHosts;
+      cred = config.services.gio.reverse-proxy.cloudflareCredential;
 
       # A backend is only required when we emit the automatic reverse_proxy; with
       # reverseProxy = false the extraConfig owns routing (file_server, php_fastcgi,
@@ -125,8 +141,8 @@ _: {
         vhosts;
 
       systemd.services.caddy.serviceConfig = lib.mkIf anyTls {
-        LoadCredentialEncrypted = ["caddy-cloudflare-api-token"];
-        Environment = ["CLOUDFLARE_API_TOKEN_FILE=%d/caddy-cloudflare-api-token"];
+        LoadCredentialEncrypted = [cred];
+        Environment = ["CLOUDFLARE_API_TOKEN_FILE=%d/${cred}"];
       };
 
       services.caddy = {
@@ -134,7 +150,7 @@ _: {
 
         package = pkgs.caddy.withPlugins {
           plugins = ["github.com/caddy-dns/cloudflare@v0.2.1"];
-          hash = "sha256-I0FjQOfFaGlOEJlQECmYNBKjIY4CIg5aCCQ/ORmnrSU=";
+          hash = "sha256-F7d4HwM4oCkQrFMr4SFSC0r52ONxY+PW6z5BJawW8Ok=";
         };
 
         globalConfig = ''

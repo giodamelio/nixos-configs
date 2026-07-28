@@ -1,20 +1,29 @@
+# Host-CA trust: teaches every host's ssh client to verify peers' step-ca-signed
+# host certs via `@cert-authority`, plus fleet-wide host/user cert revocation
+# (KRL). The certs themselves are served by the host at runtime (ssh-host-cert-renew,
+# from /var/lib/step-ssh) — nothing is committed here.
 {
   lib,
   config,
   ...
 }: let
+  inherit (import ./_types.nix {inherit lib;}) enabledHostsOf;
+
   dataDir = config.fleet.ssh.dataDir;
   hostCaPath = dataDir + "/host-ca.pub";
   hasHostCa = builtins.pathExists hostCaPath;
 
-  # Bare names make plain `ssh carbon` cert-verified too (the
-  # @cert-authority pattern list is exact-match).
-  enrolledNames = lib.pipe (dataDir + "/certs") [
-    builtins.readDir
-    builtins.attrNames
-    (builtins.filter (lib.hasSuffix "-cert.pub"))
-    (map (lib.removeSuffix "-cert.pub"))
+  # host-ca.pub may hold multiple CA keys (one per line); clients trust each.
+  hostCaKeys = lib.pipe hostCaPath [
+    builtins.readFile
+    (lib.splitString "\n")
+    (map (lib.removeSuffix "\r"))
+    (builtins.filter (line: line != ""))
   ];
+
+  # Bare names make plain `ssh carbon` cert-verified too (the @cert-authority
+  # pattern list is exact-match) — one per enrolled den host.
+  enrolledNames = builtins.attrNames (enabledHostsOf (lib.concatMapAttrs (_system: hosts: hosts) config.den.hosts));
 in {
   den.aspects.ssh-host-cert.nixos = {
     fleet,
@@ -23,8 +32,6 @@ in {
     lib,
     ...
   }: let
-    certPath = dataDir + "/certs/${host.name}-cert.pub";
-    hasCert = builtins.pathExists certPath;
     revoked = fleet.ssh.revocations;
 
     # KRLs only need the CA public key (-s).
@@ -38,20 +45,13 @@ in {
   in
     lib.mkIf host.ssh.enable (lib.mkMerge [
       (lib.mkIf hasHostCa {
-        programs.ssh.knownHosts.gio-ninja-host-ca = {
-          certAuthority = true;
-          hostNames = ["*.gio.ninja"] ++ enrolledNames;
-          publicKey = lib.removeSuffix "\n" (builtins.readFile hostCaPath);
-        };
-      })
-
-      (lib.mkIf hasCert {
-        services.openssh.settings.HostCertificate = "/etc/ssh/ssh_host_ed25519_key-cert.pub";
-        environment.etc."ssh/ssh_host_ed25519_key-cert.pub" = {
-          # readFile, not `.source`: depend on content, never the flake path.
-          text = builtins.readFile certPath;
-          mode = "0644";
-        };
+        programs.ssh.knownHosts = lib.listToAttrs (lib.imap0 (i: key:
+          lib.nameValuePair "gio-ninja-host-ca-${toString i}" {
+            certAuthority = true;
+            hostNames = ["*.gio.ninja"] ++ enrolledNames;
+            publicKey = key;
+          })
+        hostCaKeys);
       })
 
       (lib.mkIf (revoked.users != []) {

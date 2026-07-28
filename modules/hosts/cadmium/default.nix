@@ -9,13 +9,7 @@
 # user entity. Folded dual-class aspects (niri via the baseline, optnix below)
 # attach to the user — den applies their `.nixos` half to the host
 # automatically ("users shape their host").
-{
-  inputs,
-  den,
-  ...
-}: let
-  inherit (inputs.self.lib.homelab.machines.cadmium) monitor-names;
-in {
+{den, ...}: {
   # Declare the host (platform from the attr path) with its user and machine
   # role. The aspects named `cadmium` and `giodamelio` attach by convention.
   den.hosts.x86_64-linux.cadmium = {
@@ -36,53 +30,33 @@ in {
 
       # Account details beyond the shared baseline. No primary-user here: it
       # would add the networkmanager group, which cadmium never had.
-      {user.extraGroups = ["wheel" "docker" "sound" "dialout"];}
+      {user.extraGroups = ["wheel" "docker" "sound" "dialout" "networkmanager"];}
 
       # cadmium-only Home-Manager features.
       den.aspects.qutebrowser
       den.aspects.hyprland
-      den.aspects.sway # pulls in vicinae
-      den.aspects.waybar
       den.aspects.wayvnc
       den.aspects.syncthing
       den.aspects.llm
+      den.aspects.llm-tooling
       den.aspects.pi
       den.aspects.slack
       den.aspects.rss
       den.aspects.codex
       den.aspects.herdr
-      den.aspects.tuicr
+      den.aspects.tui-review
       den.aspects.camoufox
 
       # Folded dual-class: HM half here, NixOS half forwarded to the host.
       den.aspects.optnix
+      den.aspects.kde-connect
 
       # Monitor layouts + media keybinds for niri (see ./niri.nix).
       den.aspects.cadmium-niri
 
       # cadmium-only Home-Manager settings (was home-configuration.nix).
       {
-        homeManager = {perSystem, ...}: {
-          # Configure waybar for sway
-          gio.waybar = {
-            enable = true;
-            windowManager = "sway";
-            fontSize = 20;
-            package = perSystem.giopkgs.waybar;
-            audioOutputSwitcher = true;
-            modules = {
-              left = ["sway/mode" "sway/workspaces"];
-              right = ["network" "network-graphs" "cpu" "memory" "custom/claude-usage" "pulseaudio" "tray" "custom/notification" "clock" "custom/power"];
-            };
-            monitors = {
-              main = monitor-names.middle;
-              secondary = [monitor-names.left monitor-names.right];
-            };
-            networkInterfaces = [
-              {name = "enp0*";}
-            ];
-          };
-
+        homeManager = _: {
           # Setup fonts
           fonts = {
             fontconfig.enable = true;
@@ -94,15 +68,13 @@ in {
 
   # ---- Host: NixOS feature aspects ----
   den.aspects.cadmium.includes = [
-    # The homelab SSH certificate authority lives here.
-    den.aspects.ssh-ca
-
     den.aspects.wifi
     den.aspects.nh
     den.aspects.fonts
     den.aspects.onepassword
     den.aspects.yubikey
     den.aspects.remote-builder-builder
+    den.aspects.nixbuild
     den.aspects.attic-client
     den.aspects.basic-packages-desktop
 
@@ -112,6 +84,7 @@ in {
 
     den.aspects.monitoring
     den.aspects.printing
+    den.aspects."3d-printing"
     den.aspects.affinity
     den.aspects.signal
     den.aspects.todoist
@@ -123,17 +96,14 @@ in {
 
     # Easy key rebinding
     den.aspects.keyd
+
+    den.aspects.rayfish
   ];
 
   # ---- Host: cadmium-specific config (merges with the sibling files) ----
   den.aspects.cadmium.nixos = {pkgs, ...}: {
-    # 3D printing (was cadmium/3d-printing.nix)
-    environment.systemPackages = with pkgs; [
-      orca-slicer
-
-      # Gaming
-      discord
-    ];
+    # Gaming
+    environment.systemPackages = [pkgs.discord];
 
     # Autosnapshot ZFS and send to NAS. tank/nix gets a shorter schedule below.
     gio.zfs_backup = {
@@ -173,11 +143,6 @@ in {
     # gcr-ssh-agent enabled by the niri-flake NixOS module.
     services.gnome.gcr-ssh-agent.enable = false;
 
-    # Sway session beside niri (was inline in configuration.nix)
-    programs.sway = {
-      enable = true;
-      wrapperFeatures.gtk = true;
-    };
     services.dbus.enable = true;
     xdg.portal = {
       enable = true;
@@ -187,9 +152,6 @@ in {
       ];
     };
     services.displayManager = {
-      sessionPackages = [
-        pkgs.sway
-      ];
       ly.enable = true;
     };
 
@@ -205,6 +167,7 @@ in {
       enable = true;
     };
     programs.ssh.startAgent = true;
+    programs.mosh.enable = true;
 
     # Send Cargo build artifacts to the unsnapshotted tank/giodamelio-build
     # dataset (mounted at ~/.cache/builds) so target/ churn never lands in home

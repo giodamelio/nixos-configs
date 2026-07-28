@@ -13,7 +13,12 @@ ssh_keys = [
   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMhqJ8PTqeOk3DUTcakj2BUpSbVJslDpejEf+0avaQtD giodamelio@calcium",
 
   # Cesium Chromebook
-  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJwxJI1kvYY7wN9ps8W23kadHiqX8d/BJT/zI9oh0uDp giodamelio@cesium"
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJwxJI1kvYY7wN9ps8W23kadHiqX8d/BJT/zI9oh0uDp giodamelio@cesium",
+
+  # Break-glass FIDO2 hardware keys (YubiKey A + B) — CA-independent fallback,
+  # in every host's authorized_keys so login never depends on the CA/IdP.
+  "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIBRMmr8chfM5OaQXCpjDarQY7NqXc21tD1GmbOA3jbiLAAAAD3NzaDpicmVhay1nbGFzcw== break-glass-yubikey-a",
+  "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIKrOpuamjAeAL7itYcHGnssjLEyNzagyJCMcFn0000cIAAAAD3NzaDpicmVhay1nbGFzcw== break-glass-yubikey-b"
 ]
 
 ## SSH keys for nix remote builder access
@@ -30,6 +35,8 @@ remote_builder_keys = [
 ## pushing host (forced-command, locked to `credsync write`).
 [credsync_push_keys]
 # rhodium = "ssh-ed25519 AAAA... credsync-push@rhodium"
+carbon = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL8sPOTczCLA0ewf3pLRHM9XmC+Gtfg+NdKyKougipAj credsync-push@carbon"
+gallium = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJLUO/3YrFAIOMVz2gEkuJx2BHAs+HQeA4yrI3rMuNlY credsync-push@gallium"
 
 ## All the machines
 

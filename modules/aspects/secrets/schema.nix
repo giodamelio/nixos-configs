@@ -171,7 +171,7 @@ in {
           Fleet-wide secret registry. Each entry describes a secret's whole
           lifecycle (origin, generator, copy set, use-sites) and expands into
           provision/push/holder systemd units across the involved hosts. See
-          tmp/fleet-secrets.md.
+          docs/archive/fleet-secrets-design-superseded.md.
         '';
       };
 

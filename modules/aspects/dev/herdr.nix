@@ -7,10 +7,15 @@
       # so overrideAttrs can't set it; instead override the FOD hash on the inner
       # vendorStaging derivation that fetchCargoVendor produces.
       (perSystem.llm-agents.herdr.overrideAttrs (old: {
+        version = "0.7.2";
         src = inputs.herdr;
+        # versionCheckHook runs `herdr --help` and greps for the version; the
+        # fork's help output doesn't carry it, so the smoke check fails on a
+        # binary that's otherwise fine. Skip it.
+        doInstallCheck = false;
         cargoDeps = old.cargoDeps.overrideAttrs (vendor: {
           vendorStaging = vendor.vendorStaging.overrideAttrs (_: {
-            outputHash = "sha256-NHVSdXlGsqhI/Mij28TvdW0f6IKOglNgpBNb2sFXocI=";
+            outputHash = "sha256-TtQE1RvlTameGr81cMUeAQaRKS3hwo7I2ex/GHQgLik=";
           });
         });
       }))

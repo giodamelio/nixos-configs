@@ -6,6 +6,7 @@
 {
   lib,
   pkgs,
+  options,
   ...
 }: let
   # Select a region, annotate in satty: Enter saves to ~/Pictures/Screenshots,
@@ -13,6 +14,19 @@
   # Mod+Shift+S bind (which also generates a launcher entry).
   screenshotRegion = ''grim -t png -g "$(slurp -o -d -F monospace)" - | satty --filename - --copy-command=wl-copy --output-filename="$(xdg-user-dir PICTURES)/Screenshots/Screenshot from %Y-%m-%d %H:%M:%S.png" --actions-on-enter="save-to-file,exit" --actions-on-escape="save-to-clipboard,exit" --brush-smooth-history-size=5 --initial-tool=arrow --fullscreen=current-screen'';
 in {
+  # Include Noctalia's externally-managed niri config; optional=true so a missing
+  # file only warns. Raw KDL node since niri-flake settings can't express include.
+  programs.niri.config =
+    options.programs.niri.config.default
+    ++ [
+      {
+        name = "include";
+        arguments = ["noctalia.kdl"];
+        properties = {optional = true;};
+        children = [];
+      }
+    ];
+
   programs.niri.settings = {
     input = {
       keyboard.xkb.layout = "us";
@@ -62,6 +76,13 @@ in {
           y = 16;
           relative-to = "top-right";
         };
+      }
+      # OrcaSlicer's wxWidgets dialogs lay themselves out at the wrong size
+      # when told they're tiled, which prefer-no-csd does globally. Opt this
+      # one app back out instead of dropping SSD everywhere.
+      {
+        matches = [{app-id = "(?i)orca-?slicer";}];
+        tiled-state = false;
       }
     ];
 

@@ -14,9 +14,62 @@ _: {
     host,
     config,
     lib,
+    pkgs,
     ...
   }: let
     cfg = config.fleet.credentials;
+
+    # --- unit_wrappers: credential -> process environment -----------------
+    # Units asking for at least one variable.
+    wrapped = lib.filterAttrs (_unit: w: w.environment != {}) cfg.unit_wrappers;
+
+    credsOf = w: lib.unique (lib.attrValues w.environment);
+
+    # A drop-in that blanks ExecStart and re-points it at a script exporting each
+    # variable from the credentials directory, then execs the original command.
+    # Emitted as its own package (via systemd.packages) rather than by setting
+    # serviceConfig.ExecStart, which would be self-referential.
+    envDropin = unit: w: let
+      rawExecStart = config.systemd.services.${unit}.serviceConfig.ExecStart or null;
+
+      # Plain units give a string/path/derivation; modular services render a
+      # list (nixos/modules/system/service/systemd/service.nix builds
+      # `ExecStart = [ mainExecStart ... ]`). Either is wrappable as long as it
+      # resolves to exactly one command.
+      origExecStart =
+        if builtins.isList rawExecStart
+        then
+          if builtins.length rawExecStart == 1
+          then builtins.head rawExecStart
+          else null
+        else rawExecStart;
+
+      exports =
+        lib.sort (a: b: a.var < b.var)
+        (lib.mapAttrsToList (var: cred: {inherit var cred;}) w.environment);
+
+      checked =
+        if origExecStart == null
+        then throw "fleet.credentials: unit_wrappers.${unit} needs exactly one ExecStart on ${unit}.service (found none, or several)"
+        else true;
+
+      # writeShellScript, not writeShellApplication: this execs the original
+      # ExecStart verbatim, which `set -u` and shellcheck would both fight.
+      script = pkgs.writeShellScript "${unit}-credential-env" ''
+        ${lib.concatMapStringsSep "\n" (e: ''export ${e.var}="$(cat "$CREDENTIALS_DIRECTORY/${e.cred}")"'') exports}
+        exec ${origExecStart}
+      '';
+    in
+      assert checked;
+        pkgs.runCommandLocal "credential-env-${unit}" {} ''
+          d="$out/etc/systemd/system/${unit}.service.d"
+          mkdir -p "$d"
+          cat > "$d/60-credential-env.conf" <<EOF
+          [Service]
+          ExecStart=
+          ExecStart=${script}
+          EOF
+        '';
 
     # Names-only TOML manifest written by `agevault generate-toml` (its
     # manifest_path points at cfg.manifestFile). A missing file is a hard error,
@@ -69,16 +122,69 @@ _: {
         default = available;
         description = "Credential names agevault can deliver to THIS host (from the manifest).";
       };
+
+      unit_wrappers = lib.mkOption {
+        default = {};
+        example = lib.literalExpression ''
+          {
+            someservice.environment.SERVICE_API_KEY = "service_api_key";
+          }
+        '';
+        description = ''
+          Per-unit credential consumption for services that cannot read a
+          credential file themselves. Keyed by systemd unit name without
+          ".service"; works for modular services too, since those render into
+          systemd.services.
+
+          Declaring one is enough: the credential is added to `needs` (so the
+          manifest assertion covers it), loaded onto the unit with
+          LoadCredentialEncrypted, and exported into the process environment.
+        '';
+        type = lib.types.attrsOf (lib.types.submodule {
+          options.environment = lib.mkOption {
+            type = lib.types.attrsOf lib.types.str;
+            default = {};
+            example = {API_KEY = "service_api_key";};
+            description = ''
+              Environment variable -> credential name. Each pair becomes an
+              `export VAR="$(cat $CREDENTIALS_DIRECTORY/<name>)"` ahead of the
+              unit's original ExecStart.
+
+              This exists because EnvironmentFile= cannot reference
+              /run/credentials: systemd loads environment files when it spawns
+              each Exec* line, before that invocation's credentials exist.
+            '';
+          };
+        });
+      };
     };
 
-    config.assertions = [
+    config = lib.mkMerge [
       {
-        assertion = missing == [];
-        message = "fleet.credentials: ${host.name} needs credential(s) not in the agevault manifest (${toString cfg.manifestFile}): ${lib.concatStringsSep ", " missing}. Add each with `agevault edit ${host.name} <name>` (auto-runs generate-toml) and commit the manifest, or drop it from fleet.credentials.needs.";
+        # Declaring a wrapper is the whole declaration: the name is asserted
+        # against the manifest and the blob is loaded onto the unit.
+        fleet.credentials.needs = lib.unique (lib.concatMap credsOf (lib.attrValues wrapped));
+
+        systemd.packages = lib.mapAttrsToList envDropin wrapped;
+
+        systemd.services =
+          lib.mapAttrs (_unit: w: {
+            serviceConfig.LoadCredentialEncrypted = credsOf w;
+          })
+          wrapped;
       }
+
       {
-        assertion = dashed == [];
-        message = "fleet.credentials: ${host.name} needs credential(s) with a dash in the name: ${lib.concatStringsSep ", " dashed}. agevault credential names are snake_case — rename the secret and its use-sites to use underscores.";
+        assertions = [
+          {
+            assertion = missing == [];
+            message = "fleet.credentials: ${host.name} needs credential(s) not in the agevault manifest (${toString cfg.manifestFile}): ${lib.concatStringsSep ", " missing}. Add each with `agevault edit ${host.name} <name>` (auto-runs generate-toml) and commit the manifest, or drop it from fleet.credentials.needs.";
+          }
+          {
+            assertion = dashed == [];
+            message = "fleet.credentials: ${host.name} needs credential(s) with a dash in the name: ${lib.concatStringsSep ", " dashed}. agevault credential names are snake_case — rename the secret and its use-sites to use underscores.";
+          }
+        ];
       }
     ];
   };

@@ -23,8 +23,8 @@
         trusted-users = ["root" "@wheel"];
         substituters = [
           "https://cache.nixos.org"
-          "https://gradient.gio.ninja/cache/main"
-          "https://attic.gio.ninja/homelab"
+          # "https://gradient.gio.ninja/cache/main"
+          # "https://attic.gio.ninja/homelab"
           "https://nix-community.cachix.org"
           "https://giopkgs.cachix.org"
           "https://noctalia.cachix.org"
@@ -32,8 +32,8 @@
 
         trusted-public-keys = [
           "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-          "gradient.gio.ninja-main:Qx23IyI8Q9+FFl55YYptLSeTWUtFsF6bdK+I8Tma40Q="
-          "homelab:Pin5h4Ny1Fkj1dpp7OA7COvhiKNHMFT9oSrQKhyXh0c="
+          # "gradient.gio.ninja-main:Qx23IyI8Q9+FFl55YYptLSeTWUtFsF6bdK+I8Tma40Q="
+          # "homelab:Pin5h4Ny1Fkj1dpp7OA7COvhiKNHMFT9oSrQKhyXh0c="
           "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
           "giopkgs.cachix.org-1:8oiYAit71TVQVQgzOWkbwsJZwvf89Yymi5Sx+BaEdEs="
           "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="

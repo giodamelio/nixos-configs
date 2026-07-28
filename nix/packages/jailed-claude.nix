@@ -25,6 +25,7 @@ in
       (try-readwrite (noescape "~/.cache/builds"))
       (try-readwrite (noescape "~/.cache/claude-cli-nodejs"))
       (try-readwrite (noescape "~/.local/state/claude"))
+      (try-readwrite (noescape "~/.local/share/tuicr"))
       (try-readwrite (noescape "~/Documents/life/Projects/"))
       (try-readwrite (noescape "~/projects/browser-use/browser-harness"))
 

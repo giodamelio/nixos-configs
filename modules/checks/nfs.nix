@@ -60,12 +60,17 @@ _: {
         lib,
         ...
       }: {
-        # credsync must be on the remote's PATH: push runs `credsync write` over SSH.
+        # credsync must be on the remote's PATH: the non-root push runs
+        # `sudo -n credsync write` over SSH (sudo resolves it via secure_path).
         environment.systemPackages = [config.packages.credsync];
-        services.openssh = {
-          enable = true;
-          settings.PermitRootLogin = lib.mkForce "prohibit-password";
+        services.openssh.enable = true;
+        # The push lands as the non-root push user and elevates via passwordless
+        # sudo (root SSH login stays off, as on the real fleet).
+        users.users.server = {
+          isNormalUser = true;
+          extraGroups = ["wheel"];
         };
+        security.sudo.wheelNeedsPassword = false;
         # Resolve both the push targets (<host>.gio.ninja) and the WG endpoints
         # (bare host names) to the peer VMs.
         networking.extraHosts = lib.mkAfter ''
@@ -91,11 +96,13 @@ _: {
             nfsb.wait_until_succeeds("test -e /usr/lib/credstore.encrypted/wg-nfs-priv-nfs-b")
             nfsb.wait_until_succeeds("test -e /usr/lib/credstore.encrypted/wg-nfs-pub-nfs-b")
 
-        with subtest("cross-authorize the credsync push identities"):
+        with subtest("cross-authorize the credsync push identities on the push user"):
             for src, dst in ((nfsa, nfsb), (nfsb, nfsa)):
                 pub = src.succeed("cat /etc/credsync-push-key.pub").strip()
-                dst.succeed("install -d -m700 /root/.ssh")
-                dst.succeed(f"printf '%s\\n' '{pub}' >> /root/.ssh/authorized_keys")
+                dst.succeed("install -d -m700 -o server -g users /home/server/.ssh")
+                dst.succeed(f"printf '%s\\n' '{pub}' >> /home/server/.ssh/authorized_keys")
+                dst.succeed("chown server:users /home/server/.ssh/authorized_keys")
+                dst.succeed("chmod 600 /home/server/.ssh/authorized_keys")
 
         with subtest("push each host's public key to its peer"):
             nfsa.succeed("systemctl start 'secret-push-wg-nfs-pub-nfs-a@nfs-b.service'")

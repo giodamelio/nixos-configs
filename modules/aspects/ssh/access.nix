@@ -54,11 +54,6 @@ in {
         }))
         (lib.foldl (acc: kv: acc // {${kv.name} = (acc.${kv.name} or []) ++ kv.value;}) {})
       ];
-
-      userCertsHere = lib.pipe (host.users or {}) [
-        builtins.attrNames
-        (builtins.filter (userName: builtins.pathExists (dataDir + "/certs/clients/${userName}@${host.name}-cert.pub")))
-      ];
     in
       lib.mkIf host.ssh.enable (lib.mkMerge [
         {
@@ -92,15 +87,7 @@ in {
                 text = "${userName}@${host.name}\n";
                 mode = "0644";
               })
-            keysByUser
-            // lib.pipe userCertsHere [
-              (map (userName:
-                lib.nameValuePair "ssh/user-certs/${userName}-cert.pub" {
-                  text = builtins.readFile (dataDir + "/certs/clients/${userName}@${host.name}-cert.pub");
-                  mode = "0644";
-                }))
-              lib.listToAttrs
-            ];
+            keysByUser;
         })
       ]);
 
@@ -114,17 +101,12 @@ in {
       grantedUsers = users: builtins.attrNames (lib.filterAttrs (_: granted: granted) users);
       # A matchBlock can pick one user; multi-user grants need `ssh user@host`.
       singleUserTargets = lib.filterAttrs (_toHost: users: builtins.length (grantedUsers users) == 1) mine;
-      hasCert = builtins.pathExists (dataDir + "/certs/clients/${user.name}@${host.name}-cert.pub");
     in {
-      programs.ssh.matchBlocks =
-        lib.mapAttrs' (toHost: users:
-          lib.nameValuePair "${toHost}.${domain}" {
-            user = builtins.head (grantedUsers users);
-          })
-        singleUserTargets
-        // lib.optionalAttrs hasCert {
-          "*.${domain}".certificateFile = "/etc/ssh/user-certs/${user.name}-cert.pub";
-        };
+      programs.ssh.matchBlocks = lib.mapAttrs' (toHost: users:
+        lib.nameValuePair "${toHost}.${domain}" {
+          user = builtins.head (grantedUsers users);
+        })
+      singleUserTargets;
     };
   };
 }

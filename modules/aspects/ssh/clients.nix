@@ -1,4 +1,4 @@
-# Fleet SSH registries; enrollment + revocation runbooks in docs/ssh.md.
+# Fleet SSH registries; host enrollment runbook in docs/onboarding-a-host.md.
 _: {
   fleet.ssh = {
     externalClients = {

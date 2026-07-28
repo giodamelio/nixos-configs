@@ -93,10 +93,14 @@ in {
     beta = {...}: {
       imports = [(secretsModule "beta")];
       environment.systemPackages = [credsync];
-      services.openssh = {
-        enable = true;
-        settings.PermitRootLogin = "prohibit-password";
+      services.openssh.enable = true;
+      # The push lands as the non-root push user and elevates via passwordless
+      # sudo (root SSH login stays off, as on the real fleet).
+      users.users.server = {
+        isNormalUser = true;
+        extraGroups = ["wheel"];
       };
+      security.sudo.wheelNeedsPassword = false;
 
       # Consumers referenced by the use-sites. Neither is wantedBy a target of
       # its own — only the secret's target pulls them in once the blob arrives.
@@ -132,11 +136,13 @@ in {
         beta.fail("test -e /run/consumer-proof")
         beta.fail("test -e /run/envconsumer-proof")
 
-    with subtest("authorize alpha's push identity on beta"):
+    with subtest("authorize alpha's push identity on beta's push user"):
         pub = alpha.succeed("cat /etc/credsync-push-key.pub").strip()
         alpha.succeed("install -d -m700 /root/.ssh")
-        beta.succeed("install -d -m700 /root/.ssh")
-        beta.succeed(f"printf '%s\\n' '{pub}' >> /root/.ssh/authorized_keys")
+        beta.succeed("install -d -m700 -o server -g users /home/server/.ssh")
+        beta.succeed(f"printf '%s\\n' '{pub}' > /home/server/.ssh/authorized_keys")
+        beta.succeed("chown server:users /home/server/.ssh/authorized_keys")
+        beta.succeed("chmod 600 /home/server/.ssh/authorized_keys")
 
     with subtest("push delivers secrets; targets start the consumers"):
         alpha.succeed("systemctl start secret-push-demo@beta.service")

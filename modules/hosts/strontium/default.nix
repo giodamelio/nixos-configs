@@ -24,7 +24,10 @@
   };
 
   # Run the heartbeat collector (pushes to its own Healthchecks check).
-  den.aspects.strontium.includes = [den.aspects.server-heartbeat];
+  den.aspects.strontium.includes = [
+    den.aspects.server-heartbeat
+    den.aspects.rayfish
+  ];
 
   den.aspects.strontium.nixos = {
     modulesPath,
@@ -103,7 +106,21 @@
       }
 
       # Backup important files to Garage on Gallium
-      ({pkgs, ...}: {
+      ({pkgs, ...}: let
+        # Report the backup result to the fleet monitor. Its own unit (triggered by
+        # OnSuccess=/OnFailure= below) so the credential loads cleanly and the
+        # outcome comes from $MONITOR_SERVICE_RESULT — no postStop credential hack.
+        resticPing = pkgs.writeShellApplication {
+          name = "restic-backup-ping";
+          runtimeInputs = [pkgs.curl];
+          text = ''
+            if [ "''${MONITOR_SERVICE_RESULT:-}" = "success" ]; then s=true; else s=false; fi
+            curl -fsS -m 10 -X POST \
+              -H "Authorization: Bearer $(cat "$CREDENTIALS_DIRECTORY/gatus_push_token")" \
+              "http://rhodium.gio.ninja:8080/api/v1/endpoints/backups_strontium-restic/external?success=$s" || true
+          '';
+        };
+      in {
         services.restic.backups.strontium = {
           repository = "s3:https://s3.garage.gio.ninja/strontium-backups";
           # The auto wrapper doesn't load the systemd credential correctly, so we create one ourselves below
@@ -120,9 +137,26 @@
             "restic_password"
             "restic_s3_credentials"
           ];
+          # Fire the ping on both outcomes; it reads which via $MONITOR_SERVICE_RESULT.
+          unitConfig = {
+            OnSuccess = "restic-backup-ping.service";
+            OnFailure = "restic-backup-ping.service";
+          };
           environment = {
             AWS_DEFAULT_REGION = "garage";
             AWS_SHARED_CREDENTIALS_FILE = "/run/credentials/restic-backups-strontium.service/restic_s3_credentials";
+          };
+        };
+
+        # gatus_push_token (symlinked from rhodium) authenticates the ping.
+        fleet.credentials.needs = ["gatus_push_token"];
+
+        systemd.services.restic-backup-ping = {
+          description = "Report the restic backup result to the fleet monitor";
+          serviceConfig = {
+            Type = "oneshot";
+            LoadCredentialEncrypted = ["gatus_push_token"];
+            ExecStart = "${resticPing}/bin/restic-backup-ping";
           };
         };
 

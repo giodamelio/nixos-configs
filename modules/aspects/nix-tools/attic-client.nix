@@ -32,7 +32,8 @@ _: {
     };
 
     config = {
-      nix.settings.post-build-hook = post-build-hook;
+      # TODO: redo this
+      # nix.settings.post-build-hook = post-build-hook;
     };
   };
 }

@@ -64,21 +64,24 @@
     '';
   });
 
-  # Forced-command wrapper: a push key may only ever run `credsync write`.
+  # Forced-command wrapper: a push key may only ever run `credsync write`. Root
+  # login is disabled fleet-wide, so the push targets ${pushUser} and credsync
+  # sends `sudo -n credsync write …`; we re-run it under sudo with credsync's real
+  # store path (sudo's secure_path doesn't include it). The push user thus needs
+  # only passwordless sudo — no credsync on its PATH, no root SSH.
   forcedCommandExe = lib.getExe (pkgs.writeShellApplication {
     name = "credsync-forced-command";
-    runtimeInputs = [credsync];
     text = ''
       cmd="''${SSH_ORIGINAL_COMMAND:-}"
       case "$cmd" in
-        "credsync write "*) ;;
+        "sudo -n credsync write "*) args="''${cmd#sudo -n credsync write }" ;;
         *)
           echo "credsync: only 'credsync write' is permitted via this key" >&2
           exit 1
           ;;
       esac
-      # shellcheck disable=SC2086 # deliberate: re-run the validated command
-      exec $cmd
+      # shellcheck disable=SC2086 # deliberate split into <name> [units...]
+      exec /run/wrappers/bin/sudo -n ${credsyncExe} write $args
     '';
   });
 
@@ -322,7 +325,7 @@ in {
                     Type = "oneshot";
                     LoadCredentialEncrypted = [pushKeyName];
                     Environment = ["CREDSYNC_SSH_IDENTITY=%d/${pushKeyName}"];
-                    ExecStart = "${credsyncExe} push ${name} root@${dest}.${domain} ${lib.concatStringsSep " " restartUnits}";
+                    ExecStart = "${credsyncExe} push ${name} ${pushUser}@${dest}.${domain} ${lib.concatStringsSep " " restartUnits}";
                   };
                 };
               }) (copySet s)
@@ -392,14 +395,19 @@ in {
       };
     })
 
-    {
-      # Each origin pushing to this host gets a forced-command key locked to
-      # `credsync write`. Origins whose pubkey isn't in homelab.toml yet are
-      # skipped (their push fails until the key is pasted — surfaced at login).
-      users.users.root.openssh.authorizedKeys.keys =
+    (let
+      # Each origin pushing to this host gets a forced-command key on ${pushUser},
+      # locked to `credsync write`. Origins whose pubkey isn't in homelab.toml yet
+      # are skipped (their push fails until the key is pasted — surfaced at login).
+      authorizedPushKeys =
         map (origin: ''command="${forcedCommandExe}",restrict ${pushKeys.${origin}}'')
         (builtins.filter (origin: pushKeys ? ${origin}) pushOriginsHere);
-    }
+    in
+      # Guard: defining users.users.<pushUser> on a host that doesn't otherwise
+      # declare it is an eval error, so only touch it when authorizing a key.
+      lib.mkIf (authorizedPushKeys != []) {
+        users.users.${pushUser}.openssh.authorizedKeys.keys = authorizedPushKeys;
+      })
 
     # --- Login warning for missing/in-transit secrets ---
     (lib.mkIf (heldSecrets != {}) {

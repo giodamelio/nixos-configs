@@ -54,7 +54,13 @@
 
         scopes.nixos = {
           description = "My personal NixOS configs";
-          options-list-file = optnixLib.mkOptionsList {inherit options;};
+          # niri-flake's default package asserts libdisplay-info_0_2, dropped in
+          # nixpkgs 26.11, so rendering that default throws. The niri aspect sets
+          # programs.niri.package explicitly, so the default is never used.
+          options-list-file = optnixLib.mkOptionsList {
+            inherit options;
+            excluded = ["programs.niri.package"];
+          };
           evaluator = "nix eval ~/nixos-configs#nixosConfigurations.cadmium.config.{{ .Option }}";
         };
       };

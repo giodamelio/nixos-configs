@@ -39,6 +39,7 @@
       # cesium-only Home-Manager features.
       den.aspects.zed-editor
       den.aspects.herdr
+      den.aspects.llm-tooling
 
       # Folded dual-class: HM half here, NixOS half forwarded to the host.
       den.aspects.kde-connect
@@ -59,6 +60,7 @@
     den.aspects.pipewire
     den.aspects.battery-optimization
     den.aspects.software-development
+    den.aspects.rayfish
     den.aspects.todoist
   ];
 
@@ -91,6 +93,8 @@
             f8 = "mute";
             f9 = "volumedown";
             f10 = "volumeup";
+            # Lock key sits right above backspace; require a 1s hold so a stray tap doesn't fire it
+            sleep = "timeout(noop, 1000, sleep)";
           };
           # Search + top row = actual F-keys
           meta = {

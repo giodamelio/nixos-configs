@@ -86,6 +86,11 @@ in
         }: {
           system.stateVersion = "25.11";
           services.openssh.enable = true;
+          # Serve the pre-signed host cert directly. In the real fleet this comes
+          # from ssh-host-cert-renew at /var/lib/step-ssh (runtime enrollment); the
+          # test stands it in so it can exercise the host-cert *trust* path that
+          # ssh-host-cert renders (the @cert-authority entry granter verifies).
+          services.openssh.settings.HostCertificate = "/etc/ssh/ssh_host_ed25519_key-cert.pub";
           # Use only the committed fixed host key so the pre-signed host cert
           # matches; placed in activation (before sshd) at 0600 — sshd refuses a
           # world-readable store symlink, so we copy out of the store.
@@ -98,6 +103,7 @@ in
           system.activationScripts.testHostKey.text = ''
             install -Dm600 ${pkgs.writeText "grantee_host" granteeHostPriv} /etc/ssh/ssh_host_ed25519_key
             install -Dm644 ${pkgs.writeText "grantee_host.pub" (granteeHostPub + "\n")} /etc/ssh/ssh_host_ed25519_key.pub
+            install -Dm644 ${./ssh-cert-data/certs/grantee-cert.pub} /etc/ssh/ssh_host_ed25519_key-cert.pub
           '';
         };
       };

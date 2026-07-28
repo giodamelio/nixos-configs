@@ -77,11 +77,16 @@ def ssh-dest [host: string] {
 
 # --- name/path helpers -----------------------------------------------------
 
-# Credential names become filenames and systemd credential ids; allow dots
-# (secrets.json) but keep them otherwise tame.
+# Central credential-name validator (used by every name-taking subcommand --
+# update the rule here). Names become filenames and systemd credential ids. Dots
+# are allowed (secrets.json); dashes are NOT -- underscores only, so name == id ==
+# blob name and there is no `_`<->`-` rename class (see MIGRATION.md).
 def check-name [name: string] {
-    if not ($name =~ '^[a-zA-Z0-9._-]+$') {
-        error make {msg: $"invalid credential name: ($name)"}
+    if ($name | str contains "-") {
+        error make {msg: $"invalid credential name '($name)': dashes are not allowed -- use underscores"}
+    }
+    if not ($name =~ '^[a-zA-Z0-9._]+$') {
+        error make {msg: $"invalid credential name '($name)': allowed characters are [a-zA-Z0-9._]"}
     }
 }
 

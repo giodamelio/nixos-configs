@@ -14,10 +14,9 @@ in {
   den.hosts.x86_64-linux.carbon = {
     role = "server";
 
-    # Deployed host, but its ed25519 host key isn't recorded here yet, so it is
-    # not a cert sign target. ssh stays enabled (access grants still apply); fill
-    # in the real public key later to issue a host certificate.
-    ssh.hostKey = null;
+    # ed25519 host key (ssh-keyscan carbon.gio.ninja); enrolls carbon as a cert
+    # sign target so peers verify it via the host CA instead of failing on TOFU.
+    ssh.hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIX5P0ZXB1SUbiDrm42t19GEsz80dw+yI0GoO0tYlJsn";
 
     # Consul server (bind interface + retry_join derive from host.network).
     consul = {
@@ -54,6 +53,8 @@ in {
     nfs = {
       enable = true;
       wgIp = "10.200.0.2";
+      # LAN IP peers dial for the tunnel; a bare hostname doesn't resolve on the peer.
+      endpoint = "10.30.0.10";
     };
 
     # The `server` user with its Home-Manager environment (the old

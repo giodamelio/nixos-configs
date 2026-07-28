@@ -4,15 +4,31 @@
 # path — systemd reads the env file directly, no ExecStart wrapper. Converted
 # from nix/hosts/gallium/attic.nix.
 #
-# NOTE: the secret blob is a flat KEY=value env file read via EnvironmentFile=
-# (the old wrapper shell-sourced it). atticd's env file is simple KEY=value so
-# this is equivalent; revisit if it ever needs shell-expansion semantics.
+# NOTE: the secret blob is a flat KEY=value env file. It CANNOT be handed to
+# EnvironmentFile= directly from /run/credentials: systemd loads environment
+# files when it spawns each Exec* line, before that invocation's credentials
+# exist, so the path is always missing ("Failed to load environment files") and
+# the unit restart-loops. Verified on gallium with a minimal transient unit.
+# Instead ExecStartPre stages the credential into a RuntimeDirectory and
+# EnvironmentFile= reads that, with `-` so its absence during ExecStartPre
+# itself is not fatal.
 _: {
   den.aspects.gallium.nixos = {
     pkgs,
     config,
+    lib,
     ...
-  }: {
+  }: let
+    envPath = "/run/atticd/env";
+
+    stageEnv = pkgs.writeShellApplication {
+      name = "atticd-stage-env";
+      runtimeInputs = [pkgs.coreutils];
+      text = ''
+        install -m0400 "$CREDENTIALS_DIRECTORY/attic-envfile" ${envPath}
+      '';
+    };
+  in {
     environment.systemPackages = with pkgs; [
       attic-client
 
@@ -46,14 +62,24 @@ _: {
 
     services.atticd = {
       enable = true;
-      # Env vars come from the fleet.secrets credential loaded onto this unit.
-      environmentFile = "/run/credentials/atticd.service/attic-envfile";
+      # Staged from the fleet.secrets credential by ExecStartPre (see the note at
+      # the top). The module asserts this is non-null, so it stays set even
+      # though serviceConfig.EnvironmentFile is what systemd actually reads.
+      environmentFile = envPath;
       settings = {
         storage = {
           type = "local";
           path = "/tank/attic_storage";
         };
       };
+    };
+
+    systemd.services.atticd.serviceConfig = {
+      RuntimeDirectory = "atticd";
+      ExecStartPre = lib.getExe stageEnv;
+      # `-`: absent while ExecStartPre itself is spawned, populated by the time
+      # ExecStart is. The module sets this unprefixed, hence mkForce.
+      EnvironmentFile = lib.mkForce "-${envPath}";
     };
   };
 

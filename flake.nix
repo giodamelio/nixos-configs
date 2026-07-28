@@ -111,6 +111,11 @@
     # Handy Speach to Text
     handy.url = "github:cjpais/Handy";
     handy.inputs.nixpkgs.follows = "nixpkgs";
+    # handy's hm-module reads flake-parts' `self'`, which forces bun2nix's
+    # `flake.formatter` across bun2nix's systems (nix-systems/default, so it
+    # includes x86_64-darwin). bun2nix borrows our nixpkgs, and 26.11 dropped
+    # x86_64-darwin, so that eval throws. Linux-only systems sidestep it.
+    handy.inputs.bun2nix.inputs.systems.url = "github:nix-systems/default-linux";
 
     # Run small declarative VMs easily
     microvm.url = "github:microvm-nix/microvm.nix";
@@ -141,9 +146,15 @@
     # Terminal multiplexer in Zig
     zmx.url = "github:neurosnap/zmx";
 
-    # Noctalia desktop shell (bar, launcher, notifications, lock screen)
-    noctalia.url = "github:noctalia-dev/noctalia-shell";
-    noctalia.inputs.nixpkgs.follows = "nixpkgs";
+    # Noctalia v5 desktop shell (bar, launcher, notifications, lock screen).
+    # The cachix branch tracks the newest CI-cached commit; following nixpkgs
+    # would change the derivation hash and miss the cache on every build.
+    noctalia.url = "github:noctalia-dev/noctalia/cachix";
+
+    # Noctalia v4 (Quickshell), kept as a fallback. Pinned to the branch
+    # explicitly because noctalia-shell now redirects to the v5 repo.
+    noctalia-v4.url = "github:noctalia-dev/noctalia/legacy-v4";
+    noctalia-v4.inputs.nixpkgs.follows = "nixpkgs";
 
     # Niri Wayland compositor flake (NixOS + Home Manager modules)
     niri.url = "github:sodiboo/niri-flake";
@@ -199,5 +210,11 @@
     # camoufox-nix.url = "github:maximoffua/camoufox-nix";
     camoufox-nix.url = "github:giodamelio/camoufox-nix/add-camoufox-bin";
     camoufox-nix.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Fabric CLI. Using my fork's update-nixpkgs branch until upstream takes it.
+    # REMIND-ME-TO: Switch back to upstream Fabric pr_merged=github:danielmiessler/Fabric#2186
+    # fabric.url = "github:danielmiessler/Fabric";
+    fabric.url = "github:giodamelio/fabric?ref=update-nixpkgs";
+    fabric.inputs.nixpkgs.follows = "nixpkgs";
   };
 }

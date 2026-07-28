@@ -53,13 +53,15 @@ flake.lib.writeNushellApplication pkgs {
       nh os build --diff never $".#nixosConfigurations.($host)"
 
       # Push it to the binary cache
-      attic push homelab result/
+      # attic push homelab result/
 
       # Then actually deploy it
       if $is_local_deploy {
-        nh os switch --ask ...$args --hostname $host .
+        # nh os switch --ask ...$args --hostname $host .
+        nh os switch --ask ...$args --hostname $host . -- --option post-build-hook "" --substituters "https://cache.nixos.org"
       } else {
         nh os switch --ask ...$args --hostname $host --target-host $destination .
+        nh os switch --ask ...$args --hostname $host --target-host $destination . -- --option post-build-hook "" --substituters "https://cache.nixos.org"
       }
 
       # Clean up the result so the changes don't look so crazy

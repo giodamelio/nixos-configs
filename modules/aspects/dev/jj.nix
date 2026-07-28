@@ -57,7 +57,29 @@
           # Update the current bookmark to the current or last commit
           "tug" = ["bookmark" "move" "--from" "heads(::@- & bookmarks())" "--to" "@"];
           "tug-" = ["bookmark" "move" "--from" "heads(::@- & bookmarks())" "--to" "@-"];
+
           "push" = ["util" "exec" "--" "jj-push"];
+          "restack" = ["rebase" "-o" "trunk()" "-s" "mutable_roots()"];
+          "stack" = ["rebase" "-A" "trunk()" "-B" "closest_merge(@)" "-r"];
+          "stage" = ["stack" "closest_merge(@)+:: ~ empty()"];
+        };
+
+        revset-aliases = {
+          # Megamerge helpers
+          "mutable_roots()" = "roots(trunk()..) & mutable()";
+          "closest_merge(to)" = "heads(::to & merges())";
+
+          # Find my commits
+          "mine()" = let
+            aliases = [
+              "gio@damelio.net"
+              "giodamelio@gmail.com"
+              "me@giodamelio.com"
+            ];
+          in
+            builtins.concatStringsSep " | " (map (x: "author_email(exact-i:'${x}')") aliases);
+
+          "immutable_heads()" = "builtin_immutable_heads() | (trunk().. & ~mine())";
         };
 
         merge-tools.jj-hunk = {

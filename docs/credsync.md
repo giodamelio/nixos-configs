@@ -1,5 +1,20 @@
 # credsync — Copying systemd-creds Between Hosts
 
+> **SUPERSEDED 2026-08-23 — credsync is being deleted.** agevault is the only
+> delivery path now; `fleet.secrets` keeps use-sites and systemd emission and
+> loses `generator`, `origin`, `copyTo`, and the whole push apparatus. The push
+> units have already been off fleet-wide since `fleet.secretsPush.enable` gained
+> `default = false`.
+>
+> Design: `docs/pi-ca-secrets-plan.md` -> "Decided 2026-08-23".
+> Execution: `MIGRATION.md` -> "Retire the delivery half of fleet.secrets".
+>
+> Kept for the mechanism write-up. One detail below still matters during the
+> migration: **credsync writes blobs nameless** (`--name=`), which is why
+> renaming an existing blob on disk is a plain `mv` — there is no embedded name
+> to invalidate. agevault writes them **named**, so after the cutover the
+> credential id must equal the blob name.
+
 `credsync` idempotently copies systemd credentials from the host that generates
 them to the hosts that consume them, over SSH. Typical flow: a host generates an
 API token into its encrypted credstore, and a systemd unit pushes it to the

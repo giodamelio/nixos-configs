@@ -1,0 +1,20 @@
+carbon -> gallium ZFS evacuation (from the frozen tank@rescue-evac snapshot).
+Run from INSIDE carbon, in tmux. `zfs recv -s` keeps partials so a broken send
+resumes (see RESUME) instead of restarting. Skip tank/nix (rebuildable).
+
+# landing spot on gallium (once)
+ssh server@gallium.gio.ninja 'sudo zfs create -o mountpoint=none tank/rescue 2>/dev/null; echo ready'
+
+# evacuate each dataset (pv -s = real uncompressed send size from `zfs send -nP`,
+# i.e. what pv actually counts — larger than on-disk REFER due to ~1.9x compression)
+sudo zfs send tank/root@rescue-evac | pv -s 38g | ssh server@gallium.gio.ninja 'sudo zfs recv -s -u tank/rescue/carbon-root'
+sudo zfs send tank/home@rescue-evac | pv -s 5.7g | ssh server@gallium.gio.ninja 'sudo zfs recv -s -u tank/rescue/carbon-home'
+sudo zfs send -R tank/vms@rescue-evac | pv -s 486k | ssh server@gallium.gio.ninja 'sudo zfs recv -s -u tank/rescue/carbon-vms'
+sudo zfs send tank/microvms@rescue-evac | pv -s 57m | ssh server@gallium.gio.ninja 'sudo zfs recv -s -u tank/rescue/carbon-microvms'
+
+# verify what landed
+ssh server@gallium.gio.ninja 'sudo zfs list -r tank/rescue'
+
+# RESUME a broken transfer (example: root)
+TOK=$(ssh server@gallium.gio.ninja 'sudo zfs get -H -o value receive_resume_token tank/rescue/carbon-root')
+sudo zfs send -t "$TOK" | pv | ssh server@gallium.gio.ninja 'sudo zfs recv -s tank/rescue/carbon-root'

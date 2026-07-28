@@ -2,7 +2,9 @@
   inherit (pkgs) lib;
 
   onepassword-sdk-python = pkgs.python3.pkgs.buildPythonPackage rec {
-    pname = "onepassword-sdk-python";
+    # setup.py declares the distribution as "onepassword-sdk"; pythonMetadataCheckPhase
+    # looks the name up verbatim, so it must not be the repo name.
+    pname = "onepassword-sdk";
     version = "0.3.1";
     pyproject = true;
 

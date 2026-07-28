@@ -1,6 +1,6 @@
 # sway — my full Sway session: window manager config (cadmium's three-monitor
-# layout), swaync notifications, flameshot screenshots, swayr/swaylock/swayidle
-# and friends. Converted from nix/modules/home/sway.nix. Its Blueprint import
+# layout), swaync notifications, flameshot screenshots, swayr and friends
+# (locking/idle are owned by Noctalia). Converted from nix/modules/home/sway.nix. Its Blueprint import
 # of flake.homeModules.vicinae becomes an aspect include.
 #
 # Blueprint-isms rewritten: flake.lib.homelab -> inputs.self.lib.homelab (file
@@ -347,7 +347,7 @@
       };
     };
 
-    # Screen locking + idle blanking are owned by the screen-lock aspect.
+    # Screen locking + idle blanking are owned by Noctalia (lockScreen IPC).
 
     services.cliphist.enable = true;
   };
