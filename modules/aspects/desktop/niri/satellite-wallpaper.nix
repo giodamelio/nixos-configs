@@ -16,6 +16,17 @@
 
     cfg = config.services.satellite-wallpaper;
 
+    # v5 renamed the binary and swapped the wallpaper argument order.
+    onV5 = config.programs ? noctalia;
+    noctaliaEnabled =
+      if onV5
+      then config.programs.noctalia.enable
+      else config.programs.noctalia-shell.enable or false;
+    setWallpaperCmd =
+      if onV5
+      then "noctalia msg wallpaper-set $output $image"
+      else "noctalia-shell ipc call wallpaper set $image $output";
+
     set-wallpaper = inputs.self.lib.writeNushellApplication pkgs {
       name = "satellite-set-wallpaper";
       runtimeInputs = [satellite-earth-download];
@@ -33,7 +44,7 @@
           for output in $outputs {
             log info $"Setting wallpaper on output: ($output)"
             try {
-              noctalia-shell ipc call wallpaper set $image $output
+              ${setWallpaperCmd}
               log info $"Successfully set wallpaper on ($output)"
             } catch {|e|
               log error $"Failed to set wallpaper on ($output): ($e.msg)"
@@ -59,7 +70,7 @@
     config = {
       home.packages = [satellite-earth-download];
 
-      systemd.user.services.satellite-wallpaper = lib.mkIf config.programs.noctalia-shell.enable {
+      systemd.user.services.satellite-wallpaper = lib.mkIf noctaliaEnabled {
         Unit = {
           Description = "Set wallpaper to latest satellite Earth image";
           After = ["graphical-session.target"];
@@ -72,7 +83,7 @@
         Install.WantedBy = ["graphical-session.target"];
       };
 
-      systemd.user.timers.satellite-wallpaper = lib.mkIf config.programs.noctalia-shell.enable {
+      systemd.user.timers.satellite-wallpaper = lib.mkIf noctaliaEnabled {
         Unit.Description = "Update wallpaper with latest satellite Earth image";
         Timer = {
           OnCalendar = "*:00/30";

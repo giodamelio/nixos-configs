@@ -13,7 +13,7 @@
   }: let
     claude-usage-plugin = perSystem.self.noctalia-claude-usage;
   in {
-    imports = [inputs.noctalia.homeModules.default];
+    imports = [inputs.noctalia-v4.homeModules.default];
 
     programs.noctalia-shell = {
       enable = true;
@@ -27,20 +27,27 @@
             url = "https://github.com/noctalia-dev/noctalia-plugins";
           }
         ];
-        states = {
-          claude-usage = {
-            enabled = true;
-            sourceUrl = "";
+        states =
+          {
+            claude-usage = {
+              enabled = true;
+              sourceUrl = "";
+            };
+            network-indicator = {
+              enabled = true;
+              sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
+            };
+            screen-toolkit = {
+              enabled = true;
+              sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
+            };
+          }
+          // lib.optionalAttrs config.services.kdeconnect.enable {
+            kde-connect = {
+              enabled = true;
+              sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
+            };
           };
-          network-indicator = {
-            enabled = true;
-            sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
-          };
-          screen-toolkit = {
-            enabled = true;
-            sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
-          };
-        };
       };
     };
 

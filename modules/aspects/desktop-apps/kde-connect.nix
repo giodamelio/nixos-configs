@@ -33,12 +33,7 @@ _: {
       };
     };
 
-    homeManager = {
-      config,
-      lib,
-      pkgs,
-      ...
-    }: {
+    homeManager = {pkgs, ...}: {
       services.kdeconnect = {
         enable = true;
         indicator = true;
@@ -49,16 +44,6 @@ _: {
         sshfs
         fuse
       ];
-
-      # When noctalia is enabled, add the KDE Connect plugin
-      programs.noctalia-shell.plugins = lib.mkIf config.programs.noctalia-shell.enable {
-        states = {
-          kde-connect = {
-            enabled = true;
-            sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
-          };
-        };
-      };
     };
   };
 }

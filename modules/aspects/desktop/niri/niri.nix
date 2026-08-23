@@ -15,7 +15,7 @@
   ...
 }: {
   den.aspects.niri.includes = [
-    den.aspects.noctalia
+    den.aspects.noctalia-v5
     den.aspects.niri-launcher-binds
     den.aspects.niri-launcher-desktop-entries
     den.aspects.satellite-wallpaper

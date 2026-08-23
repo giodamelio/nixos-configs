@@ -1,0 +1,38 @@
+id          = "giodamelio/claude_usage"
+name        = "Claude Usage"
+version     = "1.0.0"
+plugin_api  = 3
+author      = "giodamelio"
+license     = "MIT"
+description = "Shows Claude API usage (5-hour and 7-day) in the bar"
+icon        = "sparkles"
+tags        = ["claude", "usage"]
+
+[[setting]]
+key             = "refresh_seconds"
+type            = "int"
+label_key       = "settings.refresh_seconds.label"
+description_key = "settings.refresh_seconds.description"
+default         = 300
+min             = 30
+max             = 3600
+
+[[setting]]
+key             = "credentials_path"
+type            = "file"
+label_key       = "settings.credentials_path.label"
+description_key = "settings.credentials_path.description"
+default         = "~/.claude/.credentials.json"
+extensions      = [".json"]
+
+[[service]]
+id    = "poller"
+entry = "service.luau"
+
+[[widget]]
+id    = "usage"
+entry = "widget.luau"
+
+[[panel]]
+id    = "detail"
+entry = "panel.luau"

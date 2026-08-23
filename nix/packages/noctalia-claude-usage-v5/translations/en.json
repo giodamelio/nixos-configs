@@ -1,0 +1,6 @@
+{
+  "settings.refresh_seconds.label": "Refresh seconds",
+  "settings.refresh_seconds.description": "How often the usage endpoint is polled.",
+  "settings.credentials_path.label": "Credentials file",
+  "settings.credentials_path.description": "Claude Code credentials JSON holding the OAuth access token."
+}
