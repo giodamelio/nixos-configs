@@ -1,0 +1,13 @@
+server: https://vikunja.gio.ninja
+project_id: 2
+project_identifier: NIXOS
+view_id: 8
+buckets:
+    todo: 4
+    in_progress: 5
+    in_review: 7
+    done: 6
+    scrapped: 8
+bot:
+    username: bot-nixos-configs
+    user_id: 2

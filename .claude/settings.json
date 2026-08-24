@@ -2,74 +2,94 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Edit",
         "hooks": [
           {
-            "type": "command",
-            "command": "treefmt"
+            "command": "treefmt",
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": "Edit"
       },
       {
-        "matcher": "MultiEdit",
         "hooks": [
           {
-            "type": "command",
-            "command": "treefmt"
+            "command": "treefmt",
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": "MultiEdit"
       },
       {
-        "matcher": "Write",
         "hooks": [
           {
-            "type": "command",
-            "command": "treefmt"
+            "command": "treefmt",
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": "Write"
       },
       {
-        "matcher": "mcp__serena__create_text_file",
         "hooks": [
           {
-            "type": "command",
-            "command": "treefmt"
+            "command": "treefmt",
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": "mcp__serena__create_text_file"
       },
       {
-        "matcher": "mcp__serena__replace_regex",
         "hooks": [
           {
-            "type": "command",
-            "command": "treefmt"
+            "command": "treefmt",
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": "mcp__serena__replace_regex"
       },
       {
-        "matcher": "mcp__serena__replace_symbol_body",
         "hooks": [
           {
-            "type": "command",
-            "command": "treefmt"
+            "command": "treefmt",
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": "mcp__serena__replace_symbol_body"
       },
       {
-        "matcher": "mcp__serena__insert_after_symbol",
         "hooks": [
           {
-            "type": "command",
-            "command": "treefmt"
+            "command": "treefmt",
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": "mcp__serena__insert_after_symbol"
       },
       {
-        "matcher": "mcp__serena__insert_before_symbol",
         "hooks": [
           {
-            "type": "command",
-            "command": "treefmt"
+            "command": "treefmt",
+            "type": "command"
+          }
+        ],
+        "matcher": "mcp__serena__insert_before_symbol"
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "command": "veans prime",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "veans prime",
+            "type": "command"
           }
         ]
       }

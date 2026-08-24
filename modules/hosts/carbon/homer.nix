@@ -75,6 +75,12 @@ in {
             url = "https://gradient.gio.ninja";
             logo = "https://wavelens.io/gradient-logo.svg";
           }
+          {
+            name = "Vikunja";
+            subtitle = "Task Tracker";
+            url = "https://vikunja.gio.ninja";
+            logo = dashboardLogo "vikunja";
+          }
         ];
       }
       {
