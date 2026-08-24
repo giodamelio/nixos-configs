@@ -169,6 +169,20 @@
     programs.ssh.startAgent = true;
     programs.mosh.enable = true;
 
+    # Chasing intermittent multi-second freezes whenever a process does an NSS
+    # lookup (user/group/host resolution) — the symptom of nsncd's fixed worker
+    # pool wedging. Its 8-worker default is small, and once the pool is stuck
+    # every lookup on the box blocks until the client gives up. More workers
+    # widens the pool; the daily restart bounds how long a wedge can persist.
+    systemd.services.nscd = {
+      environment.NSNCD_WORKER_COUNT = "32";
+      serviceConfig.RuntimeMaxSec = "1d";
+      # NSNCD_HANDOFF_TIMEOUT belongs in serviceConfig.Environment, not here:
+      # nixpkgs pins it to 10 there, and that section is rendered last, so it
+      # would silently override anything set in `environment`. Lowering it to 3
+      # would not stop a wedge, only shorten the stall before glibc falls back.
+    };
+
     # Send Cargo build artifacts to the unsnapshotted tank/giodamelio-build
     # dataset (mounted at ~/.cache/builds) so target/ churn never lands in home
     # snapshots. Set at the PAM session level (not home.sessionVariables) so it
