@@ -62,6 +62,7 @@
     den.aspects.software-development
     den.aspects.rayfish
     den.aspects.todoist
+    den.aspects.anytype
   ];
 
   # ---- Host: cesium-specific config (merges with ./hardware.nix) ----

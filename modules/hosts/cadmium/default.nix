@@ -88,6 +88,7 @@
     den.aspects.affinity
     den.aspects.signal
     den.aspects.todoist
+    den.aspects.anytype
     den.aspects.zfs-backup
 
     # Software Development tools
