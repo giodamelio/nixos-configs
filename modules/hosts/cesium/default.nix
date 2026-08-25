@@ -73,7 +73,6 @@
     # On-screen keyboard + Chromebook keyboard remapping (was cesium/niri.nix).
     environment.systemPackages = [
       pkgs.wvkbd
-      perSystem.giopkgs.emdash # Random software
     ];
 
     services.keyd = {
