@@ -6,6 +6,40 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a personal NixOS/Nix flake configuration repository that manages multiple machines across different platforms (NixOS, Darwin, WSL2). The repository uses the Blueprint flake organization pattern to structure configurations cleanly.
 
+## STOP: Task tracking lives in Vikunja, NOT in markdown
+
+**Never write a task, TODO, follow-up, or "future work" note into any of these files:**
+
+- `tmp/TODO.md`
+- `MIGRATION.md`
+- `docs/pi-ca-secrets-plan.md`
+- `docs/credsync.md`
+
+They were migrated into Vikunja on 2026-08-24 and are now **frozen, read-only
+history**. Adding an item to them means it will never be seen again — the
+migration already happened and will not run twice.
+
+Task tracking is the `NIXOS` project at https://vikunja.gio.ninja, driven by the
+`veans` CLI from this repo root (`.veans.yml` is committed):
+
+```bash
+veans list                     # what is open
+veans create "title" -d "<p>description HTML</p>"
+veans api GET /tasks/40        # raw REST escape hatch
+```
+
+Descriptions are HTML, not markdown. `veans create --label` prefixes labels with
+`veans:`; the curated topic labels (`carbon`, `agevault`, `monitoring`, …) are
+unprefixed, so attach those via `veans api POST /tasks/<id>/labels`.
+
+Reading those markdown files for *context* is fine and often necessary —
+`MIGRATION.md` is still the carbon rebuild runbook, and the Vikunja phase tasks
+point back at it. Editing them to record new work is not. If something in them
+is now wrong, fix the corresponding Vikunja task instead.
+
+They will be deleted once this system has proven itself. Until then, treat every
+one of them as append-forbidden.
+
 ## Important: New Files Must Be Git-Added
 
 This repo uses Jujutsu (jj) on top of Git. Nix flakes only see files that are tracked by Git, so whenever you create a new file, you must run `git add <path>` before it will be visible to any Nix command (builds, checks, etc.).
