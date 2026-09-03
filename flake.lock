@@ -2738,6 +2738,25 @@
         "type": "github"
       }
     },
+    "needlecast": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788432981,
+        "narHash": "sha256-7abkhort7XK0s4TFdA1bBOj7wfE4n84kR9QgCKUs3as=",
+        "rev": "8f33820ab921cf02d54494b4ca6a2481d4e5d6a1",
+        "revCount": 11,
+        "type": "git",
+        "url": "file:///home/giodamelio/projects/giodamelio/needlecast"
+      },
+      "original": {
+        "type": "git",
+        "url": "file:///home/giodamelio/projects/giodamelio/needlecast"
+      }
+    },
     "neovim-configs": {
       "inputs": {
         "nixpkgs": "nixpkgs_16",
@@ -4186,6 +4205,7 @@
         "llm-agents": "llm-agents",
         "microvm": "microvm",
         "mob": "mob",
+        "needlecast": "needlecast",
         "neovim-configs": "neovim-configs",
         "niri": "niri",
         "nix-darwin": "nix-darwin",

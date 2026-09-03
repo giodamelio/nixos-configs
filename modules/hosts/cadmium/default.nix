@@ -98,7 +98,9 @@
     # Easy key rebinding
     den.aspects.keyd
 
-    den.aspects.rayfish
+    # den.aspects.rayfish # giopkgs build failing
+
+    den.aspects.needlecast-server
   ];
 
   # ---- Host: cadmium-specific config (merges with the sibling files) ----
@@ -191,6 +193,11 @@
     environment.sessionVariables.CARGO_TARGET_DIR = "/home/giodamelio/.cache/builds/cargo";
 
     networking.hostId = "3c510ad9";
+
+    services.resolved.enable = true;
+    # resolved owns /etc/resolv.conf, so NetworkManager has to push DNS to it
+    # over D-Bus instead of writing the file itself.
+    networking.networkmanager.dns = "systemd-resolved";
 
     # The 26.11 default, opted into early. When false, ZFS refuses to import a
     # pool still marked as in use by another system (hostid mismatch) instead of

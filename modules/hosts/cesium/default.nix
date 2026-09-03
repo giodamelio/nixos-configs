@@ -60,9 +60,12 @@
     den.aspects.pipewire
     den.aspects.battery-optimization
     den.aspects.software-development
-    den.aspects.rayfish
+    # den.aspects.rayfish # giopkgs build failing
     den.aspects.todoist
     den.aspects.anytype
+
+    den.aspects.needlecast-client
+    den.aspects.tailscale
   ];
 
   # ---- Host: cesium-specific config (merges with ./hardware.nix) ----
@@ -128,6 +131,11 @@
     boot.loader.efi.canTouchEfiVariables = true;
 
     networking.hostId = "98a5ee60";
+
+    services.resolved.enable = true;
+    # resolved owns /etc/resolv.conf, so NetworkManager has to push DNS to it
+    # over D-Bus instead of writing the file itself.
+    networking.networkmanager.dns = "systemd-resolved";
 
     nixpkgs.config.allowUnfree = true;
 

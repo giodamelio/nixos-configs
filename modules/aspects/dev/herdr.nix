@@ -15,7 +15,7 @@
         doInstallCheck = false;
         cargoDeps = old.cargoDeps.overrideAttrs (vendor: {
           vendorStaging = vendor.vendorStaging.overrideAttrs (_: {
-            outputHash = "sha256-TtQE1RvlTameGr81cMUeAQaRKS3hwo7I2ex/GHQgLik=";
+            outputHash = "sha256-p8AClesAwKFCBtUwlry0xjeXN028himiXSTdNpa5l0g=";
           });
         });
       }))

@@ -216,5 +216,11 @@
     # fabric.url = "github:danielmiessler/Fabric";
     fabric.url = "github:giodamelio/fabric?ref=update-nixpkgs";
     fabric.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Reach the other machine's localhost over a WireGuard tunnel. Local path
+    # until it is published; every other machine that evaluates this flake will
+    # fail to fetch it.
+    needlecast.url = "git+file:///home/giodamelio/projects/giodamelio/needlecast";
+    needlecast.inputs.nixpkgs.follows = "nixpkgs";
   };
 }

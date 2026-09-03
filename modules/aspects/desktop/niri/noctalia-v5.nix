@@ -1,4 +1,10 @@
 {inputs, ...}: {
+  # Needs the NixOS half, not home.packages: the module sets the setcap wrapper
+  # on gsr-kms-server that promptless capture depends on.
+  den.aspects.noctalia-v5.nixos = _: {
+    programs.gpu-screen-recorder.enable = true;
+  };
+
   den.aspects.noctalia-v5.homeManager = {
     config,
     lib,
