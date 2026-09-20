@@ -24,6 +24,17 @@
         }
       '';
     };
+
+    jj-advance = inputs.self.lib.writeNushellApplication pkgs {
+      name = "jj-advance";
+      source = ''
+        def main [...args] {
+          # An empty, undescribed @ is a scratch commit, so advance past it
+          let target = (jj log --no-graph -r @ -T 'if(empty && !description, "@-", "@")' | str trim)
+          jj bookmark advance --to $target ...$args
+        }
+      '';
+    };
   in {
     programs.jujutsu = {
       enable = true;
@@ -53,6 +64,9 @@
           "logall" = ["log" "-r" "all()"];
           "bs" = ["bookmark" "set"];
           "bsf" = ["bookmark" "set" "--allow-backwards"];
+
+          # Advance to @, or to @- when @ is an empty scratch commit
+          "advance" = ["util" "exec" "--" "jj-advance"];
 
           # Update the current bookmark to the current or last commit
           "bookmark advance-" = ["bookmark" "advance" "--to" "@-"];
@@ -104,6 +118,7 @@
       perSystem.jj-hunk.default
       perSystem.giopkgs.jayjay
       jj-push
+      jj-advance
     ];
 
     # If we are using JJ update our shell prompt to display it
