@@ -102,6 +102,7 @@
       pkgs.lazyjj
       pkgs.jjui
       perSystem.jj-hunk.default
+      perSystem.giopkgs.jayjay
       jj-push
     ];
 
