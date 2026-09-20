@@ -55,13 +55,21 @@
           "bsf" = ["bookmark" "set" "--allow-backwards"];
 
           # Update the current bookmark to the current or last commit
-          "tug" = ["bookmark" "move" "--from" "heads(::@- & bookmarks())" "--to" "@"];
-          "tug-" = ["bookmark" "move" "--from" "heads(::@- & bookmarks())" "--to" "@-"];
+          "bookmark advance-" = ["bookmark" "advance" "--to" "@-"];
+          "b advance-" = ["bookmark" "advance-"];
+          "b a-" = ["bookmark" "advance-"];
+          # Reminders to use the new command
+          # "tug" = ["util" "exec" "--" "\"echo 'Use jj bookmark advance (or jj b a)'\""];
+          "tug" = ["print" "Deprecated alias: Use jj bookmark advance (or jj b a)"];
+          "tug-" = ["print" "Deprecated alias: Use jj bookmark advance- (or jj b a-)"];
 
           "push" = ["util" "exec" "--" "jj-push"];
           "restack" = ["rebase" "-o" "trunk()" "-s" "mutable_roots()"];
           "stack" = ["rebase" "-A" "trunk()" "-B" "closest_merge(@)" "-r"];
           "stage" = ["stack" "closest_merge(@)+:: ~ empty()"];
+
+          # For printing messages easily
+          "print" = ["util" "exec" "--" "echo"];
         };
 
         revset-aliases = {
