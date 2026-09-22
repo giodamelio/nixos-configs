@@ -13,6 +13,7 @@
         vlc
         firefox
         zapzap
+        beeper
         mpv
         kdePackages.okular
         zathura
