@@ -90,7 +90,7 @@ in {
     den.aspects.nats
     den.aspects.send-metrics
     den.aspects.server-heartbeat
-    den.aspects.rayfish
+    # den.aspects.rayfish # giopkgs build failing
   ];
 
   # Host-specific config (merges with hardware.nix + filesystems.nix).
