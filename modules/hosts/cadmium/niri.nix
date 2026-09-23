@@ -92,9 +92,22 @@
           name = "background";
           open-on-output = monitor-names.middle;
         };
-        "1" = {open-on-output = monitor-names.middle;};
-        "2" = {open-on-output = monitor-names.right;};
-        "3" = {open-on-output = monitor-names.left;};
+        # Names must not be bare integers: noctalia's taskbar matches a window's
+        # per-output workspace index against workspace names as well as keys, so a
+        # workspace named "1" swallows every window sitting at index 1.
+        # REMIND-ME-TO: Restore bare numeric workspace names issue_closed=github:noctalia-dev/noctalia#4381
+        "1" = {
+          name = "ws1";
+          open-on-output = monitor-names.middle;
+        };
+        "2" = {
+          name = "ws2";
+          open-on-output = monitor-names.right;
+        };
+        "3" = {
+          name = "ws3";
+          open-on-output = monitor-names.left;
+        };
       };
 
       spawn-at-startup = [
