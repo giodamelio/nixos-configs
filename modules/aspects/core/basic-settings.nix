@@ -23,6 +23,7 @@
         trusted-users = ["root" "@wheel"];
         substituters = [
           "https://cache.nixos.org"
+          "https://cache.gio.ninja"
           # "https://gradient.gio.ninja/cache/main"
           # "https://attic.gio.ninja/homelab"
           "https://nix-community.cachix.org"
@@ -32,6 +33,7 @@
 
         trusted-public-keys = [
           "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+          "cache.gio.ninja-1:SYC5+6Ap1sWd7VSDSD68V4JhPcxAvIHvRdjWUTZn2CI="
           # "gradient.gio.ninja-main:Qx23IyI8Q9+FFl55YYptLSeTWUtFsF6bdK+I8Tma40Q="
           # "homelab:Pin5h4Ny1Fkj1dpp7OA7COvhiKNHMFT9oSrQKhyXh0c="
           "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
