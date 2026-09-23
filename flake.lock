@@ -1944,11 +1944,11 @@
     "herdr": {
       "flake": false,
       "locked": {
-        "lastModified": 1787674802,
-        "narHash": "sha256-JxkZHqyjTdFGWAEDLjbVG2b/EeW5qpSoDa5gFEhpyxc=",
+        "lastModified": 1790142278,
+        "narHash": "sha256-kFUdp1fURKLFpCPop/088/ndOXoTTk5g6lqP/UDXhXo=",
         "owner": "giodamelio",
         "repo": "herdr",
-        "rev": "b3bc6591fc8faae31f9c2891d442bf2e1ac0f560",
+        "rev": "2fe68fc74bd1670085e2daf6e38e3e8ef023e083",
         "type": "github"
       },
       "original": {

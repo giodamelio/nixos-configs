@@ -1,23 +1,19 @@
 {inputs, ...}: {
-  den.aspects.herdr.homeManager = {perSystem, ...}: {
+  den.aspects.herdr.homeManager = {
+    perSystem,
+    pkgs,
+    ...
+  }: {
     home.packages = [
       # Build herdr from our fork (carries the bwrap detection patch upstream).
-      # The fork's Cargo.lock differs from upstream, so the cargo vendor dir
-      # hashes differently. Upstream's cargoHash is read from args (not finalAttrs),
-      # so overrideAttrs can't set it; instead override the FOD hash on the inner
-      # vendorStaging derivation that fetchCargoVendor produces.
-      (perSystem.llm-agents.herdr.overrideAttrs (old: {
-        version = "0.7.2";
+      # zigDeps follows src because the package reads it off finalAttrs, but
+      # cargoHash is taken from the original args, so vendor the fork ourselves.
+      (pkgs.herdr.overrideAttrs (final: _: {
         src = inputs.herdr;
-        # versionCheckHook runs `herdr --help` and greps for the version; the
-        # fork's help output doesn't carry it, so the smoke check fails on a
-        # binary that's otherwise fine. Skip it.
-        doInstallCheck = false;
-        cargoDeps = old.cargoDeps.overrideAttrs (vendor: {
-          vendorStaging = vendor.vendorStaging.overrideAttrs (_: {
-            outputHash = "sha256-p8AClesAwKFCBtUwlry0xjeXN028himiXSTdNpa5l0g=";
-          });
-        });
+        cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
+          inherit (final) pname version src;
+          hash = "sha256-B5i/JHbZw/654D09zOeQc3+wg1zgA72EprcITddtexo=";
+        };
       }))
       perSystem.self.herdr-proxy
     ];
