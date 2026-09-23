@@ -91,6 +91,7 @@ in {
     den.aspects.send-metrics
     den.aspects.server-heartbeat
     # den.aspects.rayfish # giopkgs build failing
+    den.aspects.niks3-client
   ];
 
   # Host-specific config (merges with hardware.nix + filesystems.nix).
