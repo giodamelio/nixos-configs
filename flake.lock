@@ -2776,6 +2776,27 @@
         "type": "github"
       }
     },
+    "niks3": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "treefmt-nix": "treefmt-nix_11"
+      },
+      "locked": {
+        "lastModified": 1790094948,
+        "narHash": "sha256-rllb4XHCSJnr6szko7OSU/YE8ArpQclIK6O4BSd8Vu8=",
+        "owner": "Mic92",
+        "repo": "niks3",
+        "rev": "1c74f969454c91db023fc37f286b5a113c30cdd6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "niks3",
+        "type": "github"
+      }
+    },
     "niri": {
       "inputs": {
         "niri-stable": "niri-stable",
@@ -3944,7 +3965,7 @@
           "nixpkgs"
         ],
         "systems": "systems_13",
-        "treefmt-nix": "treefmt-nix_11"
+        "treefmt-nix": "treefmt-nix_12"
       },
       "locked": {
         "lastModified": 1780799499,
@@ -4220,6 +4241,7 @@
         "mob": "mob",
         "needlecast": "needlecast",
         "neovim-configs": "neovim-configs",
+        "niks3": "niks3",
         "niri": "niri",
         "nix-darwin": "nix-darwin",
         "nix-index-database": "nix-index-database",
@@ -4233,7 +4255,7 @@
         "noctalia-v4": "noctalia-v4",
         "optnix": "optnix_2",
         "quadlet-nix": "quadlet-nix",
-        "treefmt-nix": "treefmt-nix_12",
+        "treefmt-nix": "treefmt-nix_13",
         "unison-lang": "unison-lang_2",
         "vicinae-extensions": "vicinae-extensions",
         "zmx": "zmx_2"
@@ -4688,6 +4710,27 @@
     "treefmt-nix_11": {
       "inputs": {
         "nixpkgs": [
+          "niks3",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786901030,
+        "narHash": "sha256-WSFCsDSE5ffgD2MqzkM2CYjeFiKhRF/dJUN8uedb6YE=",
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "rev": "27b3b12a8e6375f28ebe122f07d230ca5459bbfa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "treefmt-nix_12": {
+      "inputs": {
+        "nixpkgs": [
           "noctalia-v4",
           "noctalia-qs",
           "nixpkgs"
@@ -4707,7 +4750,7 @@
         "type": "github"
       }
     },
-    "treefmt-nix_12": {
+    "treefmt-nix_13": {
       "inputs": {
         "nixpkgs": "nixpkgs_21"
       },

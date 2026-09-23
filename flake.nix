@@ -218,5 +218,9 @@
     # fail to fetch it.
     needlecast.url = "git+file:///home/giodamelio/projects/giodamelio/needlecast";
     needlecast.inputs.nixpkgs.follows = "nixpkgs";
+
+    # S3-backed Nix binary cache. nixpkgs has the package but no NixOS module.
+    niks3.url = "github:Mic92/niks3";
+    niks3.inputs.nixpkgs.follows = "nixpkgs";
   };
 }
