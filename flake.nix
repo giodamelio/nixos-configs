@@ -204,12 +204,8 @@
     herdr.url = "github:giodamelio/herdr/combined-branch";
     herdr.flake = false;
 
-    # Camoufox anti-detect browser + automation tooling. Using my fork's
-    # add-camoufox-bin branch for the camoufox-bin wrapped variants.
-    # REMIND-ME-TO: Switch back to upstream camoufox-nix pr_merged=github:maximoffua/camoufox-nix#2
-    # camoufox-nix.url = "github:maximoffua/camoufox-nix";
-    camoufox-nix.url = "github:giodamelio/camoufox-nix/add-camoufox-bin";
-    camoufox-nix.inputs.nixpkgs.follows = "nixpkgs";
+    # Camoufox anti-detect browser + automation tooling.
+    camoufox-nix.url = "github:maximoffua/camoufox-nix";
 
     # Fabric CLI. Using my fork's update-nixpkgs branch until upstream takes it.
     # REMIND-ME-TO: Switch back to upstream Fabric pr_merged=github:danielmiessler/Fabric#2186
