@@ -1,5 +1,9 @@
 {inputs, ...}: {
-  den.aspects.gallium.nixos = {config, ...}: let
+  den.aspects.gallium.nixos = {
+    config,
+    lib,
+    ...
+  }: let
     credentials = [
       "niks3_api_token"
       "niks3_sign_key"
@@ -7,7 +11,6 @@
       "niks3_s3_secret_key"
     ];
 
-    # niks3-gc runs as the same user and reads the api token from here too.
     secret = name: "/run/credentials/niks3.service/${name}";
   in {
     imports = [inputs.niks3.nixosModules.niks3];
@@ -44,6 +47,21 @@
     fleet.credentials.needs = credentials;
 
     systemd.services.niks3.serviceConfig.LoadCredentialEncrypted = credentials;
+
+    # A sandboxed unit only ever sees its OWN credentials directory — systemd
+    # binds that one in and mounts the rest of /run/credentials inaccessible
+    # (namespace.c). So gc gets its own copy of the token and reads it from %d
+    # rather than from niks3.service's path, which the module bakes in.
+    systemd.services.niks3-gc.serviceConfig = {
+      LoadCredentialEncrypted = ["niks3_api_token"];
+      ExecStart = lib.mkForce ''
+        ${lib.getExe' config.services.niks3.package "niks3"} gc \
+          --server-url "http://${config.services.niks3.httpAddr}" \
+          --auth-token-path "%d/niks3_api_token" \
+          --older-than "${config.services.niks3.gc.olderThan}" \
+          --failed-uploads-older-than "${config.services.niks3.gc.failedUploadsOlderThan}"
+      '';
+    };
 
     environment.systemPackages = [config.services.niks3.package];
   };
