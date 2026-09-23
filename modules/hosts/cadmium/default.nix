@@ -76,6 +76,7 @@
     den.aspects.remote-builder-builder
     den.aspects.nixbuild
     den.aspects.attic-client
+    den.aspects.niks3-client
     den.aspects.basic-packages-desktop
 
     # Tools for programming with AI
