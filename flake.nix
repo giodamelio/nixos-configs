@@ -104,10 +104,6 @@
     llm-agents.url = "github:numtide/llm-agents.nix";
     # llm-agents.inputs.nixpkgs.follows = "nixpkgs";
 
-    # Fork of OpenAI Codex
-    just-every-code.url = "github:just-every/code";
-    just-every-code.inputs.nixpkgs.follows = "nixpkgs";
-
     # Handy Speach to Text
     handy.url = "github:cjpais/Handy";
     handy.inputs.nixpkgs.follows = "nixpkgs";
