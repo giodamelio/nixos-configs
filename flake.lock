@@ -1175,11 +1175,11 @@
         "nixpkgs": "nixpkgs_8"
       },
       "locked": {
-        "lastModified": 1790284724,
-        "narHash": "sha256-NZ7mbzCCojCJCY2swDJv5950VUSmOulSemX89uEy07o=",
+        "lastModified": 1790296220,
+        "narHash": "sha256-RVMHC3npGsypP7VV9mWwhCbSdfLugyD/Gg0CUlbaIIU=",
         "owner": "giodamelio",
         "repo": "giopkgs",
-        "rev": "683127d702f65b3d99f3ad95a3d5a418c95252a6",
+        "rev": "8a61a2917db1795b6c5df590b8f5486f0ead0030",
         "type": "github"
       },
       "original": {

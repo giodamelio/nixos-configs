@@ -12,6 +12,9 @@
     ];
 
     secret = name: "/run/credentials/niks3.service/${name}";
+
+    # From `ray config get net.flow-label --network nix-cache`; derived from the room id.
+    nixCacheFlowLabel = "0x49589";
   in {
     imports = [inputs.niks3.nixosModules.niks3];
 
@@ -42,6 +45,46 @@
 
       cacheUrl = "https://cache.gio.ninja";
       serverUrl = "https://cache.gio.ninja";
+
+      oidc.providers.github = {
+        issuer = "https://token.actions.githubusercontent.com";
+        audience = "https://cache.gio.ninja";
+        boundClaims = {
+          repository_owner = ["giodamelio"];
+          ref = ["refs/heads/main"];
+        };
+        scopes = ["write"];
+      };
+    };
+
+    # Mesh-only copy of the cache and S3 vhosts for nix-cache rayfish peers.
+    # Nothing else listens here, so a spoofed Host header can't reach other vhosts.
+    services.caddy.virtualHosts = lib.genAttrs ["https://cache.gio.ninja:8443" "https://s3.garage.gio.ninja:8443"] (addr: {
+      extraConfig = ''
+        tls {
+          dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
+          resolvers 1.1.1.1
+        }
+        reverse_proxy ${
+          if lib.hasPrefix "https://cache." addr
+          then config.services.niks3.httpAddr
+          else "127.0.0.1:3900"
+        }
+      '';
+    });
+
+    networking.firewall.interfaces.rayfish0.allowedTCPPorts = [8443];
+
+    # The forked rayfish stamps this flow label on every packet arriving over the
+    # nix-cache network, so only those peers get steered to the :8443 copy.
+    networking.nftables.tables.nix-cache-redirect = {
+      family = "inet";
+      content = ''
+        chain prerouting {
+          type nat hook prerouting priority dstnat;
+          iifname "rayfish0" ip6 flowlabel ${nixCacheFlowLabel} tcp dport 443 redirect to :8443
+        }
+      '';
     };
 
     fleet.credentials.needs = credentials;
