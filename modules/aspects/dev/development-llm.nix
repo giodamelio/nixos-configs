@@ -5,6 +5,7 @@
     den.aspects.llm
     den.aspects.fabric
     den.aspects.veans
+    den.aspects.nono
   ];
 
   den.aspects.development-llm.homeManager = {

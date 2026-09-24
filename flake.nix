@@ -218,5 +218,9 @@
     # S3-backed Nix binary cache. nixpkgs has the package but no NixOS module.
     niks3.url = "github:Mic92/niks3";
     niks3.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Personal fork of nono; overrides llm-agents' nono src.
+    nono.url = "github:giodamelio/nono";
+    nono.flake = false;
   };
 }

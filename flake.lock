@@ -3418,6 +3418,22 @@
         "type": "github"
       }
     },
+    "nono": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790120294,
+        "narHash": "sha256-B1AFkv48Iy9DOU4c9LEkSqkfyCDadGfFfQuDVvljQMw=",
+        "owner": "giodamelio",
+        "repo": "nono",
+        "rev": "5e05d01b17401b958f3b3d3d4aeed23ea32e38d3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "giodamelio",
+        "repo": "nono",
+        "type": "github"
+      }
+    },
     "nvf": {
       "inputs": {
         "flake-compat": "flake-compat_6",
@@ -3609,6 +3625,7 @@
         "nixpkgs-stable": "nixpkgs-stable_2",
         "noctalia": "noctalia",
         "noctalia-v4": "noctalia-v4",
+        "nono": "nono",
         "optnix": "optnix_2",
         "quadlet-nix": "quadlet-nix",
         "treefmt-nix": "treefmt-nix_13",
