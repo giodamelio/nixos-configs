@@ -37,12 +37,10 @@
       den.aspects.hyprland
       den.aspects.wayvnc
       den.aspects.syncthing
-      den.aspects.llm
-      den.aspects.llm-tooling
+      den.aspects.development-llm
       den.aspects.pi
       den.aspects.slack
       den.aspects.rss
-      den.aspects.codex
       den.aspects.herdr
       den.aspects.tui-review
       den.aspects.camoufox

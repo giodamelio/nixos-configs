@@ -38,8 +38,8 @@
 
       # cesium-only Home-Manager features.
       den.aspects.zed-editor
+      den.aspects.development-llm
       den.aspects.herdr
-      den.aspects.llm-tooling
 
       # Folded dual-class: HM half here, NixOS half forwarded to the host.
       den.aspects.kde-connect

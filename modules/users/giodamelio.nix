@@ -29,7 +29,6 @@ in {
       den.aspects.nushell
       den.aspects.nix-index
       den.aspects.atuind
-      den.aspects.claude-code
       den.aspects.jj
       den.aspects.wezterm
 
@@ -51,12 +50,6 @@ in {
       home.stateVersion = "24.11";
 
       programs.home-manager.enable = true;
-
-      # Configure Claude Code
-      programs.gio-claude-code = {
-        enable = true;
-        installPackage = true;
-      };
 
       # Configure nix-activate for NixOS
       gio.nix-activate-config.activation = {system = "nixos";};

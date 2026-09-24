@@ -1,5 +1,4 @@
-# codex — the just-every fork of OpenAI Codex, with a fake google-chrome that
-# is really UnGoogled Chromium. Converted from nix/modules/home/codex.nix.
+# codex — install both OpenAI Codex and the just-every fork.
 _: {
   den.aspects.codex.homeManager = {
     pkgs,
@@ -7,8 +6,7 @@ _: {
     ...
   }: {
     home.packages = [
-      # Fork of OpenAI Codex with extra stuff
-      # https://github.com/just-every/code
+      perSystem.llm-agents.codex
       perSystem.just-every-code.default
 
       # Codex uses Chrome, but I don't like having that installed.
