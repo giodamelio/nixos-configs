@@ -90,12 +90,14 @@ in {
     den.aspects.nats
     den.aspects.send-metrics
     den.aspects.server-heartbeat
-    # den.aspects.rayfish # giopkgs build failing
+    den.aspects.rayfish
     den.aspects.niks3-client
   ];
 
   # Host-specific config (merges with hardware.nix + filesystems.nix).
   den.aspects.gallium.nixos = {pkgs, ...}: {
+    gio.rayfish.enable = true;
+
     environment.systemPackages = with pkgs; [
       dua
       dust

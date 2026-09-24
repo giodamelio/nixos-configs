@@ -97,13 +97,15 @@
     # Easy key rebinding
     den.aspects.keyd
 
-    # den.aspects.rayfish # giopkgs build failing
+    den.aspects.rayfish
 
     den.aspects.needlecast-server
   ];
 
   # ---- Host: cadmium-specific config (merges with the sibling files) ----
   den.aspects.cadmium.nixos = {pkgs, ...}: {
+    gio.rayfish.enable = true;
+
     # Gaming
     environment.systemPackages = [pkgs.discord];
 

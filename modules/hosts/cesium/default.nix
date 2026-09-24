@@ -60,7 +60,7 @@
     den.aspects.pipewire
     den.aspects.battery-optimization
     den.aspects.software-development
-    # den.aspects.rayfish # giopkgs build failing
+    den.aspects.rayfish
     den.aspects.todoist
     den.aspects.anytype
 
@@ -74,6 +74,8 @@
     pkgs,
     ...
   }: {
+    gio.rayfish.enable = true;
+
     # On-screen keyboard + Chromebook keyboard remapping (was cesium/niri.nix).
     environment.systemPackages = [
       pkgs.wvkbd
