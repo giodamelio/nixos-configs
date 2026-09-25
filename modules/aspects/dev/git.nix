@@ -82,6 +82,8 @@ _: {
         ".direnv/"
         ".aider*"
         ".sandbox-paths"
+        ".workspaces/"
+        ".worktrees/"
       ];
 
       includes = [
