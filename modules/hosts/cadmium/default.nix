@@ -106,6 +106,8 @@
   den.aspects.cadmium.nixos = {pkgs, ...}: {
     gio.rayfish.enable = true;
 
+    nix.settings.extra-experimental-features = ["ca-derivations"];
+
     # Gaming
     environment.systemPackages = [pkgs.discord];
 
