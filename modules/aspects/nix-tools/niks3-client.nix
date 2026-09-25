@@ -23,23 +23,23 @@
 
       # The token is only readable inside a unit that loads it, so run the CLI
       # as one rather than staging the blob anywhere.
-      (pkgs.writeShellScriptBin "niks3-fleet" ''
-        if [ $# -eq 0 ]; then
-          exec ${lib.getExe perSystem.niks3.niks3} --help
-        fi
-        exec systemd-run \
-          --quiet --pipe --wait --collect --same-dir \
-          --service-type=exec \
-          --property=LoadCredentialEncrypted=niks3_api_token \
-          -- ${pkgs.bash}/bin/bash -c '
-            # niks3 takes the subcommand first and parses flags after it.
-            sub="$1"; shift
-            exec ${lib.getExe perSystem.niks3.niks3} "$sub" \
-              --server-url ${serverUrl} \
-              --auth-token-path "$CREDENTIALS_DIRECTORY/niks3_api_token" \
-              "$@"
-          ' -- "$@"
-      '')
+      (inputs.self.lib.writeNushellApplication pkgs {
+        name = "niks3-fleet";
+        runtimeInputs = [pkgs.systemd];
+        # Env vars instead of flags: nested subcommands (`pins list`) only parse
+        # flags after the last subcommand word.
+        source = ''
+          def --wrapped main [...args] {
+            let unit = $"niks3-fleet-(random chars --length 8)"
+            (systemd-run --quiet --pipe --wait --collect --same-dir --service-type=exec
+              $"--unit=($unit)"
+              --property=LoadCredentialEncrypted=niks3_api_token
+              --setenv=NIKS3_SERVER_URL=${serverUrl}
+              $"--setenv=NIKS3_AUTH_TOKEN_FILE=/run/credentials/($unit).service/niks3_api_token"
+              -- ${lib.getExe perSystem.niks3.niks3} ...$args)
+          }
+        '';
+      })
     ];
   };
 }
