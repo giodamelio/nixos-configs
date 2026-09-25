@@ -7,6 +7,9 @@ _: {
       # Find executables in PATH and follow symlink chains
       perSystem.self.whichbin
 
+      # Pick a file from an executable's symlink chain and open it in $EDITOR
+      perSystem.self.whichbinedit
+
       # Show Nix derivation tree for an executable
       perSystem.self.treebinderivation
 
