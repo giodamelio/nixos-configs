@@ -2230,6 +2230,21 @@
         "type": "github"
       }
     },
+    "multiverse": {
+      "locked": {
+        "lastModified": 1790255862,
+        "narHash": "sha256-IrSW6vJtG332HvF0t50NaO6h3+9WkzJ+KSpJ1CbNWYo=",
+        "owner": "fzakaria",
+        "repo": "nixpkgs-multiverse",
+        "rev": "fba6691c6c064212a8683ba81708076c7f8f683c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "fzakaria",
+        "repo": "nixpkgs-multiverse",
+        "type": "github"
+      }
+    },
     "ndg": {
       "inputs": {
         "nixpkgs": [
@@ -3611,6 +3626,7 @@
         "llm-agents": "llm-agents",
         "microvm": "microvm",
         "mob": "mob",
+        "multiverse": "multiverse",
         "needlecast": "needlecast",
         "neovim-configs": "neovim-configs",
         "niks3": "niks3",

@@ -222,5 +222,8 @@
     # Personal fork of nono; overrides llm-agents' nono src.
     nono.url = "github:giodamelio/nono";
     nono.flake = false;
+
+    # Any version of any nixpkgs package; revisions are fetched lazily.
+    multiverse.url = "github:fzakaria/nixpkgs-multiverse";
   };
 }

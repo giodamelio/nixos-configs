@@ -4,7 +4,9 @@
 # `perSystem` arrives as a module arg from the per-system aspect (see
 # modules/aspects/per-system.nix, included in den.default). The repo's own
 # packages (Blueprint `flake.packages.<sys>`) are reached as `perSystem.self`.
-_: {
+{den, ...}: {
+  den.aspects.basic-packages.includes = [den.aspects.nixpkgs-multiverse];
+
   den.aspects.basic-packages.nixos = {
     perSystem,
     pkgs,
