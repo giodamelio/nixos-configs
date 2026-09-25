@@ -1,10 +1,10 @@
-# nix-index — command-not-found plus comma (`,`) backed by the nix-index
-# database. cadmium builds the index nightly for the exact nixpkgs this flake
-# pins; cesium (low-power travel laptop) fetches the community-prebuilt database
-# daily instead. Either way the database lands at ~/.cache/nix-index/files,
-# where plain nix-index, nix-locate and comma read it — so we no longer import
-# the nix-index-database flake module, whose wrappers baked a frozen store
-# database into the tools and clobbered the cache symlink (see tmp/TODO.md).
+# nix-index — command-not-found backed by the nix-index database. cadmium
+# builds the index nightly for the exact nixpkgs this flake pins; cesium
+# (low-power travel laptop) fetches the community-prebuilt database daily
+# instead. Either way the database lands at ~/.cache/nix-index/files, where
+# plain nix-index and nix-locate read it — so we no longer import the
+# nix-index-database flake module, whose wrappers baked a frozen store database
+# into the tools and clobbered the cache symlink (see tmp/TODO.md).
 {inputs, ...}: {
   den.aspects.nix-index = {host, ...}: {
     homeManager = {pkgs, ...}: let
@@ -43,8 +43,6 @@
         enable = true;
         enableZshIntegration = true;
       };
-
-      home.packages = [pkgs.comma];
 
       systemd.user.services.nix-index-update = {
         Unit = {
