@@ -76,7 +76,8 @@ inputs.jail-nix.lib.extend {
       '';
 
       # Same as upstream network, minus /run/systemd/resolve: it holds
-      # resolved's varlink sockets, and /etc/resolv.conf is a real file here.
+      # resolved's varlink sockets. Only the file /etc/resolv.conf links to
+      # (the stub under /run/systemd/resolve) is bound, so the symlink resolves.
       network = include-once "network" (state:
         compose [
           time-zone
@@ -84,6 +85,12 @@ inputs.jail-nix.lib.extend {
           (runtime-deep-ro-bind "/etc/hosts")
           (runtime-deep-ro-bind "/etc/nsswitch.conf")
           (runtime-deep-ro-bind "/etc/resolv.conf")
+          (add-runtime ''
+            if [[ -L /etc/resolv.conf ]]; then
+              RESOLV_TARGET="$(realpath /etc/resolv.conf)"
+              RUNTIME_ARGS+=(--ro-bind "$RESOLV_TARGET" "$RESOLV_TARGET")
+            fi
+          '')
           (runtime-deep-ro-bind "/etc/ssl")
           (write-text "/etc/hostname" "${state.hostname}\n")
           (unsafe-add-raw-args "--hostname ${escape state.hostname}")
