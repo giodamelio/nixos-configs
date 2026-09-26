@@ -32,9 +32,6 @@ _: {
 
         # Edit text with Neovim inside Wezterm
         editor.command = ["wezterm" "start" "--always-new-process" "--" "nvim" "-c" "normal {line}G{column0}l" "{file}"];
-
-        # Set the default session name
-        session.default_name = "default";
       };
 
       # The home manager module can't handle dicts well
