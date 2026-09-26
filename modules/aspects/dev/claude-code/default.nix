@@ -86,6 +86,30 @@ _: {
         claude-dangerous = lib.getExe claudeCode;
       };
 
+      # Untrusted nix-daemon for jailed agents (see untrusted-nix-daemon in
+      # nix/lib/jail-combinators.nix). --force-untrusted only takes effect with
+      # --process-ops; without it the connection is spliced to the real,
+      # trusted daemon.
+      systemd.user.sockets.nix-daemon-untrusted = {
+        Unit.Description = "Untrusted nix-daemon proxy for jailed agents";
+        Socket = {
+          ListenStream = "%t/nix-daemon-untrusted.sock";
+          SocketMode = "0600";
+          Accept = true;
+        };
+        Install.WantedBy = ["sockets.target"];
+      };
+
+      systemd.user.services."nix-daemon-untrusted@" = {
+        Unit.Description = "Untrusted nix-daemon proxy connection";
+        Service = {
+          ExecStart = "${lib.getExe pkgs.nix} --extra-experimental-features 'daemon-trust-override mounted-ssh-store' daemon --stdio --force-untrusted --process-ops";
+          StandardInput = "socket";
+          StandardOutput = "socket";
+          StandardError = "journal";
+        };
+      };
+
       # Dynamically link agents and commands using home.file
       home.file =
         # Link agents

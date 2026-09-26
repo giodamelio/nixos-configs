@@ -9,13 +9,15 @@
 in
   jail "jailed-claude" claudeCode (c:
     with c; [
-      # NixOS essentials
+      # NixOS essentials. /run is not bound: read-only mounts do not stop
+      # connect(), so every socket in it (session bus, ssh-agent) would be live.
       network
-      (readwrite "/nix")
-      (try-readonly "/run")
+      (readonly "/nix/store")
+      untrusted-nix-daemon
+      (try-readonly "/run/current-system")
       (try-readonly "/etc/static")
       (try-readonly "/etc/profiles")
-      overlay-home
+      private-cache
 
       # Claude-specific rw paths
       (try-readwrite (noescape "~/.claude"))
@@ -42,8 +44,7 @@ in
       # CWD bind must come after ro paths so it wins when they overlap
       work-in-cwd
 
-      # Auto-bind the backing repo when CWD is a jj workspace/worktree
-      bind-jj-workspace-repo
+      bind-jj-workspace-store
 
       # Allow adding other paths to the sandbox for cross repo work
       (rw-paths-from-file ".sandbox-paths")
@@ -56,9 +57,14 @@ in
 
       # Environment
       (unset-env "ANTHROPIC_API_KEY")
+      (unset-env "DBUS_SESSION_BUS_ADDRESS")
+      (unset-env "SSH_AUTH_SOCK")
+      (try-readwrite "/run/user/1000/herdr-proxy.sock")
       (set-env "HERDR_SOCKET_PATH" "/run/user/1000/herdr-proxy.sock")
       (set-env "CLAUDE_CODE_NO_FLICKER" "1")
 
       # Pass --dangerously-skip-permissions before user args
       (extra-args ["--dangerously-skip-permissions"])
+
+      readonly-home
     ])

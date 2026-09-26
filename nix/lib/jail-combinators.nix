@@ -56,19 +56,62 @@ inputs.jail-nix.lib.extend {
         RUNTIME_ARGS+=(--bind "$PWD" "$PWD" --chdir "$PWD")
       '');
 
-      # When CWD is a secondary jj workspace (e.g. a herdr worktree), its
-      # .jj/repo is a file holding a relative path to the backing repo's
-      # .jj/repo. The main workspace has a .jj/repo directory instead, so the
-      # -f test skips it. Resolve the pointer and bind the backing repo
-      # read-write so jj can reach its shared store from inside the sandbox.
-      bind-jj-workspace-repo = add-runtime ''
+      # When CWD is a secondary jj workspace, its .jj/repo is a file pointing
+      # at the backing repo's .jj/repo. Bind only that shared store and the git
+      # dir behind it, not the backing workspace, so the agent cannot touch the
+      # parent's or siblings' working files.
+      bind-jj-workspace-store = add-runtime ''
         if [[ -f "$PWD/.jj/repo" ]]; then
-          JJ_REPO_PTR="$(realpath -m "$PWD/.jj/$(cat "$PWD/.jj/repo")")"
-          JJ_BACKING_REPO="''${JJ_REPO_PTR%/.jj/repo}"
-          if [[ "$JJ_BACKING_REPO" != "$PWD" && -d "$JJ_BACKING_REPO" ]]; then
-            RUNTIME_ARGS+=(--bind "$JJ_BACKING_REPO" "$JJ_BACKING_REPO")
+          JJ_STORE="$(realpath -m "$PWD/.jj/$(cat "$PWD/.jj/repo")")"
+          if [[ -d "$JJ_STORE/store" ]]; then
+            RUNTIME_ARGS+=(--bind "$JJ_STORE" "$JJ_STORE")
+            if [[ -f "$JJ_STORE/store/git_target" ]]; then
+              JJ_GIT_DIR="$(realpath -m "$JJ_STORE/store/$(head -n 1 "$JJ_STORE/store/git_target")")"
+              if [[ -d "$JJ_GIT_DIR" ]]; then
+                RUNTIME_ARGS+=(--bind "$JJ_GIT_DIR" "$JJ_GIT_DIR")
+              fi
+            fi
           fi
         fi
+      '';
+
+      # Same as upstream network, minus /run/systemd/resolve: it holds
+      # resolved's varlink sockets, and /etc/resolv.conf is a real file here.
+      network = include-once "network" (state:
+        compose [
+          time-zone
+          (share-ns "net")
+          (runtime-deep-ro-bind "/etc/hosts")
+          (runtime-deep-ro-bind "/etc/nsswitch.conf")
+          (runtime-deep-ro-bind "/etc/resolv.conf")
+          (runtime-deep-ro-bind "/etc/ssl")
+          (write-text "/etc/hostname" "${state.hostname}\n")
+          (unsafe-add-raw-args "--hostname ${escape state.hostname}")
+        ]
+        state);
+
+      # The trusted daemon socket is root-equivalent. This is a proxy that
+      # forces the connection untrusted; served by the nix-daemon-untrusted
+      # user socket in the claude-code aspect.
+      # NIX_REMOTE is forced because nix's auto store picks the local store
+      # when the bwrap-created /nix/var/nix is owned by the user.
+      untrusted-nix-daemon = add-runtime ''
+        RUNTIME_ARGS+=(--bind-try "$XDG_RUNTIME_DIR/nix-daemon-untrusted.sock" /nix/var/nix/daemon-socket/socket)
+        RUNTIME_ARGS+=(--setenv NIX_REMOTE daemon)
+      '';
+
+      # Keeps tool caches (including nix's fetcher cache, which the host would
+      # trust) out of the host's ~/.cache.
+      private-cache = add-runtime ''
+        JAIL_CACHE="$HOME/.local/share/jail.nix/cache"
+        mkdir -p "$JAIL_CACHE"
+        RUNTIME_ARGS+=(--bind "$JAIL_CACHE" "$HOME/.cache")
+      '';
+
+      # Must come after every bind under ~, since bwrap cannot create mount
+      # points on a read-only tmpfs.
+      readonly-home = add-runtime ''
+        RUNTIME_ARGS+=(--remount-ro "$HOME")
       '';
 
       # Override try-readwrite to use RUNTIME_ARGS so binds layer after overlay-home

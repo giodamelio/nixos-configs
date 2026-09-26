@@ -16,12 +16,14 @@
       with c; [
         # NixOS essentials
         network
-        (readwrite "/nix")
-        (try-readonly "/run")
+        (readonly "/nix/store")
+        untrusted-nix-daemon
+        (try-readonly "/run/current-system")
         (try-readonly "/etc/static")
         (try-readonly "/etc/profiles")
-        overlay-home
+        private-cache
         work-in-cwd
+        bind-jj-workspace-store
         (rw-paths-from-file ".sandbox-paths")
 
         # Shared ro paths
@@ -42,6 +44,10 @@
 
         # Environment
         (unset-env "ANTHROPIC_API_KEY")
+        (unset-env "DBUS_SESSION_BUS_ADDRESS")
+        (unset-env "SSH_AUTH_SOCK")
+
+        readonly-home
       ];
 
     jailedPi = jail "jailed-pi" pi commonPermissions;
