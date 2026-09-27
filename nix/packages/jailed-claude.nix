@@ -64,6 +64,7 @@ in
       (unset-env "ANTHROPIC_API_KEY")
       (unset-env "DBUS_SESSION_BUS_ADDRESS")
       (unset-env "SSH_AUTH_SOCK")
+      veans-token
       (try-readwrite "/run/user/1000/herdr-proxy.sock")
       (set-env "HERDR_SOCKET_PATH" "/run/user/1000/herdr-proxy.sock")
       (set-env "CLAUDE_CODE_NO_FLICKER" "1")

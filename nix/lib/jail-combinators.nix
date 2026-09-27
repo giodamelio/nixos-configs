@@ -136,6 +136,19 @@ inputs.jail-nix.lib.extend {
       # Mask a path with /dev/null
       mask = path: ro-bind "/dev/null" path;
 
+      # Hands the jail only this project's bot token, since the jail has no
+      # session bus to reach the keyring itself.
+      veans-token = add-runtime ''
+        if [[ -f "$PWD/.veans.yml" ]]; then
+          VEANS_ACCOUNT="$(${pkgs.yq-go}/bin/yq '.server + "::" + .bot.username' "$PWD/.veans.yml")"
+          if ! VEANS_TOKEN="$(${pkgs.libsecret}/bin/secret-tool lookup service veans username "$VEANS_ACCOUNT")"; then
+            echo "jail: no veans token in keyring for $VEANS_ACCOUNT" >&2
+            exit 1
+          fi
+          RUNTIME_ARGS+=(--setenv VEANS_TOKEN "$VEANS_TOKEN")
+        fi
+      '';
+
       # Unset an environment variable inside the jail
       unset-env = var:
         add-runtime ''
