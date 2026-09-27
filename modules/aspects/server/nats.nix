@@ -25,14 +25,15 @@ _: {
           no_tls = true;
         };
 
-        cluster = {
-          name = "homelab";
-          listen = "0.0.0.0:4248";
-          routes = [
-            "nats://carbon.gio.ninja:4248"
-            "nats://gallium.gio.ninja:4248"
-          ];
-        };
+        # REMIND-ME-TO: Re-enable NATS cluster once carbon is back date_passed=2026-11-26
+        # cluster = {
+        #   name = "homelab";
+        #   listen = "0.0.0.0:4248";
+        #   routes = [
+        #     "nats://carbon.gio.ninja:4248"
+        #     "nats://gallium.gio.ninja:4248"
+        #   ];
+        # };
       };
     };
 
