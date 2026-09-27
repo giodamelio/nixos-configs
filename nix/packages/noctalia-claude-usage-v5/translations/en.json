@@ -1,6 +1,8 @@
 {
   "settings.refresh_seconds.label": "Refresh seconds",
-  "settings.refresh_seconds.description": "How often the usage endpoint is polled.",
+  "settings.refresh_seconds.description": "How often the NATS KV value is read. The usage API is only hit when KV has nothing fresh.",
   "settings.credentials_path.label": "Credentials file",
-  "settings.credentials_path.description": "Claude Code credentials JSON holding the OAuth access token."
+  "settings.credentials_path.description": "Claude Code credentials JSON holding the OAuth access token, used when falling back to the usage API.",
+  "settings.nats_url.label": "NATS server",
+  "settings.nats_url.description": "NATS server holding the claude-usage KV bucket."
 }

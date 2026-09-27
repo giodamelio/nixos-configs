@@ -112,6 +112,12 @@ _: {
 
       # Dynamically link agents and commands using home.file
       home.file =
+        {
+          # settings.json stays mutable (Claude Code rewrites it), so link the
+          # path its statusLine.command already points at.
+          ".claude/statusline-command.sh".source = lib.getExe perSystem.self.claude-statusline;
+        }
+        //
         # Link agents
         lib.mapAttrs' (
           name: path: lib.nameValuePair ".claude/agents/${name}.md" {source = path;}

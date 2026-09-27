@@ -13,7 +13,7 @@ key             = "refresh_seconds"
 type            = "int"
 label_key       = "settings.refresh_seconds.label"
 description_key = "settings.refresh_seconds.description"
-default         = 300
+default         = 60
 min             = 30
 max             = 3600
 
@@ -24,6 +24,13 @@ label_key       = "settings.credentials_path.label"
 description_key = "settings.credentials_path.description"
 default         = "~/.claude/.credentials.json"
 extensions      = [".json"]
+
+[[setting]]
+key             = "nats_url"
+type            = "string"
+label_key       = "settings.nats_url.label"
+description_key = "settings.nats_url.description"
+default         = "nats://gallium.gio.ninja:4222"
 
 [[service]]
 id    = "poller"

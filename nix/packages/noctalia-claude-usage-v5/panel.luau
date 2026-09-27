@@ -89,9 +89,10 @@ local function render()
 		local rows = {
 			usageRow("5-hour", usage.fiveHour),
 			usageRow("7-day", usage.sevenDay),
-			usageRow("Opus", usage.opus),
-			usageRow("Sonnet", usage.sonnet),
 		}
+		for _, entry in ipairs(usage.modelScoped or {}) do
+			table.insert(rows, usageRow(entry.name, entry))
+		end
 		for _, row in ipairs(rows) do
 			table.insert(children, row)
 		end
@@ -104,6 +105,9 @@ local function render()
 		if usage.fetchedAt then
 			local age = nowEpoch() - usage.fetchedAt
 			local text = age < 60 and "Fetched just now" or ("Fetched " .. formatLongDuration(age) .. " ago")
+			if usage.source then
+				text = text .. " via " .. (usage.source == "api" and "API" or "statusline")
+			end
 			table.insert(footer, ui.label({ text = text, fontSize = 11, color = "outline" }))
 		end
 		table.insert(children, ui.separator({ spacing = 4 }))

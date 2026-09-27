@@ -4,7 +4,8 @@ pkgs.stdenvNoCC.mkDerivation {
   src = ./.;
   installPhase = ''
     mkdir -p $out/translations
-    cp plugin.toml service.luau widget.luau panel.luau $out/
+    cp plugin.toml widget.luau panel.luau $out/
+    substitute service.luau $out/service.luau --replace-fail '@nats@' '${pkgs.lib.getExe pkgs.natscli}'
     cp translations/en.json $out/translations/
   '';
 }
