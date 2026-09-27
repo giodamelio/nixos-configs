@@ -18,6 +18,11 @@ in
       (try-readonly "/etc/static")
       (try-readonly "/etc/profiles")
       private-cache
+      # Host ~/.cargo would be a jail escape (config.toml wrappers, bin/,
+      # unverified extracted registry sources), so keep a private one.
+      (add-runtime ''
+        RUNTIME_ARGS+=(--setenv CARGO_HOME "$HOME/.cache/cargo")
+      '')
 
       # Claude-specific rw paths
       (try-readwrite (noescape "~/.claude"))
