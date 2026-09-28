@@ -28,6 +28,7 @@ _: {
           # padding = mkPadding 1 5 5 1;
           position = "left";
           show = "always";
+          tree_tabs = true;
         };
 
         # Edit text with Neovim inside Wezterm
