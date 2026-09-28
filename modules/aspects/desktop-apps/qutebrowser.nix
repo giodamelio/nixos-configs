@@ -47,6 +47,7 @@ _: {
 
       aliases = {
         "1password" = "spawn --userscript 1password";
+        "wq" = "close";
       };
 
       keyBindings = {
