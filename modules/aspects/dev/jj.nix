@@ -67,6 +67,7 @@
 
           # Advance to @, or to @- when @ is an empty scratch commit
           "advance" = ["util" "exec" "--" "jj-advance"];
+          "a" = ["advance"];
 
           # Update the current bookmark to the current or last commit
           "bookmark advance-" = ["bookmark" "advance" "--to" "@-"];
