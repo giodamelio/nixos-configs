@@ -56,8 +56,12 @@ in {
     ];
 
     window-rules = [
+      # Make some windows start full width
       {
-        matches = [{app-id = "io.gitlab.news_flash.NewsFlash";}];
+        matches = [
+          {app-id = "io.gitlab.news_flash.NewsFlash";}
+          {app-id = "org.qutebrowser.qutebrowser";}
+        ];
         default-column-width.proportion = 1.0;
       }
       # Thunderbird calendar reminder/alarm dialog: float it in the top-right
