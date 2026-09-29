@@ -22,6 +22,36 @@ flake.lib.writeNushellApplication pkgs {
       destinations | columns
     }
 
+    def herdr-reporting [] {
+      (
+        ($env.HERDR_PANE_ID? | is-not-empty)
+        and ($env.HERDR_SOCKET_PATH? | is-not-empty)
+        and (($env.HERDR_SOCKET_PATH | path type) == "socket")
+        and (which herdr | is-not-empty)
+      )
+    }
+
+    # herdr drops reports without a seq once a source has sent one
+    def report-deploy [reporting: bool, state: string, message: string] {
+      if not $reporting { return }
+      (herdr pane report-agent $env.HERDR_PANE_ID
+        --source local:deploy --agent "NixOS deploy"
+        --state $state --message $message --seq (date now | into int))
+        | ignore
+    }
+
+    # Keep the final status visible in herdr until acknowledged
+    def finish-deploy [reporting: bool, message: string] {
+      if not $reporting { return }
+      report-deploy $reporting idle $message
+      print "Press any key to clear the herdr status"
+      input listen --types [key] | ignore
+      (herdr pane release-agent $env.HERDR_PANE_ID
+        --source local:deploy --agent "NixOS deploy"
+        --seq (date now | into int))
+        | ignore
+    }
+
     # Interactivaly choose a host and deploy to it
     def --wrapped "main" [
       host: string@hosts
@@ -35,6 +65,7 @@ flake.lib.writeNushellApplication pkgs {
       let destination = (destinations | get $host)
       let local_hostname = (hostname | str trim)
       let is_local_deploy = ($host == $local_hostname)
+      let reporting = (herdr-reporting)
 
       if $is_local_deploy {
         print $'Deploying to ($host) locally...'
@@ -49,23 +80,33 @@ flake.lib.writeNushellApplication pkgs {
       #   colmena apply --on $node --experimental-flake-eval
       # }
 
-      # Build the OS first
-      nh os build --diff never $".#nixosConfigurations.($host)"
+      try {
+        # Build the OS first
+        report-deploy $reporting working $'building ($host)'
+        nh os build --diff never $".#nixosConfigurations.($host)"
 
-      # Push it to the binary cache
-      # attic push homelab result/
+        # Push it to the binary cache
+        # attic push homelab result/
 
-      # Then actually deploy it
-      if $is_local_deploy {
-        # nh os switch --ask ...$args --hostname $host .
-        nh os switch --ask ...$args --hostname $host . -- --option post-build-hook "" --substituters "https://cache.nixos.org"
-      } else {
-        nh os switch --ask ...$args --hostname $host --target-host $destination .
-        nh os switch --ask ...$args --hostname $host --target-host $destination . -- --option post-build-hook "" --substituters "https://cache.nixos.org"
+        # Then actually deploy it
+        report-deploy $reporting working $'switching ($host)'
+        if $is_local_deploy {
+          # nh os switch --ask ...$args --hostname $host .
+          nh os switch --ask ...$args --hostname $host . -- --option post-build-hook "" --substituters "https://cache.nixos.org"
+        } else {
+          nh os switch --ask ...$args --hostname $host --target-host $destination .
+          nh os switch --ask ...$args --hostname $host --target-host $destination . -- --option post-build-hook "" --substituters "https://cache.nixos.org"
+        }
+
+        # Clean up the result so the changes don't look so crazy
+        rm result
+      } catch {|err|
+        print -e $err.rendered
+        finish-deploy $reporting $'failed ($host)'
+        exit 1
       }
 
-      # Clean up the result so the changes don't look so crazy
-      rm result
+      finish-deploy $reporting $'deployed ($host)'
     }
   '';
 }
