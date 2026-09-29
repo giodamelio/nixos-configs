@@ -37,6 +37,7 @@
       {user.extraGroups = ["audio"];} # merges with wheel+networkmanager from primary-user
 
       # cesium-only Home-Manager features.
+      den.aspects.qutebrowser
       den.aspects.zed-editor
       den.aspects.development-llm
       den.aspects.herdr
