@@ -33,7 +33,6 @@
         (try-readonly (noescape "~/.config/git"))
         (try-readonly (noescape "~/.config/jj"))
         (try-readonly (noescape "~/.config/nix"))
-        (try-readonly (noescape "~/projects/giodamelio/pi-stuff"))
         (try-readonly (noescape "~/projects/giodamelio/agent-skills"))
         (try-readonly (noescape "~/projects/nixos-configs"))
 
@@ -41,6 +40,8 @@
         (try-readwrite (noescape "~/Documents/life/Projects/"))
         (try-readwrite (noescape "~/.omp"))
         (try-readwrite (noescape "~/.config/omp"))
+        (try-readwrite (noescape "~/.pi"))
+        (try-readwrite (noescape "~/.config/pi"))
 
         # Environment
         (unset-env "ANTHROPIC_API_KEY")
