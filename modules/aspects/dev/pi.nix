@@ -35,6 +35,7 @@
         (try-readonly (noescape "~/.config/nix"))
         (try-readonly (noescape "~/projects/giodamelio/agent-skills"))
         (try-readonly (noescape "~/projects/nixos-configs"))
+        (try-readonly (noescape "~/projects/can1357/oh-my-pi"))
 
         # Shared rw paths
         (try-readwrite (noescape "~/Documents/life/Projects/"))
