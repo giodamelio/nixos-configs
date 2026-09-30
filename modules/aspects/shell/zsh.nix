@@ -36,6 +36,15 @@
           zvm_after_init_commands+=("bindkey -M viins '^r' atuin-search-viins")
         '';
 
+        # Alt+R opens atuin scoped to the current directory
+        atuinDirectorySearch = lib.mkAfter ''
+          _atuin_search_directory_viins() {
+            _atuin_search --keymap-mode=vim-insert --filter-mode=directory
+          }
+          zle -N atuin-search-directory-viins _atuin_search_directory_viins
+          zvm_after_init_commands+=("bindkey -M viins '^[r' atuin-search-directory-viins")
+        '';
+
         # Allow editing the current line in edit mode with Control+E
         vimModeEditInInsertMode = lib.mkAfter ''
           zvm_after_init_commands+=("bindkey -M viins '^E' zvm_vi_edit_command_line")
@@ -125,6 +134,7 @@
         lib.mkMerge (
           [
             vimModeKeybindingFix
+            atuinDirectorySearch
             vimModeEditInInsertMode
             yaziFunction
             takeFunction
