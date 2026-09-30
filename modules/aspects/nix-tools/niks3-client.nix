@@ -1,5 +1,6 @@
 {inputs, ...}: {
   den.aspects.niks3-client.nixos = {
+    config,
     lib,
     pkgs,
     perSystem,
@@ -27,7 +28,8 @@
         name = "niks3-fleet";
         runtimeInputs = [pkgs.systemd];
         # Env vars instead of flags: nested subcommands (`pins list`) only parse
-        # flags after the last subcommand word.
+        # flags after the last subcommand word. PATH because push shells out to
+        # `nix path-info` and transient units get no nix on theirs.
         source = ''
           def --wrapped main [...args] {
             let unit = $"niks3-fleet-(random chars --length 8)"
@@ -35,6 +37,7 @@
               $"--unit=($unit)"
               --property=LoadCredentialEncrypted=niks3_api_token
               --setenv=NIKS3_SERVER_URL=${serverUrl}
+              --setenv=PATH=${lib.makeBinPath [config.nix.package]}
               $"--setenv=NIKS3_AUTH_TOKEN_FILE=/run/credentials/($unit).service/niks3_api_token"
               -- ${lib.getExe perSystem.niks3.niks3} ...$args)
           }
