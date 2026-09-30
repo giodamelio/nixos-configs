@@ -57,6 +57,9 @@
     xdg.portal.config.niri = {
       default = ["gtk"];
       "org.freedesktop.impl.portal.FileChooser" = ["gtk"];
+      # niri implements Mutter's screencast D-Bus API, which only the gnome portal speaks.
+      "org.freedesktop.impl.portal.ScreenCast" = ["gnome"];
+      "org.freedesktop.impl.portal.Screenshot" = ["gnome"];
     };
 
     # Fix portal services starting before niri-session has exported
