@@ -8,7 +8,7 @@
 #
 #   - external niri / handy input modules imported via the file-scope `inputs`
 #     closure.
-#   - `perSystem.giopkgs.niri` is a module arg from the per-system aspect.
+#   - `perSystem.niri-wm.niri` is a module arg from the per-system aspect.
 {
   inputs,
   den,
@@ -28,18 +28,15 @@
     pkgs,
     ...
   }: let
-    niriPackage = perSystem.giopkgs.niri.overrideAttrs (old: {
-      passthru =
-        old.passthru or {}
-        // {
-          providedSessions = ["niri"];
-        };
-      postFixup =
-        old.postFixup or ""
-        + ''
-          substituteInPlace $out/share/systemd/user/niri.service \
-            --replace-fail "ExecStart=niri" "ExecStart=$out/bin/niri"
-        '';
+    niriPackage = perSystem.niri-wm.niri.overrideAttrs (old: {
+      patches =
+        (old.patches or [])
+        ++ [
+          (pkgs.fetchpatch {
+            url = "https://github.com/niri-wm/niri/pull/4340.patch";
+            hash = "sha256-P9IPQnck6VK5M5drTN0hijMclKq/Fe+vFZDMsRipzUs=";
+          })
+        ];
     });
   in {
     imports = [inputs.niri.nixosModules.niri];
@@ -158,7 +155,7 @@
     };
 
     home.packages =
-      [perSystem.giopkgs.niri]
+      [perSystem.niri-wm.niri]
       ++ (with pkgs; [
         nautilus
         xwayland-satellite

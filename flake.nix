@@ -225,5 +225,9 @@
 
     # Any version of any nixpkgs package; revisions are fetched lazily.
     multiverse.url = "github:fzakaria/nixpkgs-multiverse";
+
+    # Upstream niri package; niri-flake above only supplies the modules.
+    niri-wm.url = "github:niri-wm/niri";
+    niri-wm.inputs.nixpkgs.follows = "nixpkgs";
   };
 }

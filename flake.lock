@@ -2388,6 +2388,26 @@
         "type": "github"
       }
     },
+    "niri-wm": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790884237,
+        "narHash": "sha256-3BtIY8xxJHLai3/73kOqgSgcVmqpSKpz9uUstQYgfLk=",
+        "owner": "niri-wm",
+        "repo": "niri",
+        "rev": "ed22699d99462f61ab171472d3ea67e844ea580d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "niri-wm",
+        "repo": "niri",
+        "type": "github"
+      }
+    },
     "nix": {
       "inputs": {
         "flake-compat": [
@@ -3631,6 +3651,7 @@
         "neovim-configs": "neovim-configs",
         "niks3": "niks3",
         "niri": "niri",
+        "niri-wm": "niri-wm",
         "nix-darwin": "nix-darwin",
         "nix-index-database": "nix-index-database",
         "nix-std": "nix-std",
