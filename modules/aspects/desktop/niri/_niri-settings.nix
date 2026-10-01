@@ -92,7 +92,7 @@ in {
         matches = [
           {
             app-id = "^Cap$";
-            title = "^Cap Target Select$";
+            title = "^Cap (Target Select|Window Capture Occluder|Recording Controls|Camera)$";
           }
         ];
         draw-border-with-background = false;
