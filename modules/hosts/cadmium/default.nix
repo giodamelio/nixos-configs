@@ -44,6 +44,7 @@
       den.aspects.herdr
       den.aspects.tui-review
       den.aspects.camoufox
+      den.aspects.screen-recording
 
       # Folded dual-class: HM half here, NixOS half forwarded to the host.
       den.aspects.optnix
