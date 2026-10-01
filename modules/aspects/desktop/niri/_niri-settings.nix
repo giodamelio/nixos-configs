@@ -88,6 +88,18 @@ in {
         matches = [{app-id = "(?i)orca-?slicer";}];
         tiled-state = false;
       }
+      {
+        matches = [
+          {
+            app-id = "^Cap$";
+            title = "^Cap Target Select$";
+          }
+        ];
+        draw-border-with-background = false;
+        focus-ring.enable = false;
+        border.enable = false;
+        shadow.enable = false;
+      }
     ];
 
     prefer-no-csd = true;
