@@ -62,6 +62,7 @@
     programs.niri.settings = {
       outputs = {
         "${monitor-names.middle}" = {
+          focus-at-startup = true;
           scale = 2.0;
           position = {
             x = 1080;
