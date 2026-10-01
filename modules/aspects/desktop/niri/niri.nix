@@ -99,6 +99,9 @@
         Slice = "session.slice";
         Type = "notify";
         ExecStart = "${niriPackage}/bin/niri --session";
+        # niri-session's own shutdown step doesn't run under Ly, leaving graphical-session.target
+        # up so the portals re-activate with no compositor. --no-block avoids deadlocking on our own stop job.
+        ExecStopPost = "${pkgs.systemd}/bin/systemctl --user start --no-block --job-mode=replace-irreversibly niri-shutdown.target";
       };
     };
 
