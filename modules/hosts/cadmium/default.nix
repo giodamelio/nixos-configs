@@ -42,6 +42,7 @@
       den.aspects.slack
       den.aspects.rss
       den.aspects.herdr
+      den.aspects.race
       den.aspects.tui-review
       den.aspects.camoufox
       den.aspects.screen-recording
