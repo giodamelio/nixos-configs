@@ -52,6 +52,11 @@
     services.gvfs.enable = true;
     services.udisks2.enable = true;
 
+    programs.nautilus-open-any-terminal = {
+      enable = true;
+      terminal = "wezterm";
+    };
+
     # The gnome portal refuses to expose FileChooser without Mutter,
     # so route it to the GTK portal explicitly.
     xdg.portal.extraPortals = [pkgs.xdg-desktop-portal-gtk];
