@@ -128,9 +128,6 @@
       };
     };
 
-    # GVFS for Nautilus network share browsing (SMB, etc.)
-    services.gvfs.enable = true;
-
     boot.loader.systemd-boot.enable = true;
     boot.loader.efi.canTouchEfiVariables = true;
 

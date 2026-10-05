@@ -48,6 +48,10 @@
       waypipe
     ];
 
+    # Nautilus only sees and mounts removable drives through GVFS + udisks2
+    services.gvfs.enable = true;
+    services.udisks2.enable = true;
+
     # The gnome portal refuses to expose FileChooser without Mutter,
     # so route it to the GTK portal explicitly.
     xdg.portal.extraPortals = [pkgs.xdg-desktop-portal-gtk];
