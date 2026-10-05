@@ -42,7 +42,7 @@ in {
 
     layout = {
       gaps = lib.mkDefault 0;
-      default-column-width.proportion = 0.5;
+      default-column-width.proportion = 1.0;
       focus-ring = {
         width = 2;
         active.color = "#88c0d0";
@@ -56,13 +56,9 @@ in {
     ];
 
     window-rules = [
-      # Make some windows start full width
       {
-        matches = [
-          {app-id = "io.gitlab.news_flash.NewsFlash";}
-          {app-id = "org.qutebrowser.qutebrowser";}
-        ];
-        default-column-width.proportion = 1.0;
+        matches = [{app-id = "^org\\.wezfurlong\\.wezterm$";}];
+        default-column-width.proportion = 0.5;
       }
       # Thunderbird calendar reminder/alarm dialog: float it in the top-right
       # instead of letting it grab a full tiling column. No size override, so
