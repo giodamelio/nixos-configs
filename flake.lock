@@ -2296,11 +2296,11 @@
         "unison-lang": "unison-lang"
       },
       "locked": {
-        "lastModified": 1790615697,
-        "narHash": "sha256-H0L2O6gUk+nEqHFSIkhIbCpvqiY+85p7wYIBiyjbLDU=",
+        "lastModified": 1791312923,
+        "narHash": "sha256-a9+cjYZ/NCdo2pMsr8B93OkBL8VKoa2Tae9LfMVLPWw=",
         "owner": "giodamelio",
         "repo": "neovim-configs-nix",
-        "rev": "91d12bac5e27363952d11f1b7db820782fbd7792",
+        "rev": "b0451161593de4ccb8cd10b786ed9647730044b1",
         "type": "github"
       },
       "original": {
