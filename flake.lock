@@ -2060,11 +2060,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1774880900,
-        "narHash": "sha256-B1TMgUFd41fy0+snvkshyAXwwHaD3Fgvdp8E6NWL9AM=",
+        "lastModified": 1789633130,
+        "narHash": "sha256-T0dSNUw5Y42P0eua1ah0CERdwvrGqFbNvtxPo57ExBQ=",
         "owner": "laulauland",
         "repo": "jj-hunk",
-        "rev": "7e14b879c37ced8497fbf86045be64c2397dda43",
+        "rev": "53838e931c5f99525c47f225f700aa0345b330e8",
         "type": "github"
       },
       "original": {
