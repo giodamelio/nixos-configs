@@ -4,6 +4,7 @@ import re
 import socket
 
 REAL_SOCKET = os.environ["REAL_SOCKET"]
+TIMEOUT = 2
 
 CLAUDE_HOOKS_SOURCE = "local:claude-hooks"
 SESSION_ID = re.compile(
@@ -116,6 +117,7 @@ def handle_client(client):
 
         # Re-serialize so herdr parses exactly what was checked
         with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as upstream:
+            upstream.settimeout(TIMEOUT)
             upstream.connect(REAL_SOCKET)
             upstream.sendall(json.dumps(message).encode() + b"\n")
             while True:
@@ -130,7 +132,15 @@ def main():
     with listen_sock:
         while True:
             client, _ = listen_sock.accept()
-            handle_client(client)
+            # Single-threaded, so a stalled peer would block every other hook
+            client.settimeout(TIMEOUT)
+            try:
+                handle_client(client)
+            # herdr's hook hangs up after 0.5s without waiting for the reply
+            except (BrokenPipeError, ConnectionResetError):
+                print("client disconnected before response", flush=True)
+            except TimeoutError:
+                print("timed out talking to client or herdr", flush=True)
 
 
 if __name__ == "__main__":
