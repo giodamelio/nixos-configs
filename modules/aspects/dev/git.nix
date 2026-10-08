@@ -84,6 +84,7 @@ _: {
         ".sandbox-paths"
         ".workspaces/"
         ".worktrees/"
+        "nvim.log"
       ];
 
       includes = [
