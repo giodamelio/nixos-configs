@@ -35,6 +35,10 @@ in
       (try-readwrite (noescape "~/.local/share/tuicr"))
       (try-readwrite (noescape "~/Documents/life/Projects/"))
       (try-readwrite (noescape "~/projects/browser-use/browser-harness"))
+      # Scratch dirs so nvf can start when editing the prompt in $EDITOR
+      (add-runtime ''
+        RUNTIME_ARGS+=(--tmpfs "$HOME/.local/share/nvf" --tmpfs "$HOME/.local/state/nvf")
+      '')
 
       # Claude-specific ro paths
       (try-readonly "/etc/nix")
