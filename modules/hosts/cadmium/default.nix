@@ -110,6 +110,9 @@
 
     nix.settings.extra-experimental-features = ["ca-derivations"];
 
+    # Keep the desktop responsive during big local builds
+    nix.daemonCPUSchedPolicy = "idle";
+
     # Gaming
     environment.systemPackages = [pkgs.discord];
 
