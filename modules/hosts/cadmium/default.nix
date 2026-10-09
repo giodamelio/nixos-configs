@@ -34,7 +34,6 @@
 
       # cadmium-only Home-Manager features.
       den.aspects.qutebrowser
-      den.aspects.hyprland
       den.aspects.wayvnc
       den.aspects.syncthing
       den.aspects.development-llm
