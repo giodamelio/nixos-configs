@@ -30,6 +30,8 @@
           "https://giopkgs.cachix.org"
           "https://noctalia.cachix.org"
           "https://cache.numtide.com"
+          "https://nvf.cachix.org"
+          "https://devenv.cachix.org"
         ];
 
         trusted-public-keys = [
@@ -41,6 +43,8 @@
           "giopkgs.cachix.org-1:8oiYAit71TVQVQgzOWkbwsJZwvf89Yymi5Sx+BaEdEs="
           "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
           "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
+          "nvf.cachix.org-1:GMQWiUhZ6ux9D5CvFFMwnc2nFrUHTeGaXRlVBXo+naI="
+          "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
         ];
 
         # Dedicated netrc for private substituter auth (the Gradient cache),
