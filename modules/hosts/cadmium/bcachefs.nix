@@ -1,12 +1,6 @@
 # Tiered build-cache filesystem: the MX500 SSD in front of the WD's second half.
 _: {
-  den.aspects.cadmium-bcachefs.nixos = {lib, ...}: let
-    subvolumes = {
-      misc = "/home/giodamelio/.cache/builds";
-      cargo = "/home/giodamelio/.cache/builds/cargo";
-      sccache = "/home/giodamelio/.cache/builds/sccache";
-    };
-  in {
+  den.aspects.cadmium-bcachefs.nixos = {lib, ...}: {
     boot.bcache.enable = true;
     boot.supportedFilesystems = ["bcachefs"];
 
@@ -52,26 +46,19 @@ _: {
           "--metadata_target=ssd"
           "--background_target=hdd"
         ];
-        mountpoint = "/mnt/builds";
+        mountpoint = "/home/giodamelio/.cache/builds";
         mountOptions = ["nofail"];
-        # No subvolume mountpoints: mount.bcachefs ignores X-mount.subdir, so
-        # they are bind-mounted from the single /mnt/builds mount instead.
-        subvolumes = lib.mapAttrs (_: _: {}) subvolumes;
+        # Unmounted on purpose: mount.bcachefs ignores X-mount.subdir, and
+        # subvolumes already appear as directories under the root mount.
+        subvolumes = {
+          cargo = {};
+          sccache = {};
+        };
       };
     };
 
-    fileSystems =
-      {
-        # disko hardcodes neededForBoot for bcachefs; a dead cache disk must
-        # not stop cadmium from booting.
-        "/mnt/builds".neededForBoot = lib.mkForce false;
-      }
-      // lib.mapAttrs' (name: mountpoint:
-        lib.nameValuePair mountpoint {
-          device = "/mnt/builds/${name}";
-          fsType = "none";
-          options = ["bind" "nofail" "x-systemd.requires-mounts-for=/mnt/builds"];
-        })
-      subvolumes;
+    # disko hardcodes neededForBoot for bcachefs; a dead cache disk must not
+    # stop cadmium from booting.
+    fileSystems."/home/giodamelio/.cache/builds".neededForBoot = lib.mkForce false;
   };
 }
