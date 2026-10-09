@@ -102,6 +102,9 @@
     den.aspects.rayfish
 
     den.aspects.needlecast-server
+
+    # Tiered SSD+HDD build caches (see ./bcachefs.nix)
+    den.aspects.cadmium-bcachefs
   ];
 
   # ---- Host: cadmium-specific config (merges with the sibling files) ----

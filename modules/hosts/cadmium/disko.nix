@@ -91,7 +91,10 @@
               # churn heavily, so snapshotting them just balloons disk usage.
               giodamelio-build = {
                 type = "zfs_fs";
-                mountpoint = "/home/giodamelio/.cache/builds";
+                # Moved aside while its data migrates to the bcachefs builds
+                # filesystem; mount by hand with `mount /mnt/old-builds`.
+                mountpoint = "/mnt/old-builds";
+                mountOptions = ["noauto"];
                 options = {
                   mountpoint = "legacy";
                 };
