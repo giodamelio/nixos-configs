@@ -28,6 +28,7 @@
         # usbutils # For lsusb command
         flakePkgs.witr # Why is this process/port/whatever running
         flakePkgs.set-terminal-title # Set terminal title via escape sequence
+        flakePkgs.system-info # Pretty overviews of disks and other system info
         jq # JSON munging
 
         git

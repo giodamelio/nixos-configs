@@ -13,9 +13,6 @@ _: {
       # Show Nix derivation tree for an executable
       perSystem.self.treebinderivation
 
-      # List processes listening on ports
-      perSystem.self.open-ports
-
       # Print git repository root directory
       perSystem.self.git-root
 
