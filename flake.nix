@@ -44,6 +44,7 @@
 
     # My own personal set of packages
     giopkgs.url = "github:giodamelio/giopkgs";
+    giopkgs.inputs.nixpkgs.follows = "nixpkgs";
 
     # Make the organization of the flake easy
     blueprint.url = "github:numtide/blueprint";
