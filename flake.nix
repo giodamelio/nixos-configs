@@ -211,10 +211,8 @@
     fabric.url = "github:giodamelio/fabric?ref=update-nixpkgs";
     fabric.inputs.nixpkgs.follows = "nixpkgs";
 
-    # Reach the other machine's localhost over a WireGuard tunnel. Local path
-    # until it is published; every other machine that evaluates this flake will
-    # fail to fetch it.
-    needlecast.url = "git+file:///home/giodamelio/projects/giodamelio/needlecast";
+    # Reach the other machine's localhost over a WireGuard tunnel.
+    needlecast.url = "github:giodamelio/needlecast";
     needlecast.inputs.nixpkgs.follows = "nixpkgs";
 
     # S3-backed Nix binary cache. nixpkgs has the package but no NixOS module.

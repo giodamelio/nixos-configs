@@ -2217,14 +2217,15 @@
       "locked": {
         "lastModified": 1788432981,
         "narHash": "sha256-7abkhort7XK0s4TFdA1bBOj7wfE4n84kR9QgCKUs3as=",
+        "owner": "giodamelio",
+        "repo": "needlecast",
         "rev": "8f33820ab921cf02d54494b4ca6a2481d4e5d6a1",
-        "revCount": 11,
-        "type": "git",
-        "url": "file:///home/giodamelio/projects/giodamelio/needlecast"
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "file:///home/giodamelio/projects/giodamelio/needlecast"
+        "owner": "giodamelio",
+        "repo": "needlecast",
+        "type": "github"
       }
     },
     "neovim-configs": {
