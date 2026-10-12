@@ -22,6 +22,10 @@ _: {
 
     upstream = lib.concatStringsSep " " fleet.dns.upstream;
 
+    ttlCap =
+      lib.optionalString (host.dns.serve.maxTtl != null)
+      "rewrite ttl regex .* 0-${toString host.dns.serve.maxTtl}";
+
     # Authoritative fleet zones: answer from the file, fall through to upstream
     # for anything not in the zone.
     zoneBlocks =
@@ -32,6 +36,7 @@ _: {
               fallthrough
             }
             forward . ${upstream}
+            ${ttlCap}
             errors
             cache
           }
@@ -44,6 +49,7 @@ _: {
       (lib.mapAttrsToList (zone: resolvers: ''
           ${zone}:53 {
             forward . ${lib.concatStringsSep " " resolvers}
+            ${ttlCap}
             errors
             cache
           }
@@ -61,6 +67,7 @@ _: {
           ${forwardBlocks}
           .:53 {
             forward . ${upstream}
+            ${ttlCap}
             errors
             cache
           }

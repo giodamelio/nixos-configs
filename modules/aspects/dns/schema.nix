@@ -25,6 +25,14 @@
             default = false;
             description = "Run the fleet's authoritative DNS server here.";
           };
+          options.maxTtl = lib.mkOption {
+            type = lib.types.nullOr lib.types.ints.unsigned;
+            default = null;
+            description = ''
+              Cap the TTL of every record this server returns, including the SOA
+              that sets how long clients cache negative answers. null = no cap.
+            '';
+          };
         };
       };
     }
