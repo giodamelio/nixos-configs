@@ -39,14 +39,6 @@ _: {
       '';
     };
 
-    # nixpkgs' netdata module only grants CAP_NET_ADMIN when it detects a
-    # systemd-networkd wireguard netdev; the wg-nfs mesh now uses an imperative
-    # wg-nfs.service the heuristic can't see, so restore it for WG-iface metrics.
-    systemd.services.netdata.serviceConfig = {
-      AmbientCapabilities = ["CAP_NET_ADMIN"];
-      CapabilityBoundingSet = ["CAP_NET_ADMIN"];
-    };
-
     environment.etc."netdata/health_alarm_notify.conf".source = pkgs.writeText "health_alarm_notify.conf" ''
       SEND_PUSHOVER="YES"
       PUSHOVER_APP_TOKEN="$(cat /run/credentials/netdata.service/netdata-pushover-app-token)"

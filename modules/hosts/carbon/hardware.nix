@@ -17,10 +17,18 @@ _: {
         enable = true;
         consoleMode = "auto";
         netbootxyz.enable = true;
+        # ~60 MB per distinct kernel+initrd; 20 fits the 4G ESP with room.
+        configurationLimit = 20;
       };
 
       efi.canTouchEfiVariables = true;
     };
+
+    # 8 GB of 32: leave the rest to postgres and the service fleet, so the
+    # kernel isn't pushed into zram while ARC holds half of RAM.
+    zramSwap.enable = true;
+    boot.kernelParams = ["zfs.zfs_arc_max=${toString (8 * 1024 * 1024 * 1024)}"];
+
     boot.zfs.forceImportRoot = false;
     boot.supportedFilesystems = ["zfs"];
     boot.initrd.supportedFilesystems = ["zfs"];

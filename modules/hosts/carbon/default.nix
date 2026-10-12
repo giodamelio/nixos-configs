@@ -19,13 +19,19 @@ in {
     ssh.hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIX5P0ZXB1SUbiDrm42t19GEsz80dw+yI0GoO0tYlJsn";
 
     # Consul server (bind interface + retry_join derive from host.network).
+    # TEMP(NIXOS-103): off for the minimal first boot; back on with wave 1.
     consul = {
-      enable = true;
+      enable = false;
       server = true;
     };
 
     # Authoritative DNS replica (gallium serves the same zone; see fleet.dns).
-    dns.serve.enable = true;
+    dns.serve = {
+      enable = true;
+      # TEMP(NIXOS-103): staged services are missing from carbon's zone; keep
+      # clients from caching those gaps once each wave comes back.
+      maxTtl = 10;
+    };
 
     # Static networking (was gio.homelab.networking.carbon + homelab/static-network).
     network = {
@@ -50,7 +56,7 @@ in {
 
     # Fleet NFS over TLS client: mounts gallium's /tank/forgejo + /tank/paperless
     # (mounts declared in nfs.nix).
-    nfs.enable = true;
+    nfs.enable = false; # TEMP(NIXOS-103)
 
     # The `server` user with its Home-Manager environment (the old
     # homeModules.users-server). Matches gallium's server user; carbon's account
@@ -81,16 +87,18 @@ in {
   # Host NixOS feature aspects (the old Blueprint imports that den.default does
   # not already provide). Same infra set as gallium; per-service files arrive
   # alongside this one. mtls is intentionally NOT ported (removed fleet-wide).
+  # TEMP(NIXOS-103): minimal first boot. Service files wait in ./_staged and
+  # return wave by wave; comin stays out until origin/main matches carbon.
   den.aspects.carbon.includes = [
     den.aspects.lil-scripts
-    den.aspects.onepassword
-    den.aspects.comin
-    den.aspects.zfs-backup
-    den.aspects.postgresql
-    den.aspects.nats
-    den.aspects.send-metrics
-    den.aspects.deployed-apps # gio.deployedApps + gradient-deployer (eater/yesman)
-    den.aspects.gatus # status page (gio.gatus)
+    # den.aspects.onepassword
+    # den.aspects.comin
+    # den.aspects.zfs-backup
+    # den.aspects.postgresql
+    # den.aspects.nats
+    # den.aspects.send-metrics
+    # den.aspects.deployed-apps # gio.deployedApps + gradient-deployer (eater/yesman)
+    # den.aspects.gatus # status page (gio.gatus)
   ];
 
   # Host-specific config (merges with hardware.nix + disko.nix + service files).
@@ -116,18 +124,6 @@ in {
     services.consul = {
       webUi = lib.mkForce true;
       interface.bind = "eno1";
-    };
-
-    gio.zfs_backup = {
-      enable = true;
-      datasets = [
-        "tank"
-        "tank/home"
-        "tank/nix"
-        "tank/reserve"
-        "tank/root"
-        "tank/microvms"
-      ];
     };
 
     nixpkgs.config.allowUnfree = true;
