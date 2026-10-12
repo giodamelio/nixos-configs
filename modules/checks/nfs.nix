@@ -1,154 +1,189 @@
-# End-to-end fleet.nfs test on real den hosts: nfs-a (server) and nfs-b (client)
-# both join the WireGuard mesh. fleet.secrets generates each host's WG keypair and
-# credsync pushes the public keys to the peer; once delivered, wg-nfs.service
-# brings up the tunnel and the NFS mount comes up over it. Also proves the
-# fleet.services -> nfs-wait bridge (a service waits on the mount's target).
+# End-to-end fleet.nfs test on real den hosts: nfs-a exports to nfs-b over NFS
+# with mutual TLS (tlshd). nfs-c is an intruder holding a valid certificate from
+# the same CA but not listed as a client, so the per-client export and firewall
+# rule must keep it out. Certificates come from a throwaway CA and are dropped
+# where nfs-cert-enroll would leave them (enrollment is covered by nfs-cert.nix).
+# Also proves the fleet.services -> nfs-wait bridge binds a service to its mount.
 _: {
-  perSystem = {config, ...}: {
+  perSystem = {
+    pkgs,
+    lib,
+    ...
+  }: let
+    hosts = ["nfs-a" "nfs-b" "nfs-c"];
+    pki = pkgs.runCommand "fleet-nfs-test-pki" {nativeBuildInputs = [pkgs.openssl];} ''
+      mkdir $out && cd $out
+      openssl ecparam -name prime256v1 -genkey -noout -out ca.key
+      openssl req -new -x509 -sha256 -key ca.key -out ca.crt -subj "/CN=fleet-nfs test CA" -days 36500
+      for h in ${toString hosts}; do
+        openssl ecparam -name prime256v1 -genkey -noout -out $h.key
+        openssl req -new -sha256 -key $h.key -out $h.csr -subj "/CN=$h.gio.ninja"
+        printf 'subjectAltName=DNS:%s.gio.ninja,DNS:%s\nextendedKeyUsage=serverAuth,clientAuth\n' $h $h > $h.ext
+        openssl x509 -req -in $h.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
+          -out $h.crt -days 36500 -sha256 -extfile $h.ext
+      done
+    '';
+    # The test driver numbers vlan addresses by sorted node name (nfsa, nfsb,
+    # nfsc), so these match the VMs' real eth1 addresses.
+    addressOf = {
+      nfs-a = "192.168.1.1";
+      nfs-b = "192.168.1.2";
+      nfs-c = "192.168.1.3";
+    };
+  in {
     denTests.fleet-nfs = {
       fleet = _: {
-        den.hosts.x86_64-linux.nfs-a = {
-          ssh.hostKey = null;
-          nfs = {
-            enable = true;
-            wgIp = "10.200.0.1";
+        den.hosts.x86_64-linux =
+          lib.recursiveUpdate (lib.genAttrs hosts (h: {
+            ssh.hostKey = null;
+            nfs.enable = true;
+            network.interfaces.eth1.address = addressOf.${h};
+          })) {
+            nfs-b.services.demo-consumer = {
+              unit = "demo-consumer";
+              mounts = ["demo"];
+            };
           };
-        };
-        den.hosts.x86_64-linux.nfs-b = {
-          ssh.hostKey = null;
-          nfs = {
-            enable = true;
-            wgIp = "10.200.0.2";
-          };
-          # Exercises the nfs-wait bridge: this unit must wait for the mount.
-          services.demo-consumer = {
-            unit = "demo-consumer";
-            mounts = ["demo"];
-          };
-        };
 
+        fleet.nfs.caRoot = "${pki}/ca.crt";
         # Fluent chain: server nfs-a:/srv/demo -> client nfs-b:/mnt/demo.
         fleet.nfs.mounts.demo.nfs-a."/srv/demo".nfs-b."/mnt/demo" = {};
 
         den.aspects.nfs-a.nixos = _: {
           system.stateVersion = "25.11";
-          # Export source dir created at activation (before local-fs). all_squash
-          # maps client writes to the nfs-demo anon uid/gid, so make it writable.
+          # all_squash maps client writes to the nfs-demo anon uid/gid, so the
+          # export source must be writable by it.
           system.activationScripts.demoExport = "install -d -m 0777 /srv/demo";
         };
-        den.aspects.nfs-b.nixos = {pkgs, ...}: {
+        den.aspects.nfs-b.nixos = _: {
           system.stateVersion = "25.11";
-          # Defined (not started): we assert the nfs-wait bridge wired its mount
-          # ordering statically, independent of boot-time mount timing.
           systemd.services.demo-consumer.serviceConfig = {
             Type = "oneshot";
             RemainAfterExit = true;
             ExecStart = "${pkgs.coreutils}/bin/true";
           };
         };
+        den.aspects.nfs-c.nixos = _: {
+          system.stateVersion = "25.11";
+          # Not a fleet client, but it needs the NFS client stack to try.
+          boot.supportedFilesystems = ["nfs"];
+        };
       };
 
       nodes = {
         nfsa = "nfs-a";
         nfsb = "nfs-b";
+        nfsc = "nfs-c";
       };
 
-      # Every node needs sshd (credsync push target), credsync, the peer's
-      # <host>.gio.ninja resolvable, and accept-new host keys.
-      node = _: {
+      node = vmName: {
         nodes,
         lib,
         ...
       }: {
-        # credsync must be on the remote's PATH: the non-root push runs
-        # `sudo -n credsync write` over SSH (sudo resolves it via secure_path).
-        environment.systemPackages = [config.packages.credsync];
-        services.openssh.enable = true;
-        # The push lands as the non-root push user and elevates via passwordless
-        # sudo (root SSH login stays off, as on the real fleet).
-        users.users.server = {
-          isNormalUser = true;
-          extraGroups = ["wheel"];
-        };
-        security.sudo.wheelNeedsPassword = false;
-        # Resolve both the push targets (<host>.gio.ninja) and the WG endpoints
-        # (bare host names) to the peer VMs.
+        networking.nftables.enable = true;
         networking.extraHosts = lib.mkAfter ''
           ${nodes.nfsa.networking.primaryIPAddress} nfs-a nfs-a.gio.ninja
           ${nodes.nfsb.networking.primaryIPAddress} nfs-b nfs-b.gio.ninja
+          ${nodes.nfsc.networking.primaryIPAddress} nfs-c nfs-c.gio.ninja
         '';
-        programs.ssh.extraConfig = ''
-          Host *
-            StrictHostKeyChecking accept-new
-            UserKnownHostsFile /root/.ssh/known_hosts
+        # Stand-in for a completed nfs-cert-enroll. The VM's hostname is the
+        # node name (nfsa), so map it back to the den host.
+        system.activationScripts.nfsTestCert = let
+          h =
+            {
+              nfsa = "nfs-a";
+              nfsb = "nfs-b";
+              nfsc = "nfs-c";
+            }.${
+              vmName
+            };
+        in ''
+          install -D -m 0644 ${pki}/${h}.crt /var/lib/step-nfs/cert.pem
+          install -D -m 0600 ${pki}/${h}.key /var/lib/step-nfs/key.pem
         '';
       };
 
       testScript = ''
         start_all()
-        for m in (nfsa, nfsb):
+        for m, addr in ((nfsa, "${addressOf.nfs-a}"), (nfsb, "${addressOf.nfs-b}"), (nfsc, "${addressOf.nfs-c}")):
             m.wait_for_unit("multi-user.target")
-            m.wait_for_unit("sshd.service")
+            m.wait_for_unit("tlshd.service")
+            # The exports and firewall are rendered from addressOf; catch the
+            # driver ever numbering the vlan differently.
+            assert f"{addr}/" in m.succeed("ip -4 -o addr show eth1"), f"{m.name} is not {addr}"
 
-        with subtest("each host provisions its WG keypair + a push identity"):
-            nfsa.wait_until_succeeds("test -e /usr/lib/credstore.encrypted/wg-nfs-priv-nfs-a")
-            nfsa.wait_until_succeeds("test -e /usr/lib/credstore.encrypted/wg-nfs-pub-nfs-a")
-            nfsb.wait_until_succeeds("test -e /usr/lib/credstore.encrypted/wg-nfs-priv-nfs-b")
-            nfsb.wait_until_succeeds("test -e /usr/lib/credstore.encrypted/wg-nfs-pub-nfs-b")
-
-        with subtest("cross-authorize the credsync push identities on the push user"):
-            for src, dst in ((nfsa, nfsb), (nfsb, nfsa)):
-                pub = src.succeed("cat /etc/credsync-push-key.pub").strip()
-                dst.succeed("install -d -m700 -o server -g users /home/server/.ssh")
-                dst.succeed(f"printf '%s\\n' '{pub}' >> /home/server/.ssh/authorized_keys")
-                dst.succeed("chown server:users /home/server/.ssh/authorized_keys")
-                dst.succeed("chmod 600 /home/server/.ssh/authorized_keys")
-
-        with subtest("push each host's public key to its peer"):
-            nfsa.succeed("systemctl start 'secret-push-wg-nfs-pub-nfs-a@nfs-b.service'")
-            nfsb.succeed("systemctl start 'secret-push-wg-nfs-pub-nfs-b@nfs-a.service'")
-            nfsa.wait_until_succeeds("test -e /usr/lib/credstore.encrypted/wg-nfs-pub-nfs-b")
-            nfsb.wait_until_succeeds("test -e /usr/lib/credstore.encrypted/wg-nfs-pub-nfs-a")
-
-        with subtest("the WireGuard tunnel comes up on both ends"):
-            nfsa.wait_for_unit("wg-nfs.service")
-            nfsb.wait_for_unit("wg-nfs.service")
-            nfsb.wait_until_succeeds("ping -c1 -W5 10.200.0.1")
-            nfsa.wait_until_succeeds("ping -c1 -W5 10.200.0.2")
-
-        with subtest("NFS mounts over the tunnel and read/write works"):
+        with subtest("the export is restricted to the client's address and requires mTLS"):
             nfsa.wait_for_unit("nfs-server.service")
+            print(nfsa.execute("journalctl -b -u nfs-server.service --no-pager | tail -20")[1])
+            exports = nfsa.succeed("exportfs -v")
+            assert "192.168.1.2" in exports and "xprtsec=mtls" in exports, exports
+            assert "192.168.1.3" not in exports, exports
             nfsa.succeed("echo fleet-nfs-ok > /srv/demo/hello")
-            # Both ends are now keyed; bring the mount up and read over the tunnel.
-            # reset-failed clears any start-limit from earlier boot-time attempts.
+
+        def probe(m, sec):
+            """Try to reach the share's data without the expected transport.
+            Returns whether a file could be read; the mount call alone can
+            succeed on NFSv4 through the pseudo-root."""
+            m.succeed("mkdir -p /mnt/probe")
+            # nosharecache: otherwise the kernel hands back the superblock of any
+            # existing mount of the same export, with its xprtsec, ignoring ours.
+            rc, out = m.execute(
+                f"timeout 60 mount -t nfs -o nfsvers=4.2,nosharecache,xprtsec={sec} "
+                "nfs-a.gio.ninja:/srv/demo /mnt/probe 2>&1"
+            )
+            if rc != 0:
+                print(f"{m.name} xprtsec={sec}: mount refused (rc={rc}): {out.strip()}")
+                return False
+            rc, out = m.execute("timeout 30 cat /mnt/probe/hello 2>&1")
+            print(f"{m.name} xprtsec={sec}: mounted; read rc={rc}: {out.strip()}")
+            print(m.execute("grep ' /mnt/probe ' /proc/mounts")[1])
+            m.execute("umount -f -l /mnt/probe")
+            return rc == 0
+
+        # The real mount may already be up from boot; take it down so the probes
+        # get fresh NFS client state rather than its mTLS transport.
+        with subtest("the export refuses the listed client without a client certificate"):
+            nfsb.succeed("systemctl stop mnt-demo.mount")
+            nfsb.fail("mountpoint -q /mnt/demo")
+            leaks = [sec for sec in ("none", "tls") if probe(nfsb, sec)]
+            assert not leaks, f"share data readable with xprtsec={leaks}"
+
+        with subtest("the client mounts over mutual TLS and read/write works"):
+            # reset-failed clears any start-limit from boot-time attempts made
+            # before the server was up.
             nfsb.wait_until_succeeds(
                 "systemctl reset-failed mnt-demo.mount 2>/dev/null; "
                 "systemctl start mnt-demo.mount && mountpoint -q /mnt/demo"
             )
+            assert "xprtsec=mtls" in nfsb.succeed("grep ' /mnt/demo ' /proc/mounts")
             got = nfsb.succeed("cat /mnt/demo/hello").strip()
             assert got == "fleet-nfs-ok", f"client read {got!r}"
 
         with subtest("ownership squashes to the deterministic nfs-demo user on both hosts"):
-            # The squash user exists on the CLIENT too (created on every mesh host),
-            # so a server-side identity resolves to a name rather than a bare uid.
             uid = nfsb.succeed("id -u nfs-demo").strip()
             assert nfsa.succeed("id -u nfs-demo").strip() == uid, "nfs-demo uid differs across hosts"
-
-            # A write from the client is all_squashed to nfs-demo on the server...
             nfsb.succeed("echo from-client > /mnt/demo/cf")
             assert nfsa.succeed("stat -c '%U:%G' /srv/demo/cf").strip() == "nfs-demo:nfs-demo"
-            # ...and the same numeric owner resolves back to nfs-demo on the client.
             assert nfsb.succeed("stat -c '%U:%G' /mnt/demo/cf").strip() == "nfs-demo:nfs-demo"
             assert nfsb.succeed("stat -c '%u' /mnt/demo/cf").strip() == uid
 
-            # A file owned on the server by that uid (a server-side identity) is
-            # readable/resolvable on the client even though it originates there.
-            nfsa.succeed("echo from-server > /srv/demo/sf && chown nfs-demo:nfs-demo /srv/demo/sf")
-            assert nfsb.succeed("stat -c '%U:%G' /mnt/demo/sf").strip() == "nfs-demo:nfs-demo"
+        with subtest("restarting tlshd (as renewal does) keeps the established mount working"):
+            nfsa.succeed("systemctl restart tlshd.service")
+            nfsb.succeed("systemctl restart tlshd.service")
+            nfsb.succeed("echo after-restart > /mnt/demo/ar")
+            assert nfsa.succeed("cat /srv/demo/ar").strip() == "after-restart"
 
-        with subtest("the nfs-wait bridge ordered demo-consumer after the mount target"):
-            props = nfsb.succeed("systemctl show -p After -p Requires demo-consumer.service")
+        with subtest("an unlisted host with a valid certificate is kept out"):
+            assert not probe(nfsc, "mtls"), "unlisted host read the share"
+
+        with subtest("the nfs-wait bridge binds demo-consumer to the mount"):
+            props = nfsb.succeed("systemctl show -p After -p BindsTo demo-consumer.service")
             assert "nfs-demo.target" in props, props
+            nfsb.succeed("systemctl start demo-consumer.service")
+            nfsb.succeed("systemctl is-active demo-consumer.service")
+            nfsb.succeed("systemctl stop mnt-demo.mount")
+            nfsb.wait_until_fails("systemctl is-active demo-consumer.service")
       '';
     };
   };

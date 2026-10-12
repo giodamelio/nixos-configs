@@ -12,6 +12,20 @@
     caJson = "${caDir}/ca.json";
     caPort = 443;
 
+    # Provisioners beyond the init-time `bootstrap`/`sshpop`, kept in ca.json by
+    # step-ca-provisioners.service. Each gets its own key pair and a password
+    # that never leaves this host (under ${caDir}/provisioners/<name>/).
+    managedProvisioners = {
+      # NFS host certs (modules/aspects/nfs/cert.nix): X.509 only, 7 days,
+      # renewed daily; no renewal after expiry, so a lapsed host re-enrolls.
+      nfs = ["--ssh=false" "--x509-default-dur=168h" "--x509-max-dur=168h"];
+    };
+    provisionersScript = import ./_provisioners.nix {inherit pkgs lib;} {
+      inherit caDir;
+      group = "step-ca";
+      provisioners = managedProvisioners;
+    };
+
     # Enroll a host: mint a one-time token here (CA side, holds the provisioner
     # password) and print the ready-to-paste command for the target host.
     enrollTool = inputs.self.lib.writeNushellApplication pkgs {
@@ -126,12 +140,27 @@
       };
     };
 
+    systemd.services.step-ca-provisioners = {
+      description = "Keep the managed step-ca provisioners in ca.json";
+      wantedBy = ["multi-user.target"];
+      after = ["step-ca-init.service"];
+      requires = ["step-ca-init.service"];
+      before = ["step-ca.service"];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = lib.getExe provisionersScript;
+      };
+    };
+
     systemd.services.step-ca = {
       description = "Homelab step-ca certificate authority";
       wantedBy = ["multi-user.target"];
       wants = ["network-online.target"];
-      after = ["network-online.target" "step-ca-init.service"];
-      requires = ["step-ca-init.service"];
+      after = ["network-online.target" "step-ca-init.service" "step-ca-provisioners.service"];
+      requires = ["step-ca-init.service" "step-ca-provisioners.service"];
+      # Reload ca.json whenever the managed provisioners change.
+      restartTriggers = [provisionersScript];
       # Intermediate key is unencrypted (ceremony used --no-password), so no
       # --password-file; step-ca loads it directly.
       serviceConfig = {

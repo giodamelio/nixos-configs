@@ -42,42 +42,26 @@ in {
         enable = mkOption {
           type = types.bool;
           default = false;
-          description = "Participate in the fleet NFS + WireGuard mesh.";
-        };
-        wgIp = mkOption {
-          type = types.nullOr types.str;
-          default = null;
-          description = "This host's WireGuard mesh IP (explicit; never auto-allocated).";
-        };
-        endpoint = mkOption {
-          type = types.nullOr types.str;
-          default = null;
-          defaultText = lib.literalExpression "<host name>";
-          description = "Address peers dial for the tunnel (LAN IP / FQDN). Defaults to the host name.";
+          description = ''
+            Take part in fleet NFS over TLS: run tlshd and keep a step-ca
+            certificate (enrolled once with `ca-enroll-host <host> nfs`).
+          '';
         };
       };
     }
   ];
 
   den.schema.fleet.imports = [
-    {
+    ({config, ...}: {
       options.nfs = {
-        network = {
-          interface = mkOption {
-            type = types.str;
-            default = "wg-nfs";
-            description = "WireGuard interface name.";
-          };
-          port = mkOption {
-            type = types.int;
-            default = 51830;
-            description = "WireGuard listen port.";
-          };
-          subnet = mkOption {
-            type = types.str;
-            default = "10.200.0.0/24";
-            description = "WireGuard mesh subnet (used for the export ACL).";
-          };
+        caRoot = mkOption {
+          type = types.path;
+          default = config.ssh.dataDir + "/ca-root.crt";
+          defaultText = lib.literalExpression "fleet.ssh.dataDir + \"/ca-root.crt\"";
+          description = ''
+            step-ca root certificate: the tlshd truststore and the `--root` for
+            enrollment and renewal. Tests point it at a throwaway CA.
+          '';
         };
         mounts = mkOption {
           default = {};
@@ -92,6 +76,6 @@ in {
           type = types.attrsOf (types.attrsOf (types.attrsOf serverPath));
         };
       };
-    }
+    })
   ];
 }

@@ -48,14 +48,9 @@ in {
       };
     };
 
-    # NFS mesh client: mounts gallium's /tank/forgejo + /tank/paperless over
-    # WireGuard (mounts declared in nfs.nix). WG keys are auto-generated.
-    nfs = {
-      enable = true;
-      wgIp = "10.200.0.2";
-      # LAN IP peers dial for the tunnel; a bare hostname doesn't resolve on the peer.
-      endpoint = "10.30.0.10";
-    };
+    # Fleet NFS over TLS client: mounts gallium's /tank/forgejo + /tank/paperless
+    # (mounts declared in nfs.nix).
+    nfs.enable = true;
 
     # The `server` user with its Home-Manager environment (the old
     # homeModules.users-server). Matches gallium's server user; carbon's account

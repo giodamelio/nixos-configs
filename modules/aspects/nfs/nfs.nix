@@ -3,98 +3,68 @@
   config,
   ...
 }: let
-  inherit (import ./_types.nix {inherit lib;}) shareId mountsList exportsFor mountsFor peersFor wgPubName;
+  inherit (import ./_types.nix {inherit lib;}) shareId mountsList exportsFor mountsFor mountTarget;
+  net = import ../network/_lib.nix {inherit lib;};
   denHosts = lib.concatMapAttrs (_system: hosts: hosts) config.den.hosts;
 in {
   den.aspects.nfs.nixos = {
+    config,
     fleet,
     host,
     pkgs,
     lib,
+    utils,
     ...
   }: let
-    net = fleet.nfs.network;
     allMounts = fleet.nfs.mounts;
-
-    endpointOf = h: let
-      e = denHosts.${h}.nfs.endpoint or null;
-    in
-      if e != null
-      then e
-      else h;
-    wgIpOf = h: denHosts.${h}.nfs.wgIp;
-
-    peers = peersFor host.name denHosts;
     myExports = exportsFor host.name allMounts;
     myMounts = mountsFor host.name allMounts;
-
-    # `wg set peer` line per peer, reading that peer's pushed public key. Skip a
-    # peer whose key has not been delivered yet, so the unit never fails on a
-    # missing key — it just converges as credsync delivers them (restartOnChange).
-    peerLines = lib.concatMapStringsSep "\n" (p: ''
-      if [ -s "$CREDENTIALS_DIRECTORY/${wgPubName p}" ]; then
-        wg set ${net.interface} peer "$(cat "$CREDENTIALS_DIRECTORY/${wgPubName p}")" \
-          allowed-ips ${wgIpOf p}/32 \
-          endpoint ${endpointOf p}:${toString net.port} \
-          persistent-keepalive 25
-      fi'')
-    peers;
-
-    wgUp = pkgs.writeShellApplication {
-      name = "wg-nfs-up";
-      runtimeInputs = [pkgs.wireguard-tools pkgs.iproute2];
-      text = ''
-        ip link show ${net.interface} >/dev/null 2>&1 || ip link add dev ${net.interface} type wireguard
-        wg set ${net.interface} private-key "$CREDENTIALS_DIRECTORY/wg-priv" listen-port ${toString net.port}
-        ${peerLines}
-        ip address replace ${wgIpOf host.name}/24 dev ${net.interface}
-        ip link set up dev ${net.interface}
-      '';
-    };
-    wgDown = pkgs.writeShellApplication {
-      name = "wg-nfs-down";
-      runtimeInputs = [pkgs.iproute2];
-      text = "ip link del dev ${net.interface} 2>/dev/null || true";
-    };
+    addressOf = h: net.theAddress denHosts.${h};
+    flagOf = m:
+      if m.readOnly
+      then "ro"
+      else "rw";
 
     # NFSv4: each share is exported by its real path and mounted directly (the
-    # kernel builds the v4 pseudo-fs; no explicit fsid=0 root needed, matching the
-    # legacy nfs-mesh).
-    exportLine = m: let
-      flag =
-        if m.readOnly
-        then "ro"
-        else "rw";
+    # kernel builds the v4 pseudo-fs). One client spec per mount, so only the
+    # hosts that actually mount a share can reach it.
+    clientSpec = m: let
       id = toString (shareId m.name);
-    in "${m.server.path} ${net.subnet}(${flag},sync,no_subtree_check,all_squash,anonuid=${id},anongid=${id})";
+    in "${addressOf m.client.host}(${flagOf m},sync,no_subtree_check,all_squash,anonuid=${id},anongid=${id},xprtsec=mtls)";
+    exportLines = lib.mapAttrsToList (path: ms: "${path} ${lib.concatMapStringsSep " " clientSpec ms}") (lib.groupBy (m: m.server.path) myExports);
+    clientAddresses = lib.unique (map (m: addressOf m.client.host) myExports);
+
+    credDir = "/run/credentials/tlshd.service";
+    identity = {
+      "x509.truststore" = "${fleet.nfs.caRoot}";
+      "x509.certificate" = "${credDir}/cert";
+      "x509.private_key" = "${credDir}/key";
+    };
   in
     lib.mkIf host.nfs.enable (lib.mkMerge [
       {
-        environment.systemPackages = [pkgs.wireguard-tools];
-
-        # Dedicated WG setup unit. Its credentials (own private key + each peer's
-        # public key) and the `Requires=/After=secret-*.target` ordering are wired
-        # by the fleet.secrets use-sites in secrets.nix — so this starts only once
-        # keys are delivered, and re-runs when they change. Decoupled from
-        # systemd-networkd, so waiting for network-delivered keys never deadlocks
-        # the LAN. Ordered before remote-fs-pre.target so NFS mounts wait for it.
-        systemd.services.wg-nfs = {
-          description = "WireGuard NFS mesh interface";
-          after = ["network-online.target"];
-          wants = ["network-online.target"];
-          before = ["remote-fs-pre.target"];
-          wantedBy = ["remote-fs-pre.target" "multi-user.target"];
-          serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
-            ExecStart = lib.getExe wgUp;
-            ExecStop = lib.getExe wgDown;
+        # One step-ca certificate serves both roles: presented to clients as a
+        # server and to servers as a client (see cert.nix for its lifecycle).
+        system.services.tlshd = {
+          imports = [pkgs.ktls-utils.services.default];
+          tlshd.settings = {
+            "authenticate.client" = identity;
+            "authenticate.server" = identity;
+          };
+          # The key is root-only and tlshd runs as a DynamicUser, so it gets a
+          # copy via LoadCredential. That copy is taken at start, which is why
+          # enrollment and renewal restart tlshd.
+          systemd.service = {
+            serviceConfig.LoadCredential = [
+              "cert:/var/lib/step-nfs/cert.pem"
+              "key:/var/lib/step-nfs/key.pem"
+            ];
+            # Dormant (not failed) until the host is enrolled.
+            unitConfig.ConditionPathExists = "/var/lib/step-nfs/cert.pem";
           };
         };
 
-        networking.firewall.allowedUDPPorts = [net.port];
-
-        # Deterministic nfs-<name> user/group on every mesh host, for all_squash.
+        # Deterministic nfs-<name> user/group on every NFS host, for all_squash.
         users.users = lib.listToAttrs (map (m:
           lib.nameValuePair "nfs-${m.name}" {
             uid = shareId m.name;
@@ -107,14 +77,23 @@ in {
         (mountsList allMounts));
       }
 
-      # Server side: export each share by its real path. NFSv4 needs only TCP
-      # 2049, opened on the mesh interface (the v3 RPC ports aren't used).
+      # Server side. tlshd cannot tie a client certificate to a host (it only
+      # checks the chain), so the export ACL and this firewall rule are what
+      # restrict each share to its clients' addresses.
       (lib.mkIf (myExports != []) {
+        assertions = [
+          {
+            assertion = config.networking.nftables.enable;
+            message = "nfs: ${host.name} exports shares, which needs networking.nftables.enable for the per-client firewall rule";
+          }
+        ];
         services.nfs.server = {
           enable = true;
-          exports = lib.concatMapStringsSep "\n" exportLine myExports;
+          exports = lib.concatStringsSep "\n" exportLines;
         };
-        networking.firewall.interfaces.${net.interface}.allowedTCPPorts = [2049];
+        networking.firewall.extraInputRules = ''
+          ip saddr { ${lib.concatStringsSep ", " clientAddresses} } tcp dport 2049 accept
+        '';
       })
 
       # Client side: the mount + a stable readiness target per mount.
@@ -125,37 +104,39 @@ in {
         # (nixos/tasks/filesystems/nfs.nix gates on it) — required for the v4 mount.
         boot.supportedFilesystems = ["nfs"];
 
-        # Ordered after + requiring wg-nfs so the tunnel is up first; wantedBy
-        # (Wants) remote-fs.target keeps a first-boot failure (pre-key-delivery)
-        # non-fatal.
+        # The server is named by FQDN because tlshd verifies the server
+        # certificate's SAN against it; wantedBy (Wants) remote-fs.target keeps
+        # a failed mount from failing the boot.
         systemd.mounts =
           map (m: {
-            what = "${wgIpOf m.server.host}:${m.server.path}";
+            what = "${m.server.host}.${fleet.dns.domain}:${m.server.path}";
             where = m.client.path;
             type = "nfs";
             # addr= is normally added by the mount.nfs helper; systemd's mount path
             # doesn't, so pass it explicitly (else "didn't pass remote address").
-            options = lib.concatStringsSep "," (["nfsvers=4" "noatime" "addr=${wgIpOf m.server.host}"]
-              ++ [
-                (
-                  if m.readOnly
-                  then "ro"
-                  else "rw"
-                )
-              ]);
-            after = ["wg-nfs.service"];
-            requires = ["wg-nfs.service"];
+            options = lib.concatStringsSep "," [
+              "nfsvers=4.2"
+              "xprtsec=mtls"
+              "noatime"
+              "addr=${addressOf m.server.host}"
+              (flagOf m)
+            ];
+            after = ["tlshd.service" "network-online.target"];
+            wants = ["tlshd.service" "network-online.target"];
             wantedBy = ["remote-fs.target"];
           })
           myMounts;
 
-        # nfs-<name>.target becomes reachable once the mount is up; services wait
-        # on it by name (see the fleet.services nfs-wait bridge). RequiresMountsFor
-        # ties it to the mount by path, so no escaped unit name is needed.
-        systemd.targets = lib.listToAttrs (map (m:
-          lib.nameValuePair "nfs-${m.name}" {
+        # nfs-<name>.target is up exactly while the mount is; services bind to it
+        # by name (see the fleet.services nfs-wait bridge), so they never start
+        # without the mount and stop if it goes away.
+        systemd.targets = lib.listToAttrs (map (m: let
+          mountUnit = "${utils.escapeSystemdPath m.client.path}.mount";
+        in
+          lib.nameValuePair (lib.removeSuffix ".target" (mountTarget m.name)) {
             description = "NFS mount ${m.name} (${m.client.path}) ready";
-            unitConfig.RequiresMountsFor = [m.client.path];
+            bindsTo = [mountUnit];
+            after = [mountUnit];
           })
         myMounts);
       })

@@ -1,5 +1,5 @@
 {lib}: rec {
-  # Hosts participating in the mesh.
+  # Hosts taking part in fleet NFS.
   enabledHosts = denHosts: lib.filterAttrs (_name: host: host.nfs.enable) denHosts;
 
   # Deterministic UID/GID from a mount name, mapped to [10000, 59999].
@@ -51,11 +51,4 @@
 
   # Stable readiness target for a mount name (what fleet.services waits on).
   mountTarget = name: "nfs-${name}.target";
-
-  # Full mesh: every other enabled host.
-  peersFor = hostName: denHosts:
-    builtins.filter (n: n != hostName) (builtins.attrNames (enabledHosts denHosts));
-
-  wgPrivName = h: "wg-nfs-priv-${h}";
-  wgPubName = h: "wg-nfs-pub-${h}";
 }

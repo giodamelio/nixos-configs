@@ -50,9 +50,11 @@ cert-verified). **Enroll around the same time as the first deploy** so the gap i
 brief. Enroll is one-time; the host self-renews daily thereafter (SSHPOP, no
 secret). See `docs/pi-ca-secrets-plan.md` for the why.
 
-1. On **strontium** (the CA), mint a one-time token + print the host command:
+1. On **strontium** (the CA), mint a one-time token + print the host command.
+   Name each certificate kind you want; add `nfs` if the host uses fleet NFS
+   (see §8):
    ```bash
-   sudo ca-enroll-host <hostname>
+   sudo ca-enroll-host <hostname> ssh
    ```
 2. Paste the printed command on the **new host**. It copies the host pubkey into
    `/var/lib/step-ssh/`, signs it with the token, and starts the renewer:
@@ -73,7 +75,7 @@ secret). See `docs/pi-ca-secrets-plan.md` for the why.
    Expect a `host certificate`, ~30-day validity, principals `<hostname>` +
    `<hostname>.gio.ninja`, and the renewer `Finished`.
 
-## 8. Secrets and the NFS mesh
+## 8. Secrets and fleet NFS
 
 Secrets reach a host only via agevault — nothing is generated on the box. Add each
 one to the offline vault under a **snake_case** name, regenerate the manifest, and
@@ -88,17 +90,31 @@ agevault push <hostname>
 `secrets.toml` has to be committed, or the build fails: `fleet.credentials`
 asserts at eval time that every declared need is in the manifest for that host.
 
-- [ ] If the host joins the **NFS mesh**, mint its WireGuard keypair by hand and
-      add both halves to the vault:
-      ```bash
-      priv=$(wg genkey); pub=$(printf '%s' "$priv" | wg pubkey)
-      printf '%s' "$priv" | agevault write <hostname> wg_nfs_priv_<hostname> -
-      printf '%s' "$pub"  | agevault write <hostname> wg_nfs_pub_<hostname>  -
-      ```
-      The public half also has to reach every peer, so push it to them too. This
-      used to be automatic — `fleet.secrets` generated the keypair and pushed the
-      public half — but generators were removed with the credsync teardown. It is
-      the one real cost of that change.
+- [ ] If the host uses **fleet NFS** (`nfs.enable = true`, as a server, a client,
+      or both), it needs an NFS certificate from strontium's `nfs` provisioner.
+      No agevault secret is involved. The host must have exactly one static
+      network interface, because exports and firewall rules are keyed by address.
+      1. After the first deploy, on **strontium**:
+         ```bash
+         sudo ca-enroll-host <hostname> nfs
+         ```
+      2. Paste the printed command on the host within 30 minutes. A step-ca
+         restart also invalidates it. It writes the token to a file that the
+         `nfs-cert-enroll` path unit consumes:
+         ```bash
+         sudo install -D -m 0600 /dev/stdin /var/lib/step-nfs/enroll-token <<< '<TOKEN>'
+         ```
+      3. Verify:
+         ```bash
+         sudo step certificate inspect --short /var/lib/step-nfs/cert.pem
+         systemctl is-active tlshd
+         ```
+         Expect the SANs `<hostname>.gio.ninja` + `<hostname>`, about 7 days of
+         validity, and tlshd `active`.
+
+      `nfs-cert-renew` renews the certificate daily. If the host is off for more
+      than 7 days the certificate lapses and renewal fails (it shows in
+      `systemctl --failed`); re-run both steps to re-enroll.
 
 ## 9. Final checks
 
