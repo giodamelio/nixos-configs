@@ -11,6 +11,8 @@ _: {
     cesium.CNAME = ["cesium.lan."];
     unifi.CNAME = ["unifi.lan."];
     jetkvm.CNAME = ["jetkvm.lan."];
+    # The router knows the phone by its Android hostname.
+    aluminum.CNAME = ["pixel-7.lan."];
     # step-ca on strontium (its own port, not behind Caddy) — CNAME to
     # strontium's auto A record rather than the .lan. forward.
     ca.CNAME = ["strontium.gio.ninja."];
