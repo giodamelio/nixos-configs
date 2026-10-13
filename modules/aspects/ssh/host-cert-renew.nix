@@ -56,10 +56,18 @@ in {
         wants = ["network-online.target"];
         # Dormant (not failed) until the host is enrolled and a cert exists;
         # the enroll step drops the cert and restarts this unit.
-        unitConfig.ConditionPathExists = liveCert;
+        unitConfig = {
+          ConditionPathExists = liveCert;
+          # Three tries, then stay failed (an expired cert needs re-enrolling).
+          StartLimitIntervalSec = "10min";
+          StartLimitBurst = 3;
+        };
         serviceConfig = {
           Type = "oneshot";
           ExecStart = lib.getExe renewScript;
+          # Ride out a CA restart: step-ca takes a few seconds to listen again.
+          Restart = "on-failure";
+          RestartSec = "1min";
         };
       };
 
