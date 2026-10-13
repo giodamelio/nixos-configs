@@ -80,27 +80,34 @@ flake.lib.writeNushellApplication pkgs {
       #   colmena apply --on $node --experimental-flake-eval
       # }
 
+      # A per-run GC root instead of ./result, so parallel deploys don't fight
+      # over one link.
+      let gcroot_dir = (mktemp -d -t $'deploy-($host).XXXXXX')
+      let gcroot = $'($gcroot_dir)/result'
+
       try {
         # Build the OS first
         report-deploy $reporting working $'building ($host)'
-        nh os build --diff never $".#nixosConfigurations.($host)"
+        nh os build --diff never --out-link $gcroot $".#nixosConfigurations.($host)"
+        let system = ($gcroot | path expand)
+        print $'built ($system)'
 
         # Push it to the binary cache
-        # attic push homelab result/
+        # attic push homelab $system
 
         # Then actually deploy it
         report-deploy $reporting working $'switching ($host)'
+        # The built path, not the flake: what activates is exactly what was
+        # built, even if the tree changes mid-deploy.
         if $is_local_deploy {
-          # nh os switch --ask ...$args --hostname $host .
-          nh os switch --ask ...$args --hostname $host . -- --option post-build-hook "" --substituters "https://cache.nixos.org"
+          nh os switch --ask ...$args $system
         } else {
-          nh os switch --ask ...$args --hostname $host --target-host $destination .
-          nh os switch --ask ...$args --hostname $host --target-host $destination . -- --option post-build-hook "" --substituters "https://cache.nixos.org"
+          nh os switch --ask ...$args --target-host $destination $system
         }
 
-        # Clean up the result so the changes don't look so crazy
-        rm result
+        rm -r $gcroot_dir
       } catch {|err|
+        rm -r $gcroot_dir
         print -e $err.rendered
         finish-deploy $reporting $'failed ($host)'
         exit 1
