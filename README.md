@@ -4,9 +4,12 @@ Used to configure all of my machines
 
 # Machines
 
-There are currently 6 machines listed in the [data](./homelab.toml)
+There are currently 11 machines listed in the [data](./homelab.toml)
 
 
+  - `aluminum`
+    - Description: Native ARM (aarch64) remote builder
+    - Hardware: Google Pixel 7 (Tensor G2, 8 GB), rooted, NixOS in a chroot under Android
   - `cadmium`
     - Description: Main development machine
     - Hardware: Desktop machine under my desk
@@ -25,6 +28,18 @@ There are currently 6 machines listed in the [data](./homelab.toml)
   - `gio-pixel-7`
     - Description: My Phone
     - Hardware: Pixel 7 Pro
+  - `hammond`
+    - Description: Hammond AI agent
+    - Hardware: Intel NUC 5th Gen
+  - `oganesson`
+    - Description: Native ARM (aarch64) remote builder
+    - Hardware: Oracle Cloud Always Free Ampere A1 VM (2 OCPU, 12 GB, aarch64)
+  - `rhodium`
+    - Description: Critical infrastructure DNS server
+    - Hardware: Raspberry Pi 4
+  - `strontium`
+    - Description: Certificate authority and secret manager
+    - Hardware: Raspberry Pi 3B+
 
 # IP Ranges
 
