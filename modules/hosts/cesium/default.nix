@@ -18,6 +18,7 @@
   den.hosts.x86_64-linux.cesium = {
     role = "desktop";
     ssh.hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK5LTFNDeaPXdAFvl265BWiiu/UAS6q1CfgdutsYYyC8";
+    useRemoteBuilders = true;
 
     users.giodamelio.ssh = {
       publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJwxJI1kvYY7wN9ps8W23kadHiqX8d/BJT/zI9oh0uDp";
@@ -57,7 +58,6 @@
     den.aspects.onepassword
     den.aspects.yubikey
     den.aspects.fonts
-    den.aspects.remote-builder-user
     den.aspects.attic-client
     den.aspects.pipewire
     den.aspects.battery-optimization

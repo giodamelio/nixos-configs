@@ -15,6 +15,15 @@
   den.hosts.x86_64-linux.cadmium = {
     role = "desktop";
     ssh.hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFyDOEgsO9wykdbqhUOBWpSIXJ7Kd9D0Pl7W0dnxDn/m";
+    # For aarch64; its own x86_64 builds stay local.
+    useRemoteBuilders = true;
+    remoteBuilder = {
+      enable = true;
+      systems = ["x86_64-linux"];
+      maxJobs = 8;
+      speedFactor = 4;
+      supportedFeatures = ["nixos-test" "benchmark" "big-parallel" "kvm"];
+    };
 
     users.giodamelio.ssh = {
       publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOKmSxFyT9n91A9dOpSCfl9kJj80KWFA6UvCtguT4S5b";
@@ -72,7 +81,6 @@
     den.aspects.fonts
     den.aspects.onepassword
     den.aspects.yubikey
-    den.aspects.remote-builder-builder
     den.aspects.attic-client
     den.aspects.niks3-client
     den.aspects.basic-packages-desktop

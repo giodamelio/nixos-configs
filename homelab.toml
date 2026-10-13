@@ -27,6 +27,12 @@ remote_builder_keys = [
   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBCyh/3f4nbOmINaD+dLuU4/uOAKBNu/r3cXS/Jx4uqu root@hammond",
   # Cesium
   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL1F26iEly+cAJDKqNRhWdXxrLisszNO10r0Ffv3TFZE root@cesium-nix-remote-builder",
+  # Cadmium
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII3Sd9/hkDe8ebjuj6nAXs6hqc+jBOikPuu01zjZL9gH root@cadmium-nix-remote-builder",
+  # Rhodium
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOKDqA8k88C6wbMRR09RPf3A/3XPkahPxqXqExO/5bru root@rhodium-nix-remote-builder",
+  # Strontium
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBLVSZkmbV9KTMh5KyxzqorbP66dWas89OAOYe4GeLSV root@strontium-nix-remote-builder",
 ]
 
 ## credsync push identities (fleet.secrets)

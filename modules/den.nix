@@ -67,6 +67,11 @@
     # the default `unmanaged`). Other fleet systems derive addresses from it.
     den.aspects.network
 
+    # Accept remote builds; self-gates on host.remoteBuilder.enable.
+    den.aspects.remote-builder-builder
+    # Send builds to them; self-gates on host.useRemoteBuilders (on for aarch64).
+    den.aspects.remote-builder-user
+
     # NFS over TLS; self-gates on the per-host nfs.enable fact. The
     # services-nfs-wait bridge is inert until a service declares `mounts`.
     den.aspects.nfs
