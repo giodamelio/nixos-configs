@@ -14,5 +14,8 @@ _: {
     # step-ca on strontium (its own port, not behind Caddy) — CNAME to
     # strontium's auto A record rather than the .lan. forward.
     ca.CNAME = ["strontium.gio.ninja."];
+    # Its LAN VPN address: SSH is closed to the internet at OCI. DHCP on a NAT'd
+    # VNIC, so it gets no auto A record.
+    oganesson.A = ["10.100.0.3"];
   };
 }

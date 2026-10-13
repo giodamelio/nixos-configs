@@ -115,6 +115,20 @@ useDescription = "Certificate authority and secret manager"
 # TEMP: static IP directly; restore strontium.gio.ninja once DNS serves it
 sshDestination = "server@10.30.0.13"
 
+[machines.oganesson]
+hardwareDescription = "Oracle Cloud Always Free Ampere A1 VM (2 OCPU, 12 GB, aarch64)"
+physicalLocation = "Oracle Cloud"
+useDescription = "Native ARM (aarch64) remote builder"
+
+[machines.oganesson.deploy]
+# Over the LAN VPN; break glass is an OCI ingress rule for 22 to 165.1.77.252.
+sshDestination = "server@oganesson.gio.ninja"
+
+[machines.aluminum]
+hardwareDescription = "Google Pixel 7 (Tensor G2, 8 GB), rooted, NixOS in a chroot under Android"
+physicalLocation = "minirack"
+useDescription = "Native ARM (aarch64) remote builder"
+
 [machines.hammond]
 hardwareDescription = "Intel NUC 5th Gen"
 hardwareModelNumber = "NUC5CPYH"
