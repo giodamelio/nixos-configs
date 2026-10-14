@@ -122,7 +122,9 @@
         '';
 
         devenvAutoActivation = lib.mkAfter ''
-          eval "$(devenv hook zsh)"
+          if command -v devenv &> /dev/null; then
+            eval "$(devenv hook zsh)"
+          fi
         '';
 
         zmxCompletions = lib.mkAfter ''
