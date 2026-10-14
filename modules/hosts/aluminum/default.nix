@@ -88,6 +88,10 @@ in {
           mount -o remount,bind,suid /run/wrappers
         fi
 
+        # Doze suspends the CPU between ever-sparser maintenance windows, taking
+        # sshd and the heartbeat with it; a kernel wake lock keeps it awake.
+        echo aluminum > /sys/power/wake_lock
+
         # Snippets that expect systemd can fail in a chroot; sshd must still
         # come up afterwards, or the only way back in is adb.
         /nix/var/nix/profiles/system/activate || echo "aluminum: activation reported errors" >&2
@@ -142,6 +146,11 @@ in {
 
     # Android's kernel may lack the namespaces the build sandbox needs.
     nix.settings.sandbox = false;
+
+    # nix.gc is a systemd timer, which never runs here; the daemon collects
+    # garbage itself mid-build instead, before the heartbeat's 90% disk check.
+    nix.settings.min-free = 15 * 1024 * 1024 * 1024;
+    nix.settings.max-free = 30 * 1024 * 1024 * 1024;
 
     # Android's "paranoid networking" only lets members of aid_inet (3003) and
     # aid_net_raw (3004) open sockets. Builds that fetch run as nixbld users.
