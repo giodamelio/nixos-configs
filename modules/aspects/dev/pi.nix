@@ -48,6 +48,7 @@
         (unset-env "ANTHROPIC_API_KEY")
         (unset-env "DBUS_SESSION_BUS_ADDRESS")
         (unset-env "SSH_AUTH_SOCK")
+        github-token
 
         readonly-home
       ];

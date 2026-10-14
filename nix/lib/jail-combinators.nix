@@ -149,6 +149,15 @@ inputs.jail-nix.lib.extend {
         fi
       '';
 
+      # Public-repo read-only PAT, only to lift the unauthenticated rate limit.
+      github-token = add-runtime ''
+        if ! GITHUB_TOKEN="$(${pkgs.libsecret}/bin/secret-tool lookup service github-readonly)"; then
+          echo "jail: no github-readonly token in keyring" >&2
+          exit 1
+        fi
+        RUNTIME_ARGS+=(--setenv GITHUB_TOKEN "$GITHUB_TOKEN" --setenv GH_TOKEN "$GITHUB_TOKEN")
+      '';
+
       # Unset an environment variable inside the jail
       unset-env = var:
         add-runtime ''
