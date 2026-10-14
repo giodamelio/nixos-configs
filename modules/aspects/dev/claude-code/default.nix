@@ -22,7 +22,6 @@ _: {
     # No-operand `rtk read` (what the hook rewrites a bare cat/head/tail into)
     # crash-exits 127 instead of reading stdin like cat. Patch reads stdin.
     # REMIND-ME-TO: Drop rtk-read-stdin.patch issue_closed=github:rtk-ai/rtk#2095
-    # REMIND-ME-TO: Drop rtk-read-stdin.patch issue_closed=github:rtk-ai/rtk#2369
     rtk = perSystem.llm-agents.rtk.overrideAttrs (old: {
       patches = (old.patches or []) ++ [./rtk-read-stdin.patch];
     });

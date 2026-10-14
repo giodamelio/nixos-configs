@@ -205,10 +205,8 @@
     # Camoufox anti-detect browser + automation tooling.
     camoufox-nix.url = "github:maximoffua/camoufox-nix";
 
-    # Fabric CLI. Using my fork's update-nixpkgs branch until upstream takes it.
-    # REMIND-ME-TO: Switch back to upstream Fabric pr_merged=github:danielmiessler/Fabric#2186
-    # fabric.url = "github:danielmiessler/Fabric";
-    fabric.url = "github:giodamelio/fabric?ref=update-nixpkgs";
+    # Fabric CLI.
+    fabric.url = "github:danielmiessler/Fabric";
     fabric.inputs.nixpkgs.follows = "nixpkgs";
 
     # Reach the other machine's localhost over a WireGuard tunnel.

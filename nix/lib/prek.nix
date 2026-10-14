@@ -75,19 +75,12 @@
             pass_filenames = false;
           }
           {
-            id = "flake-checker";
-            name = "flake-checker";
-            entry = "${lib.getExe pkgs.flake-checker} -f";
-            language = "system";
-            files = "(^flake\\.nix$|^flake\\.lock$)";
-            pass_filenames = false;
-          }
-          {
             id = "shellcheck";
             name = "shellcheck";
             entry = "${lib.getExe pkgs.shellcheck}";
             language = "system";
             types = ["shell"];
+            exclude_types = ["zsh"]; # shellcheck cannot parse zsh
           }
           {
             id = "stylua";
@@ -144,7 +137,6 @@
     pkgs.prek
     pkgs.deadnix
     pkgs.statix
-    pkgs.flake-checker
     pkgs.shellcheck
     pkgs.stylua
     pkgs.selene

@@ -71,11 +71,7 @@
   ];
 
   # ---- Host: cesium-specific config (merges with ./hardware.nix) ----
-  den.aspects.cesium.nixos = {
-    perSystem,
-    pkgs,
-    ...
-  }: {
+  den.aspects.cesium.nixos = {pkgs, ...}: {
     gio.rayfish.enable = true;
 
     # On-screen keyboard + Chromebook keyboard remapping (was cesium/niri.nix).

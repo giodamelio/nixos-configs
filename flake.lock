@@ -547,17 +547,16 @@
         "treefmt-nix": "treefmt-nix_6"
       },
       "locked": {
-        "lastModified": 1785787808,
-        "narHash": "sha256-s3T/r+8nkXz79WAnjHtPp6kaYBBuSD6KHWT1h7X27hY=",
-        "owner": "giodamelio",
-        "repo": "fabric",
-        "rev": "2580d130c02dc324a474ee9335c6e130ce70720d",
+        "lastModified": 1791908053,
+        "narHash": "sha256-V6SQtTMNiQcsqVvS3nsNZPLtVZ7PWCWwze2A/GrAnYs=",
+        "owner": "danielmiessler",
+        "repo": "Fabric",
+        "rev": "dde3fc49f29098f1b7b0a07bd740c32607f7f055",
         "type": "github"
       },
       "original": {
-        "owner": "giodamelio",
-        "ref": "update-nixpkgs",
-        "repo": "fabric",
+        "owner": "danielmiessler",
+        "repo": "Fabric",
         "type": "github"
       }
     },
