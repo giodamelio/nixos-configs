@@ -56,7 +56,7 @@ in {
 
     # Fleet NFS over TLS client: mounts gallium's /tank/forgejo + /tank/paperless
     # (mounts declared in nfs.nix).
-    nfs.enable = false; # TEMP(NIXOS-103)
+    nfs.enable = true;
 
     # The `server` user with its Home-Manager environment (the old
     # homeModules.users-server). Matches gallium's server user; carbon's account
