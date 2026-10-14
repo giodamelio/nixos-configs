@@ -4,7 +4,7 @@
 # certificate first (`ca-enroll-host <host> nfs` on strontium).
 _: {
   fleet.nfs.mounts = {
-    forgejo.gallium."/tank/forgejo".carbon."/mnt/forgejo-repos" = {};
-    paperless-ngx.gallium."/tank/paperless".carbon."/mnt/paperless-media" = {};
+    forgejo.gallium."/tank/forgejo".carbon."/var/lib/forgejo/repositories" = {};
+    paperless-ngx.gallium."/tank/paperless".carbon."/var/lib/paperless/media" = {};
   };
 }

@@ -1,5 +1,5 @@
 # paperless — document management (paperless.gio.ninja) with OIDC, postgres
-# created locally, media on the NFS-mounted /mnt/paperless-media (see nfs.nix).
+# created locally, media on the NFS-mounted /var/lib/paperless/media (see nfs.nix).
 # The flat env file moves to a fleet.secrets credential sourced at script start
 # (paperless' own EnvironmentFile runs before systemd credentials are decrypted,
 # so we source it in a mkBefore script — as in Blueprint). gotenberg is moved off
@@ -12,7 +12,6 @@ _: {
       address = "127.0.0.1";
       database.createLocally = true;
       configureTika = true;
-      mediaDir = "/mnt/paperless-media";
       settings = {
         PAPERLESS_URL = "https://paperless.gio.ninja";
         PAPERLESS_OCR_LANGUAGE = "eng";

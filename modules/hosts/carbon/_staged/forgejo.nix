@@ -1,5 +1,5 @@
 # forgejo — git forge (forgejo.gio.ninja) with PocketID SSO and a nix Actions
-# runner. Repos live on the NFS-mounted /mnt/forgejo-repos (see nfs.nix); the
+# runner. Repos live on the NFS-mounted /var/lib/forgejo/repositories (see nfs.nix); the
 # forgejo user joins the nfs-forgejo group and the service waits on the mount via
 # the fleet.services `mounts` facet. OIDC + runner secrets move to fleet.secrets
 # credentials. Converted from nix/hosts/carbon/forgejo.nix.
@@ -79,11 +79,10 @@ _: {
         createDatabase = true;
       };
 
-      repositoryRoot = "/mnt/forgejo-repos";
-
       lfs = {
         enable = true;
-        contentDir = "/mnt/forgejo-repos/lfs";
+        # LFS objects live on the repositories share, not local disk.
+        contentDir = "/var/lib/forgejo/repositories/lfs";
       };
 
       settings = {
