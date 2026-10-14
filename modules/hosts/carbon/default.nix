@@ -19,10 +19,11 @@ in {
     ssh.hostKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIX5P0ZXB1SUbiDrm42t19GEsz80dw+yI0GoO0tYlJsn";
 
     # Consul server (bind interface + retry_join derive from host.network).
-    # TEMP(NIXOS-103): off for the minimal first boot; back on with wave 1.
     consul = {
-      enable = false;
+      enable = true;
       server = true;
+      # Loopback-only (consul's default client_addr); reach it via ssh -L 8500:127.0.0.1:8500.
+      webUi = true;
     };
 
     # Authoritative DNS replica (gallium serves the same zone; see fleet.dns).
@@ -102,11 +103,7 @@ in {
   ];
 
   # Host-specific config (merges with hardware.nix + disko.nix + service files).
-  den.aspects.carbon.nixos = {
-    lib,
-    pkgs,
-    ...
-  }: {
+  den.aspects.carbon.nixos = {pkgs, ...}: {
     environment.systemPackages = [pkgs.pgcli]; # was carbon's postgresql.nix
 
     networking = {
@@ -116,14 +113,6 @@ in {
         allowPing = true;
       };
       nftables.enable = true;
-    };
-
-    # Consul: serve the read-only web UI locally and bind the cluster to eno1.
-    # The old external read-only consul vhost is dropped (mTLS removed; reach
-    # the UI over the VPN).
-    services.consul = {
-      webUi = lib.mkForce true;
-      interface.bind = "eno1";
     };
 
     nixpkgs.config.allowUnfree = true;

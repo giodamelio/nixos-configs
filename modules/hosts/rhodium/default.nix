@@ -35,6 +35,9 @@ in {
 
     # Authoritative DNS replica (gallium and carbon serve the same zone).
     dns.serve.enable = true;
+
+    # Third Consul server, so the cluster keeps quorum when any one host is down.
+    consul.enable = true;
   };
 
   # Run the heartbeat collector (pushes to its own Healthchecks check).
