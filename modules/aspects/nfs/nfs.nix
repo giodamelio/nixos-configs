@@ -114,8 +114,11 @@ in {
             type = "nfs";
             # addr= is normally added by the mount.nfs helper; systemd's mount path
             # doesn't, so pass it explicitly (else "didn't pass remote address").
+            # proto=tcp pins IPv4: mount.nfs prefers the AAAA record, but exports
+            # and the firewall rule are keyed by IPv4 address.
             options = lib.concatStringsSep "," [
               "nfsvers=4.2"
+              "proto=tcp"
               "xprtsec=mtls"
               "noatime"
               "addr=${addressOf m.server.host}"
@@ -124,6 +127,8 @@ in {
             after = ["tlshd.service" "network-online.target"];
             wants = ["tlshd.service" "network-online.target"];
             wantedBy = ["remote-fs.target"];
+            # Skipped, not hung, until enrolled; nfs-cert-enroll starts them after.
+            unitConfig.ConditionPathExists = "/var/lib/step-nfs/cert.pem";
           })
           myMounts;
 

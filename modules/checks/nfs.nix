@@ -30,6 +30,12 @@ _: {
       nfs-b = "192.168.1.2";
       nfs-c = "192.168.1.3";
     };
+    # The driver's own IPv6 addresses, which its /etc/hosts entries already use.
+    ulaOf = {
+      nfs-a = "2001:db8:1::1";
+      nfs-b = "2001:db8:1::2";
+      nfs-c = "2001:db8:1::3";
+    };
   in {
     denTests.fleet-nfs = {
       fleet = _: {
@@ -37,7 +43,10 @@ _: {
           lib.recursiveUpdate (lib.genAttrs hosts (h: {
             ssh.hostKey = null;
             nfs.enable = true;
-            network.interfaces.eth1.address = addressOf.${h};
+            network.interfaces.eth1 = {
+              address = addressOf.${h};
+              ula = "${ulaOf.${h}}/64";
+            };
           })) {
             nfs-b.services.demo-consumer = {
               unit = "demo-consumer";
@@ -82,10 +91,15 @@ _: {
         ...
       }: {
         networking.nftables.enable = true;
+        # AAAA records too, as the real zone has: mount.nfs prefers them, while
+        # exports and the firewall are IPv4-only.
         networking.extraHosts = lib.mkAfter ''
           ${nodes.nfsa.networking.primaryIPAddress} nfs-a nfs-a.gio.ninja
           ${nodes.nfsb.networking.primaryIPAddress} nfs-b nfs-b.gio.ninja
           ${nodes.nfsc.networking.primaryIPAddress} nfs-c nfs-c.gio.ninja
+          ${ulaOf.nfs-a} nfs-a nfs-a.gio.ninja
+          ${ulaOf.nfs-b} nfs-b nfs-b.gio.ninja
+          ${ulaOf.nfs-c} nfs-c nfs-c.gio.ninja
         '';
         # Stand-in for a completed nfs-cert-enroll. The VM's hostname is the
         # node name (nfsa), so map it back to the den host.
@@ -113,6 +127,10 @@ _: {
             # driver ever numbering the vlan differently.
             assert f"{addr}/" in m.succeed("ip -4 -o addr show eth1"), f"{m.name} is not {addr}"
 
+        with subtest("the server's name resolves to IPv6 first, as on the real LAN"):
+            first = nfsb.succeed("getent ahosts nfs-a.gio.ninja | head -1").split()[0]
+            assert ":" in first, f"nfs-a.gio.ninja resolves to {first} first"
+
         with subtest("the export is restricted to the client's address and requires mTLS"):
             nfsa.wait_for_unit("nfs-server.service")
             print(nfsa.execute("journalctl -b -u nfs-server.service --no-pager | tail -20")[1])
@@ -128,8 +146,9 @@ _: {
             m.succeed("mkdir -p /mnt/probe")
             # nosharecache: otherwise the kernel hands back the superblock of any
             # existing mount of the same export, with its xprtsec, ignoring ours.
+            # proto=tcp so the export ACL is what refuses, not the IPv6 firewall.
             rc, out = m.execute(
-                f"timeout 60 mount -t nfs -o nfsvers=4.2,nosharecache,xprtsec={sec} "
+                f"timeout 60 mount -t nfs -o nfsvers=4.2,proto=tcp,nosharecache,xprtsec={sec} "
                 "nfs-a.gio.ninja:/srv/demo /mnt/probe 2>&1"
             )
             if rc != 0:

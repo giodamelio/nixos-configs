@@ -28,6 +28,8 @@ in {
         step ca certificate --token "$token" ${stepArgs} --force \
           ${fqdn} ${dir}/cert.pem ${dir}/key.pem
         systemctl restart tlshd.service
+        # Re-pulls the mounts that were skipped while the host had no cert.
+        systemctl start --no-block remote-fs.target
       '';
     };
 
