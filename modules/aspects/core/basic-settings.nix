@@ -31,6 +31,7 @@
           "https://cache.numtide.com"
           "https://nvf.cachix.org"
           "https://devenv.cachix.org"
+          "https://unison-cloud-in-a-bottle.cachix.org"
         ];
 
         trusted-public-keys = [
@@ -43,6 +44,7 @@
           "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
           "nvf.cachix.org-1:GMQWiUhZ6ux9D5CvFFMwnc2nFrUHTeGaXRlVBXo+naI="
           "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
+          "unison-cloud-in-a-bottle.cachix.org-1:egpjVQf3JrKM0bo39Gh3JKOMeEbyyk8t0VSH6455r8w="
         ];
 
         # Dedicated netrc for private substituter auth (the Gradient cache),

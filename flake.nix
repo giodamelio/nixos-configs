@@ -227,5 +227,8 @@
     # Upstream niri package; niri-flake above only supplies the modules.
     niri-wm.url = "github:niri-wm/niri";
     niri-wm.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Self-hosted Unison Cloud packages. Not following nixpkgs so the Cachix builds hit.
+    unison-cloud-in-a-bottle.url = "github:giodamelio/unison-cloud-in-a-bottle";
   };
 }
