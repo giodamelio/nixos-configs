@@ -16,6 +16,12 @@
         }
 
         def resolve-bin [bin: string] {
+          if (which nix-locate | is-empty) {
+            error make --unspanned {
+              msg: $"can't resolve bin/($bin) to a package: nix-index isn't set up for this user on this host \(no nix-locate on PATH\)"
+              help: $"name the package attribute instead, e.g. `,s <attr> -- ($bin) ...`"
+            }
+          }
           let out = (nix-locate --minimal --at-root --whole-name $"/bin/($bin)")
           # Parenthesised attrs only depend on the package that ships the file.
           let attrs = $out
