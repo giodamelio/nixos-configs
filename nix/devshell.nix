@@ -13,6 +13,14 @@
   prek = flake.lib.prek pkgs flake;
 
   inherit (flake.packages.${system}) deploy;
+
+  # Rebuilt from the checkout on every run: the real package bakes in the zones,
+  # and the devshell isn't re-entered when a service's DNS name changes.
+  fleet-dns = pkgs.writeShellApplication {
+    name = "fleet-dns";
+    runtimeInputs = [pkgs.git];
+    text = ''exec nix run "$(git rev-parse --show-toplevel)#fleet-dns" -- "$@"'';
+  };
 in
   pkgs.mkShell {
     buildInputs =
@@ -43,6 +51,7 @@ in
         pkgs.nixd
         pkgs.efibootmgr
         deploy
+        fleet-dns
 
         pkgs.go
       ]
