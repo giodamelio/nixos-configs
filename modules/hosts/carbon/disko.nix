@@ -182,6 +182,39 @@ in {
                   atime = "off";
                 };
               };
+              grafana = {
+                type = "zfs_fs";
+                mountpoint = "/var/lib/grafana";
+                options = {
+                  mountpoint = "legacy";
+                  atime = "off";
+                };
+              };
+              prometheus = {
+                type = "zfs_fs";
+                # services.prometheus.stateDir defaults to the 2.x-migration name.
+                mountpoint = "/var/lib/prometheus2";
+                options = {
+                  mountpoint = "legacy";
+                  atime = "off";
+                };
+              };
+              loki = {
+                type = "zfs_fs";
+                mountpoint = "/var/lib/loki";
+                options = {
+                  mountpoint = "legacy";
+                  atime = "off";
+                };
+              };
+              netdata = {
+                type = "zfs_fs";
+                mountpoint = "/var/lib/netdata";
+                options = {
+                  mountpoint = "legacy";
+                  atime = "off";
+                };
+              };
             };
           };
         };

@@ -90,6 +90,10 @@ in {
     "bowl/pocket-id"
     "bowl/forgejo"
     "bowl/paperless"
+    "bowl/grafana"
+    "bowl/prometheus"
+    "bowl/loki"
+    "bowl/netdata"
   ];
 
   # Host NixOS feature aspects (the old Blueprint imports that den.default does
