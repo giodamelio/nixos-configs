@@ -97,8 +97,8 @@ _: {
   };
 
   # Secret names are hyphenated (fleet.secrets requires [a-z0-9-]); the blobs are
-  # re-created under these names on deploy. garage-metrics-token is also consumed
-  # by carbon's prometheus — that use-site is added when carbon is migrated.
+  # re-created under these names on deploy. carbon's prometheus reads its own
+  # copy (garage_metrics_token) from agevault, not a push from here.
   fleet.secrets = {
     garage-rpc-secret = {
       origin = "gallium";
@@ -111,7 +111,6 @@ _: {
     garage-metrics-token = {
       origin = "gallium";
       use.gallium.services.garage.type = "credential";
-      use.carbon.services.prometheus.type = "credential"; # carbon prometheus scrape
     };
   };
 }
