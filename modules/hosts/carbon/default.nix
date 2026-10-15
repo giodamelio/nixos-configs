@@ -100,7 +100,7 @@ in {
     # den.aspects.comin
     den.aspects.zfs-backup
     den.aspects.postgresql
-    # den.aspects.nats
+    den.aspects.nats
     # den.aspects.send-metrics
     # den.aspects.deployed-apps # gio.deployedApps + gradient-deployer (eater/yesman)
     # den.aspects.gatus # status page (gio.gatus)
