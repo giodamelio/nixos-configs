@@ -52,12 +52,6 @@ in {
     lib,
     ...
   }: {
-    # This host has only ever had agevault-managed secrets; keep it that way
-    # rather than hand-placing the legacy hyphenated blob for Caddy's TLS.
-    # TODO: drop once carbon+gallium migrate and the knob is deleted (tmp/TODO.md).
-    services.gio.reverse-proxy.cloudflareCredential = "caddy_cloudflare_api_token";
-    fleet.credentials.needs = ["caddy_cloudflare_api_token"];
-
     imports = [
       # Raw sd-image.nix leaves the firmware partition empty (no start4.elf,
       # config.txt, u-boot) — the aarch64 variant is what makes the Pi bootable.

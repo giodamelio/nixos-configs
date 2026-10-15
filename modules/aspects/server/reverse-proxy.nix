@@ -12,21 +12,6 @@ _: {
     options.services.gio.reverse-proxy = with lib; {
       enable = mkEnableOption "Caddy reverse proxy service";
 
-      # agevault names are snake_case, so a host managed by it cannot use the
-      # hyphenated legacy id. Default stays legacy for the carbon/gallium blobs
-      # placed by hand; agevault hosts override.
-      #
-      # TODO: temporary migration knob — delete it. Move carbon's and gallium's
-      # tokens into agevault as `caddy_cloudflare_api_token`, then hardcode that
-      # name here and drop this option and its two override sites. Every host
-      # should be on agevault; this exists only so rhodium didn't have to regress
-      # to a hand-placed blob. See tmp/TODO.md.
-      cloudflareCredential = mkOption {
-        type = types.str;
-        default = "caddy-cloudflare-api-token";
-        description = "systemd credential id holding the Cloudflare DNS API token, loaded by caddy for TLS.";
-      };
-
       virtualHosts = mkOption {
         type = types.attrsOf (types.submodule ({name, ...}: {
           options = {
@@ -95,7 +80,7 @@ _: {
 
     config = lib.mkIf config.services.gio.reverse-proxy.enable (let
       vhosts = config.services.gio.reverse-proxy.virtualHosts;
-      cred = config.services.gio.reverse-proxy.cloudflareCredential;
+      cred = "caddy_cloudflare_api_token";
 
       # A backend is only required when we emit the automatic reverse_proxy; with
       # reverseProxy = false the extraConfig owns routing (file_server, php_fastcgi,
@@ -139,6 +124,8 @@ _: {
           message = "reverse-proxy vhost '${hostname}': with reverseProxy = true, set either socket_path OR both host and port";
         })
         vhosts;
+
+      fleet.credentials.needs = lib.mkIf anyTls [cred];
 
       systemd.services.caddy.serviceConfig = lib.mkIf anyTls {
         LoadCredentialEncrypted = [cred];

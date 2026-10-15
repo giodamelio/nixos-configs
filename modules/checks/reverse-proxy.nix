@@ -171,7 +171,7 @@ _: {
           assert "dnsonly" not in cfg, "DNS-only endpoint must not produce a Caddy site"
 
       with subtest("all-HTTP: Caddy loaded no Cloudflare credential"):
-          web.fail("systemctl show caddy.service -p LoadCredentialEncrypted | grep -q caddy-cloudflare")
+          web.fail("systemctl show caddy.service -p LoadCredentialEncrypted | grep -q caddy_cloudflare")
     '';
   };
 }
