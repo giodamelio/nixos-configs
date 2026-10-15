@@ -96,6 +96,7 @@ in {
     den.aspects.lil-scripts
     den.aspects.server-heartbeat
     # den.aspects.onepassword
+    # REMIND-ME-TO: Re-enable comin once origin/main matches what is deployed (NIXOS-119) date_passed=2026-10-22
     # den.aspects.comin
     den.aspects.zfs-backup
     den.aspects.postgresql

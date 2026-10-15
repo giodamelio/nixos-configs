@@ -27,7 +27,8 @@
     # Run the heartbeat collector (pushes to its own Healthchecks check).
     den.aspects.server-heartbeat
     # Rebuilds itself from main; it builds aarch64 natively and holds no state.
-    den.aspects.comin
+    # REMIND-ME-TO: Re-enable comin once origin/main matches what is deployed (NIXOS-119) date_passed=2026-10-22
+    # den.aspects.comin
   ];
 
   den.aspects.oganesson.nixos = {modulesPath, ...}: {
