@@ -74,6 +74,8 @@
     ];
   };
 
+  fleet.backups.zfs.cadmium = ["tank/home" "tank/root"];
+
   # ---- Host: NixOS feature aspects ----
   den.aspects.cadmium.includes = [
     den.aspects.wifi
@@ -124,15 +126,6 @@
 
     # Gaming
     environment.systemPackages = [pkgs.discord];
-
-    # Autosnapshot ZFS and send to NAS. tank/nix gets a shorter schedule below.
-    gio.zfs_backup = {
-      enable = true;
-      datasets = [
-        "tank/home"
-        "tank/root"
-      ];
-    };
 
     # Short schedule for the reproducible Nix store; long retention pins GC'd
     # store paths and balloons disk usage.

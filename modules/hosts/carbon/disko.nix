@@ -119,15 +119,6 @@ in {
                   mountpoint = "legacy";
                 };
               };
-              postgresql = {
-                type = "zfs_fs";
-                mountpoint = "/var/lib/postgresql";
-                options = {
-                  mountpoint = "legacy";
-                  recordsize = "16k";
-                  atime = "off";
-                };
-              };
             };
           };
           bowl = {
@@ -156,6 +147,15 @@ in {
                 options = {
                   mountpoint = "none";
                   reservation = "10G";
+                };
+              };
+              postgresql = {
+                type = "zfs_fs";
+                mountpoint = "/var/lib/postgresql";
+                options = {
+                  mountpoint = "legacy";
+                  recordsize = "16k";
+                  atime = "off";
                 };
               };
             };

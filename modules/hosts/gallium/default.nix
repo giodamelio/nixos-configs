@@ -100,6 +100,7 @@ in {
 
     gio.zfs_backup = {
       enable = true;
+      makeRecvUser = true;
       datasets = [
         "boot"
         "boot/garage_metadata"

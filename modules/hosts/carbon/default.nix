@@ -85,6 +85,8 @@ in {
     ];
   };
 
+  fleet.backups.zfs.carbon = ["bowl/postgresql"];
+
   # Host NixOS feature aspects (the old Blueprint imports that den.default does
   # not already provide). Same infra set as gallium; per-service files arrive
   # alongside this one. mtls is intentionally NOT ported (removed fleet-wide).
@@ -94,7 +96,7 @@ in {
     den.aspects.lil-scripts
     # den.aspects.onepassword
     # den.aspects.comin
-    # den.aspects.zfs-backup
+    den.aspects.zfs-backup
     # den.aspects.postgresql
     # den.aspects.nats
     # den.aspects.send-metrics
