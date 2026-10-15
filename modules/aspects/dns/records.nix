@@ -20,6 +20,8 @@ in {
   # the same dns.nix `subdomains` option). SOA/NS are mkDefault so a consumer can
   # override but never has to supply them.
   config.fleet.dns.zones.${domain} = {
+    # dns.nix defaults to a day, too long to wait out when a service moves hosts.
+    TTL = lib.mkDefault 300;
     SOA = lib.mkDefault {
       nameServer = "ns.${domain}.";
       adminEmail = "hostmaster@${domain}";
