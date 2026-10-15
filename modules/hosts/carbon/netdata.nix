@@ -1,10 +1,6 @@
 # netdata parent on carbon (netdata.gio.ninja) — dbengine store, cloud UI, accepts
-# child streams (gallium) authenticated by the shared api-key. Pushover health
-# alerts. Now that carbon is a den host the shared netdata-api-key flips to
-# origin=carbon (the parent owns it) and is consumed by both the carbon parent and
-# the gallium child; gallium/netdata.nix no longer declares it. cronitor (the
-# Blueprint watchdog) is not ported — no den cronitor aspect yet. Converted from
-# nix/hosts/carbon/netdata.nix + netdata-parent.nix + netdata-integrations.nix.
+# child streams (gallium) authenticated by the shared api-key, which agevault
+# holds a copy of for each host. Pushover health alerts.
 _: {
   den.aspects.carbon.nixos = {
     pkgs,
@@ -33,7 +29,7 @@ _: {
       };
 
       configDir."stream.conf" = pkgs.writeText "stream.conf" ''
-        [file:/run/credentials/netdata.service/netdata-api-key]
+        [file:/run/credentials/netdata.service/netdata_api_key]
             enabled = yes
             allow from = *
       '';
@@ -41,9 +37,20 @@ _: {
 
     environment.etc."netdata/health_alarm_notify.conf".source = pkgs.writeText "health_alarm_notify.conf" ''
       SEND_PUSHOVER="YES"
-      PUSHOVER_APP_TOKEN="$(cat /run/credentials/netdata.service/netdata-pushover-app-token)"
-      DEFAULT_RECIPIENT_PUSHOVER="$(cat /run/credentials/netdata.service/netdata-pushover-user-token)"
+      PUSHOVER_APP_TOKEN="$(cat /run/credentials/netdata.service/netdata_pushover_app_token)"
+      DEFAULT_RECIPIENT_PUSHOVER="$(cat /run/credentials/netdata.service/netdata_pushover_user_token)"
     '';
+
+    fleet.credentials.needs = [
+      "netdata_api_key"
+      "netdata_pushover_app_token"
+      "netdata_pushover_user_token"
+    ];
+    systemd.services.netdata.serviceConfig.LoadCredentialEncrypted = [
+      "netdata_api_key"
+      "netdata_pushover_app_token"
+      "netdata_pushover_user_token"
+    ];
 
     # netdata postgres collector (was netdata-integrations.nix); carbon runs postgres.
     services.postgresql = lib.mkIf config.services.postgresql.enable {
@@ -70,26 +77,5 @@ _: {
       backend.port = 19999;
     };
     healthcheck.target = "https://netdata.gio.ninja";
-  };
-
-  fleet.secrets = {
-    # Shared stream key — origin is now carbon (the parent validates children
-    # against it); delivered to both the carbon parent and the gallium child.
-    netdata-api-key = {
-      origin = "carbon";
-      use.carbon.services.netdata.type = "credential";
-      use.gallium.services.netdata = {
-        type = "credential";
-        restartOnChange = true;
-      };
-    };
-    netdata-pushover-app-token = {
-      origin = "carbon";
-      use.carbon.services.netdata.type = "credential";
-    };
-    netdata-pushover-user-token = {
-      origin = "carbon";
-      use.carbon.services.netdata.type = "credential";
-    };
   };
 }

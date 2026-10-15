@@ -92,7 +92,7 @@ _: {
     "prometheus-endpoint" = {
       target = "admin.garage.gio.ninja";
       scheme = "https";
-      auth.credentialsFile = "/run/credentials/prometheus.service/garage-metrics-token";
+      auth.credentialsFile = "/run/credentials/prometheus.service/garage_metrics_token";
     };
   };
 

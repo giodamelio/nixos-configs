@@ -6,9 +6,17 @@ _: {
   den.aspects.send-metrics.nixos = {
     config,
     lib,
+    pkgs,
     ...
   }: {
-    services.alloy.enable = true;
+    services.alloy = {
+      enable = true;
+      # nixpkgs links alloy against systemdLibs, built without compression, so
+      # libsystemd silently skips journald's zstd files and loki.source.journal
+      # reads nothing. Fixed upstream by NixOS/nixpkgs#571072 (staging, e143584).
+      # REMIND-ME-TO: Drop the full-systemd alloy override once nixpkgs#571072 is in our nixos-unstable lock date_passed=2026-11-01
+      package = pkgs.grafana-alloy.override {systemdLibs = pkgs.systemd;};
+    };
 
     environment.etc."alloy/config.alloy".text = ''
       loki.write "loki" {

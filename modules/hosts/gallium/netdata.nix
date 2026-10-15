@@ -1,7 +1,6 @@
 # netdata child on gallium — streams metrics to carbon's netdata parent
-# (carbon.gio.ninja:19999). The shared stream api-key is a fleet.secrets credential
-# (declared on the carbon parent, origin=carbon; this child is a use-site); it is
-# read from /run/credentials/netdata.service/netdata-api-key.
+# (carbon.gio.ninja:19999), authenticated by the stream api-key shared with the
+# parent (agevault holds a copy for each host).
 #
 # cronitor (the dead-man's-switch the Blueprint child also carried) is NOT ported
 # here — the parent's own health alarms cover a child going stale.
@@ -36,9 +35,12 @@ _: {
         [stream]
             enabled = yes
             destination = carbon.gio.ninja:19999
-            api key = file:/run/credentials/netdata.service/netdata-api-key
+            api key = file:/run/credentials/netdata.service/netdata_api_key
       '';
     };
+
+    fleet.credentials.needs = ["netdata_api_key"];
+    systemd.services.netdata.serviceConfig.LoadCredentialEncrypted = ["netdata_api_key"];
 
     # netdata postgres collector (was netdata-integrations.nix). gallium runs
     # postgres, so grant netdata a read-only monitoring role over a peer socket.
@@ -56,8 +58,4 @@ _: {
       psql -tAc "GRANT pg_monitor TO netdata"
     '');
   };
-
-  # The shared netdata-api-key is now declared in modules/hosts/carbon/netdata.nix
-  # (origin=carbon, the parent); this child is a use-site there. It still reads the
-  # key from /run/credentials/netdata.service/netdata-api-key.
 }

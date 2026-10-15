@@ -15,7 +15,7 @@ _: {
           url = "https://unifi.gio.ninja";
           verify_ssl = false;
           user = "unpoller";
-          pass = "/run/credentials/unifi-poller.service/unifi-controller-unpoller-password";
+          pass = "/run/credentials/unifi-poller.service/unifi_controller_unpoller_password";
 
           save_ids = true;
           save_events = true;
@@ -26,6 +26,14 @@ _: {
       influxdb.disable = true;
       loki.url = "http://localhost:3100";
     };
+
+    fleet.credentials.needs = [
+      "unifi_controller_unpoller_password"
+      # garage's scrape job (gallium garage.nix) reads it from prometheus' credentials.
+      "garage_metrics_token"
+    ];
+    systemd.services.unifi-poller.serviceConfig.LoadCredentialEncrypted = ["unifi_controller_unpoller_password"];
+    systemd.services.prometheus.serviceConfig.LoadCredentialEncrypted = ["garage_metrics_token"];
   };
 
   den.hosts.x86_64-linux.carbon.services.prometheus = {
@@ -125,11 +133,4 @@ _: {
       };
     }
   ];
-
-  # gradient-metrics-token + garage-metrics-token get their prometheus use-sites
-  # in gradient.nix / gallium garage.nix. Only the unpoller password is unique here.
-  fleet.secrets.unifi-controller-unpoller-password = {
-    origin = "carbon";
-    use.carbon.services.unifi-poller.type = "credential";
-  };
 }

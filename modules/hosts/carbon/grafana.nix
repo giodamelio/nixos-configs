@@ -1,7 +1,5 @@
-# grafana — metrics/logs UI (grafana.gio.ninja). secret_key moves from
-# gio.credentials to a fleet.secrets credential on grafana.service ($__file points
-# at the credential path). Datasources stay pointed at the prometheus/loki vhosts.
-# Converted from nix/hosts/carbon/grafana.nix.
+# grafana — metrics/logs UI (grafana.gio.ninja). Datasources point at the
+# prometheus/loki vhosts; dashboards live in grafana's own DB.
 _: {
   den.aspects.carbon.nixos = {
     services.grafana = {
@@ -14,7 +12,8 @@ _: {
           enforce_domain = true;
         };
         analytics.reporting_enabled = false;
-        security.secret_key = "$__file{/run/credentials/grafana.service/grafana-secret-key}";
+        # Must keep its value: it encrypts secrets stored in grafana's DB.
+        security.secret_key = "$__file{/run/credentials/grafana.service/grafana_secret_key}";
       };
 
       provision = {
@@ -36,6 +35,9 @@ _: {
         ];
       };
     };
+
+    fleet.credentials.needs = ["grafana_secret_key"];
+    systemd.services.grafana.serviceConfig.LoadCredentialEncrypted = ["grafana_secret_key"];
   };
 
   den.hosts.x86_64-linux.carbon.services.grafana = {
@@ -45,10 +47,5 @@ _: {
       backend.port = 3000;
     };
     healthcheck.target = "https://grafana.gio.ninja/api/health";
-  };
-
-  fleet.secrets.grafana-secret-key = {
-    origin = "carbon";
-    use.carbon.services.grafana.type = "credential";
   };
 }
