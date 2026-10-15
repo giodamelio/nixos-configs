@@ -1,9 +1,9 @@
 # forgejo — git forge (forgejo.gio.ninja) with PocketID SSO and a nix Actions
-# runner. Repos live on the NFS-mounted /var/lib/forgejo/repositories (see nfs.nix); the
-# forgejo user joins the nfs-forgejo group and the service waits on the mount via
-# the fleet.services `mounts` facet. OIDC + runner secrets move to fleet.secrets
-# credentials. Converted from nix/hosts/carbon/forgejo.nix.
+# runner. Repos live on gallium over NFS; the PocketID login source is stored in
+# forgejo's own DB, so no OIDC credentials are loaded here.
 _: {
+  fleet.nfs.mounts.forgejo.gallium."/tank/forgejo".carbon."/var/lib/forgejo/repositories" = {};
+
   den.aspects.carbon.nixos = {
     lib,
     pkgs,
@@ -150,10 +150,10 @@ _: {
       labels = ["nix:host"];
       user = "forgejo-runner";
       group = "forgejo-runner";
-      credential = "forgejo-runner-env";
+      credential = "forgejo_runner_env";
+      extraServiceConfig.LoadCredentialEncrypted = ["forgejo_runner_env"];
       stateDir = "forgejo-runner";
       hostPackages = with pkgs; [
-        attic-client
         bash
         coreutils
         curl
@@ -181,6 +181,8 @@ _: {
       createHome = true;
     };
     users.groups.forgejo-runner = {};
+
+    fleet.credentials.needs = ["forgejo_runner_env"];
   };
 
   den.hosts.x86_64-linux.carbon.services.forgejo = {
@@ -193,14 +195,5 @@ _: {
     };
     healthcheck.target = "https://forgejo.gio.ninja/api/v1/version";
     mounts = ["forgejo"]; # wait for the NFS repo mount before starting
-  };
-
-  fleet.secrets = {
-    forgejo-oidc-client-id.origin = "carbon";
-    forgejo-oidc-client-id.use.carbon.services.forgejo.type = "credential";
-    forgejo-oidc-client-secret.origin = "carbon";
-    forgejo-oidc-client-secret.use.carbon.services.forgejo.type = "credential";
-    forgejo-runner-env.origin = "carbon";
-    forgejo-runner-env.use.carbon.services.forgejo-runner-build.type = "credential";
   };
 }

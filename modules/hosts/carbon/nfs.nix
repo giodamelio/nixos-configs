@@ -5,7 +5,6 @@
 # into its service's file when that service leaves _staged/.
 _: {
   fleet.nfs.mounts = {
-    forgejo.gallium."/tank/forgejo".carbon."/var/lib/forgejo/repositories" = {};
     paperless-ngx.gallium."/tank/paperless".carbon."/var/lib/paperless/media" = {};
   };
 }
