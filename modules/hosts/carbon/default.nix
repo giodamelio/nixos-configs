@@ -98,7 +98,7 @@ in {
     # den.aspects.onepassword
     # den.aspects.comin
     den.aspects.zfs-backup
-    # den.aspects.postgresql
+    den.aspects.postgresql
     # den.aspects.nats
     # den.aspects.send-metrics
     # den.aspects.deployed-apps # gio.deployedApps + gradient-deployer (eater/yesman)
@@ -108,6 +108,9 @@ in {
   # Host-specific config (merges with hardware.nix + disko.nix + service files).
   den.aspects.carbon.nixos = {pkgs, ...}: {
     environment.systemPackages = [pkgs.pgcli]; # was carbon's postgresql.nix
+
+    # The old carbon's 17 cluster in bowl/postgresql is pg_upgraded by hand (NIXOS-117).
+    services.postgresql.package = pkgs.postgresql_18;
 
     networking = {
       hostId = "3a06cc0b";
