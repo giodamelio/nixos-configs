@@ -424,9 +424,11 @@ in {
 
       # agetty reads /run/issue.d natively (console); login shells (incl. ssh)
       # print it here, since NixOS pam_motd only serves a single static file.
+      # Only on a terminal, and to stderr: ssh commands (git, scp, rsync) read
+      # stdout as their protocol stream.
       environment.loginShellInit = ''
-        if [ -s /run/issue.d/fleet-secrets.issue ]; then
-          cat /run/issue.d/fleet-secrets.issue
+        if [ -t 1 ] && [ -s /run/issue.d/fleet-secrets.issue ]; then
+          cat /run/issue.d/fleet-secrets.issue >&2
         fi
       '';
     })
