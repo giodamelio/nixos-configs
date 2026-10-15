@@ -111,6 +111,7 @@ in {
     environment.systemPackages = [pkgs.pgcli]; # was carbon's postgresql.nix
 
     # The old carbon's 17 cluster in bowl/postgresql is pg_upgraded by hand (NIXOS-117).
+    # REMIND-ME-TO: rm -rf /var/lib/postgresql/17 and destroy bowl/postgresql@pre-pg18 and @post-pg18 on carbon (NIXOS-118) date_passed=2026-10-22
     services.postgresql.package = pkgs.postgresql_18;
 
     networking = {
