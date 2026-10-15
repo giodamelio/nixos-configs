@@ -1,4 +1,4 @@
-# gallium — QNAP TS-462 NAS (NixOS). Storage host: garage S3, attic cache,
+# gallium — QNAP TS-462 NAS (NixOS). Storage host: garage S3, niks3 cache,
 # immich, jellyfin media stack, syncthing, samba, plus the fleet NFS exports.
 # Migrated from nix/hosts/gallium/. Hardware + ZFS filesystems live in sibling
 # files (also gallium.nixos contributions); services arrive as their own aspects.
@@ -109,8 +109,6 @@ in {
         "boot/reserve"
         "boot/root"
         "tank"
-        "tank/attic"
-        "tank/attic_storage"
         "tank/garage"
         "tank/hard-drive-dumping-zone"
         "tank/immich"

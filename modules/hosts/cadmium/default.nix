@@ -83,7 +83,6 @@
     den.aspects.fonts
     den.aspects.onepassword
     den.aspects.yubikey
-    den.aspects.attic-client
     den.aspects.niks3-client
     den.aspects.basic-packages-desktop
 

@@ -147,7 +147,6 @@ useDescription = "Hammond AI agent"
   "*.s3.garage",
   "*.web.garage",
   "admin.garage",
-  "attic",
   "jellyfin",
   "prowlarr",
   "sonarr",

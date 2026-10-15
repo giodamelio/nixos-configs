@@ -58,7 +58,6 @@
     den.aspects.onepassword
     den.aspects.yubikey
     den.aspects.fonts
-    den.aspects.attic-client
     den.aspects.pipewire
     den.aspects.battery-optimization
     den.aspects.software-development
