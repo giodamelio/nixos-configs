@@ -26,9 +26,11 @@ _: {
       "rewrite ttl regex .* 0-${toString host.dns.serve.maxTtl}";
 
     # Names missing from a fleet zone fall through to Cloudflare, whose SOA
-    # tells clients to cache the miss for 30 minutes. Capping TTLs here (the
-    # rewrite also covers the SOA in the authority section) means a name looked
-    # up before its record exists is retried within a minute.
+    # says to cache the miss for 30 minutes. The rewrite caps what clients are
+    # told (it also covers the SOA in the authority section), but cache runs
+    # after rewrite on the way back and stores the uncapped answer, so it gets
+    # the same cap. A name looked up before its record exists then resolves
+    # within a minute of the zone gaining it.
     zoneTtlCap =
       if host.dns.serve.maxTtl == null
       then 60
@@ -47,7 +49,10 @@ _: {
             forward . ${upstream}
             rewrite ttl regex .* 0-${toString zoneTtlCap}
             errors
-            cache
+            cache {
+              success 9984 ${toString zoneTtlCap}
+              denial 9984 ${toString zoneTtlCap}
+            }
           }
         '')
         fleet.dns.zones);
