@@ -26,6 +26,15 @@ _: {
       lib.optionalString (host.dns.serve.maxTtl != null)
       "rewrite ttl regex .* 0-${toString host.dns.serve.maxTtl}";
 
+    # Names missing from a fleet zone fall through to Cloudflare, whose SOA
+    # tells clients to cache the miss for 30 minutes. Capping TTLs here (the
+    # rewrite also covers the SOA in the authority section) means a name looked
+    # up before its record exists is retried within a minute.
+    zoneTtlCap =
+      if host.dns.serve.maxTtl == null
+      then 60
+      else lib.min 60 host.dns.serve.maxTtl;
+
     # Authoritative fleet zones: answer from the file, fall through to upstream
     # for anything not in the zone.
     zoneBlocks =
@@ -36,7 +45,7 @@ _: {
               fallthrough
             }
             forward . ${upstream}
-            ${ttlCap}
+            rewrite ttl regex .* 0-${toString zoneTtlCap}
             errors
             cache
           }
