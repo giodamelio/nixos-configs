@@ -10,15 +10,14 @@ _: {
     ...
   }: let
     serves = host.dns.enable && host.dns.serve.enable;
-    # dns.nix renders each zone (already merged with derived records) to an
-    # RFC1035 zone file for coredns's `file` plugin. The zone value was already
-    # evaluated by the fleet.dns.zones option (its dns.nix type bakes in the zone
-    # name as origin), so coerce it directly — re-running dns.lib.toString would
-    # re-evaluate it and clash on the read-only __toString.
-    zoneFiles =
-      lib.mapAttrs
-      (name: zone: pkgs.writeText "${name}.zone" (toString zone))
-      fleet.dns.zones;
+
+    zonesDir = import ./_zones.nix {
+      inherit pkgs lib;
+      inherit (fleet.dns) zones;
+    };
+    # Zones are served from here rather than the store so `fleet-dns push` can
+    # update them between deploys.
+    liveDir = "/var/lib/fleet-dns";
 
     upstream = lib.concatStringsSep " " fleet.dns.upstream;
 
@@ -39,9 +38,10 @@ _: {
     # for anything not in the zone.
     zoneBlocks =
       lib.concatStringsSep "\n"
-      (lib.mapAttrsToList (name: file: ''
+      (lib.mapAttrsToList (name: _zone: ''
           ${name}:53 {
-            file ${file} {
+            file ${liveDir}/${name}.zone {
+              reload 10s
               fallthrough
             }
             forward . ${upstream}
@@ -50,7 +50,7 @@ _: {
             cache
           }
         '')
-        zoneFiles);
+        fleet.dns.zones);
 
     # Forward-only zones (lan -> router, consul -> local agent); mirrors lan-dns.nix.
     forwardBlocks =
@@ -68,6 +68,24 @@ _: {
     lib.mkIf serves {
       # coredns binds 0.0.0.0:53; keep resolved off :53 to avoid a conflict.
       services.resolved.settings.Resolve.DNSStubListener = "no";
+
+      # Install this generation's zones only when they differ from the last ones
+      # a deploy installed, so a reboot or a no-op deploy keeps a newer push.
+      system.activationScripts.fleet-dns-zones.text = ''
+        install -d -m 0755 ${liveDir}
+        if [ "$(cat ${liveDir}/.deployed 2>/dev/null)" != "${zonesDir}" ]; then
+          for f in ${zonesDir}/*.zone; do
+            echo "fleet-dns: installing $(basename "$f") from ${zonesDir}"
+            t=$(mktemp -p ${liveDir} .deploy.XXXXXX)
+            cat "$f" > "$t"
+            chmod 0644 "$t"
+            mv -f "$t" "${liveDir}/$(basename "$f")"
+          done
+          echo "${zonesDir}" > ${liveDir}/.deployed
+        else
+          echo "fleet-dns: zones unchanged since the last deploy (${zonesDir}), keeping ${liveDir} as is"
+        fi
+      '';
 
       services.coredns = {
         enable = true;

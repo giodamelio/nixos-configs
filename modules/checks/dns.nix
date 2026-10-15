@@ -50,6 +50,28 @@ _: {
           out = alpha.succeed("dig +short @127.0.0.1 ns.gio.ninja A")
           addrs = set(out.split())
           assert addrs == {"10.0.0.5", "10.0.0.6"}, f"expected both ns IPs, got {addrs!r}"
+
+      with subtest("TTLs in the fleet zone are capped at 60s"):
+          ttl = int(alpha.succeed("dig +noall +answer @127.0.0.1 static.gio.ninja A | awk '{print $2}'").strip())
+          assert ttl <= 60, f"expected TTL <= 60, got {ttl}"
+
+      # What `fleet-dns push` does: atomically replace the live zone with one
+      # carrying a new record and a new serial.
+      zone = "/var/lib/fleet-dns/gio.ninja.zone"
+      alpha.succeed(
+          f"sed -E 's/\\(([0-9]+) /(4242 /' {zone} > /tmp/pushed.zone",
+          "echo 'pushed.gio.ninja. IN A 10.0.0.42' >> /tmp/pushed.zone",
+          f"mv -f /tmp/pushed.zone {zone}",
+      )
+
+      with subtest("a pushed zone is served without restarting coredns"):
+          alpha.wait_until_succeeds("dig +short @127.0.0.1 pushed.gio.ninja A | grep -x 10.0.0.42", timeout=30)
+
+      with subtest("re-running an unchanged deploy keeps the pushed zone"):
+          out = alpha.succeed("/run/current-system/activate 2>&1")
+          assert "zones unchanged since the last deploy" in out, out
+          alpha.sleep(12)
+          alpha.succeed("dig +short @127.0.0.1 pushed.gio.ninja A | grep -x 10.0.0.42")
     '';
   };
 }
