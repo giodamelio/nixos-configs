@@ -158,6 +158,30 @@ in {
                   atime = "off";
                 };
               };
+              pocket-id = {
+                type = "zfs_fs";
+                mountpoint = "/var/lib/pocket-id";
+                options = {
+                  mountpoint = "legacy";
+                  atime = "off";
+                };
+              };
+              forgejo = {
+                type = "zfs_fs";
+                mountpoint = "/var/lib/forgejo";
+                options = {
+                  mountpoint = "legacy";
+                  atime = "off";
+                };
+              };
+              paperless = {
+                type = "zfs_fs";
+                mountpoint = "/var/lib/paperless";
+                options = {
+                  mountpoint = "legacy";
+                  atime = "off";
+                };
+              };
             };
           };
         };

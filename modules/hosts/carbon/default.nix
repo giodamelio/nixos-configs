@@ -85,7 +85,12 @@ in {
     ];
   };
 
-  fleet.backups.zfs.carbon = ["bowl/postgresql"];
+  fleet.backups.zfs.carbon = [
+    "bowl/postgresql"
+    "bowl/pocket-id"
+    "bowl/forgejo"
+    "bowl/paperless"
+  ];
 
   # Host NixOS feature aspects (the old Blueprint imports that den.default does
   # not already provide). Same infra set as gallium; per-service files arrive
