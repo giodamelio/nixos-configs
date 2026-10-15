@@ -88,7 +88,7 @@ in {
           });
 
           # healthcheck — what to check + what a good response looks like.
-          # gatus and consul are both generators derived from this.
+          # Consul checks are generated from this.
           healthcheckType = types.submodule {
             options = {
               protocol = mkOption {
@@ -232,7 +232,7 @@ in {
               singular = "healthcheck";
               plural = "healthchecks";
               elemType = healthcheckType;
-              pluralDesc = "Health checks (drive gatus + consul).";
+              pluralDesc = "Health checks (drive consul).";
             })
             (mkFacet {
               singular = "prometheus-endpoint";

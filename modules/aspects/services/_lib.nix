@@ -1,6 +1,6 @@
 {lib}: rec {
-  # A healthcheck facet entry -> a Consul check. ICMP has no Consul equivalent
-  # (it's gatus-only), so it yields null and is filtered out.
+  # A healthcheck facet entry -> a Consul check. ICMP has no Consul equivalent,
+  # so it yields null and is filtered out.
   healthcheckToCheck = hc:
     if hc.protocol == "tcp"
     then {

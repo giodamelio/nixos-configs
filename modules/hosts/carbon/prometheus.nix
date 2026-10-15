@@ -50,10 +50,6 @@ _: {
   # through windmill. Service jobs come from prometheus-endpoint facets.
   fleet.prometheus.extraScrapeConfigs = [
     {
-      job_name = "gatus";
-      static_configs = [{targets = ["gatus.gio.ninja"];}];
-    }
-    {
       job_name = "node";
       static_configs = [
         {

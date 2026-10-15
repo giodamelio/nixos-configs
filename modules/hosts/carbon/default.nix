@@ -1,5 +1,5 @@
 # carbon — HP EliteDesk Mini (NixOS). The "important services" host: OIDC
-# (pocket-id), the monitoring stack (prometheus/loki/grafana/gatus), the CI/CD
+# (pocket-id), the monitoring stack (prometheus/loki/grafana), the CI/CD
 # cluster (forgejo/gradient/restate/hooks), netdata parent, the LAN DHCP/router
 # (hammond), and an authoritative DNS replica. Migrated from nix/hosts/carbon/.
 # Hardware + disko live in sibling files (also carbon.nixos contributions);
@@ -112,7 +112,6 @@ in {
     den.aspects.nats
     den.aspects.send-metrics
     # den.aspects.deployed-apps # gio.deployedApps + gradient-deployer (eater/yesman)
-    # den.aspects.gatus # status page (gio.gatus)
   ];
 
   # Host-specific config (merges with hardware.nix + disko.nix + service files).

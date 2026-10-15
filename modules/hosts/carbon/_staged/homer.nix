@@ -40,12 +40,6 @@ in {
             logo = dashboardLogo "windmill";
           }
           {
-            name = "Gatus";
-            subtitle = "Status Page";
-            url = "https://gatus.gio.ninja";
-            logo = "https://gatus.gio.ninja/logo-512x512.png";
-          }
-          {
             name = "Home Assistant";
             subtitle = "Home automation";
             url = "https://home-assistant.gio.ninja";
