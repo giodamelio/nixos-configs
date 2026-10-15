@@ -54,6 +54,15 @@ def id-args [] {
     identities | each {|p| ["-i" $p]} | flatten
 }
 
+# age-plugin-yubikey waits for a touch without saying so, and push/rekey
+# capture age's stderr anyway, so announce it ourselves.
+def touch-hint [what: string] {
+    let yubikey = (identities | any {|f| ($f | path exists) and (open --raw $f | str contains "AGE-PLUGIN-YUBIKEY-")})
+    if $yubikey {
+        print -e $"Touch your YubiKey to decrypt ($what)"
+    }
+}
+
 # Where generate-toml writes the names-only manifest the flake consumes.
 def manifest-path [] {
     let p = ($env.AGEVAULT_MANIFEST? | default (config | get manifest_path? | default null))
@@ -140,6 +149,7 @@ def "main cat" [host: string, name: string] {
     if not ($p | path exists) {
         error make {msg: $"no such secret: ($p)"}
     }
+    touch-hint $"($host)/($name)"
     ^age -d ...(id-args) $p
 }
 
@@ -153,7 +163,10 @@ def "main edit" [host: string, name: string] {
     let exists = ($p | path exists)
     let plain = (^mktemp -t "agevault-plain.XXXXXX" | str trim)
     try {
-        if $exists { ^age -d ...(id-args) -o $plain $p }
+        if $exists {
+            touch-hint $"($host)/($name)"
+            ^age -d ...(id-args) -o $plain $p
+        }
         let editor = ($env.EDITOR? | default "vi" | split row --regex '\s+')
         ^($editor | first) ...($editor | skip 1) $plain
         let target = if $exists {
@@ -284,6 +297,7 @@ def push-one [host: string, name: string] {
     let plain = (^mktemp -p /dev/shm agevault-push.XXXXXX | str trim)
     ^chmod 600 $plain
     let verdict = try {
+        touch-hint $"($host)/($name)"
         let dec = (do { ^age -d ...(id-args) -o $plain $p } | complete)
         if $dec.exit_code != 0 {
             error make {msg: $"decrypt of ($p) failed: ($dec.stderr | str trim)"}
@@ -330,6 +344,7 @@ def "main rekey" [] {
     let reals = (all-age-files | each {|f| $f | path expand} | uniq)
     for r in $reals {
         let enc = (^mktemp -t "agevault-rekey.XXXXXX" | str trim)
+        touch-hint $r
         # Plaintext stays in the pipe between decrypt and re-encrypt.
         let res = (do { ^age -d ...(id-args) $r | ^age -R (recipients-file) -o $enc } | complete)
         if $res.exit_code != 0 {
