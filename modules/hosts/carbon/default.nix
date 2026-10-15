@@ -94,6 +94,7 @@ in {
   # return wave by wave; comin stays out until origin/main matches carbon.
   den.aspects.carbon.includes = [
     den.aspects.lil-scripts
+    den.aspects.server-heartbeat
     # den.aspects.onepassword
     # den.aspects.comin
     den.aspects.zfs-backup
