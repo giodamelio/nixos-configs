@@ -59,6 +59,8 @@
         interval = collectInterval;
         flush_interval = collectInterval;
         omit_hostname = false;
+        # Telegraf 1.40's default; a no-op here since there are no processors.
+        skip_processors_after_aggregators = true;
       };
 
       inputs =
@@ -68,18 +70,18 @@
           exec =
             [
               {
-                commands = ["${probe}/bin/heartbeat-probe failed-units"];
+                commands = [["${probe}/bin/heartbeat-probe" "failed-units"]];
                 timeout = "5s";
                 data_format = "influx";
               }
             ]
             ++ lib.optional zfsEnabled {
-              commands = ["${probe}/bin/heartbeat-probe zpool"];
+              commands = [["${probe}/bin/heartbeat-probe" "zpool"]];
               timeout = "5s";
               data_format = "influx";
             }
             ++ lib.optional cfg.checkSshCert {
-              commands = ["${probe}/bin/heartbeat-probe ssh-cert"];
+              commands = [["${probe}/bin/heartbeat-probe" "ssh-cert"]];
               timeout = "5s";
               data_format = "influx";
             };
