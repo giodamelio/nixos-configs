@@ -29,6 +29,12 @@ in {
           default = null;
           description = "XDG icon name for the desktop entry. Only used when label is non-null.";
         };
+
+        hotkey-overlay = lib.mkOption {
+          type = lib.types.attrs;
+          default = {hidden = false;};
+          description = "Forwarded verbatim to programs.niri.settings.binds.<key>.hotkey-overlay.";
+        };
       };
     });
     default = {};
@@ -38,7 +44,7 @@ in {
   config = lib.mkIf (cfg != {}) {
     programs.niri.settings.binds =
       lib.mapAttrs (_key: entry: {
-        inherit (entry) action;
+        inherit (entry) action hotkey-overlay;
       })
       cfg;
   };

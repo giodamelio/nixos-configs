@@ -289,6 +289,14 @@ in {
     };
     "XF86Calculator".action.spawn = ["${pkgs.procps}/bin/pkill" "-USR2" "-n" "handy"];
 
+    # For fields that block pasting; $(...) drops the trailing newline
+    "Mod+Ctrl+Shift+V" = {
+      action.spawn-sh = ''printf '%s' "$(${lib.getExe' pkgs.wl-clipboard "wl-paste"} --no-newline)" | ${lib.getExe pkgs.wtype} -'';
+      label = "Type Clipboard";
+      icon = "edit-paste";
+      hotkey-overlay.title = "Type Clipboard Contents";
+    };
+
     # Power controls
     "Mod+Shift+P" = {
       action.power-off-monitors = {};
