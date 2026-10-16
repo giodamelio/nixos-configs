@@ -46,12 +46,14 @@ Alloy could do Vector's job with a second pipeline, but core always runs Vector 
 
 ## Lay out the aspect
 
-`modules/aspects/server/unison-cloud/` holds one aspect, `den.aspects.unison-cloud`, included on carbon. import-tree skips the `_` file; `default.nix` imports it.
+`modules/aspects/server/unison-cloud/` holds one aspect, `den.aspects.unison-cloud`. import-tree skips the `_` file; `default.nix` imports it. The carbon-only parts live in `modules/hosts/carbon/unison-cloud.nix`, because test fleets import every aspect file but skip `/hosts/`.
 
 | File | Contents |
 |---|---|
-| `default.nix` | Imports `nixosModules.core`, sets `services.unison-cloud`, the `bowl/unison-cloud` dataset, the three endpoints, the backup entry and `den.aspects.carbon.includes` |
-| `_postgresql.nix` | The role setup oneshot |
+| `aspects/server/unison-cloud/default.nix` | Imports `nixosModules.core`, sets `services.unison-cloud`, its credentials and the three Caddy vhosts |
+| `aspects/server/unison-cloud/_postgresql.nix` | The roles, their databases and the setup oneshot |
+| `hosts/carbon/unison-cloud.nix` | Includes the aspect on carbon, the `bowl/unison-cloud` dataset, the DNS-only endpoints with the healthcheck, and the backup entry |
+| `checks/unison-cloud.nix` | The VM test |
 
 ## Configure core
 
@@ -114,7 +116,7 @@ den.hosts.x86_64-linux.carbon.services.unison-cloud-api.endpoint = {
 
 Do the same for `app.unison` (`siteConfig.apps`) and `unison` (`siteConfig.ui`).
 
-`siteConfig` lives in carbon's NixOS config, while endpoints are declared at the den host level. If the endpoint can't read it from there, the endpoint keeps only `domain` (for DNS) and the aspect sets the vhost's `extraConfig` in its nixos class. I'll find out which works in step 4. The API body already 404s `/internal/*` and strips `X-Auth-Request-*`.
+`siteConfig` lives in carbon's NixOS config, which endpoints, declared at the den host level, can't read. So each endpoint keeps only `domain`, for DNS, and the aspect sets the vhost with `extraConfig` in its nixos class. The API body already 404s `/internal/*` and strips `X-Auth-Request-*`.
 
 Point the healthcheck at `https://api.unison.gio.ninja/.well-known/openid-configuration`. It needs no login, and a 200 means Caddy and cloud-api are up.
 
@@ -140,31 +142,125 @@ Each step is a separate jj change. I `git add` new files as I create them.
 
 ## Do these steps by hand
 
-I'll print the exact commands for each.
+Do them in this order. Steps 2 to 4 each give you a value that step 5 stores, so keep each one until then. Nothing needs to be deployed before step 6.
 
-1. **Create the dataset:** `zfs create -o mountpoint=legacy -o atime=off bowl/unison-cloud` on carbon.
-2. **Set up Garage:** create the buckets `unison-cloud-services` and `unison-cloud-user-blobs`, plus a key limited to them.
-3. **Set up Pocket ID:**
-   - Create a confidential client with the redirect URI `https://api.unison.gio.ninja/selfhost/oidc/callback`.
-   - Create an `unison-cloud` group with you in it.
-   - Give me the client ID; it goes inline in `default.nix`.
-4. **Create the Consul token:** with a management token, build the policy and create a token from it:
+### 1. Create the dataset on carbon
+
+disko declares `bowl/unison-cloud` with a `legacy` mountpoint, so NixOS adds a mount for `/var/lib/unison-cloud`. disko doesn't create datasets on a running host, and the mount fails if the dataset is missing. Create it before you deploy:
+
+```sh
+sudo zfs create -o mountpoint=legacy -o atime=off bowl/unison-cloud
+```
+
+Don't mount it yourself. The deploy mounts it, and core's units create their directories inside it.
+
+### 2. Create the buckets and key on gallium
+
+In a root shell (`sudo -i`), where the `garage` alias points at `/etc/garage.toml`:
+
+```sh
+garage bucket create unison-cloud-services
+garage bucket create unison-cloud-user-blobs
+garage key create unison-cloud
+garage bucket allow --read --write --owner unison-cloud-services --key unison-cloud
+garage bucket allow --read --write --owner unison-cloud-user-blobs --key unison-cloud
+```
+
+`garage key create` prints a key ID (`GK…`) and a secret key, which go into `unison_cloud_s3_access_key_id` and `unison_cloud_s3_secret_access_key`. If you lose them, `garage key info --show-secret unison-cloud` prints them again.
+
+The key only has access to these two buckets. cloud-api reaches them as `<bucket>.s3.garage.gio.ninja` through gallium's existing `*.s3.garage` endpoint, so gallium's config doesn't change.
+
+### 3. Create the Pocket ID client and group
+
+At https://login.gio.ninja, as an admin:
+
+1. Under **User Groups**, create a group named exactly `unison-cloud` and add yourself to it. cloud-api only lets in members of this group (`allowedGroups`).
+2. Under **OIDC Clients**, add a client:
+   - **Name:** Unison Cloud.
+   - **Callback URL:** `https://api.unison.gio.ninja/selfhost/oidc/callback`.
+   - **Public client:** off. cloud-api is confidential and sends a client secret.
+   - **Allowed user groups:** `unison-cloud`, so Pocket ID refuses everyone else before they reach cloud-api.
+3. Save, and copy the **client ID** and **client secret**. The secret is shown only once, so regenerate it if you lose it.
+
+The secret goes into `unison_cloud_oidc_client_secret`. The client ID isn't secret. Send it to me and I'll replace the `"unison-cloud"` placeholder in `modules/aspects/server/unison-cloud/default.nix`.
+
+### 4. Create the Consul token
+
+Build the policy from this repo on cadmium. It evaluates without the agevault secrets:
+
+```sh
+policy=$(nix build --no-link --print-out-paths "git+file:///home/giodamelio/nixos-configs?rev=$(jj log -r @ --no-graph -T commit_id)#nixosConfigurations.carbon.config.services.unison-cloud.consul.aclPolicy")
+cat "$policy"
+scp "$policy" carbon:/tmp/unison-cloud.hcl
+```
+
+The policy grants write access to the `unison-cloud/` keys and `unison-cloud-*` services, and read access to nodes. Check that it matches before you create it.
+
+On carbon, use a token that can manage ACLs, such as the bootstrap token you created the cluster with. Don't use `consul_acl_tokens`: it only holds carbon's agent token, which can't create policies.
+
+```sh
+export CONSUL_HTTP_TOKEN=<management token>
+consul acl policy create -name unison-cloud -description "Unison Cloud" -rules @/tmp/unison-cloud.hcl
+consul acl token create -policy-name unison-cloud -description "Unison Cloud"
+rm /tmp/unison-cloud.hcl
+```
+
+The token's `SecretID` goes into `unison_cloud_consul_token`. If the policy changes later, update it with `consul acl policy update -name unison-cloud -rules @<file>`. The token keeps working.
+
+### 5. Add the six agevault secrets
+
+From the repo root on cadmium. `write` and `edit` both regenerate `secrets.toml`, which the build needs to see the names.
+
+The two database passwords are random, and only carbon reads them:
+
+```sh
+openssl rand -hex 32 | agevault write carbon unison_cloud_api_db_password -
+openssl rand -hex 32 | agevault write carbon unison_cloud_nimbus_db_password -
+```
+
+The other four are the values from steps 2 to 4. `write` stores the bytes exactly as it gets them, while `edit` opens vi, which adds a trailing newline. So paste each value into a hidden prompt, which keeps it out of your shell history:
+
+```sh
+for name in unison_cloud_oidc_client_secret unison_cloud_s3_access_key_id unison_cloud_s3_secret_access_key unison_cloud_consul_token; do
+  printf '%s: ' "$name"; read -rs value; echo
+  printf '%s' "$value" | agevault write carbon "$name" -
+done
+unset value
+```
+
+In order, it asks for the Pocket ID client secret, the Garage key ID (`GK…`), the Garage secret key, and the Consul `SecretID`.
+
+Push them to carbon's `/etc/credstore.encrypted`:
+
+```sh
+agevault push carbon
+```
+
+Then tell me. I'll build carbon's toplevel, and you deploy once it passes.
+
+### 6. Deploy
+
+1. Deploy carbon.
+2. Deploy gallium and rhodium too. All three serve the `gio.ninja` zone, and only a redeployed server has the `unison`, `api.unison` and `app.unison` records. TLS doesn't depend on this, since Caddy gets its certificates through Cloudflare.
+3. Watch the first start:
 
    ```sh
-   policy=$(nix build --no-link --print-out-paths .#nixosConfigurations.carbon.config.services.unison-cloud.consul.aclPolicy)
-   consul acl policy create -name unison-cloud -rules @"$policy"
-   consul acl token create -policy-name unison-cloud -description "Unison Cloud"
+   systemctl list-units 'unison-cloud*'
+   journalctl -fu unison-cloud-api
    ```
 
-5. **Add the six agevault secrets:** `unison_cloud_oidc_client_secret`, `unison_cloud_s3_access_key_id`, `unison_cloud_s3_secret_access_key`, `unison_cloud_api_db_password` and `unison_cloud_nimbus_db_password` (both `openssl rand -hex 32`), and `unison_cloud_consul_token` (the token's secret ID). Then regenerate `secrets.toml`.
+   `unison-cloud-secrets` generates the internal keys into the dataset. `unison-cloud-postgresql-setup` sets the passwords and extensions, `unison-cloud-database` waits for PostgreSQL, and `unison-cloud-migrate` applies the migrations. cloud-api and the nimbus nodes start after those. If one fails, `systemctl status` names it, and the units after it don't start.
+
+Then work through the checks after deploy in [Verify it](#verify-it).
 
 ## Verify it
 
 - Run `prek run -a`, then `nom build .#nixosConfigurations.carbon.config.system.build.toplevel`. Don't build until the bottle's Cachix has the locked commit.
 - Add a `perSystem.denTests.unison-cloud` VM test, following `modules/checks/heartbeat.nix`. The bottle's `tests/shared-host.nix` already covers a core-only host, so this one only checks carbon's wiring:
-  - every `unison-cloud-*` unit reaches active;
-  - `/.well-known/openid-configuration` returns 200 through Caddy;
-  - Vector's user lines land in Loki under `job="nomad_allocs"`.
+  - every `unison-cloud-*` unit reaches active, Vector's log shipper included, with credentials encrypted under their snake_case names;
+  - Caddy serves the API's discovery document and the UI, and 404s `/internal/*`;
+  - each database role can log in only to its own database;
+  - the nimbus client ports register in the fleet Consul with a token built from `consul.aclPolicy`.
 - After you deploy carbon:
   - check `systemctl list-units 'unison-cloud*'`;
   - log in at `https://unison.gio.ninja` through Pocket ID;
