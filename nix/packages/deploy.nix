@@ -88,7 +88,8 @@ flake.lib.writeNushellApplication pkgs {
       try {
         # Build the OS first
         report-deploy $reporting working $'building ($host)'
-        nh os build --diff never --out-link $gcroot $".#nixosConfigurations.($host)"
+        # Surface every failure in one run instead of stopping at the first
+        nh os build --keep-going --diff never --out-link $gcroot $".#nixosConfigurations.($host)"
         let system = ($gcroot | path expand)
         print $'built ($system)'
 
