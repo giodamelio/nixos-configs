@@ -1,6 +1,7 @@
 {den, ...}: {
   den.aspects.development-llm.includes = [
     den.aspects.codex
+    den.aspects.opencode
     den.aspects.claude-code
     den.aspects.llm
     den.aspects.fabric
