@@ -1,7 +1,5 @@
 # miniflux — RSS reader (miniflux.gio.ninja), OAuth-only via pocket-id, postgres
-# created locally with peer auth. The two oauth2 secrets move to fleet.secrets
-# credentials on miniflux.service (paths unchanged). Converted from
-# nix/hosts/carbon/miniflux.nix.
+# created locally with peer auth.
 _: {
   den.aspects.carbon.nixos = {lib, ...}: {
     services.miniflux = {
@@ -18,8 +16,8 @@ _: {
         OAUTH2_OIDC_DISCOVERY_ENDPOINT = "https://login.gio.ninja";
         OAUTH2_REDIRECT_URL = "https://miniflux.gio.ninja/oauth2/oidc/callback";
         OAUTH2_USER_CREATION = 1;
-        OAUTH2_CLIENT_ID_FILE = "/run/credentials/miniflux.service/miniflux-oauth2-client-id";
-        OAUTH2_CLIENT_SECRET_FILE = "/run/credentials/miniflux.service/miniflux-oauth2-client-secret";
+        OAUTH2_CLIENT_ID_FILE = "/run/credentials/miniflux.service/miniflux_oauth2_client_id";
+        OAUTH2_CLIENT_SECRET_FILE = "/run/credentials/miniflux.service/miniflux_oauth2_client_secret";
 
         METRICS_COLLECTOR = 1;
       };
@@ -34,6 +32,15 @@ _: {
         local all miniflux peer map=miniflux
       '';
     };
+
+    fleet.credentials.needs = [
+      "miniflux_oauth2_client_id"
+      "miniflux_oauth2_client_secret"
+    ];
+    systemd.services.miniflux.serviceConfig.LoadCredentialEncrypted = [
+      "miniflux_oauth2_client_id"
+      "miniflux_oauth2_client_secret"
+    ];
   };
 
   den.hosts.x86_64-linux.carbon.services.miniflux = {
@@ -44,12 +51,5 @@ _: {
     };
     healthcheck.target = "https://miniflux.gio.ninja/healthcheck";
     "prometheus-endpoint".target = "localhost:8085";
-  };
-
-  fleet.secrets = {
-    miniflux-oauth2-client-id.origin = "carbon";
-    miniflux-oauth2-client-id.use.carbon.services.miniflux.type = "credential";
-    miniflux-oauth2-client-secret.origin = "carbon";
-    miniflux-oauth2-client-secret.use.carbon.services.miniflux.type = "credential";
   };
 }

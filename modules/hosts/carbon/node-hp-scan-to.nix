@@ -1,7 +1,6 @@
 # node-hp-scan-to — watches the HP scanner and drops scans into paperless'
 # consume dir. Custom systemd service, dedicated user in the paperless group;
-# health-check only (no vhost), registered in consul by host name. Converted from
-# nix/hosts/carbon/node-hp-scan-to.nix.
+# health-check only (no vhost), registered in consul by host name.
 _: {
   den.aspects.carbon.nixos = {perSystem, ...}: {
     users.users.node-hp-scan-to = {

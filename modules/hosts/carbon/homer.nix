@@ -1,8 +1,7 @@
 # homer — dashboard homepage (homer.gio.ninja). Served by the den homer renderer
 # (host.homer.enable) from fleet.homer. The curated Blueprint tiles are ported via
 # extraServices; the old separate admin.yml view is folded into a third "Admin"
-# group (the renderer serves a single config). Converted from
-# nix/hosts/carbon/homer.nix.
+# group (the renderer serves a single config).
 _: let
   dashboardLogo = name: "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/${name}.png";
 in {

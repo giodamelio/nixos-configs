@@ -1,9 +1,12 @@
 # home-assistant — home automation (home-assistant.gio.ninja) + zwave-js on the
-# HubZ serial controller. The zwave-js secret moves to a fleet.secrets credential.
-# The upstream module hardcodes the credential name `secrets.json` (ExecStartPre
-# merges %d/secrets.json), so the fleet credential MUST be named secrets.json.
+# HubZ serial controller + matter-server on the IOT VLAN.
 _: {
-  den.aspects.carbon.nixos = {lib, ...}: {
+  den.aspects.carbon.nixos = {
+    config,
+    lib,
+    pkgs,
+    ...
+  }: {
     services.home-assistant = {
       enable = true;
       config = {
@@ -81,12 +84,20 @@ _: {
     services.zwave-js = {
       enable = true;
       serialPort = "/dev/serial/by-id/usb-Silicon_Labs_HubZ_Smart_Home_Controller_515015BA-if00-port0";
-      secretsConfigFile = "/run/credentials/zwave-js.service/secrets.json";
+      # Required by the module but unused: the credential below replaces its LoadCredential.
+      secretsConfigFile = "/run/credentials/zwave-js.service/zwavejs_secrets";
       port = 3333;
     };
-    # The module's own LoadCredential (secrets.json:secretsConfigFile) is cleared
-    # so the fleet.secrets credential dropin is the sole source of %d/secrets.json.
-    systemd.services.zwave-js.serviceConfig.LoadCredential = lib.mkForce [];
+    fleet.credentials.needs = ["zwavejs_secrets"];
+    # agevault blobs only load under their own name, but upstream hardcodes
+    # %d/secrets.json, so its merge step is repointed at zwavejs_secrets.
+    systemd.services.zwave-js.serviceConfig = {
+      LoadCredential = lib.mkForce [];
+      LoadCredentialEncrypted = ["zwavejs_secrets"];
+      ExecStartPre = lib.mkForce ''
+        /bin/sh -c "${pkgs.jq}/bin/jq -s '.[0] * .[1]' ${(pkgs.formats.json {}).generate "zwave-js-config.json" config.services.zwave-js.settings} %d/zwavejs_secrets > /run/zwave-js/config.json"
+      '';
+    };
 
     services.matter-server = {
       enable = true;
@@ -112,13 +123,5 @@ _: {
       backend.port = 8123;
     };
     healthcheck.target = "https://home-assistant.gio.ninja/";
-  };
-
-  fleet.secrets.zwavejs-secrets = {
-    origin = "carbon";
-    use.carbon.services.zwave-js = {
-      type = "credential";
-      credential.name = "secrets.json";
-    };
   };
 }
