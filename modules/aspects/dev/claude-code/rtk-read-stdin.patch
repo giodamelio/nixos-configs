@@ -1,6 +1,6 @@
---- a/src/main.rs
-+++ b/src/main.rs
-@@ -93,8 +93,8 @@
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -196,8 +196,8 @@
 
      /// Read file with intelligent filtering
      Read {
@@ -11,63 +11,16 @@
          files: Vec<PathBuf>,
          /// Filter: none (default, full content), minimal, aggressive
          #[arg(short, long, default_value = "none")]
-@@ -1440,29 +1440,39 @@
+@@ -2439,6 +2439,12 @@
+             tail_lines,
              line_numbers,
          } => {
-             let mut had_error = false;
--            let mut stdin_seen = false;
--            for file in &files {
--                let result = if file == Path::new("-") {
--                    if stdin_seen {
--                        eprintln!("rtk: warning: stdin specified more than once");
--                        continue;
--                    }
--                    stdin_seen = true;
-+            if files.is_empty() {
-+                // No file operand: behave like `cat` and read from stdin.
-+                if let Err(e) =
-                     read::run_stdin(level, max_lines, tail_lines, line_numbers, cli.verbose)
--                } else {
--                    read::run(
--                        file,
--                        level,
--                        max_lines,
--                        tail_lines,
--                        line_numbers,
--                        cli.verbose,
--                    )
--                };
--                if let Err(e) = result {
--                    eprintln!("cat: {}: {}", file.display(), e.root_cause());
-+                {
-+                    eprintln!("cat: -: {}", e.root_cause());
-                     had_error = true;
-                 }
++            // No file operand: behave like `cat` and read from stdin.
++            let files = if files.is_empty() {
++                vec![PathBuf::from("-")]
 +            } else {
-+                let mut stdin_seen = false;
-+                for file in &files {
-+                    let result = if file == Path::new("-") {
-+                        if stdin_seen {
-+                            eprintln!("rtk: warning: stdin specified more than once");
-+                            continue;
-+                        }
-+                        stdin_seen = true;
-+                        read::run_stdin(level, max_lines, tail_lines, line_numbers, cli.verbose)
-+                    } else {
-+                        read::run(
-+                            file,
-+                            level,
-+                            max_lines,
-+                            tail_lines,
-+                            line_numbers,
-+                            cli.verbose,
-+                        )
-+                    };
-+                    if let Err(e) = result {
-+                        eprintln!("cat: {}: {}", file.display(), e.root_cause());
-+                        had_error = true;
-+                    }
-+                }
-             }
-             if had_error {
-                 1
++                files
++            };
+             let mut had_error = false;
+             let mut stdin_seen = false;
+             for file in &files {
