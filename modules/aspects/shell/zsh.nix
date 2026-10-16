@@ -28,12 +28,18 @@
           src = pkgs.zsh-vi-mode;
           file = "share/zsh-vi-mode/zsh-vi-mode.plugin.zsh";
         }
+        {
+          name = "fzf-tab";
+          src = pkgs.zsh-fzf-tab;
+          file = "share/fzf-tab/fzf-tab.plugin.zsh";
+        }
       ];
 
       initContent = let
         # REMIND-ME-TO: Remove vim mode keybinding fix workaround nixpkg_version=nixpkgs-unstable:zsh-vi-mode@>=0.13.0
         vimModeKeybindingFix = lib.mkAfter ''
           zvm_after_init_commands+=("bindkey -M viins '^r' atuin-search-viins")
+          zvm_after_init_commands+=("bindkey -M viins '^I' fzf-tab-complete")
         '';
 
         # Alt+R opens atuin scoped to the current directory
@@ -153,6 +159,12 @@
       enable = true;
       enableZshIntegration = true;
       options = ["--no-cmd"];
+    };
+
+    # fzf-tab needs the binary; the shell integration would steal ^R from atuin
+    programs.fzf = {
+      enable = true;
+      enableZshIntegration = false;
     };
 
     programs.starship = {
