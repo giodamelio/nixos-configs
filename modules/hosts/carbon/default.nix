@@ -94,6 +94,9 @@ in {
     "bowl/prometheus"
     "bowl/loki"
     "bowl/netdata"
+    "bowl/hass"
+    "bowl/mealie"
+    "bowl/matter-server"
   ];
 
   # Host NixOS feature aspects (the old Blueprint imports that den.default does

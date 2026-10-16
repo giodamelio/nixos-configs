@@ -215,6 +215,31 @@ in {
                   atime = "off";
                 };
               };
+              hass = {
+                type = "zfs_fs";
+                mountpoint = "/var/lib/hass";
+                options = {
+                  mountpoint = "legacy";
+                  atime = "off";
+                };
+              };
+              mealie = {
+                type = "zfs_fs";
+                # DynamicUser: systemd keeps its StateDirectory under /var/lib/private.
+                mountpoint = "/var/lib/private/mealie";
+                options = {
+                  mountpoint = "legacy";
+                  atime = "off";
+                };
+              };
+              matter-server = {
+                type = "zfs_fs";
+                mountpoint = "/var/lib/private/matter-server";
+                options = {
+                  mountpoint = "legacy";
+                  atime = "off";
+                };
+              };
             };
           };
         };
