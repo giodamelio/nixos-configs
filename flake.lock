@@ -636,23 +636,6 @@
         "type": "github"
       }
     },
-    "extenddb": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1790740053,
-        "narHash": "sha256-rNJZH7gYDGaB1MkmAmfteqCKuaRtnO9Z3BfnAS9rSK0=",
-        "owner": "ExtendDB",
-        "repo": "extenddb",
-        "rev": "29b6b7fa183d99d2109e87faa2e394772906f312",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ExtendDB",
-        "ref": "v0.1.13",
-        "repo": "extenddb",
-        "type": "github"
-      }
-    },
     "fabric": {
       "inputs": {
         "gomod2nix": "gomod2nix",
@@ -5037,18 +5020,17 @@
     "unison-cloud-in-a-bottle": {
       "inputs": {
         "cloud-api": "cloud-api",
-        "extenddb": "extenddb",
         "nixpkgs": "nixpkgs_16",
         "stacklock2nix": "stacklock2nix",
         "unison-cloud-ui": "unison-cloud-ui",
         "unison-nix": "unison-nix"
       },
       "locked": {
-        "lastModified": 1792117155,
-        "narHash": "sha256-DwwqiwdiYj9yvi3wijAXRM3tGrzS37KvqAbWYwi3srw=",
+        "lastModified": 1792209027,
+        "narHash": "sha256-8XvcnlZxKAs6Y3VEeZ2/PB6gWc93rufq0BZxgp+Xnbk=",
         "owner": "giodamelio",
         "repo": "unison-cloud-in-a-bottle",
-        "rev": "a5e4f377aefa5fc809da79e6bedf3dc54cb3259c",
+        "rev": "3b83e8d49bb6453e4d27dcf8a6ce63c1cab6d7ea",
         "type": "github"
       },
       "original": {
