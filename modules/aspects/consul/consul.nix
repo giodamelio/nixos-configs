@@ -17,6 +17,7 @@ in {
     host,
     config,
     lib,
+    pkgs,
     ...
   }: let
     others = lib.attrNames (lib.filterAttrs (n: _: n != host.name) consulHosts);
@@ -51,6 +52,30 @@ in {
       # only inside consul.service, where the credentials are mounted.
       environment.etc."consul-encrypt.json".source = "/run/credentials/consul.service/consul_encrypt";
       environment.etc."consul-acl-tokens.json".source = "/run/credentials/consul.service/consul_acl_tokens";
+
+      # consul.service is Type=simple, so it counts as started before the agent can resolve
+      # ACL tokens. Order after this instead; partOf re-runs it whenever consul restarts.
+      systemd.services.consul-ready = {
+        description = "Wait for the Consul agent to see a cluster leader";
+        requires = ["consul.service"];
+        after = ["consul.service"];
+        partOf = ["consul.service"];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          DynamicUser = true;
+          TimeoutStartSec = "2min";
+          ExecStart = lib.getExe (pkgs.writeShellApplication {
+            name = "consul-ready";
+            runtimeInputs = [pkgs.curl];
+            text = ''
+              until leader=$(curl -sf http://127.0.0.1:8500/v1/status/leader) && [ "$leader" != '""' ]; do
+                sleep 1
+              done
+            '';
+          });
+        };
+      };
 
       # https://developer.hashicorp.com/consul/docs/reference/architecture/ports
       # Without TLS or ACLs nothing authenticates server RPC (8300) — the gossip

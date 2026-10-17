@@ -63,6 +63,16 @@ in {
 
     fleet.credentials.needs = lib.attrValues credentials;
 
+    # Registering before the agent can resolve tokens 403s with "ACL not found".
+    systemd.services.unison-cloud-consul-services = {
+      requires = ["consul-ready.service"];
+      after = ["consul-ready.service"];
+      serviceConfig = {
+        Restart = "on-failure";
+        RestartSec = "5s";
+      };
+    };
+
     # Set here, not on the host's endpoints, because core's site bodies only exist in NixOS config.
     services.gio.reverse-proxy = {
       enable = true;
