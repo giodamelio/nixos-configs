@@ -13,6 +13,9 @@ _: {
       configureTika = true;
       settings = {
         PAPERLESS_URL = "https://paperless.gio.ninja";
+        # PAPERLESS_URL doesn't set the request scheme, so without trusting Caddy's
+        # header the API's pagination links come back as http://.
+        PAPERLESS_PROXY_SSL_HEADER = ["HTTP_X_FORWARDED_PROTO" "https"];
         PAPERLESS_OCR_LANGUAGE = "eng";
         PAPERLESS_APPS = "allauth.socialaccount.providers.openid_connect";
         PAPERLESS_REDIRECT_LOGIN_TO_SSO = "true";
