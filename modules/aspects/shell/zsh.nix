@@ -133,6 +133,45 @@
           fi
         '';
 
+        # Sources completions written by direnv's add_completion. Unloading
+        # restores any completion the command had before (e.g. a global one);
+        # new helper functions the script defined stay behind.
+        direnvCompletions = lib.mkAfter ''
+          typeset -ga _direnv_completions_loaded=()
+          typeset -gA _direnv_completions_prev_comps=() _direnv_completions_prev_funcs=()
+          _direnv_completions() {
+            local state="''${DIRENV_ZSH_COMPLETIONS-}|''${DIRENV_ZSH_COMPLETIONS_HASH-}"
+            [[ $state == ''${_direnv_completions_state-} ]] && return
+            local name f comp
+            for f in ''${(k)_direnv_completions_prev_funcs}; do
+              functions[$f]=$_direnv_completions_prev_funcs[$f]
+            done
+            for name in $_direnv_completions_loaded; do
+              if (( ''${+_direnv_completions_prev_comps[$name]} )); then
+                compdef $_direnv_completions_prev_comps[$name] $name
+              else
+                compdef -d $name
+              fi
+            done
+            _direnv_completions_loaded=()
+            _direnv_completions_prev_comps=()
+            _direnv_completions_prev_funcs=()
+            _direnv_completions_state=$state
+            for f in ''${(s.:.)''${DIRENV_ZSH_COMPLETIONS-}}; do
+              name=''${''${f:t}#_}
+              comp=''${_comps[$name]-}
+              if [[ -n $comp ]]; then
+                _direnv_completions_prev_comps[$name]=$comp
+                (( ''${+functions[$comp]} )) && _direnv_completions_prev_funcs[$comp]=$functions[$comp]
+              fi
+              source $f
+              _direnv_completions_loaded+=($name)
+            done
+          }
+          autoload -Uz add-zsh-hook
+          add-zsh-hook precmd _direnv_completions
+        '';
+
         zmxCompletions = lib.mkAfter ''
           if command -v zmx &> /dev/null; then
             eval "$(zmx completions zsh)"
@@ -149,6 +188,7 @@
             taketmpFunction
             zoxideInteractive
             devenvAutoActivation
+            direnvCompletions
             zmxCompletions
           ]
           ++ (lib.optionals pkgs.stdenv.hostPlatform.isDarwin [homebrewShellEnv loadSecrets])
@@ -194,6 +234,24 @@
           [ -n "$root" ] && export CARGO_TARGET_DIR="$HOME/.cache/builds/cargo/$(basename "$root")-$(printf '%s' "$root" | sha1sum | cut -c1-8)"
         }
         _cargo_auto_target
+
+        # Usage: add_completion <command> <generator...>, e.g.
+        #   add_completion restish restish completion zsh
+        add_completion() {
+          local name=$1
+          shift
+          local file
+          file="$(direnv_layout_dir)/zsh-completions/_$name"
+          mkdir -p "$(dirname "$file")"
+          "$@" >"$file" || {
+            rm -f "$file"
+            log_error "add_completion $name: generator failed"
+            return 1
+          }
+          export DIRENV_ZSH_COMPLETIONS="''${DIRENV_ZSH_COMPLETIONS:+$DIRENV_ZSH_COMPLETIONS:}$file"
+          # The path stays the same across version bumps; the hash lets zsh see new content
+          export DIRENV_ZSH_COMPLETIONS_HASH="''${DIRENV_ZSH_COMPLETIONS_HASH-}$(sha1sum "$file" | cut -c1-8)"
+        }
       '';
     };
   };
