@@ -40,15 +40,14 @@ in {
 
       auth.oidc = {
         issuer = "https://login.gio.ninja";
-        # REMIND-ME-TO: Replace with the Pocket ID client ID for unison-cloud (NIXOS-125) date_passed=2026-10-23
-        clientId = "unison-cloud";
+        clientId = "c76c9f5f-c479-4cba-8ed3-f0b0be817597";
         # The browser follows the public URL; cloud-api fetches tokens and keys from Pocket ID directly.
         endpoints = {
           authorization = "https://login.gio.ninja/authorize";
           token = "http://127.0.0.1:1411/api/oidc/token";
           jwks = "http://127.0.0.1:1411/.well-known/jwks.json";
         };
-        allowedGroups = ["unison-cloud"];
+        allowedGroups = ["unison_cloud"];
       };
 
       s3 = {
