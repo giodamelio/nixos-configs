@@ -1,14 +1,7 @@
 # mealie — recipe manager (mealie.gio.ninja), OIDC-only login, postgres created
 # locally.
 _: {
-  den.aspects.carbon.nixos = let
-    credentials = [
-      "mealie_oidc_client_id"
-      "mealie_oidc_client_secret"
-      "mealie_fastmail_smtp_password"
-      "mealie_openai_api_key"
-    ];
-  in {
+  den.aspects.carbon.nixos = {
     services.mealie = {
       enable = true;
       database.createLocally = true;
@@ -20,8 +13,6 @@ _: {
 
         OIDC_AUTH_ENABLED = "true";
         OIDC_CONFIGURATION_URL = "https://login.gio.ninja/.well-known/openid-configuration";
-        OIDC_CLIENT_ID_FILE = "/run/credentials/mealie.service/mealie_oidc_client_id";
-        OIDC_CLIENT_SECRET_FILE = "/run/credentials/mealie.service/mealie_oidc_client_secret";
         OIDC_USER_GROUP = "mealie_user";
         OIDC_ADMIN_GROUP = "mealie_admin";
         OIDC_AUTO_REDIRECT = "true";
@@ -30,14 +21,16 @@ _: {
         SMTP_AUTH_STRATEGY = "TLS";
         SMTP_FROM_EMAIL = "mealie@gio.ninja";
         SMTP_USER = "giodamelio@fastmail.com";
-        SMTP_PASSWORD_FILE = "/run/credentials/mealie.service/mealie_fastmail_smtp_password";
-
-        OPENAI_API_KEY_FILE = "/run/credentials/mealie.service/mealie_openai_api_key";
       };
     };
 
-    fleet.credentials.needs = credentials;
-    systemd.services.mealie.serviceConfig.LoadCredentialEncrypted = credentials;
+    # Mealie has no *_FILE support; secrets must arrive as plain env vars.
+    fleet.credentials.unit_wrappers.mealie.environment = {
+      OIDC_CLIENT_ID = "mealie_oidc_client_id";
+      OIDC_CLIENT_SECRET = "mealie_oidc_client_secret";
+      SMTP_PASSWORD = "mealie_fastmail_smtp_password";
+      OPENAI_API_KEY = "mealie_openai_api_key";
+    };
   };
 
   den.hosts.x86_64-linux.carbon.services.mealie = {
