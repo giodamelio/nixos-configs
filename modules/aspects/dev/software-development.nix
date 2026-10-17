@@ -14,6 +14,20 @@
       ...
     }: let
       flakePackages = perSystem.self;
+
+      # nixpkgs doesn't ship restish's completions
+      restish = pkgs.restish.overrideAttrs (old: {
+        nativeBuildInputs = (old.nativeBuildInputs or []) ++ [pkgs.installShellFiles];
+        postInstall =
+          (old.postInstall or "")
+          + ''
+            export HOME=$(mktemp -d)
+            installShellCompletion --cmd restish \
+              --bash <($out/bin/restish completion bash) \
+              --zsh <($out/bin/restish completion zsh) \
+              --fish <($out/bin/restish completion fish)
+          '';
+      });
     in {
       environment.systemPackages = with pkgs; [
         perSystem.devenv.default # Development environment manager
@@ -26,6 +40,7 @@
         flakePackages.ghclone # Clone GitHub repos into ~/projects/<owner>/<repo>
         zed-editor # New fancy editor. Collaboration first. "Just works" first
         gh # Github CLI
+        restish # CLI for interacting with REST-ish HTTP APIs
         perSystem.zmx.default # Terminal multiplexer written in Zig
         perSystem.giopkgs.remind-me-to # CLI reminder tool
       ];
