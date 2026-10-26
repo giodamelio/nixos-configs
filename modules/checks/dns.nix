@@ -23,6 +23,7 @@ _: {
       fleet.dns.zones."gio.ninja".subdomains = {
         static.A = ["10.0.0.9"];
         ext.CNAME = ["external.example."];
+        "*.wild".CNAME = ["static.gio.ninja."];
       };
 
       den.aspects.alpha.nixos = _: {system.stateVersion = "25.11";};
@@ -45,6 +46,10 @@ _: {
 
       with subtest("explicit CNAME resolves"):
           alpha.succeed("dig +short @127.0.0.1 ext.gio.ninja CNAME | grep -x external.example.")
+
+      with subtest("a wildcard CNAME answers any name under it"):
+          for name in ("auth", "notes"):
+              alpha.succeed(f"dig +short @127.0.0.1 {name}.wild.gio.ninja A | grep -x 10.0.0.9")
 
       with subtest("ns.<domain> round-robins across all dns-serving hosts"):
           out = alpha.succeed("dig +short @127.0.0.1 ns.gio.ninja A")

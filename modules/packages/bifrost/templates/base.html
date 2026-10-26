@@ -1,0 +1,43 @@
+{{define "head"}}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.}} · bifrost</title>
+<style>
+:root { --bg: #fafafa; --fg: #1a1a1a; --muted: #666; --card: #fff; --border: #ddd; --warn-bg: #fff4e5; --warn-fg: #8a4b00; --accent: #2457d6; --danger: #b42318; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #111; --fg: #eee; --muted: #999; --card: #1b1b1b; --border: #333; --warn-bg: #3a2600; --warn-fg: #ffcc80; --accent: #7aa2ff; --danger: #ff8a80; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 24px 16px; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, sans-serif; }
+main { max-width: 960px; margin: 0 auto; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+h1 { font-size: 20px; margin: 0 0 12px; }
+h2 { font-size: 16px; margin: 24px 0 8px; }
+code, .mono { font-family: ui-monospace, monospace; font-size: 13px; word-break: break-all; }
+.muted { color: var(--muted); }
+.big { font-size: 28px; font-weight: 700; word-break: break-all; }
+.warn { background: var(--warn-bg); color: var(--warn-fg); border-radius: 6px; padding: 12px; margin: 12px 0; }
+dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0; }
+dt { color: var(--muted); }
+dd { margin: 0; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.scroll { overflow-x: auto; }
+button { font: inherit; padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.danger { color: var(--danger); border-color: var(--danger); padding: 4px 10px; }
+.actions { display: flex; gap: 12px; margin-top: 20px; }
+form.inline { display: inline; }
+</style>
+</head>
+<body>
+<main>
+{{end}}
+
+{{define "foot"}}
+</main>
+</body>
+</html>
+{{end}}

@@ -135,7 +135,7 @@
               type = "send_web_request";
               events = ["evaluation.completed"];
               config = {
-                url = "https://hooks.gio.ninja:47291/gradient-deploy-yesman";
+                url = "https://deploy-hooks.external.gio.ninja/yesman";
                 token_file = cred "gradient-action-deploy-webhook-token";
               };
             }
@@ -174,7 +174,7 @@
               type = "send_web_request";
               events = ["evaluation.completed"];
               config = {
-                url = "https://hooks.gio.ninja:47291/gradient-deploy-eater-of-feeds";
+                url = "https://deploy-hooks.external.gio.ninja/eater-of-feeds";
                 token_file = cred "gradient-action-deploy-webhook-token";
               };
             }

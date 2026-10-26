@@ -1,0 +1,84 @@
+{{template "head" "Admin"}}
+<div class="card">
+  <h1>bifrost</h1>
+  <p class="muted">Logged in as {{.User}}.</p>
+  <form class="inline" method="post" action="/admin/logout">
+    <input type="hidden" name="csrf" value="{{.CSRF}}">
+    <button type="submit">Log out</button>
+  </form>
+
+  <h2>Grants</h2>
+  {{if .Grants}}
+  <div class="scroll"><table>
+    <tr><th>User</th><th>Client</th><th>Redirect host</th><th>Resource</th><th>Scopes</th><th>Created</th><th>Last used</th><th>Last IP</th><th>Requests</th><th></th></tr>
+    {{range .Grants}}
+    <tr>
+      <td>{{.Username}}</td>
+      <td>{{.ClientName}}<div class="mono muted">{{.ClientID}}</div></td>
+      <td class="mono">{{.RedirectHost}}</td>
+      <td>{{range .Audience}}<div class="mono">{{.}}</div>{{end}}</td>
+      <td>{{join .Scopes " "}}</td>
+      <td>{{when .CreatedAt}}</td>
+      <td>{{ago .LastUsed}}</td>
+      <td class="mono">{{.LastIP}}</td>
+      <td>{{.Requests}}</td>
+      <td>
+        <form method="post" action="/admin/revoke">
+          <input type="hidden" name="csrf" value="{{$.CSRF}}">
+          <input type="hidden" name="grant" value="{{.ID}}">
+          <button class="danger" type="submit">Revoke</button>
+        </form>
+      </td>
+    </tr>
+    {{end}}
+  </table></div>
+  {{else}}<p class="muted">No grants.</p>{{end}}
+
+  <h2>Clients</h2>
+  {{if .Clients}}
+  <div class="scroll"><table>
+    <tr><th>Name</th><th>Kind</th><th>Client ID</th><th>Redirect URIs</th><th>Auth</th><th>Registered</th><th></th></tr>
+    {{range .Clients}}
+    <tr>
+      <td>{{.Name}}</td>
+      <td>{{.Kind}}</td>
+      <td class="mono">{{.ID}}</td>
+      <td>{{range .RedirectURIs}}<div class="mono">{{.}}</div>{{end}}</td>
+      <td>{{.AuthMethod}}</td>
+      <td>{{when .CreatedAt}}</td>
+      <td>
+        {{if .Deletable}}
+        <form method="post" action="/admin/delete-client">
+          <input type="hidden" name="csrf" value="{{$.CSRF}}">
+          <input type="hidden" name="client" value="{{.ID}}">
+          <button class="danger" type="submit">Delete</button>
+        </form>
+        {{end}}
+      </td>
+    </tr>
+    {{end}}
+  </table></div>
+  {{else}}<p class="muted">No clients.</p>{{end}}
+
+  <h2>Services</h2>
+  <p class="muted">Protected resources: {{range .Resources}}<span class="mono">{{.}}</span> {{else}}none{{end}}</p>
+  {{if .Services}}
+  <div class="scroll"><table>
+    <tr><th>Host</th><th>Requests</th><th>Last request</th><th>Failures</th><th>Last failure</th></tr>
+    {{range .Services}}
+    <tr><td class="mono">{{.Host}}</td><td>{{.Requests}}</td><td>{{ago .LastRequest}}</td><td>{{.Failures}}</td><td>{{ago .LastFailure}}</td></tr>
+    {{end}}
+  </table></div>
+  {{else}}<p class="muted">No traffic yet.</p>{{end}}
+
+  <h2>Recent failures</h2>
+  {{if .Failures}}
+  <div class="scroll"><table>
+    <tr><th>When</th><th>Remote IP</th><th>Host</th><th>Request</th><th>Checker</th><th>Reason</th><th>Status</th></tr>
+    {{range .Failures}}
+    <tr><td>{{ago .Time}}</td><td class="mono">{{.RemoteIP}}</td><td class="mono">{{.Host}}</td><td class="mono">{{.Method}} {{.Path}}</td><td>{{.Checker}}</td><td>{{.Reason}}</td><td>{{.Status}}</td></tr>
+    {{end}}
+  </table></div>
+  {{else}}<p class="muted">None since the last restart.</p>{{end}}
+</div>
+{{template "foot"}}

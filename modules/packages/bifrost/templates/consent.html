@@ -1,0 +1,34 @@
+{{template "head" "Approve access"}}
+<div class="card">
+  <h1>Approve access?</h1>
+  <p class="muted">The authorization code will be sent to</p>
+  <div class="big">{{.RedirectHost}}</div>
+  <p class="mono muted">{{.RedirectURI}}</p>
+
+  {{if .Loopback}}
+  <div class="warn">
+    Every redirect URI for this client is on loopback. Any program on the
+    machine that started this request can claim to be this client and receive
+    the code. Only approve if you just started this connection yourself.
+  </div>
+  {{end}}
+
+  <dl>
+    <dt>Client</dt><dd>{{.ClientName}}</dd>
+    <dt>Client ID</dt><dd class="mono">{{.ClientID}}</dd>
+    {{if .MetadataHost}}<dt>Metadata from</dt><dd class="mono">{{.MetadataHost}}</dd>{{end}}
+    <dt>Access to</dt><dd>{{range .Resources}}<div class="mono">{{.}}</div>{{end}}</dd>
+    <dt>Scopes</dt><dd>{{if .Scopes}}{{join .Scopes " "}}{{else}}<span class="muted">none</span>{{end}}</dd>
+    <dt>As</dt><dd>{{.User.Username}}{{if .User.Email}} &lt;{{.User.Email}}&gt;{{end}}</dd>
+  </dl>
+
+  <form method="post" action="/consent">
+    <input type="hidden" name="flow" value="{{.FlowID}}">
+    <input type="hidden" name="csrf" value="{{.CSRF}}">
+    <div class="actions">
+      <button class="primary" type="submit" name="action" value="approve">Approve</button>
+      <button type="submit" name="action" value="deny">Deny</button>
+    </div>
+  </form>
+</div>
+{{template "foot"}}
