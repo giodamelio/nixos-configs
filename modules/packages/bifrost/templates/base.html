@@ -25,6 +25,12 @@ dd { margin: 0; }
 table { width: 100%; border-collapse: collapse; font-size: 14px; }
 th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
 .scroll { overflow-x: auto; }
+.items { display: grid; gap: 12px; }
+.item { border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; min-width: 0; }
+.item-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+.item-head > div { min-width: 0; }
+.item dl { font-size: 14px; }
+.item dd { min-width: 0; }
 button { font: inherit; padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); background: var(--card); color: var(--fg); cursor: pointer; }
 button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 button.danger { color: var(--danger); border-color: var(--danger); padding: 4px 10px; }

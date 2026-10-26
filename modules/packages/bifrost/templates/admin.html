@@ -9,44 +9,43 @@
 
   <h2>Grants</h2>
   {{if .Grants}}
-  <div class="scroll"><table>
-    <tr><th>User</th><th>Client</th><th>Redirect host</th><th>Resource</th><th>Scopes</th><th>Created</th><th>Last used</th><th>Last IP</th><th>Requests</th><th></th></tr>
+  <div class="items">
     {{range .Grants}}
-    <tr>
-      <td>{{.Username}}</td>
-      <td>{{.ClientName}}<div class="mono muted">{{.ClientID}}</div></td>
-      <td class="mono">{{.RedirectHost}}</td>
-      <td>{{range .Audience}}<div class="mono">{{.}}</div>{{end}}</td>
-      <td>{{join .Scopes " "}}</td>
-      <td>{{when .CreatedAt}}</td>
-      <td>{{ago .LastUsed}}</td>
-      <td class="mono">{{.LastIP}}</td>
-      <td>{{.Requests}}</td>
-      <td>
+    <div class="item">
+      <div class="item-head">
+        <div>
+          <strong>{{.ClientName}}</strong> <span class="muted">for {{.Username}}</span>
+          <div class="mono muted">{{.ClientID}}</div>
+        </div>
         <form method="post" action="/admin/revoke">
           <input type="hidden" name="csrf" value="{{$.CSRF}}">
           <input type="hidden" name="grant" value="{{.ID}}">
           <button class="danger" type="submit">Revoke</button>
         </form>
-      </td>
-    </tr>
+      </div>
+      <dl>
+        <dt>Resource</dt><dd>{{range .Audience}}<div class="mono">{{.}}</div>{{end}}</dd>
+        <dt>Scopes</dt><dd>{{with .Scopes}}{{join . " "}}{{else}}<span class="muted">none</span>{{end}}</dd>
+        <dt>Redirect host</dt><dd class="mono">{{.RedirectHost}}</dd>
+        <dt>Created</dt><dd>{{when .CreatedAt}}</dd>
+        <dt>Last used</dt><dd>{{ago .LastUsed}}{{with .LastIP}} from <span class="mono">{{.}}</span>{{end}}</dd>
+        <dt>Requests</dt><dd>{{.Requests}}</dd>
+      </dl>
+    </div>
     {{end}}
-  </table></div>
+  </div>
   {{else}}<p class="muted">No grants.</p>{{end}}
 
   <h2>Clients</h2>
   {{if .Clients}}
-  <div class="scroll"><table>
-    <tr><th>Name</th><th>Kind</th><th>Client ID</th><th>Redirect URIs</th><th>Auth</th><th>Registered</th><th></th></tr>
+  <div class="items">
     {{range .Clients}}
-    <tr>
-      <td>{{.Name}}</td>
-      <td>{{.Kind}}</td>
-      <td class="mono">{{.ID}}</td>
-      <td>{{range .RedirectURIs}}<div class="mono">{{.}}</div>{{end}}</td>
-      <td>{{.AuthMethod}}</td>
-      <td>{{when .CreatedAt}}</td>
-      <td>
+    <div class="item">
+      <div class="item-head">
+        <div>
+          <strong>{{.Name}}</strong> <span class="muted">{{.Kind}}</span>
+          <div class="mono muted">{{.ID}}</div>
+        </div>
         {{if .Deletable}}
         <form method="post" action="/admin/delete-client">
           <input type="hidden" name="csrf" value="{{$.CSRF}}">
@@ -54,10 +53,15 @@
           <button class="danger" type="submit">Delete</button>
         </form>
         {{end}}
-      </td>
-    </tr>
+      </div>
+      <dl>
+        <dt>Redirect URIs</dt><dd>{{range .RedirectURIs}}<div class="mono">{{.}}</div>{{end}}</dd>
+        <dt>Auth</dt><dd>{{.AuthMethod}}</dd>
+        <dt>Registered</dt><dd>{{when .CreatedAt}}</dd>
+      </dl>
+    </div>
     {{end}}
-  </table></div>
+  </div>
   {{else}}<p class="muted">No clients.</p>{{end}}
 
   <h2>Services</h2>
