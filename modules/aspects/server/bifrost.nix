@@ -55,6 +55,8 @@ _: {
     credentials = lib.unique (
       [cfg.tokenKeyCredential cfg.login.clientSecretCredential]
       ++ lib.optional (cfg.dynamicDns || lib.hasInfix cloudflareToken cfg.tls) cfg.cloudflareCredential
+      ++ lib.optional (cfg.nats.credsCredential != null) cfg.nats.credsCredential
+      ++ lib.optional (cfg.nats.tokenCredential != null) cfg.nats.tokenCredential
       ++ cfg.credentials
     );
   in {
@@ -160,6 +162,25 @@ _: {
         type = types.ints.positive;
         default = 120;
         description = "Requests per minute per address to /admin.";
+      };
+
+      nats = {
+        url = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          example = "nats://127.0.0.1:4222";
+          description = "NATS server that `bifrost_nats` handlers publish to. null leaves NATS off.";
+        };
+        credsCredential = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "Credential holding a NATS .creds file, if the server requires one.";
+        };
+        tokenCredential = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "Credential holding a NATS token, if the server requires one.";
+        };
       };
 
       credentials = mkOption {
@@ -297,6 +318,13 @@ _: {
               ${lib.optionalString (cfg.login.allowedGroups != []) "allowed_groups ${toString cfg.login.allowedGroups}"}
             }
             token_key_file ${credential cfg.tokenKeyCredential}
+            ${lib.optionalString (cfg.nats.url != null) ''
+            nats {
+              url ${cfg.nats.url}
+              ${lib.optionalString (cfg.nats.credsCredential != null) "creds_file ${credential cfg.nats.credsCredential}"}
+              ${lib.optionalString (cfg.nats.tokenCredential != null) "token_file ${credential cfg.nats.tokenCredential}"}
+            }
+          ''}
           }
 
           ${lib.optionalString cfg.dynamicDns ''

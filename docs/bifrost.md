@@ -380,6 +380,7 @@ Streamable HTTP passes through `reverse_proxy`. Caddy flushes `text/event-stream
 | `http.handlers.bifrost_authserver` | `bifrost_authserver` | The endpoints on `auth.external` |
 | `http.handlers.bifrost_guard` | `bifrost_guard <checker> { }` | Header stripping, the checker, identity, failure logging |
 | `http.handlers.bifrost_reject` | `bifrost_reject` | Catch-all 404 that logs a failure |
+| `http.handlers.bifrost_nats` | `bifrost_nats { }` | Publishes the request to NATS as JSON (see [Publish requests to NATS](#publish-requests-to-nats)) |
 | `bifrost.checkers.oauth` | `oauth` | OAuth token checker |
 | `bifrost.checkers.hmac` | `hmac` | Body signature checker |
 | `bifrost.checkers.bearer` | `bearer` | Static token checker |
@@ -495,27 +496,33 @@ The staged `gradient.nix` deploy actions already point at the new URLs. When Gra
    Verify with Claude Code and claude.ai connecting to a test MCP server, a target verifying the assertion, and a revoked grant failing on the very next request.
 3. **Admin page:** grants, clients, stats, revocation.
 
-## Publish requests to NATS (stretch goal)
+## Publish requests to NATS
 
-Tracked in NIXOS-132. Start it only after the three stages land, in a new commit.
+Tracked in NIXOS-132, built as its own change after the three stages.
 
 A `bifrost_nats` terminal handler replaces `reverse_proxy` on a route. Once the guard passes, it publishes the whole request to NATS as one JSON message and answers `202 Accepted`. A webhook then needs no HTTP target at all: a consumer subscribes and processes it on its own schedule.
 
-```caddyfile
-@github host github-hooks.external.gio.ninja
-handle @github {
-	route {
-		bifrost_guard hmac {
-			header X-Hub-Signature-256
-			prefix sha256=
-			secret_file /run/credentials/caddy-bifrost.service/github_webhook_secret
-		}
-		bifrost_nats {
-			subject bifrost.requests.github
-		}
-	}
-}
+The connection is configured once, in the global `bifrost` block. On carbon, `gio.bifrost.nats.url` points it at carbon's own NATS (`nats://127.0.0.1:4222`, no client auth). `gio.bifrost.nats.credsCredential` and `tokenCredential` cover servers that need auth.
+
+A service publishes like this:
+
+```nix
+gio.bifrost.services.github-hooks.config = ''
+  bifrost_guard hmac {
+    header X-Hub-Signature-256
+    prefix sha256=
+    secret_file ${config.gio.bifrost.credentialDir}/github_webhook_secret
+  }
+  bifrost_nats {
+    subject bifrost.requests.github
+  }
+'';
 ```
+
+`bifrost_nats` options:
+- `subject`: required. Caddy placeholders work, such as `bifrost.requests.{http.request.host}`.
+- `jetstream`: publish through JetStream and answer only after the stream acks. Without a stream covering the subject, every request is a 503.
+- `max_body`: in bytes, default 25 MB. A message over the server's `max_payload` (1 MB by default) is refused with 413 rather than dropped.
 
 The message is versioned JSON:
 
@@ -527,7 +534,7 @@ The message is versioned JSON:
   "host": "github-hooks.external.gio.ninja",
   "path": "/",
   "query": {},
-  "headers": {"X-GitHub-Event": ["push"]},
+  "headers": {"X-Github-Event": ["push"]},
   "remote_ip": "140.82.115.1",
   "body": "{\"ref\":\"refs/heads/main\"}",
   "body_encoding": "utf-8",
@@ -536,7 +543,8 @@ The message is versioned JSON:
 ```
 
 - **Body:** sent as text when it is valid UTF-8; otherwise base64, with `body_encoding: "base64"`.
-- **Identity:** filled in when the route's guard is `oauth`, using the same fields as the assertion.
-- **Connection:** one NATS connection shared across reloads through the app's usage pool, authenticated with a credential.
-- **Failures:** if the publish fails, the handler answers `503` so the sender retries. It never drops a request silently.
-- **Durability:** optionally publish through JetStream and wait for the ack before answering.
+- **Headers:** everything except `Authorization` (on a bearer route it's the shared secret) and `X-Bifrost-*`.
+- **Path:** the original path, before any `rewrite` in the route.
+- **Identity:** filled in when the route's guard is `oauth`, using the same fields as the assertion; `null` otherwise.
+- **Connection:** one NATS connection shared across reloads through a usage pool. It connects in the background and reconnects forever, so NATS being down never stops Caddy from starting.
+- **Failures:** if bifrost isn't connected, or the publish can't be confirmed, the handler answers `503` so the sender retries. A core publish is confirmed with a flush round trip to the server; a JetStream publish waits for the stream's ack. It never drops a request silently.

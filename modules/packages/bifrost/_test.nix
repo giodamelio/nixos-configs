@@ -7,7 +7,7 @@
   ...
 }: let
   domain = "external.test";
-  hosts = map (h: "${h}.${domain}") ["auth" "notes" "hooks" "deploy" "unknown"];
+  hosts = map (h: "${h}.${domain}") ["auth" "notes" "hooks" "deploy" "events" "stream" "unknown"];
   port = 52793;
 
   webhookSecret = "github-webhook-secret";
@@ -133,6 +133,9 @@
           allowed_groups bifrost
         }
         token_key_file /etc/bifrost/token-key
+        nats {
+          url nats://127.0.0.1:4222
+        }
       }
     }
 
@@ -199,6 +202,33 @@
         }
       }
 
+      @events host events.${domain}
+      handle @events {
+        route {
+          bifrost_guard hmac {
+            header X-Hub-Signature-256
+            prefix sha256=
+            secret_file /etc/bifrost/webhook-secret
+          }
+          bifrost_nats {
+            subject bifrost.requests.github
+          }
+        }
+      }
+
+      @stream host stream.${domain}
+      handle @stream {
+        route {
+          bifrost_guard bearer {
+            token_file /etc/bifrost/deploy-token
+          }
+          bifrost_nats {
+            subject bifrost.js.deploy
+            jetstream
+          }
+        }
+      }
+
       handle {
         bifrost_reject
       }
@@ -211,7 +241,12 @@ in {
     server = {
       networking.firewall.allowedTCPPorts = [port 8000];
       networking.hosts."127.0.0.1" = hosts ++ ["op.test"];
-      environment.systemPackages = [pkgs.curl python];
+      environment.systemPackages = [pkgs.curl pkgs.natscli python];
+
+      services.nats = {
+        enable = true;
+        jetstream = true;
+      };
 
       environment.etc = {
         "bifrost/token-key".text = "0123456789abcdef0123456789abcdef0123456789abcdef";
@@ -231,7 +266,7 @@ in {
         };
         bifrost = {
           wantedBy = ["multi-user.target"];
-          after = ["fake-op.service"];
+          after = ["fake-op.service" "nats.service"];
           environment = {
             XDG_DATA_HOME = "/var/lib/bifrost";
             XDG_CONFIG_HOME = "/var/lib/bifrost";
@@ -286,6 +321,35 @@ in {
     with subtest("bearer: only the right token passes"):
         assert status(f"-X POST -H 'Authorization: Bearer ${deployToken}' {url('deploy', '/reconcile')}") == 200
         assert status(f"-X POST -H 'Authorization: Bearer nope' {url('deploy', '/reconcile')}") == 401
+
+    with subtest("bifrost_nats publishes a verified webhook as JSON"):
+        server.wait_for_unit("nats.service")
+        server.succeed("systemd-run --unit=natsub -- ${pkgs.runtimeShell} -c '${pkgs.natscli}/bin/nats sub --count=1 --raw bifrost.requests.github > /tmp/msg.json'")
+        body = '{"action":"opened"}'
+        sig = "sha256=" + hmac.new(b"${webhookSecret}", body.encode(), hashlib.sha256).hexdigest()
+        # Core NATS has no backlog, so post until the subscriber has come up.
+        for _ in range(30):
+            assert status(f"-H 'X-Hub-Signature-256: {sig}' -H 'X-GitHub-Event: issues' --data '{body}' {url('events', '/hook?id=7')}") == 202
+            if server.execute("test -s /tmp/msg.json")[0] == 0:
+                break
+            server.sleep(1)
+        assert server.execute("test -s /tmp/msg.json")[0] == 0, server.execute("systemctl status natsub; journalctl -u natsub")[1]
+        msg = json.loads(server.succeed("cat /tmp/msg.json"))
+        assert msg["body"] == body and msg["body_encoding"] == "utf-8", msg
+        assert msg["path"] == "/hook" and msg["query"] == {"id": ["7"]}, msg
+        assert msg["headers"]["X-Github-Event"] == ["issues"], msg
+        assert msg["remote_ip"] == "192.168.1.1", msg
+        assert status(f"-H 'X-Hub-Signature-256: sha256=00' --data '{body}' {url('events', '/hook')}") == 401
+
+    with subtest("bifrost_nats with jetstream lands in the stream, or 503s without one"):
+        assert status(f"-X POST -H 'Authorization: Bearer ${deployToken}' {url('stream', '/yesman')}") == 503
+        server.succeed("nats stream add BIFROST --subjects 'bifrost.js.>' --defaults")
+        assert status(f"-X POST -H 'Authorization: Bearer ${deployToken}' {url('stream', '/yesman')}") == 202
+        info = json.loads(server.succeed("nats stream info BIFROST --json"))
+        assert info["state"]["messages"] == 1, info["state"]
+        stored = json.loads(server.succeed("nats stream get BIFROST 1 --json"))
+        dumped = json.loads(base64.b64decode(stored["data"]))
+        assert "Authorization" not in dumped["headers"], dumped
 
     with subtest("discovery documents"):
         prm = json.loads(client.succeed(f"{CURL} {url('notes', '/.well-known/oauth-protected-resource/mcp')}"))

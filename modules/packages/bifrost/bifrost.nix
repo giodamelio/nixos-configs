@@ -16,7 +16,7 @@ _: {
         ];
       };
 
-      vendorHash = "sha256-K9oiBQb0fQM2w3Um0APrpjbeHhQsvTFa9bEfUEkIQWU=";
+      vendorHash = "sha256-v/Q2J1IqAqGFp5oN949Tu6qbbHs3A5+ws7POVGtWaSw=";
 
       passthru.tests.vm = pkgs.testers.runNixOSTest (import ./_test.nix {inherit bifrost;});
 

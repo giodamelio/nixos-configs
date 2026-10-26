@@ -14,6 +14,7 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/certmagic"
+	"github.com/nats-io/nats.go"
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/compose"
 	"github.com/ory/fosite/handler/oauth2"
@@ -47,15 +48,18 @@ type App struct {
 	RefreshTokenLifetime caddy.Duration `json:"refresh_token_lifetime,omitempty"`
 	AssertionLifetime    caddy.Duration `json:"assertion_lifetime,omitempty"`
 	SigningKeyRotation   caddy.Duration `json:"signing_key_rotation,omitempty"`
+	NATS                 *NATSConfig    `json:"nats,omitempty"`
 
-	shared    *shared
-	poolKey   string
-	resources *resourceRegistry
-	clients   *clientRegistry
-	provider  fosite.OAuth2Provider
-	login     *login
-	cookieKey []byte
-	logger    *zap.Logger
+	shared      *shared
+	poolKey     string
+	natsConn    *natsConn
+	natsPoolKey string
+	resources   *resourceRegistry
+	clients     *clientRegistry
+	provider    fosite.OAuth2Provider
+	login       *login
+	cookieKey   []byte
+	logger      *zap.Logger
 }
 
 func (App) CaddyModule() caddy.ModuleInfo {
@@ -128,6 +132,20 @@ func (a *App) setup(ctx context.Context, storage certmagic.Storage, logger *zap.
 	}
 	a.shared = val.(*shared)
 
+	if a.NATS != nil {
+		if a.NATS.URL == "" {
+			a.NATS.URL = nats.DefaultURL
+		}
+		a.natsPoolKey = a.NATS.poolKey()
+		conn, _, err := natsPool.LoadOrNew(a.natsPoolKey, func() (caddy.Destructor, error) {
+			return a.NATS.connect(logger)
+		})
+		if err != nil {
+			return fmt.Errorf("bifrost: %w", err)
+		}
+		a.natsConn = conn.(*natsConn)
+	}
+
 	a.resources = newResourceRegistry()
 	a.clients = &clientRegistry{store: a.shared.store, resources: a.resources, docs: a.shared.docs}
 
@@ -161,6 +179,11 @@ func (a *App) Start() error { return nil }
 func (a *App) Stop() error { return nil }
 
 func (a *App) Cleanup() error {
+	if a.natsPoolKey != "" {
+		if _, err := natsPool.Delete(a.natsPoolKey); err != nil {
+			return err
+		}
+	}
 	if a.poolKey == "" {
 		return nil
 	}
@@ -310,6 +333,24 @@ func parseGlobalOption(d *caddyfile.Dispenser, _ any) (any, error) {
 				a.AssertionLifetime = dur
 			case "signing_key_rotation":
 				a.SigningKeyRotation = dur
+			}
+		case "nats":
+			a.NATS = &NATSConfig{}
+			for nesting := d.Nesting(); d.NextBlock(nesting); {
+				var dst *string
+				switch d.Val() {
+				case "url":
+					dst = &a.NATS.URL
+				case "creds_file":
+					dst = &a.NATS.CredsFile
+				case "token_file":
+					dst = &a.NATS.TokenFile
+				default:
+					return nil, d.Errf("bifrost nats: unknown option %q", d.Val())
+				}
+				if !d.AllArgs(dst) {
+					return nil, d.ArgErr()
+				}
 			}
 		case "login":
 			for nesting := d.Nesting(); d.NextBlock(nesting); {
