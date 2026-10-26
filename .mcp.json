@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "bifrost-time": {
+      "type": "http",
+      "url": "https://time.external.gio.ninja/mcp"
+    }
+  }
+}
