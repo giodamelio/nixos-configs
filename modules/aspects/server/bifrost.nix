@@ -51,9 +51,55 @@ _: {
         }
       ''}
           ${svc.config}
+          ${lib.optionalString (svc.nats != null) ''
+        bifrost_nats {
+          subject ${svc.nats.subject}
+          ${lib.optionalString (svc.nats.stream != null) "jetstream"}
+          ${lib.optionalString (svc.nats.maxBody != null) "max_body ${toString svc.nats.maxBody}"}
+        }
+      ''}
         }
       }
     '';
+
+    streams = config.gio.nats.streams or {};
+
+    # NATS subject matching, with a Caddy placeholder token standing for any
+    # single token: only `*` or `>` in the stream can be sure to cover it.
+    subjectCovered = pattern: subject: let
+      go = p: s:
+        if p == []
+        then s == []
+        else if lib.head p == ">"
+        then s != []
+        else if s == []
+        then false
+        else let
+          pt = lib.head p;
+          st = lib.head s;
+        in
+          (pt == "*" || (pt == st && !lib.hasInfix "{" st)) && go (lib.tail p) (lib.tail s);
+    in
+      go (lib.splitString "." pattern) (lib.splitString "." subject);
+
+    natsAssertions = lib.concatLists (lib.mapAttrsToList (name: svc:
+      lib.optionals (svc.nats != null) ([
+          {
+            assertion = cfg.nats.url != null;
+            message = "gio.bifrost.services.${name}.nats needs gio.bifrost.nats.url.";
+          }
+        ]
+        ++ lib.optionals (svc.nats.stream != null) [
+          {
+            assertion = streams ? ${svc.nats.stream};
+            message = "gio.bifrost.services.${name}.nats.stream: ${svc.nats.stream} is not declared in gio.nats.streams on this host.";
+          }
+          {
+            assertion = lib.any (p: subjectCovered p svc.nats.subject) (streams.${svc.nats.stream}.subjects or []);
+            message = "gio.bifrost.services.${name}.nats.subject: ${svc.nats.subject} is not covered by stream ${svc.nats.stream}'s subjects.";
+          }
+        ]))
+    cfg.services);
 
     adminPaths = "/admin /admin/*";
 
@@ -242,7 +288,35 @@ _: {
             };
             config = mkOption {
               type = types.lines;
+              default = "";
               description = "Caddyfile handlers inside the service's route, after the rate limit and any oauth guard.";
+            };
+            nats = mkOption {
+              default = null;
+              description = "Publish every request that gets past `config` to NATS, as bifrost_nats.";
+              type = types.nullOr (types.submodule {
+                options = {
+                  subject = mkOption {
+                    type = types.str;
+                    example = "webhooks.github";
+                    description = "May use Caddy placeholders.";
+                  };
+                  stream = mkOption {
+                    type = types.nullOr types.str;
+                    default = null;
+                    description = ''
+                      A gio.nats.streams name on this host. Set, bifrost publishes
+                      through JetStream, and evaluation checks the stream covers
+                      the subject. null publishes on core NATS.
+                    '';
+                  };
+                  maxBody = mkOption {
+                    type = types.nullOr types.ints.positive;
+                    default = null;
+                    description = "Largest body accepted, in bytes. null keeps bifrost's default.";
+                  };
+                };
+              });
             };
           };
         });
@@ -271,16 +345,18 @@ _: {
     };
 
     config = {
-      assertions = [
-        {
-          assertion = !(cfg.services ? auth);
-          message = "gio.bifrost.services: `auth` is reserved for bifrost's own authorization server.";
-        }
-        {
-          assertion = cfg.lanProxy -> lib.hasSuffix ".gio.ninja" cfg.domain;
-          message = "gio.bifrost.lanProxy: the internal reverse proxy only serves names under gio.ninja.";
-        }
-      ];
+      assertions =
+        natsAssertions
+        ++ [
+          {
+            assertion = !(cfg.services ? auth);
+            message = "gio.bifrost.services: `auth` is reserved for bifrost's own authorization server.";
+          }
+          {
+            assertion = cfg.lanProxy -> lib.hasSuffix ".gio.ninja" cfg.domain;
+            message = "gio.bifrost.lanProxy: the internal reverse proxy only serves names under gio.ninja.";
+          }
+        ];
 
       services.gio.reverse-proxy = lib.mkIf cfg.lanProxy {
         enable = true;

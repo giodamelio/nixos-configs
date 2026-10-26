@@ -544,6 +544,40 @@ gio.bifrost.services.github-hooks.config = ''
 - `jetstream`: publish through JetStream and answer only after the stream acks. Without a stream covering the subject, every request is a 503.
 - `max_body`: in bytes, default 25 MB. A message over the server's `max_payload` (1 MB by default) is refused with 413 rather than dropped.
 
+### Declare the stream and the route together
+
+For JetStream, declare the stream with `gio.nats.streams` and point the service at it with `nats`. The `nats` option renders `bifrost_nats` after the service's `config`, so `config` holds only the guard:
+
+```nix
+gio.nats.streams.WEBHOOKS = {
+  subjects = ["webhooks.>"];
+  maxAge = "7d";
+};
+
+gio.bifrost.services.github-hooks = {
+  config = ''
+    bifrost_guard hmac { ... }
+  '';
+  nats = {
+    subject = "webhooks.github";
+    stream = "WEBHOOKS";
+  };
+};
+```
+
+Evaluation fails if the stream isn't declared on the same host, or if none of its subjects covers the route's subject. A Caddy placeholder in the subject counts as one token, so only a `*` or `>` in the stream covers it. `stream = null` publishes on core NATS with no check. A hand-written `bifrost_nats` block in `config` gets no checks.
+
+`gio.nats.streams` comes from the `nats` aspect:
+- **Typed options:** `subjects`, `storage` (`file`), `retention` (`limits`), `replicas` (2), `maxAge` and `maxBytes` (unlimited when null).
+- **`extraConfig`:** merged into the stream's JSON config, in NATS's own field names.
+- **`nats-create-streams.service`:** a oneshot that runs `nats stream add` for a missing stream and `nats stream edit` for an existing one. An unchanged stream reports "No difference in configuration". It never deletes a stream that is no longer declared.
+
+Two limits apply:
+- **Some settings can't change in place.** Storage type is one; changing it makes the oneshot fail with NATS's error.
+- **JetStream needs a cluster majority.** With two nodes that means both carbon and gallium. The oneshot retries every 10 seconds until it has one, and bifrost's JetStream routes answer 503 meanwhile. NIXOS-135 tracks adding a third node.
+
+Streams belong to the whole cluster, so declare each on one host.
+
 The message is versioned JSON:
 
 ```json
