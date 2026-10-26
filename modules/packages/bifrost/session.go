@@ -2,19 +2,22 @@ package bifrost
 
 import (
 	"maps"
+	"slices"
 	"time"
 
 	"github.com/ory/fosite"
 )
 
 // Session is what bifrost stores with every token: the Pocket ID identity
-// that approved the grant, plus fosite's expiry bookkeeping.
+// that approved the grant, plus fosite's expiry bookkeeping. Groups are a
+// snapshot from consent; they aren't refreshed.
 type Session struct {
 	Subject    string                         `json:"subject"`
 	Username   string                         `json:"username"`
 	Email      string                         `json:"email"`
 	Name       string                         `json:"name"`
 	ClientName string                         `json:"client_name"`
+	Groups     []string                       `json:"groups,omitempty"`
 	ExpiresAt  map[fosite.TokenType]time.Time `json:"expires_at"`
 }
 
@@ -38,6 +41,7 @@ func (s *Session) Clone() fosite.Session {
 		return nil
 	}
 	cp := *s
+	cp.Groups = slices.Clone(s.Groups)
 	cp.ExpiresAt = maps.Clone(s.ExpiresAt)
 	return &cp
 }

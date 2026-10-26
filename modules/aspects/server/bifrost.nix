@@ -43,6 +43,11 @@ _: {
           host ${name}.${cfg.domain}
           ${lib.optionalString (svc.oauth.scopes != []) "scopes ${toString svc.oauth.scopes}"}
           ${lib.optionalString (svc.oauth.require != []) "require ${toString svc.oauth.require}"}
+          ${
+          if svc.oauth.groups == []
+          then "any_group"
+          else "groups ${toString svc.oauth.groups}"
+        }
         }
       ''}
           ${svc.config}
@@ -220,6 +225,17 @@ _: {
                     type = types.listOf types.str;
                     default = [];
                     description = "Scopes every request must have been granted.";
+                  };
+                  # No default, so a new service is never open to every account by accident.
+                  groups = mkOption {
+                    type = types.listOf types.str;
+                    example = ["family"];
+                    description = ''
+                      Pocket ID groups allowed to use the service; membership in any one
+                      is enough. [] admits every account that can log in to bifrost
+                      (login.allowedGroups). Checked at consent and on every request,
+                      against the groups recorded when the grant was approved.
+                    '';
                   };
                 };
               });

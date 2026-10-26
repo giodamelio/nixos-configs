@@ -25,6 +25,10 @@ type OAuthChecker struct {
 	Host    string   `json:"host,omitempty"`
 	Scopes  []string `json:"scopes,omitempty"`
 	Require []string `json:"require,omitempty"`
+	// Groups admits members of any listed Pocket ID group. A guard must set
+	// Groups or AnyGroup, so a new service is never open by accident.
+	Groups   []string `json:"groups,omitempty"`
+	AnyGroup bool     `json:"any_group,omitempty"`
 
 	app      *App
 	resource string
@@ -49,6 +53,12 @@ func (c *OAuthChecker) setup(app *App) error {
 	if c.Host == "" {
 		return fmt.Errorf("oauth: host is required")
 	}
+	if len(c.Groups) == 0 && !c.AnyGroup {
+		return fmt.Errorf("oauth %s: set groups, or any_group to admit every account that can log in", c.Host)
+	}
+	if len(c.Groups) > 0 && c.AnyGroup {
+		return fmt.Errorf("oauth %s: groups and any_group are exclusive", c.Host)
+	}
 	for _, s := range c.Require {
 		if !slices.Contains(c.Scopes, s) {
 			return fmt.Errorf("oauth: required scope %q is not in scopes", s)
@@ -56,7 +66,7 @@ func (c *OAuthChecker) setup(app *App) error {
 	}
 	c.app = app
 	c.resource = resourceForHost(c.Host)
-	return app.registerResource(c.resource, c.Scopes)
+	return app.registerResource(c.resource, c.Scopes, c.Groups)
 }
 
 func (c *OAuthChecker) metadataURL() string {
@@ -147,6 +157,11 @@ func (c *OAuthChecker) Check(r *http.Request) (*Identity, *Failure) {
 	if !ok {
 		return nil, invalid("unexpected session")
 	}
+	// Checked per request too, so adding groups to a service locks out grants
+	// that were approved before.
+	if !inAllowedGroup(c.Groups, sess.Groups) {
+		return nil, &Failure{Status: http.StatusForbidden, Reason: sess.Username + " is not in a group allowed to use " + c.Host}
+	}
 
 	assertion, err := c.app.assertion(sess, ar, c.resource, time.Now())
 	if err != nil {
@@ -200,6 +215,17 @@ func (c *OAuthChecker) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			c.Scopes = append(c.Scopes, d.RemainingArgs()...)
 		case "require":
 			c.Require = append(c.Require, d.RemainingArgs()...)
+		case "groups":
+			args := d.RemainingArgs()
+			if len(args) == 0 {
+				return d.ArgErr()
+			}
+			c.Groups = append(c.Groups, args...)
+		case "any_group":
+			if d.NextArg() {
+				return d.ArgErr()
+			}
+			c.AnyGroup = true
 		default:
 			return d.Errf("oauth: unknown option %q", d.Val())
 		}

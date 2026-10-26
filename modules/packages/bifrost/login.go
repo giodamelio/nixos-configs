@@ -47,10 +47,9 @@ func (l *login) init(ctx context.Context) (*oauth2.Config, *oidc.IDTokenVerifier
 	if err != nil {
 		return nil, nil, fmt.Errorf("discovering %s: %w", l.cfg.OIDCIssuer, err)
 	}
-	scopes := []string{oidc.ScopeOpenID, "profile", "email"}
-	if len(l.cfg.AllowedGroups) > 0 {
-		scopes = append(scopes, "groups")
-	}
+	// groups is always requested: services can restrict by group even when
+	// login itself is open to every account.
+	scopes := []string{oidc.ScopeOpenID, "profile", "email", "groups"}
 	l.oauth = &oauth2.Config{
 		ClientID:     l.cfg.ClientID,
 		ClientSecret: l.secret,
@@ -82,6 +81,7 @@ type user struct {
 	Username string
 	Email    string
 	Name     string
+	Groups   []string
 	AuthTime time.Time
 }
 
@@ -136,6 +136,7 @@ func (l *login) exchange(ctx context.Context, f *flow, code string, now time.Tim
 		Username: username,
 		Email:    claims.Email,
 		Name:     claims.Name,
+		Groups:   claims.Groups,
 		AuthTime: authTime,
 	}, nil
 }

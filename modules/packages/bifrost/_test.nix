@@ -172,6 +172,7 @@
             host notes.${domain}
             scopes notes:read notes:write
             require notes:read
+            groups bifrost
           }
           rewrite * /mcp{uri}
           reverse_proxy 127.0.0.1:9000 {

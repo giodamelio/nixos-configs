@@ -55,7 +55,10 @@ in {
                 respond "hook-ok" 200
               '';
               notes = {
-                oauth.scopes = ["notes:read"];
+                oauth = {
+                  scopes = ["notes:read"];
+                  groups = [];
+                };
                 config = ''respond "notes-ok" 200'';
               };
             };

@@ -154,7 +154,7 @@ func TestStripBifrostHeaders(t *testing.T) {
 
 func TestCanonicalResource(t *testing.T) {
 	rr := newResourceRegistry()
-	if err := rr.register("https://notes.external.gio.ninja", nil); err != nil {
+	if err := rr.register("https://notes.external.gio.ninja", nil, nil); err != nil {
 		t.Fatal(err)
 	}
 	for in, want := range map[string]string{

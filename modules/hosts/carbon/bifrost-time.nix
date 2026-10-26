@@ -22,7 +22,7 @@ _: {
     };
 
     gio.bifrost.services.time = {
-      oauth = {};
+      oauth.groups = [];
       config = ''
         reverse_proxy 127.0.0.1:${toString port}
       '';

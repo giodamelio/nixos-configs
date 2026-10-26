@@ -290,6 +290,15 @@ func (a *App) handleCallback(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/admin", http.StatusSeeOther)
 		return
 	}
+	for _, res := range f.resources {
+		if !inAllowedGroup(a.resources.groups(res), u.Groups) {
+			a.shared.flows.finish(f.id)
+			a.logger.Warn("grant refused: not in an allowed group",
+				zap.String("user", u.Username), zap.String("resource", res), zap.String("remote_ip", clientIP(r)))
+			a.provider.WriteAuthorizeError(r.Context(), w, f.ar, fosite.ErrAccessDenied.WithHintf("%s is not in a group allowed to use %s.", u.Username, res))
+			return
+		}
+	}
 	a.renderConsent(w, f)
 }
 
@@ -329,6 +338,7 @@ func (a *App) handleConsent(w http.ResponseWriter, r *http.Request) {
 		Email:      f.user.Email,
 		Name:       f.user.Name,
 		ClientName: clientName(client),
+		Groups:     f.user.Groups,
 	}
 	resp, err := a.provider.NewAuthorizeResponse(ctx, f.ar, sess)
 	if err != nil {
@@ -345,6 +355,7 @@ func (a *App) handleConsent(w http.ResponseWriter, r *http.Request) {
 		RedirectHost: redirectHost(f.ar),
 		Audience:     f.ar.GetGrantedAudience(),
 		Scopes:       f.ar.GetGrantedScopes(),
+		Groups:       f.user.Groups,
 		CreatedAt:    time.Now().UTC(),
 	}
 	if err := a.shared.store.createGrant(ctx, grant); err != nil {

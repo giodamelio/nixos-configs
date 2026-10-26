@@ -191,8 +191,8 @@ func (a *App) Cleanup() error {
 	return err
 }
 
-func (a *App) registerResource(uri string, scopes []string) error {
-	return a.resources.register(uri, scopes)
+func (a *App) registerResource(uri string, scopes, groups []string) error {
+	return a.resources.register(uri, scopes, groups)
 }
 
 func deriveKey(secret []byte, purpose string) []byte {

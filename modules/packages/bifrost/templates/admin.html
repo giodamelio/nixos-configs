@@ -26,6 +26,7 @@
       <dl>
         <dt>Resource</dt><dd>{{range .Audience}}<div class="mono">{{.}}</div>{{end}}</dd>
         <dt>Scopes</dt><dd>{{with .Scopes}}{{join . " "}}{{else}}<span class="muted">none</span>{{end}}</dd>
+        <dt>Groups</dt><dd>{{with .Groups}}{{join . " "}}{{else}}<span class="muted">none</span>{{end}} <span class="muted">at approval</span></dd>
         <dt>Redirect host</dt><dd class="mono">{{.RedirectHost}}</dd>
         <dt>Created</dt><dd>{{when .CreatedAt}}</dd>
         <dt>Last used</dt><dd>{{ago .LastUsed}}{{with .LastIP}} from <span class="mono">{{.}}</span>{{end}}</dd>

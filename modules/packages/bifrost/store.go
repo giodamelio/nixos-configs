@@ -144,6 +144,7 @@ type Grant struct {
 	RedirectHost string    `json:"redirect_host"`
 	Audience     []string  `json:"audience"`
 	Scopes       []string  `json:"scopes"`
+	Groups       []string  `json:"groups,omitempty"`
 	CreatedAt    time.Time `json:"created_at"`
 	LastUsed     time.Time `json:"last_used"`
 	LastIP       string    `json:"last_ip"`

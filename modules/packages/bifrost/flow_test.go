@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -114,6 +115,9 @@ type harness struct {
 	server  *AuthServer
 	notes   *OAuthChecker
 	other   *OAuthChecker
+	// team admits the fake OP's user (group bifrost); family doesn't.
+	team   *OAuthChecker
+	family *OAuthChecker
 }
 
 func newHarness(t *testing.T, storage certmagic.Storage, op *fakeOP, keyFile, secret string) *harness {
@@ -133,9 +137,12 @@ func newHarness(t *testing.T, storage certmagic.Storage, op *fakeOP, keyFile, se
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = h.app.Cleanup() })
-	h.notes = &OAuthChecker{Host: "notes.test", Scopes: []string{"notes:read", "notes:write"}, Require: []string{"notes:read"}}
-	h.other = &OAuthChecker{Host: "other.test", Scopes: []string{"other"}}
-	for _, c := range []*OAuthChecker{h.notes, h.other} {
+	h.notes = &OAuthChecker{Host: "notes.test", Scopes: []string{"notes:read", "notes:write"}, Require: []string{"notes:read"}, AnyGroup: true}
+	h.other = &OAuthChecker{Host: "other.test", Scopes: []string{"other"}, AnyGroup: true}
+	// Both offer notes:read because the authorize helper always requests it.
+	h.team = &OAuthChecker{Host: "team.test", Scopes: []string{"notes:read"}, Groups: []string{"bifrost", "admins"}}
+	h.family = &OAuthChecker{Host: "family.test", Scopes: []string{"notes:read"}, Groups: []string{"family"}}
+	for _, c := range []*OAuthChecker{h.notes, h.other, h.team, h.family} {
 		if err := c.setup(h.app); err != nil {
 			t.Fatal(err)
 		}
@@ -277,7 +284,7 @@ func newTestEnv(t *testing.T) (certmagic.Storage, *fakeOP, string, string) {
 
 func TestAllScopesEncodesAsArrayWhenEmpty(t *testing.T) {
 	rr := newResourceRegistry()
-	if err := rr.register("https://time.test", nil); err != nil {
+	if err := rr.register("https://time.test", nil, nil); err != nil {
 		t.Fatal(err)
 	}
 	b, err := json.Marshal(rr.allScopes())
@@ -539,6 +546,61 @@ func TestAdminAndPersistence(t *testing.T) {
 		}
 		if _, status := h.token(url.Values{"grant_type": {"refresh_token"}, "refresh_token": {tk.Refresh}, "client_id": {clientID}}); status == 200 {
 			t.Fatal("revoked refresh token still works")
+		}
+	})
+}
+
+func TestGroupRestrictedResources(t *testing.T) {
+	storage, op, keyFile, secret := newTestEnv(t)
+	h := newHarness(t, storage, op, keyFile, secret)
+	clientID := h.register()
+
+	t.Run("a guard must choose groups or any_group", func(t *testing.T) {
+		for _, c := range []*OAuthChecker{
+			{Host: "open.test"},
+			{Host: "both.test", Groups: []string{"family"}, AnyGroup: true},
+		} {
+			if err := c.setup(h.app); err == nil {
+				t.Fatalf("%s was accepted", c.Host)
+			}
+		}
+	})
+
+	t.Run("a user in none of the groups is refused before consent", func(t *testing.T) {
+		_, challenge := pkcePair()
+		code, final := h.authorize(t, clientID, challenge, "https://family.test", time.Now())
+		if code != "" || final == nil || final.Query().Get("error") != "access_denied" {
+			t.Fatalf("expected access_denied, got code %q redirect %v", code, final)
+		}
+		if len(h.app.shared.store.listGrants()) != 0 {
+			t.Fatal("a refused authorization created a grant")
+		}
+	})
+
+	verifier, challenge := pkcePair()
+	code, _ := h.authorize(t, clientID, challenge, "https://team.test", time.Now())
+	tk, status := h.token(url.Values{
+		"grant_type": {"authorization_code"}, "code": {code}, "redirect_uri": {redirectURI},
+		"client_id": {clientID}, "code_verifier": {verifier}, "resource": {"https://team.test"},
+	})
+	if status != 200 {
+		t.Fatalf("token: %d %+v", status, tk)
+	}
+
+	t.Run("a user in one of the groups is admitted and the grant records them", func(t *testing.T) {
+		if _, f, _ := h.call(h.team, tk.Access); f != nil {
+			t.Fatalf("check failed: %+v", f)
+		}
+		grants := h.app.shared.store.listGrants()
+		if len(grants) != 1 || !slices.Equal(grants[0].Groups, []string{"bifrost"}) {
+			t.Fatalf("grants: %+v", grants)
+		}
+	})
+
+	t.Run("restricting a resource later locks out existing grants", func(t *testing.T) {
+		stricter := &OAuthChecker{Host: "team.test", Scopes: []string{"notes:read"}, Groups: []string{"admins"}, app: h.app, resource: "https://team.test"}
+		if _, f, _ := h.call(stricter, tk.Access); f == nil || f.Status != http.StatusForbidden {
+			t.Fatalf("expected a 403, got %+v", f)
 		}
 	})
 }

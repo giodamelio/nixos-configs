@@ -208,7 +208,7 @@ fosite's `DefaultAudienceMatchingStrategy` (`audience_strategy.go`) already trea
 
 | Checker | Verifies | Config |
 |---|---|---|
-| `oauth` | A bifrost access token for this subdomain, with the required scopes | `scopes` |
+| `oauth` | A bifrost access token for this subdomain, with the required scopes, approved by a user in an allowed group | `scopes`, `require`, and `groups` or `any_group` |
 | `hmac` | A body signature, GitHub style or timestamped | `header`, `prefix`, `algorithm`, `secret_file`, optional `timestamp_header` and `tolerance` |
 | `bearer` | A static token, compared in constant time | `token_file` |
 
@@ -234,6 +234,24 @@ The `oauth` guard answers any `/.well-known/oauth-protected-resource*` path on i
 Failures follow the spec:
 - **Missing, invalid or expired token:** 401 with `resource_metadata` and `scope`.
 - **Insufficient scope:** 403 with `error="insufficient_scope"`.
+
+### Restrict a service to Pocket ID groups
+
+Every `oauth` guard must say who may use it, so a new service is never open to every account by accident:
+- **`groups family admins`:** members of any one listed group. In Nix, `oauth.groups = ["family" "admins"]`.
+- **`any_group`:** every account that can log in to bifrost, which `login.allowed_groups` already limits. In Nix, `oauth.groups = []`.
+
+A guard with neither fails to load, and the Nix option has no default.
+
+bifrost checks groups twice:
+- **At login.** After Pocket ID, a user in none of the resource's groups gets `access_denied` before the consent screen, and no grant is created.
+- **On every request.** A user's groups are recorded on the grant and its tokens when they approve it. A request whose recorded groups don't match gets a 403.
+
+The recorded groups are a snapshot, so changes in Pocket ID don't reach existing grants:
+- **Removing someone from a group** doesn't affect a grant they already hold. Revoke it on `/admin`.
+- **Restricting a service later** locks out its existing grants, including ones approved before groups were recorded. Revoke the grant on `/admin`; the client then gets a 401 and logs in again, which records the current groups.
+
+The admin page shows each grant's recorded groups.
 
 ### Register resources from guards
 
@@ -408,6 +426,8 @@ gio.bifrost = {
       oauth = {
         scopes = ["notes:read" "notes:write"];
         require = ["notes:read"];
+        # Required. [] admits every account that can log in to bifrost.
+        groups = ["family"];
       };
       config = ''
         rewrite * /mcp{uri}
