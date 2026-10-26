@@ -32,6 +32,7 @@ type Identity struct {
 	ClientName string
 	GrantID    string
 	Scopes     []string
+	Groups     []string
 	Assertion  string
 }
 

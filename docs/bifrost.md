@@ -223,7 +223,7 @@ On every request, before checking, the guard deletes any incoming `X-Bifrost-*` 
 When the `oauth` check passes, the guard also:
 - removes `Authorization` (the MCP spec forbids passing the token through);
 - sets `X-Bifrost-Assertion`;
-- exposes `{vars.bifrost_user}`, `{vars.bifrost_sub}`, `{vars.bifrost_email}`, `{vars.bifrost_name}`, `{vars.bifrost_client_id}`, `{vars.bifrost_client_name}`, `{vars.bifrost_scopes}` and `{vars.bifrost_grant_id}` for `header_up`. They use underscores because the Caddyfile's `{vars.*}` shorthand doesn't match dots.
+- exposes `{vars.bifrost_user}`, `{vars.bifrost_sub}`, `{vars.bifrost_email}`, `{vars.bifrost_name}`, `{vars.bifrost_client_id}`, `{vars.bifrost_client_name}`, `{vars.bifrost_scopes}`, `{vars.bifrost_groups}` and `{vars.bifrost_grant_id}` for `header_up`. Scopes and groups are space-separated. They use underscores because the Caddyfile's `{vars.*}` shorthand doesn't match dots.
 
 The `hmac` and `bearer` checkers leave `Authorization` alone and add no identity, because there's no user.
 
@@ -273,6 +273,7 @@ On a passing `oauth` check, bifrost adds `X-Bifrost-Assertion`, a JWT (RFC 7519)
 | `email`, `name` | From Pocket ID |
 | `client_id`, `client_name` | The OAuth client |
 | `scope` | Granted scopes |
+| `groups` | The user's Pocket ID groups, as recorded when the grant was approved; an array, empty if none |
 | `grant_id` | The grant, matching the admin page |
 | `iat`, `exp` | Two-minute lifetime |
 | header `kid` | The signing key |

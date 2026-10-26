@@ -1,5 +1,6 @@
 # Throwaway webhook target for testing bifrost's NATS publishing end to end.
 # Delete when done.
+# REMIND-ME-TO: Delete this natstest target and run `nats stream rm BIFROST_TEST` on carbon once a real JetStream webhook uses bifrost date_passed=2027-01-24
 _: {
   den.aspects.carbon.nixos = {pkgs, ...}: {
     gio.nats.streams.BIFROST_TEST = {

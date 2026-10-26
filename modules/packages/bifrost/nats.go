@@ -111,6 +111,7 @@ type MessageIdentity struct {
 	ClientName string   `json:"client_name"`
 	GrantID    string   `json:"grant_id"`
 	Scopes     []string `json:"scopes"`
+	Groups     []string `json:"groups"`
 }
 
 // NATSPublisher answers 202 once the request is on NATS, and 503 if it
@@ -264,6 +265,7 @@ func buildMessage(r *http.Request, body []byte, now time.Time) RequestMessage {
 			ClientName: get("client_name"),
 			GrantID:    get("grant_id"),
 			Scopes:     strings.Fields(get("scopes")),
+			Groups:     strings.Fields(get("groups")),
 		}
 	}
 	return msg

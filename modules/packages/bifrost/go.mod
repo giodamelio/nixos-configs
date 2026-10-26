@@ -12,6 +12,9 @@ require (
 	github.com/mholt/caddy-ratelimit v0.1.0
 	github.com/nats-io/nats-server/v2 v2.15.1
 	github.com/nats-io/nats.go v1.55.0
+	// Pinned: fosite v0.48+ needs ristretto v1, but Caddy's caddypki pulls in
+	// badger, which needs ristretto v0.2 (docs/bifrost.md).
+	// REMIND-ME-TO: Check whether Caddy's badger or fosite's ristretto moved so fosite can be bumped past v0.47 and the pin dropped date_passed=2026-11-25
 	github.com/ory/fosite v0.47.0
 	go.uber.org/zap v1.28.0
 	golang.org/x/crypto v0.57.0

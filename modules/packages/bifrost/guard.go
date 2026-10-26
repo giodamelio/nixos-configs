@@ -104,6 +104,7 @@ func setIdentity(r *http.Request, id *Identity) {
 		"client_name": id.ClientName,
 		"grant_id":    id.GrantID,
 		"scopes":      strings.Join(id.Scopes, " "),
+		"groups":      strings.Join(id.Groups, " "),
 	}
 	// Underscores, not dots: the Caddyfile's {vars.*} shorthand only matches [\w-].
 	for k, v := range vars {

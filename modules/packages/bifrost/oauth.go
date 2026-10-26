@@ -180,6 +180,7 @@ func (c *OAuthChecker) Check(r *http.Request) (*Identity, *Failure) {
 		ClientName: sess.ClientName,
 		GrantID:    ar.GetID(),
 		Scopes:     granted,
+		Groups:     sess.Groups,
 		Assertion:  assertion,
 	}, nil
 }
@@ -195,6 +196,7 @@ func (a *App) assertion(sess *Session, ar fosite.Requester, resource string, now
 		"client_id":          ar.GetClient().GetID(),
 		"client_name":        sess.ClientName,
 		"scope":              strings.Join(ar.GetGrantedScopes(), " "),
+		"groups":             append([]string{}, sess.Groups...),
 		"grant_id":           ar.GetID(),
 		"iat":                now.Unix(),
 		"exp":                now.Add(time.Duration(a.AssertionLifetime)).Unix(),

@@ -1,4 +1,5 @@
 # Throwaway MCP server for testing bifrost's OAuth end to end. Delete when done.
+# REMIND-ME-TO: Delete this time MCP server, .mcp.json and its grants once a real MCP server is behind bifrost date_passed=2027-01-24
 _: {
   den.aspects.carbon.nixos = {
     pkgs,

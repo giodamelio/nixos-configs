@@ -385,6 +385,9 @@ func TestOAuthFlow(t *testing.T) {
 		if claims["aud"] != "https://notes.test" || claims["sub"] != "user-1" || claims["grant_id"] != id.GrantID {
 			t.Fatalf("claims: %v", claims)
 		}
+		if g, _ := claims["groups"].([]any); len(g) != 1 || g[0] != "bifrost" || !slices.Equal(id.Groups, []string{"bifrost"}) {
+			t.Fatalf("groups: claim %v identity %v", claims["groups"], id.Groups)
+		}
 	})
 
 	t.Run("the token is refused by another resource", func(t *testing.T) {

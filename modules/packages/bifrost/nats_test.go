@@ -133,11 +133,11 @@ func TestNATSPublisher(t *testing.T) {
 	t.Run("an oauth identity is carried", func(t *testing.T) {
 		vars := map[string]any{
 			"bifrost_sub": "user-1", "bifrost_user": "gio", "bifrost_client_id": "c1",
-			"bifrost_grant_id": "g1", "bifrost_scopes": "notes:read notes:write",
+			"bifrost_grant_id": "g1", "bifrost_scopes": "notes:read notes:write", "bifrost_groups": "bifrost family",
 		}
 		serve(caddyRequest(http.MethodPost, "https://notes.test/", "", vars))
 		msg := next()
-		if msg.Identity == nil || msg.Identity.Username != "gio" || len(msg.Identity.Scopes) != 2 {
+		if msg.Identity == nil || msg.Identity.Username != "gio" || len(msg.Identity.Scopes) != 2 || len(msg.Identity.Groups) != 2 {
 			t.Fatalf("identity: %+v", msg.Identity)
 		}
 	})
