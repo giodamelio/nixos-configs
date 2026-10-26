@@ -436,6 +436,10 @@ _: {
           *.${cfg.domain} {
             ${cfg.tls}
 
+            bifrost_stats {
+              hosts ${toString ([authHost] ++ map (n: "${n}.${cfg.domain}") (lib.attrNames cfg.services))}
+            }
+
             @auth host ${authHost}
             handle @auth {
               route {

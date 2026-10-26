@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 )
 
 func writeSecret(t *testing.T, value string) string {
@@ -149,6 +151,34 @@ func TestStripBifrostHeaders(t *testing.T) {
 	stripBifrostHeaders(h)
 	if len(h) != 1 || h.Get("X-Other") != "kept" {
 		t.Fatalf("unexpected headers left: %v", h)
+	}
+}
+
+func TestStatsCountsConfiguredHostsAndBucketsTheRest(t *testing.T) {
+	s := newStats()
+	s.recordRequest("stale.test")
+	s.setHosts([]string{"a.test", "b.test"})
+
+	c := &Counter{stats: s}
+	next := caddyhttp.HandlerFunc(func(http.ResponseWriter, *http.Request) error { return nil })
+	for _, host := range []string{"a.test", "random1.test", "random2.test"} {
+		if err := c.ServeHTTP(httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "https://"+host+"/", nil), next); err != nil {
+			t.Fatal(err)
+		}
+	}
+	s.recordFailure(httptest.NewRequest(http.MethodGet, "https://random3.test/", nil), "reject", &Failure{Status: 404, Reason: "no route"})
+
+	services, failures := s.snapshot()
+	got := map[string]ServiceStats{}
+	for _, svc := range services {
+		got[svc.Host] = svc
+	}
+	if len(got) != 3 || got["a.test"].Requests != 1 || got["b.test"].Requests != 0 ||
+		got[otherHosts].Requests != 2 || got[otherHosts].Failures != 1 {
+		t.Fatalf("services: %+v", services)
+	}
+	if len(failures) != 1 || failures[0].Host != "random3.test" {
+		t.Fatalf("recent failures should keep the real host: %+v", failures)
 	}
 }
 

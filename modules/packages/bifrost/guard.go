@@ -87,9 +87,6 @@ func (g *Guard) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp
 	if id != nil {
 		setIdentity(r, id)
 	}
-	if g.stats != nil {
-		g.stats.recordRequest(requestHost(r))
-	}
 	return next.ServeHTTP(w, r)
 }
 

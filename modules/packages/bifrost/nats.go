@@ -122,7 +122,6 @@ type NATSPublisher struct {
 	MaxBody   int64  `json:"max_body,omitempty"`
 
 	conn   *natsConn
-	stats  *Stats
 	logger *zap.Logger
 }
 
@@ -144,7 +143,6 @@ func (h *NATSPublisher) Provision(ctx caddy.Context) error {
 		return fmt.Errorf("bifrost_nats needs a nats block in the global bifrost block")
 	}
 	h.conn = a.natsConn
-	h.stats = a.shared.stats
 	return h.setup()
 }
 
@@ -196,10 +194,6 @@ func (h *NATSPublisher) ServeHTTP(w http.ResponseWriter, r *http.Request, _ cadd
 	defer cancel()
 	if err := h.publish(ctx, subject, data); err != nil {
 		return fail(http.StatusServiceUnavailable, err.Error())
-	}
-
-	if h.stats != nil {
-		h.stats.recordRequest(requestHost(r))
 	}
 	writeJSON(w, http.StatusAccepted, map[string]string{"status": "accepted"})
 	return nil
