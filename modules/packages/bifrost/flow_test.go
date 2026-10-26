@@ -275,6 +275,20 @@ func newTestEnv(t *testing.T) (certmagic.Storage, *fakeOP, string, string) {
 		writeSecret(t, strings.Repeat("k", 48)), writeSecret(t, "op-client-secret")
 }
 
+func TestAllScopesEncodesAsArrayWhenEmpty(t *testing.T) {
+	rr := newResourceRegistry()
+	if err := rr.register("https://time.test", nil); err != nil {
+		t.Fatal(err)
+	}
+	b, err := json.Marshal(rr.allScopes())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(b) != "[]" {
+		t.Fatalf("allScopes encodes as %s, want []", b)
+	}
+}
+
 func TestOAuthFlow(t *testing.T) {
 	storage, op, keyFile, secret := newTestEnv(t)
 	h := newHarness(t, storage, op, keyFile, secret)
@@ -527,6 +541,43 @@ func TestAdminAndPersistence(t *testing.T) {
 			t.Fatal("revoked refresh token still works")
 		}
 	})
+}
+
+func TestLocalhostRedirectAnyPort(t *testing.T) {
+	storage, op, keyFile, secret := newTestEnv(t)
+	h := newHarness(t, storage, op, keyFile, secret)
+
+	r := httptest.NewRequest(http.MethodPost, "/register", strings.NewReader(`{"redirect_uris":["http://localhost/callback"],"client_name":"Port Client","token_endpoint_auth_method":"none"}`))
+	r.Header.Set("Content-Type", "application/json")
+	rr := h.do(r)
+	if rr.Code != http.StatusCreated {
+		t.Fatalf("register: %d %s", rr.Code, rr.Body)
+	}
+	var reg map[string]any
+	_ = json.Unmarshal(rr.Body.Bytes(), &reg)
+	clientID := reg["client_id"].(string)
+
+	_, challenge := pkcePair()
+	authorize := func(redirect string) *httptest.ResponseRecorder {
+		q := url.Values{
+			"response_type": {"code"}, "client_id": {clientID}, "redirect_uri": {redirect},
+			"state": {"state-123456"}, "code_challenge": {challenge}, "code_challenge_method": {"S256"},
+			"resource": {"https://notes.test"},
+		}
+		return h.do(httptest.NewRequest(http.MethodGet, "/authorize?"+q.Encode(), nil))
+	}
+
+	rr = authorize("http://localhost:62222/callback")
+	if loc := rr.Header().Get("Location"); rr.Code != http.StatusFound || !strings.HasPrefix(loc, h.op.URL+"/authorize") {
+		t.Fatalf("a localhost redirect on another port was refused: %d %s %s", rr.Code, loc, rr.Body)
+	}
+
+	for _, bad := range []string{"http://localhost:62222/elsewhere", "http://127.0.0.2:62222/callback", "https://localhost:62222/callback"} {
+		rr = authorize(bad)
+		if strings.HasPrefix(rr.Header().Get("Location"), h.op.URL) {
+			t.Fatalf("%s was accepted", bad)
+		}
+	}
 }
 
 func TestMetadataDocumentClient(t *testing.T) {

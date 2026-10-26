@@ -72,13 +72,39 @@ func (cr *clientRegistry) GetClient(ctx context.Context, id string) (fosite.Clie
 			return nil, fosite.ErrInvalidClient.WithHintf("Fetching the client ID metadata document failed: %v", err).WithWrap(err)
 		}
 		u, _ := url.Parse(id)
-		return cr.build(id, doc.ClientName, doc.RedirectURIs, authMethodNone, nil, u.Hostname()), nil
+		return cr.build(id, doc.ClientName, withLocalhostPort(ctx, doc.RedirectURIs), authMethodNone, nil, u.Hostname()), nil
 	}
 	c, ok := cr.store.storedClient(id)
 	if !ok {
 		return nil, fosite.ErrNotFound
 	}
-	return cr.build(c.ID, c.Name, c.RedirectURIs, c.TokenEndpointAuthMethod, c.SecretHash, ""), nil
+	return cr.build(c.ID, c.Name, withLocalhostPort(ctx, c.RedirectURIs), c.TokenEndpointAuthMethod, c.SecretHash, ""), nil
+}
+
+type requestedRedirectKey struct{}
+
+func withRequestedRedirect(ctx context.Context, redirectURI string) context.Context {
+	return context.WithValue(ctx, requestedRedirectKey{}, redirectURI)
+}
+
+// fosite applies RFC 8252's any-port rule only to loopback IP literals, but
+// Claude Code registers http://localhost/callback and listens on a random
+// port. This admits the authorize request's own redirect_uri when it differs
+// from a registered http://localhost URI only by port.
+func withLocalhostPort(ctx context.Context, registered []string) []string {
+	raw, _ := ctx.Value(requestedRedirectKey{}).(string)
+	requested, err := url.Parse(raw)
+	if err != nil || requested.Scheme != "http" || requested.Hostname() != "localhost" {
+		return registered
+	}
+	for _, r := range registered {
+		u, err := url.Parse(r)
+		if err == nil && u.Scheme == "http" && u.Hostname() == "localhost" &&
+			u.Path == requested.Path && u.RawQuery == requested.RawQuery {
+			return append(append([]string{}, registered...), raw)
+		}
+	}
+	return registered
 }
 
 func (cr *clientRegistry) build(id, name string, redirects []string, method string, secretHash []byte, metadataHost string) *bifrostClient {

@@ -273,6 +273,9 @@ _: {
           reverseProxy = false;
           extraConfig = ''
             reverse_proxy https://127.0.0.1:${toString cfg.port} {
+              # An HTTPS upstream otherwise gets Host: 127.0.0.1:<port>, which
+              # matches none of bifrost's routes.
+              header_up Host {host}
               transport http {
                 tls_server_name auth.${cfg.domain}
               }

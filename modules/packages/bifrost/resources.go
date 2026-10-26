@@ -73,7 +73,8 @@ func (rr *resourceRegistry) allScopes() []string {
 	rr.mu.RLock()
 	defer rr.mu.RUnlock()
 	seen := map[string]bool{}
-	var out []string
+	// MCP clients reject a null scopes_supported; it must encode as [].
+	out := []string{}
 	for _, scopes := range rr.resources {
 		for _, s := range scopes {
 			if !seen[s] {

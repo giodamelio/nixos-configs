@@ -191,7 +191,7 @@ func (a *App) handleAuthorize(w http.ResponseWriter, r *http.Request) {
 	}
 	resources, resErr := a.resolveResources(r.Form)
 
-	ar, err := a.provider.NewAuthorizeRequest(ctx, r)
+	ar, err := a.provider.NewAuthorizeRequest(withRequestedRedirect(ctx, r.Form.Get("redirect_uri")), r)
 	if err != nil {
 		a.provider.WriteAuthorizeError(ctx, w, ar, err)
 		return

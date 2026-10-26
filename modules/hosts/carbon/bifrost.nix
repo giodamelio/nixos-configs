@@ -3,8 +3,11 @@
 {den, ...}: {
   den.aspects.carbon.includes = [den.aspects.bifrost];
 
-  den.aspects.carbon.nixos = {lib, ...}: {
-    gio.bifrost.login.clientId = lib.mkDefault (throw "bifrost: create the bifrost OIDC client in Pocket ID (redirect URI https://auth.external.gio.ninja/callback, group bifrost) and put its client ID in modules/hosts/carbon/bifrost.nix");
+  den.aspects.carbon.nixos = {
+    # carbon's own cluster member (den.aspects.nats); it has no client auth.
+    gio.bifrost.nats.url = "nats://127.0.0.1:4222";
+
+    gio.bifrost.login.clientId = "107d56fb-5157-485e-af6e-f040744253fc";
 
     disko.devices.zpool.bowl.datasets.bifrost = {
       type = "zfs_fs";
