@@ -64,6 +64,9 @@ in {
             };
           };
 
+          # A deploy that forces caddy-bifrost to restart, as a new binary does.
+          specialisation.restarted.configuration.systemd.services.caddy-bifrost.environment.BIFROST_TEST_GENERATION = "2";
+
           systemd.services.bifrost-test-credentials = {
             requiredBy = consumers;
             before = consumers;
@@ -85,7 +88,10 @@ in {
 
       den.aspects.atk.nixos = {pkgs, ...}: {
         system.stateVersion = "25.11";
-        environment.systemPackages = [pkgs.curl];
+        environment.systemPackages = [
+          pkgs.curl
+          (pkgs.writeShellScriptBin "curl3" ''exec ${pkgs.curlHTTP3}/bin/curl "$@"'')
+        ];
       };
     };
 
@@ -127,6 +133,33 @@ in {
           assert prm["resource"] == "https://notes.${domain}", prm
           assert status(url("notes")) == 401
           assert status(url("unknown")) == 404
+
+      with subtest("HTTP/3 is served on the same port"):
+          code = atk.succeed(
+              f"curl3 --http3-only -sk --max-time 5 -o /dev/null -w '%{{http_code}}' "
+              f"-H 'Authorization: Bearer ${secrets.hook_token}' {url('hooks')}"
+          ).strip()
+          assert code == "200", code
+
+      with subtest("a deploy that restarts bifrost refuses no connections"):
+          socket_since = srv.succeed("systemctl show -p ActiveEnterTimestampMonotonic --value caddy-bifrost.socket").strip()
+          pid = srv.succeed("systemctl show -p MainPID --value caddy-bifrost.service").strip()
+          atk.succeed(
+              "nohup sh -c 'for i in $(seq 150); do "
+              f"curl -sk --max-time 20 -o /dev/null -w \"%{{http_code}} %{{time_total}} %{{exitcode}} %{{errormsg}}\\n\" -H \"Authorization: Bearer ${secrets.hook_token}\" {url('hooks')}; "
+              "sleep 0.1; done > /tmp/probe.log 2>&1; touch /tmp/probe.done' >/dev/null 2>&1 &"
+          )
+          atk.sleep(2)
+          srv.succeed("/run/current-system/specialisation/restarted/bin/switch-to-configuration test")
+          atk.wait_for_file("/tmp/probe.done", timeout=120)
+          assert srv.succeed("systemctl show -p MainPID --value caddy-bifrost.service").strip() != pid, "bifrost did not restart"
+          assert srv.succeed("systemctl show -p ActiveEnterTimestampMonotonic --value caddy-bifrost.socket").strip() == socket_since, "the socket was restarted"
+          results = [line.split(maxsplit=3) for line in atk.succeed("cat /tmp/probe.log").splitlines()]
+          failed = [r for r in results if r[0] != "200"]
+          slowest = max(float(r[1]) for r in results)
+          print(f"probe: {len(results)} requests, slowest {slowest:.2f}s, failed {failed}")
+          assert len(results) == 150 and not failed, failed
+          assert slowest < 15, slowest
 
       with subtest("repeated failures get the address banned at the firewall"):
           for _ in range(6):

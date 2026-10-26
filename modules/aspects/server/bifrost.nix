@@ -396,11 +396,20 @@ _: {
         globalConfig = ''
           auto_https disable_redirects
 
+          # Long MCP streams would otherwise hold a restart open until systemd
+          # kills it; clients reconnect, and new connections queue on the socket.
+          grace_period 5s
+
           # Only the internal Caddy's LAN proxy connects from loopback; internet
           # clients can't, so they can't set their own X-Forwarded-For.
           servers {
             trusted_proxies static 127.0.0.1/32 ::1/128
             client_ip_headers X-Forwarded-For
+            # After a restart, connections wait on the socket until the
+            # certificate is loaded instead of failing their handshakes.
+            listener_wrappers {
+              bifrost_cert_ready ${authHost}
+            }
           }
 
           bifrost {
@@ -435,6 +444,15 @@ _: {
         extraConfig = ''
           *.${cfg.domain} {
             ${cfg.tls}
+
+            # caddy-bifrost.socket holds the port across restarts. Caddy maps
+            # fdgram, not fd, to HTTP/3, so each socket names its protocols.
+            bind fd/3 {
+              protocols h1 h2
+            }
+            bind fdgram/4 {
+              protocols h3
+            }
 
             bifrost_stats {
               hosts ${toString ([authHost] ++ map (n: "${n}.${cfg.domain}") (lib.attrNames cfg.services))}
@@ -476,9 +494,28 @@ _: {
 
       fleet.credentials.needs = credentials;
 
-      systemd.services.${unit}.serviceConfig.LoadCredentialEncrypted = credentials;
+      # The socket outlives the service, so a restart queues new connections in
+      # the kernel instead of refusing them. fd 3 is the stream, fd 4 the datagram.
+      systemd.sockets.${unit} = {
+        wantedBy = ["sockets.target"];
+        listenStreams = [(toString cfg.port)];
+        listenDatagrams = [(toString cfg.port)];
+      };
 
-      networking.firewall.allowedTCPPorts = [cfg.port];
+      systemd.services.${unit} = {
+        requires = ["${unit}.socket"];
+        after = ["${unit}.socket"];
+        # A plain restart. Stopping first is what makes switch-to-configuration
+        # also stop and restart the socket, closing the port.
+        stopIfChanged = false;
+        serviceConfig.LoadCredentialEncrypted = credentials;
+      };
+
+      networking.firewall = {
+        allowedTCPPorts = [cfg.port];
+        # HTTP/3; the gateway forwards UDP 443 here too.
+        allowedUDPPorts = [cfg.port];
+      };
 
       services.fail2ban = {
         enable = true;
