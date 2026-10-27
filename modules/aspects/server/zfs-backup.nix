@@ -110,6 +110,17 @@ _: {
             });
           };
 
+          # All of a host's jobs would otherwise start at :00 together and trip
+          # gallium's sshd MaxStartups. A fixed offset keeps each one hourly.
+          systemd.timers = lib.listToAttrs (map (dataset:
+            lib.nameValuePair "syncoid-${escapeUnitName dataset}" {
+              timerConfig = {
+                RandomizedDelaySec = "15m";
+                FixedRandomDelay = true;
+              };
+            })
+          replicated);
+
           # Kick off the first full send on the deploy that adds a dataset instead
           # of waiting for the hourly timer. Retries every boot/switch until a
           # send has succeeded.
