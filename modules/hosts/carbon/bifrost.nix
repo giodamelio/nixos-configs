@@ -19,6 +19,13 @@
     };
   };
 
+  # A redirect, not a proxy: the admin login's OIDC callback and cookie are
+  # bound to the auth host.
+  den.hosts.x86_64-linux.carbon.services.bifrost-admin.endpoint = {
+    domain = "bifrost";
+    extraConfig = "redir https://auth.external.gio.ninja/admin";
+  };
+
   fleet.backups.zfs.carbon = ["bowl/bifrost"];
 
   # LAN clients reach bifrost through the internal Caddy (gio.bifrost.lanProxy)
