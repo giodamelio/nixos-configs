@@ -33,9 +33,41 @@ _: {
       }
     '';
 
+    # An allowlist: headers and query strings can carry credentials under any
+    # name, so they're dropped whole and only known-safe fields are added back.
+    accessLog = name: ''
+      log ${name} {
+        no_hostname
+        output stderr
+        format filter {
+          wrap json
+          request>headers delete
+          request>uri delete
+          resp_headers delete
+        }
+      }
+    '';
+
+    # Request fields are early (<) to record what the client sent, before any
+    # handler rewrites the path.
+    logFields = ''
+      log_append <path {http.request.uri.path}
+      log_append <user_agent {http.request.header.User-Agent}
+      log_append <content_type {http.request.header.Content-Type}
+      log_append <accept {http.request.header.Accept}
+      log_append <origin {http.request.header.Origin}
+      log_append <mcp_protocol_version {http.request.header.Mcp-Protocol-Version}
+      log_append resp_content_type {http.response.header.Content-Type}
+      log_append resp_www_authenticate {http.response.header.WWW-Authenticate}
+    '';
+
+    reservedNames = ["auth" "unmatched"];
+
     serviceBlock = name: svc: ''
       @${name} host ${name}.${cfg.domain}
       handle @${name} {
+        log_name ${name}
+        ${logFields}
         route {
           ${rateLimit name svc.rateLimit}
           ${lib.optionalString (svc.oauth != null) ''
@@ -349,8 +381,8 @@ _: {
         natsAssertions
         ++ [
           {
-            assertion = !(cfg.services ? auth);
-            message = "gio.bifrost.services: `auth` is reserved for bifrost's own authorization server.";
+            assertion = !(lib.any (n: cfg.services ? ${n}) reservedNames);
+            message = "gio.bifrost.services: `auth` is bifrost's own authorization server and `unmatched` is the access log for unknown hosts.";
           }
           {
             assertion = cfg.lanProxy -> lib.hasSuffix ".gio.ninja" cfg.domain;
@@ -458,8 +490,12 @@ _: {
               hosts ${toString ([authHost] ++ map (n: "${n}.${cfg.domain}") (lib.attrNames cfg.services))}
             }
 
+            ${lib.concatMapStrings accessLog (reservedNames ++ lib.attrNames cfg.services)}
+
             @auth host ${authHost}
             handle @auth {
+              log_name auth
+              ${logFields}
               route {
                 @admin path ${adminPaths}
                 @oauth not path ${adminPaths}
@@ -486,6 +522,8 @@ _: {
             ${lib.concatStrings (lib.mapAttrsToList serviceBlock cfg.services)}
 
             handle {
+              log_name unmatched
+              ${logFields}
               bifrost_reject
             }
           }
