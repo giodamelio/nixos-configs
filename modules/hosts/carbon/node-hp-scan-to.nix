@@ -23,7 +23,9 @@ _: {
       environment.SUPPRESS_NO_CONFIG_WARNING = "1";
 
       serviceConfig = {
-        ExecStart = "${perSystem.giopkgs.node-hp-scan-to}/bin/node-hp-scan-to -a 10.0.11.123 --health-check --health-check-port 19201 listen -d /var/lib/paperless/consume -l carbon --add-emulated-duplex --keep-files";
+        ExecStart = "${perSystem.giopkgs.node-hp-scan-to}/bin/node-hp-scan-to -a 10.0.11.123 --health-check --health-check-port 19201 listen -d /var/lib/paperless/consume -t %C/node-hp-scan-to -l carbon --add-emulated-duplex --keep-files";
+        # The default mkdtemp under /tmp lives for the whole process and gets reaped by systemd-tmpfiles-clean.
+        CacheDirectory = "node-hp-scan-to";
         Restart = "always";
         RestartSec = 10;
         User = "node-hp-scan-to";
