@@ -77,6 +77,11 @@ in
         (try-readwrite "/run/user/1000/herdr-proxy.sock")
         (set-env "HERDR_SOCKET_PATH" "/run/user/1000/herdr-proxy.sock")
         (set-env "CLAUDE_CODE_NO_FLICKER" "1")
+        # Claude saves .claude.json via temp file + rename(), which fails with
+        # EBUSY on the single-file ~/.claude.json bind, so keep it inside ~/.claude.
+        (add-runtime ''
+          RUNTIME_ARGS+=(--setenv CLAUDE_CONFIG_DIR "$HOME/.claude")
+        '')
 
         # Pass --dangerously-skip-permissions before user args
         (extra-args ["--dangerously-skip-permissions"])
