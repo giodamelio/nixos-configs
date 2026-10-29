@@ -54,6 +54,8 @@ _: {
         normal = {
           "I" = "hint inputs --first";
           "xx" = "config-cycle tabs.show always switching";
+          "<Ctrl-Shift-k>" = "tab-move -";
+          "<Ctrl-Shift-j>" = "tab-move +";
         };
       };
 
