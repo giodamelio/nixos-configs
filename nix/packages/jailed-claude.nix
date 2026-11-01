@@ -6,6 +6,18 @@
 }: let
   jail = import ../lib/jail-combinators.nix {inherit pkgs inputs;};
   claudeCode = perSystem.llm-agents.claude-code;
+  kache = perSystem.kache.kache;
+  # Paths as seen inside the jail; the store and runtime dir land under the
+  # host's ~/.cache/builds/jail.
+  kacheConfig = (pkgs.formats.toml {}).generate "kache-jail.toml" {
+    cache = {
+      local_store = "/home/giodamelio/.cache/builds/kache";
+      runtime_dir = "/home/giodamelio/.cache/builds/kache-run";
+      readonly_store = "/kache-host";
+      # bwrap sets NoNewPrivs, which otherwise blocks delegating to the jail's own daemon.
+      trust_daemon_execution = true;
+    };
+  };
 in
   # jail.nix interpolates Linux-only packages (shadow) at eval time, so calling
   # it on Darwin throws before Blueprint can filter on meta.platforms.
@@ -33,7 +45,16 @@ in
         (try-readwrite (noescape "~/.claude.json"))
         (try-readwrite (noescape "~/.config/claude"))
         (try-readwrite (noescape "~/.cache/claude"))
-        (try-readwrite (noescape "~/.cache/builds"))
+        # Only the jail's own slice of the builds disk, so it can neither read
+        # nor plant artifacts in target dirs or caches the host trusts.
+        (add-runtime ''
+          mkdir -p "$HOME/.cache/builds/jail"
+          RUNTIME_ARGS+=(--bind "$HOME/.cache/builds/jail" "$HOME/.cache/builds")
+        '')
+        # Read-only so SQLite cannot create side files in the host's store.
+        (add-runtime ''
+          RUNTIME_ARGS+=(--ro-bind-try "$HOME/.cache/builds/kache" /kache-host)
+        '')
         (try-readwrite (noescape "~/.cache/claude-cli-nodejs"))
         (try-readwrite (noescape "~/.local/state/claude"))
         (try-readwrite (noescape "~/.local/share/tuicr"))
@@ -77,6 +98,10 @@ in
         (try-readwrite "/run/user/1000/herdr-proxy.sock")
         (set-env "HERDR_SOCKET_PATH" "/run/user/1000/herdr-proxy.sock")
         (set-env "CLAUDE_CODE_NO_FLICKER" "1")
+        (set-env "RUSTC_WRAPPER" (pkgs.lib.getExe kache))
+        (set-env "KACHE_CONFIG" "${kacheConfig}")
+        # Empty disables the host layer, so the global /etc/kache/config.toml is ignored.
+        (set-env "KACHE_HOST_CONFIG" "")
         # Claude saves .claude.json via temp file + rename(), which fails with
         # EBUSY on the single-file ~/.claude.json bind, so keep it inside ~/.claude.
         (add-runtime ''

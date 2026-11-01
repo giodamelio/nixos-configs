@@ -102,6 +102,7 @@
     # Software Development tools
     den.aspects.software-development
     den.aspects.embedded-development
+    den.aspects.kache
 
     # Easy key rebinding
     den.aspects.keyd

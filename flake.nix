@@ -230,5 +230,10 @@
 
     # Self-hosted Unison Cloud packages. Not following nixpkgs so the Cachix builds hit.
     unison-cloud-in-a-bottle.url = "github:giodamelio/unison-cloud-in-a-bottle";
+
+    # kache v2 Rust build cache; nixpkgs only has 1.x. Not following nixpkgs so
+    # its pinned rust-overlay toolchain keeps building.
+    # REMIND-ME-TO: Move kache off the release candidate to the 2.0 release tag_exists=github:kunobi-ninja/kache@>=2.0.0
+    kache.url = "github:kunobi-ninja/kache/v2.0.0-rc.3";
   };
 }
