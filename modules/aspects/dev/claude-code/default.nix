@@ -8,7 +8,7 @@
 # The example agent/command markdown lives in ./agents and ./commands; a host
 # only gets them when it sets `programs.gio-claude-code.agents` / `.commands`
 # (cesium doesn't; calcium references them by relative path).
-_: {
+{inputs, ...}: {
   den.aspects.claude-code.homeManager = {
     config,
     lib,
@@ -34,6 +34,109 @@ _: {
         ln -s ${lib.getExe jailedClaude} $out/bin/claude
         # Also put the original (non-jailed) one in PATH as "claude-original"
         ln -s ${lib.getExe claudeCode} $out/bin/claude-original
+      '';
+    };
+
+    # SDK sessions (Claudian, `claude -p`) are hidden from `claude --resume`'s picker.
+    claude-resume-sdk-sessions = inputs.self.lib.writeNushellApplication pkgs {
+      name = "claude-resume-sdk-sessions";
+      runtimeInputs = [pkgs.ripgrep pkgs.skim];
+      source = ''
+        # The jsonl format is internal to Claude Code, so strict `get` makes a
+        # format change fail loudly instead of silently dropping sessions.
+        def session-info [file: path] {
+          let records = open --raw $file | from json --objects
+          let messages = $records | where type in [user assistant]
+          if ($messages | is-empty) { return null }
+          let last = $messages | last
+          let titles = $records | where type == ai-title
+          let prompts = $records | where type == last-prompt
+          let title = if not ($titles | is-empty) {
+            $titles | last | get aiTitle
+          } else if not ($prompts | is-empty) {
+            $prompts | last | get lastPrompt
+          } else {
+            "untitled"
+          }
+          {
+            updated: ($last | get timestamp | into datetime)
+            entrypoint: ($last | get entrypoint)
+            title: $title
+            cwd: ($last | get cwd)
+            id: ($last | get sessionId)
+            file: $file
+          }
+        }
+
+        def message-text [content: any] {
+          if ($content | describe) == string { return $content }
+          $content
+          | each {|block|
+            match ($block | get type) {
+              text => ($block | get text)
+              tool_use => $"[tool: ($block | get name)]"
+              _ => null
+            }
+          }
+          | compact
+          | str join "\n"
+        }
+
+        def "main preview" [file: path] {
+          open --raw $file
+          | from json --objects
+          | where type in [user assistant]
+          | where {|r| not ($r.isMeta? | default false) }
+          | each {|r|
+            let text = message-text ($r | get message.content) | str trim
+            if ($text | is-empty) { return null }
+            let role = if $r.type == user { $"(ansi green)you(ansi reset)" } else { $"(ansi cyan)claude(ansi reset)" }
+            $"($role): ($text)"
+          }
+          | compact
+          | last 30
+          | str join "\n\n"
+        }
+
+        def sdk-sessions [] {
+          let projects = $nu.home-dir | path join .claude projects
+          let found = ^rg --files-with-matches --fixed-strings --glob '*.jsonl' '"entrypoint":"sdk' $projects | complete
+          if $found.exit_code == 1 { return [] }
+          if $found.exit_code != 0 { error make {msg: $"rg failed: ($found.stderr)"} }
+          $found.stdout
+          | lines
+          | each {|f| session-info $f }
+          | where {|s| $s.entrypoint | str starts-with sdk }
+          | sort-by updated --reverse
+        }
+
+        # Defaults to the current directory, matching `claude --resume`.
+        def main [--all (-a)] {
+          let sessions = if $all { sdk-sessions } else { sdk-sessions | where cwd == $env.PWD }
+          if ($sessions | is-empty) {
+            error make {msg: (if $all { "no sdk sessions found" } else { $"no sdk sessions in ($env.PWD), use --all to see every directory" })}
+          }
+
+          let picked = try {
+            $sessions
+            | each {|s|
+              let title = $s.title | str replace --all --regex '\s+' ' '
+              [($s.updated | format date '%Y-%m-%d %H:%M') $s.entrypoint $title $s.cwd $s.id $s.file] | str join "\t"
+            }
+            | str join "\n"
+            | ^sk --no-sort --delimiter '\t' --with-nth '1..4' --preview-window 'up:60%:wrap' --preview $"'($env.CURRENT_FILE)' preview {6}"
+          } catch {
+            if $env.LAST_EXIT_CODE in [1 130] { exit 0 }
+            error make {msg: $"sk exited with ($env.LAST_EXIT_CODE)"}
+          }
+
+          let fields = $picked | str trim --right --char "\n" | split row "\t"
+          let cwd = $fields | get 3
+          let id = $fields | get 4
+          if not ($cwd | path exists) { error make {msg: $"session cwd no longer exists: ($cwd)"} }
+          cd $cwd
+          exec claude --resume $id
+        }
       '';
     };
   in {
@@ -78,6 +181,7 @@ _: {
       home.packages = [
         claudeWrapper
         rtk
+        claude-resume-sdk-sessions
       ];
 
       home.shellAliases = {
