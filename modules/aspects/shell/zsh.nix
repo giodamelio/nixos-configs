@@ -10,7 +10,7 @@
   den,
   ...
 }: {
-  den.aspects.zsh.includes = [den.aspects.devshell-completion-sync];
+  den.aspects.zsh.includes = [den.aspects.devshell-completion-sync den.aspects.yazi];
 
   den.aspects.zsh.homeManager = {
     pkgs,
@@ -84,18 +84,6 @@
         # Load some secrets from the MacOS keychain
         loadSecrets = lib.mkOrder 1400 ''
           export OPENAI_API_KEY=$(security find-generic-password -a "$USER" -s 'openai_api_token' -w)
-        '';
-
-        # A function to invoke Yazi with the extra power of changing directory on output
-        # 1100 is aliases
-        yaziFunction = lib.mkOrder 1101 ''
-          function y() {
-            local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
-            ${pkgs.lib.getExe pkgs.yazi} "$@" --cwd-file="$tmp"
-            IFS= read -r -d "" cwd < "$tmp"
-            [ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
-            rm -f -- "$tmp"
-          }
         '';
 
         # Create a directory (possibly several deep) and cd into it
@@ -183,7 +171,6 @@
             vimModeKeybindingFix
             atuinDirectorySearch
             vimModeEditInInsertMode
-            yaziFunction
             takeFunction
             taketmpFunction
             zoxideInteractive
