@@ -94,6 +94,7 @@ in
         (unset-env "DBUS_SESSION_BUS_ADDRESS")
         (unset-env "SSH_AUTH_SOCK")
         veans-token
+        agent-dms-token
         github-token
         (try-readwrite "/run/user/1000/herdr-proxy.sock")
         (set-env "HERDR_SOCKET_PATH" "/run/user/1000/herdr-proxy.sock")

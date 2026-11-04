@@ -149,6 +149,19 @@ inputs.jail-nix.lib.extend {
         fi
       '';
 
+      # The agent-dms app password for this project; the CLI works out the
+      # address and workspace itself from the repo.
+      agent-dms-token = add-runtime ''
+        if [[ -f "$PWD/.agent-dms.yml" ]]; then
+          AGENT_DMS_PROJECT="$(${pkgs.yq-go}/bin/yq '.name' "$PWD/.agent-dms.yml")"
+          if ! AGENT_DMS_PASSWORD="$(${pkgs.libsecret}/bin/secret-tool lookup service agent-dms project "$AGENT_DMS_PROJECT")"; then
+            echo "jail: no agent-dms password in keyring for $AGENT_DMS_PROJECT, run agent-dms init outside the jail" >&2
+            exit 1
+          fi
+          RUNTIME_ARGS+=(--setenv AGENT_DMS_PASSWORD "$AGENT_DMS_PASSWORD")
+        fi
+      '';
+
       # Public-repo read-only PAT, only to lift the unauthenticated rate limit.
       github-token = add-runtime ''
         if ! GITHUB_TOKEN="$(${pkgs.libsecret}/bin/secret-tool lookup service github-readonly)"; then
