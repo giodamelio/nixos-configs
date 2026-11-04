@@ -182,6 +182,7 @@
         claudeWrapper
         rtk
         claude-resume-sdk-sessions
+        perSystem.self.agent-dms
       ];
 
       home.shellAliases = {
