@@ -46,6 +46,7 @@
       den.aspects.wayvnc
       den.aspects.syncthing
       den.aspects.development-llm
+      den.aspects.gh
       den.aspects.pi
       den.aspects.slack
       den.aspects.rss

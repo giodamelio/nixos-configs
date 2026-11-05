@@ -41,6 +41,7 @@
       den.aspects.qutebrowser
       den.aspects.zed-editor
       den.aspects.development-llm
+      den.aspects.gh
       den.aspects.herdr
       den.aspects.race
 
