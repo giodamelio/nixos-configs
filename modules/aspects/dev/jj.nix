@@ -4,7 +4,13 @@
 #   - `flake.lib.writeNushellApplication` -> `inputs.self.lib.*` via the
 #     file-scope `inputs` closure (lib is a non-package flake value).
 #   - `perSystem.jj-hunk.default` is a module arg from the per-system aspect.
-{inputs, ...}: {
+{
+  inputs,
+  den,
+  ...
+}: {
+  den.aspects.jj.includes = [den.aspects.jj-stack];
+
   den.aspects.jj.homeManager = {
     pkgs,
     perSystem,
@@ -85,6 +91,34 @@
 
           # For printing messages easily
           "print" = ["util" "exec" "--" "echo"];
+
+          "move-to" = {
+            definition = [
+              "util"
+              "exec"
+              "--"
+              "bash"
+              "-c"
+              ''
+                cd "''${JJ_WORKSPACE_ROOT:-.}"
+                revset=$1
+                shift
+                edit=$(jj config get ui.movement.edit 2>/dev/null || echo false)
+                args=()
+                for a in "$@"; do
+                  case $a in
+                    -e|--edit)    edit=true ;;
+                    -n|--no-edit) edit=false ;;
+                    *)            args+=("$a") ;;
+                  esac
+                done
+                if $edit; then verb=edit; else verb=new; fi
+                exec jj "$verb" "''${args[@]}" "$revset"
+              ''
+              "jj-move"
+            ];
+            doc = "Move to a revset: new child of it, or edit it with -e";
+          };
         };
 
         revset-aliases = {
