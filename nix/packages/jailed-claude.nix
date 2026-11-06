@@ -72,6 +72,7 @@ in
         (try-readonly (noescape "~/.config/git"))
         (try-readonly (noescape "~/.config/jj"))
         (try-readonly (noescape "~/.config/nix"))
+        (try-readonly (noescape "~/.local/share/gh/extensions"))
         (try-readonly (noescape "~/projects/giodamelio/agent-skills"))
         (try-readonly (noescape "~/.config/google-chrome/DevToolsActivePort"))
 
