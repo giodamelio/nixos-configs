@@ -139,12 +139,14 @@ def jmap-as [login: string, password_command: string, calls: list, --using: list
         let e = ($errors | first)
         fail $"JMAP call ($e.2) failed: ($e.1.type)(if ($e.1.description? | is-empty) { '' } else { $': ($e.1.description)' })"
     }
-    $responses | reduce --fold {} {|r, acc| $acc | insert $r.2 $r.1 }
+    # Implicit responses (onSuccessUpdateEmail's Email/set) reuse the call id
+    # after the explicit one; keep the explicit one.
+    $responses | reduce --fold {} {|r, acc| if $r.2 in $acc { $acc } else { $acc | insert $r.2 $r.1 } }
 }
 
 def jmap [p: record, calls: list] {
     password-env
-    jmap-as $p.login "printenv AGENT_DMS_PASSWORD" $calls
+    jmap-as $p.login "printenv AGENT_DMS_PASSWORD" $calls --using ["urn:ietf:params:jmap:submission"]
 }
 
 def set-errors [response: record, what: string] {
@@ -266,16 +268,15 @@ def submit [p: record, to: string, subject: string, body: string, reply_to?: rec
                 "keywords/$draft": null
             }}
         }, "s"]
-        ["EmailSubmission/get", {
-            "#ids": {resultOf: "s", name: "EmailSubmission/set", path: "/created/send/id"}
-            properties: [deliveryStatus]
-        }, "d"]
     ])
     set-errors $r.c "creating the message failed"
     set-errors $r.s "sending failed"
+    # A back-reference to the submission resolves against the implicit Email/set
+    # response that shares its call id, so fetch the status separately.
+    let d = (jmap $p [["EmailSubmission/get", {ids: [$r.s.created.send.id], properties: [deliveryStatus]}, "d"]]).d
     # Stalwart checks local recipients during submission and records a refusal
     # here instead of failing the call or sending a bounce.
-    let refused = ($r.d.list | first | get -o deliveryStatus | default {} | transpose rcpt status | where {|s| $s.status.delivered == "no" })
+    let refused = ($d.list | first | get -o deliveryStatus | default {} | transpose rcpt status | where {|s| $s.status.delivered == "no" })
     if not ($refused | is-empty) {
         fail $"($refused | first | get rcpt) refused: ($refused | first | get status.smtpReply). Check the project name."
     }
