@@ -84,10 +84,14 @@ def project [] {
     }
 }
 
-def password-env [] {
-    if ($env.AGENT_DMS_PASSWORD? | is-empty) {
-        fail "AGENT_DMS_PASSWORD is not set. Outside the jail, run `agent-dms init` in this repo; inside, restart the jail after init."
+# The jail passes the app password in the environment; on the host it's in the keyring.
+def password-command [p: record] {
+    if ($env.AGENT_DMS_PASSWORD? | is-not-empty) { return "printenv AGENT_DMS_PASSWORD" }
+    let lookup = $"secret-tool lookup service agent-dms project ($p.name)"
+    if (try-run secret-tool lookup service agent-dms project $p.name) == null {
+        fail $"no app password for ($p.name): AGENT_DMS_PASSWORD is unset and the keyring has none. Outside the jail, run `agent-dms init` in this repo; inside, restart the jail after init."
     }
+    $lookup
 }
 
 def himalaya-config [login: string, password_command: string] {
@@ -145,8 +149,7 @@ def jmap-as [login: string, password_command: string, calls: list, --using: list
 }
 
 def jmap [p: record, calls: list] {
-    password-env
-    jmap-as $p.login "printenv AGENT_DMS_PASSWORD" $calls --using ["urn:ietf:params:jmap:submission"]
+    jmap-as $p.login (password-command $p) $calls --using ["urn:ietf:params:jmap:submission"]
 }
 
 def set-errors [response: record, what: string] {
@@ -535,8 +538,7 @@ def "main init" [] {
 # Run himalaya against this project's account, for anything the verbs don't cover.
 def --wrapped "main himalaya" [...args] {
     let p = (project)
-    password-env
-    with-himalaya $p.login "printenv AGENT_DMS_PASSWORD" {|config| ^himalaya -c $config ...$args }
+    with-himalaya $p.login (password-command $p) {|config| ^himalaya -c $config ...$args }
 }
 
 def main [] {
