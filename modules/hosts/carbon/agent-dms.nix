@@ -211,9 +211,10 @@ in {
     systemd.services.stalwart = {
       description = "Stalwart mail server for agent-dms";
       wantedBy = ["multi-user.target"];
-      after = ["network-online.target" "postgresql.service"];
+      # ensureUsers creates the role in postgresql-setup, not postgresql.
+      after = ["network-online.target" "postgresql-setup.service"];
       wants = ["network-online.target"];
-      requires = ["postgresql.service"];
+      requires = ["postgresql-setup.service"];
       environment.STALWART_PUBLIC_URL = "https://${domain}";
       serviceConfig = {
         ExecStart = lib.getExe start;
