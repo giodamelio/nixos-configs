@@ -206,7 +206,7 @@ def thread-emails [p: record, id: string] {
 }
 
 def print-thread [emails: list] {
-    $emails | each {|e|
+    print ($emails | each {|e|
         let body = ($e.textBody | default [] | each {|part| $e.bodyValues | get -o $part.partId | get -o value | default "" } | str join "\n")
         [
             $"=== ($e.id)(if ($e.keywords | get -o '$seen' | default false) { '' } else { '  [unread]' })"
@@ -217,7 +217,7 @@ def print-thread [emails: list] {
             ""
             $body
         ] | str join "\n"
-    } | str join "\n\n" | print
+    } | str join "\n\n")
 }
 
 def recipient [to: string] {
@@ -293,7 +293,12 @@ def keyword-patch [ids: list, keyword: string, value] {
 # Show this checkout's address and workspace tag.
 def "main whoami" [] {
     let p = (project)
-    {address: $p.address, project: $p.name, workspace: $p.tag, login: $p.login} | print
+    print ([
+        $"address: ($p.address)"
+        $"project: ($p.name)"
+        $"workspace: (if $p.tag == '' { '(main checkout)' } else { $p.tag })"
+        $"login: ($p.login)"
+    ] | str join "\n")
 }
 
 # List the inbox, oldest first. A workspace sees only mail sent to its +tag.
@@ -330,21 +335,27 @@ def "main list" [
     } else {
         $rows
     }
-    if $json { $shown | to json | print } else if ($shown | is-empty) { print "No messages." } else { $shown | print }
+    # Plain lines: nushell's tables shrink to the terminal and truncate in agent shells.
+    if $json { print ($shown | to json) } else if ($shown | is-empty) { print "No messages." } else {
+        print ($shown | each {|m|
+            let tag = if $m.tag == "" { "" } else { $" [+($m.tag)]" }
+            $"($m.id)  (if $m.unread { 'unread' } else { 'read  ' })  ($m.date)  ($m.from)($tag)  ($m.subject)"
+        } | str join "\n")
+    }
 }
 
 # Show the whole thread a message belongs to, oldest first, without marking it read.
 def "main peek" [id: string, --json] {
     let p = (project)
     let emails = (thread-emails $p $id)
-    if $json { $emails | to json | print } else { print-thread $emails }
+    if $json { print ($emails | to json) } else { print-thread $emails }
 }
 
 # Show the thread, then mark every message in it read.
 def "main read" [id: string, --json] {
     let p = (project)
     let emails = (thread-emails $p $id)
-    if $json { $emails | to json | print } else { print-thread $emails }
+    if $json { print ($emails | to json) } else { print-thread $emails }
     let r = (jmap $p [["Email/set", {update: (keyword-patch ($emails | get id) '$seen' true)}, "u"]])
     set-errors $r.u "marking the thread read failed"
 }
