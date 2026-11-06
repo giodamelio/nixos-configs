@@ -283,7 +283,6 @@ def submit [p: record, to: string, subject: string, body: string, reply_to?: rec
     if not ($refused | is-empty) {
         fail $"($refused | first | get rcpt) refused: ($refused | first | get status.smtpReply). Check the project name."
     }
-    $r.c.created.draft.id
 }
 
 def keyword-patch [ids: list, keyword: string, value] {
@@ -390,8 +389,9 @@ def "main send" [
     let body = (read-body $body_file)
     if ($subject | is-empty) { fail "--subject is required" }
     let p = (project)
-    let id = (submit $p (recipient $to) $subject $body)
-    print $"Sent ($id) to (recipient $to)."
+    # No id: ours is the Sent copy, and the recipient's copy has its own.
+    submit $p (recipient $to) $subject $body
+    print $"Sent to (recipient $to)."
 }
 
 # Reply to a message, staying in its thread. The body is read from stdin.
@@ -407,10 +407,10 @@ def "main reply" [
     let to = ($original.replyTo? | default $original.from | first | get email)
     let subject = ($original.subject? | default "")
     let subject = if ($subject | str lowercase | str starts-with "re:") { $subject } else { $"Re: ($subject)" }
-    let sent = (submit $p $to $subject $body $original)
+    submit $p $to $subject $body $original
     let a = (jmap $p [["Email/set", {update: (keyword-patch [$id] '$answered' true)}, "a"]])
     set-errors $a.a "marking the original answered failed"
-    print $"Sent ($sent) to ($to)."
+    print $"Sent to ($to)."
 }
 
 def --wrapped stalwart-cli-as-admin [password: string, ...args: string] {
