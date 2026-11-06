@@ -98,7 +98,8 @@ def himalaya-config [login: string, password_command: string] {
                 default: true
                 email: $login
                 jmap: {
-                    server: $server
+                    # himalaya refuses the redirect /.well-known/jmap answers with.
+                    server: $"($server)/jmap/session"
                     auth: {basic: {username: $login, password: {command: $password_command}}}
                 }
             }
