@@ -53,6 +53,7 @@ _: {
       keyBindings = {
         normal = {
           "I" = "hint inputs --first";
+          "ge" = "edit-url";
           "xx" = "config-cycle tabs.show always switching";
           "<Ctrl-Shift-k>" = "tab-move -";
           "<Ctrl-Shift-j>" = "tab-move +";
