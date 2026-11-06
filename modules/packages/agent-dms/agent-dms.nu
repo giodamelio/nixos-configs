@@ -468,7 +468,14 @@ def password-works [login: string, name: string] {
 def replace-app-password [admin_password: string, login: string, name: string] {
     let description = $"host:(sys host | get hostname)"
     let using = ["urn:stalwart:jmap"]
-    let existing = (jmap-as-project $admin_password $login [["x:AppPassword/query", {filter: {description: $description}}, "q"]] --using $using).q.ids
+    # Stalwart only filters app passwords on expiresAt.
+    let existing = (jmap-as-project $admin_password $login [
+        ["x:AppPassword/query", {}, "q"]
+        ["x:AppPassword/get", {
+            "#ids": {resultOf: "q", name: "x:AppPassword/query", path: "/ids"}
+            properties: [id description]
+        }, "g"]
+    ] --using $using).g.list | where description == $description | get id
     if not ($existing | is-empty) {
         let r = (jmap-as-project $admin_password $login [["x:AppPassword/set", {destroy: $existing}, "d"]] --using $using)
         set-errors $r.d "removing the old app password failed"
