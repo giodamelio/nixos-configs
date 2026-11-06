@@ -99,7 +99,10 @@ in {
       {
         "@type" = "update";
         object = "SystemSettings";
-        value.defaultHostname = domain;
+        value = {
+          defaultHostname = domain;
+          defaultDomainId = "#dom";
+        };
       }
       {
         "@type" = "update";
