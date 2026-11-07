@@ -1,0 +1,251 @@
+rule_files:
+  - rules.yml
+
+evaluation_interval: 1m
+
+tests:
+  - name: watchdog always fires
+    alert_rule_test:
+      - eval_time: 1m
+        groupname: watchdog
+        alertname: Watchdog
+        exp_alerts:
+          - exp_labels:
+              severity: none
+            exp_annotations:
+              summary: Always firing; the alerting pipeline is alive while this reaches the dead-man's switch
+
+  - name: target down fires after 5m, not for a healthy target
+    interval: 1m
+    input_series:
+      - series: 'up{job="node", host="carbon", instance="carbon"}'
+        values: '0x15'
+      - series: 'up{job="node", host="gallium", instance="gallium"}'
+        values: '1x15'
+    alert_rule_test:
+      - eval_time: 4m
+        groupname: hosts
+        alertname: TargetDown
+        exp_alerts: []
+      - eval_time: 6m
+        groupname: hosts
+        alertname: TargetDown
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              job: node
+              host: carbon
+              instance: carbon
+            exp_annotations:
+              summary: node on carbon is not scrapable
+
+  - name: host that stops reporting is flagged, a reporting host is not
+    interval: 1m
+    input_series:
+      - series: 'up{job="node", host="carbon", instance="carbon"}'
+        values: '1x40'
+      - series: 'up{job="node", host="gallium", instance="gallium"}'
+        values: '1x10 stale'
+    alert_rule_test:
+      - eval_time: 12m
+        groupname: hosts
+        alertname: HostSilent
+        exp_alerts: []
+      - eval_time: 20m
+        groupname: hosts
+        alertname: HostSilent
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              host: gallium
+            exp_annotations:
+              summary: gallium has sent no metrics for 5 minutes
+
+  - name: memory above 90% for 10m
+    interval: 1m
+    input_series:
+      - series: 'node_memory_MemTotal_bytes{host="carbon"}'
+        values: '100x30'
+      - series: 'node_memory_MemAvailable_bytes{host="carbon"}'
+        values: '50x5 5x25'
+      - series: 'node_memory_MemTotal_bytes{host="gallium"}'
+        values: '100x30'
+      - series: 'node_memory_MemAvailable_bytes{host="gallium"}'
+        values: '50x30'
+    alert_rule_test:
+      - eval_time: 12m
+        groupname: hosts
+        alertname: MemoryHigh
+        exp_alerts: []
+      - eval_time: 20m
+        groupname: hosts
+        alertname: MemoryHigh
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              host: carbon
+            exp_annotations:
+              summary: carbon memory usage is above 90%
+
+  - name: filesystem space low ignores tmpfs
+    interval: 1m
+    input_series:
+      - series: 'node_filesystem_size_bytes{host="carbon", mountpoint="/", fstype="ext4", device="/dev/sda1"}'
+        values: '100x40'
+      - series: 'node_filesystem_avail_bytes{host="carbon", mountpoint="/", fstype="ext4", device="/dev/sda1"}'
+        values: '5x40'
+      - series: 'node_filesystem_size_bytes{host="carbon", mountpoint="/run", fstype="tmpfs", device="tmpfs"}'
+        values: '100x40'
+      - series: 'node_filesystem_avail_bytes{host="carbon", mountpoint="/run", fstype="tmpfs", device="tmpfs"}'
+        values: '1x40'
+      - series: 'node_filesystem_size_bytes{host="gallium", mountpoint="/tank", fstype="zfs", device="tank"}'
+        values: '100x40'
+      - series: 'node_filesystem_avail_bytes{host="gallium", mountpoint="/tank", fstype="zfs", device="tank"}'
+        values: '50x40'
+    alert_rule_test:
+      - eval_time: 10m
+        groupname: hosts
+        alertname: FilesystemSpaceLow
+        exp_alerts: []
+      - eval_time: 20m
+        groupname: hosts
+        alertname: FilesystemSpaceLow
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              host: carbon
+              mountpoint: /
+              fstype: ext4
+              device: /dev/sda1
+            exp_annotations:
+              summary: carbon:/ has less than 10% free
+
+  - name: degraded zfs pool
+    interval: 1m
+    input_series:
+      - series: 'zfs_pool_health{host="gallium", pool="tank"}'
+        values: '0x5 1x15'
+      - series: 'zfs_pool_health{host="carbon", pool="rpool"}'
+        values: '0x20'
+    alert_rule_test:
+      - eval_time: 8m
+        groupname: hosts
+        alertname: ZfsPoolUnhealthy
+        exp_alerts: []
+      - eval_time: 14m
+        groupname: hosts
+        alertname: ZfsPoolUnhealthy
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              host: gallium
+              pool: tank
+            exp_annotations:
+              summary: ZFS pool tank on gallium is not ONLINE (health code 1)
+
+  - name: vminsert request errors
+    interval: 1m
+    input_series:
+      - series: 'vm_http_request_errors_total{host="carbon", job="vminsert", path="/insert/0/prometheus/api/v1/write"}'
+        values: '0+1x40'
+      - series: 'vm_http_request_errors_total{host="carbon", job="vmagent", path="/target_response"}'
+        values: '0+1x40'
+      - series: 'vm_http_request_errors_total{host="gallium", job="vminsert", path="/insert/0/prometheus/api/v1/write"}'
+        values: '0x40'
+    alert_rule_test:
+      - eval_time: 30m
+        groupname: ingestion
+        alertname: VictoriaMetricsRequestErrors
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              host: carbon
+              job: vminsert
+              path: /insert/0/prometheus/api/v1/write
+            exp_annotations:
+              summary: vminsert on carbon is returning errors on /insert/0/prometheus/api/v1/write
+
+  - name: cluster rpc errors
+    interval: 1m
+    input_series:
+      - series: 'vm_rpc_dial_errors_total{host="carbon", job="vminsert", addr="gallium"}'
+        values: '0+1x40'
+      - series: 'vm_rpc_dial_errors_total{host="gallium", job="vminsert", addr="carbon"}'
+        values: '0x40'
+    alert_rule_test:
+      - eval_time: 30m
+        groupname: ingestion
+        alertname: VictoriaMetricsRpcErrors
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              host: carbon
+              job: vminsert
+            exp_annotations:
+              summary: vminsert on carbon has cluster RPC errors
+
+  - name: ignored rows
+    interval: 1m
+    input_series:
+      - series: 'vm_rows_ignored_total{host="carbon", job="vminsert", reason="too_many_labels"}'
+        values: '0+1x40'
+    alert_rule_test:
+      - eval_time: 30m
+        groupname: ingestion
+        alertname: VictoriaMetricsRowsIgnored
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              host: carbon
+              job: vminsert
+              reason: too_many_labels
+            exp_annotations:
+              summary: vminsert on carbon is dropping samples (too_many_labels)
+
+  - name: vlagent dropping and retrying
+    interval: 1m
+    input_series:
+      - series: 'vlagent_remotewrite_packets_dropped_total{host="carbon", url="1:secret-url"}'
+        values: '0+1x40'
+      - series: 'vlagent_remotewrite_retries_count_total{host="carbon", url="1:secret-url"}'
+        values: '0+1x40'
+    alert_rule_test:
+      - eval_time: 30m
+        groupname: ingestion
+        alertname: VlagentDroppingData
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              host: carbon
+            exp_annotations:
+              summary: vlagent on carbon is dropping log data
+      - eval_time: 30m
+        groupname: ingestion
+        alertname: VlagentRemoteWriteErrors
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              host: carbon
+            exp_annotations:
+              summary: vlagent on carbon keeps retrying remote writes
+
+  - name: vlagent buffer growth only when large and rising
+    interval: 1m
+    input_series:
+      - series: 'vlagent_remotewrite_pending_data_bytes{host="carbon", url="1:secret-url"}'
+        values: '20000000+1000000x60'
+      - series: 'vlagent_remotewrite_pending_data_bytes{host="gallium", url="1:secret-url"}'
+        values: '1000+10x60'
+      - series: 'vlagent_remotewrite_pending_data_bytes{host="rhodium", url="1:secret-url"}'
+        values: '50000000-500000x60'
+    alert_rule_test:
+      - eval_time: 55m
+        groupname: ingestion
+        alertname: VlagentBufferGrowing
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              host: carbon
+              url: 1:secret-url
+            exp_annotations:
+              summary: vlagent buffer for 1:secret-url on carbon is growing
