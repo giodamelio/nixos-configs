@@ -235,5 +235,9 @@
     # its pinned rust-overlay toolchain keeps building.
     # REMIND-ME-TO: Move kache off the release candidate to the 2.0 release tag_exists=github:kunobi-ninja/kache@>=2.0.0
     kache.url = "github:kunobi-ninja/kache/v2.0.0-rc.3";
+
+    # HP scanner to paperless consume dir; giopkgs no longer packages it.
+    node-hp-scan-to.url = "github:manuc66/node-hp-scan-to";
+    node-hp-scan-to.inputs.nixpkgs.follows = "nixpkgs";
   };
 }
