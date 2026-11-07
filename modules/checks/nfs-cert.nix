@@ -30,7 +30,7 @@ _: {
       };
       authority.provisioners = [];
     });
-    managed = {nfs = ["--ssh=false" "--x509-default-dur=168h" "--x509-max-dur=168h"];};
+    managed = {inherit ((import ../hosts/strontium/_ca-config.nix).provisioners) nfs;};
   in {
     denTests.fleet-nfs-cert = {
       fleet = _: {
@@ -145,6 +145,7 @@ _: {
             client.wait_for_unit("tlshd.service")
             cert = inspect()
             assert "nfs-cl.gio.ninja" in cert["names"], cert["names"]
+            assert cert["subject"]["organization"] == ["nfs"], cert["subject"]
             client.succeed(
                 "step certificate verify /var/lib/step-nfs/cert.pem --roots ${pki}/root.crt "
                 "--host nfs-cl.gio.ninja"
