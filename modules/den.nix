@@ -77,6 +77,10 @@
     den.aspects.nfs
     den.aspects.services-nfs-wait
 
+    # gio.mtls service certificates from step-ca's `app` provisioner. The
+    # options exist everywhere; inert until a host declares a cert.
+    den.aspects.mtls
+
     # Consul cluster; self-gates on host.consul.enable. The services-consul
     # renderer registers each local service (on by default) once an agent runs.
     den.aspects.consul
