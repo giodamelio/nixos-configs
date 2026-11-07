@@ -136,8 +136,14 @@ _: {
         enable = true;
 
         package = pkgs.caddy.withPlugins {
-          plugins = ["github.com/caddy-dns/cloudflare@v0.2.1"];
-          hash = "sha256-ijDzBvNhN6kVRNkjbLMHRh1K8qP7kLCiirQJLwkzrCc=";
+          plugins = [
+            "github.com/caddy-dns/cloudflare@v0.2.1"
+            "github.com/relvacode/caddy-oidc@v0.4.3"
+            # Last commit before master required Go 1.26.9
+            # REMIND-ME-TO: Move caddy-l4 to master or a newer tag nixpkg_version=nixpkgs-unstable:go@>=1.26.9
+            "github.com/mholt/caddy-l4@v0.1.3-0.20261029145729-f607ccea1b7d"
+          ];
+          hash = "sha256-zVjMUD63LCi33leRq2Zg3I73QiCl+khIqDJyqVq+Itc=";
         };
 
         globalConfig = ''
