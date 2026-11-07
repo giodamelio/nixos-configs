@@ -2,8 +2,24 @@
 # Signing keys were placed by the ceremony (docs/archive/ca-ceremony-runbook.md);
 # ca.json + the JWK bootstrap provisioner are generated on-box into
 # /var/lib/gio-ca, never the Nix store (docs/pi-ca-secrets-plan.md).
-{inputs, ...}: {
+{
+  inputs,
+  config,
+  lib,
+  ...
+}: let
+  # gio.mtls.certs is declared inside each host's NixOS config, so read it from
+  # the evaluated configs. Only that option is forced, which never depends on
+  # strontium's packages, so this cannot recurse.
+  mtlsCerts = lib.pipe config.den.hosts [
+    (lib.concatMapAttrs (_system: hosts: hosts))
+    (lib.filterAttrs (name: _: inputs.self.nixosConfigurations ? ${name}))
+    (lib.mapAttrs (name: _: inputs.self.nixosConfigurations.${name}.config.gio.mtls.certs))
+    (lib.filterAttrs (_: certs: certs != {}))
+  ];
+in {
   den.aspects.strontium.nixos = {
+    fleet,
     pkgs,
     lib,
     ...
@@ -12,28 +28,17 @@
     caJson = "${caDir}/ca.json";
     caPort = 443;
 
-    # Provisioners beyond the init-time `bootstrap`/`sshpop`, kept in ca.json by
-    # step-ca-provisioners.service. Each gets its own key pair and a password
-    # that never leaves this host (under ${caDir}/provisioners/<name>/).
-    managedProvisioners = {
-      # NFS host certs (modules/aspects/nfs/cert.nix): X.509 only, 7 days,
-      # renewed daily; no renewal after expiry, so a lapsed host re-enrolls.
-      nfs = ["--ssh=false" "--x509-default-dur=168h" "--x509-max-dur=168h"];
-    };
+    caConfig = import ./_ca-config.nix;
     provisionersScript = import ./_provisioners.nix {inherit pkgs lib;} {
       inherit caDir;
+      inherit (caConfig) provisioners settings;
       group = "step-ca";
-      provisioners = managedProvisioners;
     };
 
-    # Enroll a host: mint a one-time token here (CA side, holds the provisioner
-    # password) and print the ready-to-paste command for the target host.
-    enrollTool = inputs.self.lib.writeNushellApplication pkgs {
-      name = "ca-enroll-host";
-      runtimeInputs = [pkgs.systemd pkgs.step-cli];
-      source = builtins.readFile ./ca-enroll.nu;
-      meta.mainProgram = "ca-enroll-host";
-    };
+    caTools = import ./_ca-tools.nix {
+      inherit pkgs lib;
+      inherit (inputs.self.lib) writeNushellApplication;
+    } {inherit mtlsCerts;};
 
     # Idempotent: builds ca.json + a fresh JWK provisioner only when ca.json is
     # absent (regenerate by removing it). The provisioner private JWK is stored
@@ -73,7 +78,7 @@
               hostKey: ($dir + "/ssh_host_ca"),
               userKey: ($dir + "/ssh_user_ca")
             },
-            logger: {format: "text"},
+            logger: {format: "json"},
             db: {type: "badgerv2", dataSource: "/var/lib/step-ca/db"},
             authority: {
               provisioners: [
@@ -105,6 +110,13 @@
       '';
     };
   in {
+    imports = [
+      (import ./_crl-http.nix {
+        inherit caPort;
+        caRoot = fleet.nfs.caRoot;
+      })
+    ];
+
     # agevault delivers the provisioner password (asserted against secrets.toml).
     fleet.credentials.needs = ["step_ca_provisioner_password"];
 
@@ -141,7 +153,7 @@
     };
 
     systemd.services.step-ca-provisioners = {
-      description = "Keep the managed step-ca provisioners in ca.json";
+      description = "Keep the managed step-ca provisioners and settings in ca.json";
       wantedBy = ["multi-user.target"];
       after = ["step-ca-init.service"];
       requires = ["step-ca-init.service"];
@@ -187,6 +199,8 @@
 
     networking.firewall.allowedTCPPorts = [caPort];
 
-    environment.systemPackages = [pkgs.step-cli enrollTool];
+    environment.systemPackages = [pkgs.step-cli caTools.enroll caTools.revoke];
   };
+
+  fleet.dns.zones."gio.ninja".subdomains.crl.CNAME = ["strontium.gio.ninja."];
 }

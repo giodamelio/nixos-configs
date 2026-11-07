@@ -1,7 +1,8 @@
 # Script that makes ca.json's managed JWK provisioners match `provisioners`
 # (name -> list of `step ca provisioner` flags), creating each one's key pair and
-# password on first sight. Provisioners not listed are never touched. Shared by
-# strontium's step-ca-provisioners.service and the nfs-cert VM test.
+# password on first sight. Provisioners not listed are never touched. `settings`
+# is deep-merged into ca.json last. Shared by strontium's
+# step-ca-provisioners.service and the nfs-cert and mtls VM tests.
 {
   pkgs,
   lib,
@@ -9,6 +10,7 @@
   caDir,
   group,
   provisioners,
+  settings ? {},
 }: let
   caJson = "${caDir}/ca.json";
   # The CLI only edits ca.json directly when it cannot reach the CA's admin API;
@@ -39,6 +41,11 @@ in
       export STEPPATH
       trap 'rm -rf "$STEPPATH"' EXIT
       ${lib.concatStrings (lib.mapAttrsToList ensure provisioners)}
+      # Sorting keeps reruns byte-identical: `provisioner update` reorders both
+      # the keys and the provisioner list.
+      jq --sort-keys --argjson s ${lib.escapeShellArg (builtins.toJSON settings)} \
+        '. * $s | .authority.provisioners |= sort_by(.name)' ${caJson} > ${caJson}.new
+      mv ${caJson}.new ${caJson}
       # The CLI rewrites ca.json; restore the mode step-ca reads it with.
       chown root:${group} ${caJson}
       chmod 0640 ${caJson}
