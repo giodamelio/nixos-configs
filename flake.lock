@@ -4502,11 +4502,11 @@
         "unison-nix": "unison-nix"
       },
       "locked": {
-        "lastModified": 1793125516,
-        "narHash": "sha256-ygSRSoaokNDZS8tabG741C+swOf7yvPLrkhsE+AfBSA=",
+        "lastModified": 1794088306,
+        "narHash": "sha256-FWZjPGwNiGNJMkMdeNnEMnRKYx3mLhVkjEhgqZtNl3g=",
         "owner": "giodamelio",
         "repo": "unison-cloud-in-a-bottle",
-        "rev": "4077c96c9b4b35bf5b9ef59424dcb468cb2d367e",
+        "rev": "8bff161e501fa27c1fcb41a7f75e676866b9f7b0",
         "type": "github"
       },
       "original": {
