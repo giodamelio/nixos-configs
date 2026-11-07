@@ -142,8 +142,9 @@ _: {
             # Last commit before master required Go 1.26.9
             # REMIND-ME-TO: Move caddy-l4 to master or a newer tag nixpkg_version=nixpkgs-unstable:go@>=1.26.9
             "github.com/mholt/caddy-l4@v0.1.3-0.20261029145729-f607ccea1b7d"
+            "github.com/gr33nbl00d/caddy-revocation-validator@v1.0.7"
           ];
-          hash = "sha256-zVjMUD63LCi33leRq2Zg3I73QiCl+khIqDJyqVq+Itc=";
+          hash = "sha256-YWnbo4nx5QgqQz7jtF8AtwM63m5SvclucNokPhcr0ug=";
         };
 
         globalConfig = ''
