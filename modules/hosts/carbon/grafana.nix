@@ -2,6 +2,7 @@
 _: {
   den.aspects.carbon.nixos = {
     config,
+    fleet,
     lib,
     pkgs,
     ...
@@ -54,8 +55,8 @@ _: {
       enable = lib.mkEnableOption "Pocket ID login for Grafana (needs the grafana_oidc_* credentials)";
       adminGroup = lib.mkOption {
         type = lib.types.str;
-        # REMIND-ME-TO: Decide the Pocket ID admin group name (NIXOS-150) date_passed=2026-12-01
-        default = "telemetry_admin";
+        default = fleet.telemetry.ui.adminGroup;
+        defaultText = lib.literalExpression "fleet.telemetry.ui.adminGroup";
         description = "Pocket ID group whose members become Grafana server admins; everyone else is denied at login.";
       };
     };
