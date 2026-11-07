@@ -1171,11 +1171,11 @@
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1794086609,
-        "narHash": "sha256-dxSo4q6KRHdsZXPK4xV5rFA/stz2QcKBfQqxyt+OZBU=",
+        "lastModified": 1794096675,
+        "narHash": "sha256-NzO3o/9FiIQ2G+dGXVyEWSWgxLVY4GtJGVz8JLr/ciA=",
         "owner": "giodamelio",
         "repo": "giopkgs",
-        "rev": "d0ccbf0fc2ede6374d1dc0a36f501dba38ebc28a",
+        "rev": "27e0715fba45ce707128e4bc2710e6f0a6c9958e",
         "type": "github"
       },
       "original": {
