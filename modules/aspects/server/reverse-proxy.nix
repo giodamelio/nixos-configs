@@ -12,6 +12,12 @@ _: {
     options.services.gio.reverse-proxy = with lib; {
       enable = mkEnableOption "Caddy reverse proxy service";
 
+      certIssuer = mkOption {
+        type = types.enum ["cloudflare" "internal"];
+        default = "cloudflare";
+        description = "How HTTPS vhosts get certificates: Cloudflare DNS-01, or Caddy's local CA for VM tests, which cannot reach Cloudflare.";
+      };
+
       virtualHosts = mkOption {
         type = types.attrsOf (types.submodule ({name, ...}: {
           options = {
@@ -32,6 +38,12 @@ _: {
               type = types.bool;
               default = true;
               description = "Serve HTTPS via Cloudflare-DNS TLS. false = plain HTTP (no credential needed).";
+            };
+
+            tlsExtraConfig = mkOption {
+              type = types.lines;
+              default = "";
+              description = "Extra lines inside the vhost's `tls { }` block, e.g. client_auth.";
             };
 
             host = mkOption {
@@ -81,6 +93,13 @@ _: {
     config = lib.mkIf config.services.gio.reverse-proxy.enable (let
       vhosts = config.services.gio.reverse-proxy.virtualHosts;
       cred = "caddy_cloudflare_api_token";
+      useCloudflare = config.services.gio.reverse-proxy.certIssuer == "cloudflare";
+
+      issuerLines =
+        if useCloudflare
+        then ["dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}" "resolvers 1.1.1.1"]
+        else ["issuer internal"];
+      tlsLines = cfg: issuerLines ++ lib.optional (cfg.tlsExtraConfig != "") cfg.tlsExtraConfig;
 
       # A backend is only required when we emit the automatic reverse_proxy; with
       # reverseProxy = false the extraConfig owns routing (file_server, php_fastcgi,
@@ -125,9 +144,9 @@ _: {
         })
         vhosts;
 
-      fleet.credentials.needs = lib.mkIf anyTls [cred];
+      fleet.credentials.needs = lib.mkIf (anyTls && useCloudflare) [cred];
 
-      systemd.services.caddy.serviceConfig = lib.mkIf anyTls {
+      systemd.services.caddy.serviceConfig = lib.mkIf (anyTls && useCloudflare) {
         LoadCredentialEncrypted = [cred];
         Environment = ["CLOUDFLARE_API_TOKEN_FILE=%d/${cred}"];
       };
@@ -160,8 +179,7 @@ _: {
                 extraConfig = ''
                   ${lib.optionalString cfg.tls ''
                     tls {
-                      dns cloudflare {file.{$CLOUDFLARE_API_TOKEN_FILE}}
-                      resolvers 1.1.1.1
+                      ${lib.concatStringsSep "\n  " (tlsLines cfg)}
                     }
                   ''}
                   ${cfg.extraConfig}
