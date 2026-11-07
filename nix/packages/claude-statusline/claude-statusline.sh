@@ -99,7 +99,22 @@ if jj --ignore-working-copy root &>/dev/null; then
     fi
 fi
 
-# Built-in starship modules (jj segment slots in just before nix_shell)
+# Most repos have no inbox, so test for the file before paying for a subprocess.
+dms_seg=""
+{
+    read -r project_dir
+    read -r session_id
+} < <(echo "$input" | jq -r '.workspace.project_dir // .cwd // "", .session_id // ""')
+if [ -n "$project_dir" ] && [ -f "$project_dir/.agent-dms.yml" ]; then
+    session_flag=()
+    if [ -n "$session_id" ]; then session_flag=(--session "$session_id"); fi
+    unread=$(agent-dms unread-count "${session_flag[@]}" 2>/dev/null) || unread="!"
+    if [ -n "$unread" ]; then
+        dms_seg="\e[38;5;220m ${unread}\e[0m"
+    fi
+fi
+
+# Built-in starship modules (unread mail follows directory, jj segment slots in just before nix_shell)
 for mod in "${modules[@]}"; do
     if [ "$mod" = "nix_shell" ]; then
         parts+="$jj_seg"
@@ -107,6 +122,9 @@ for mod in "${modules[@]}"; do
     out=$(starship module "$mod" "${path_flag[@]}" 2>/dev/null) || true
     if [ -n "$out" ]; then
         parts+=" $out"
+    fi
+    if [ "$mod" = "directory" ]; then
+        parts+="$dms_seg"
     fi
 done
 

@@ -376,6 +376,15 @@ def refresh-in-background [p: record] {
     "" | ^setsid -f flock -n ($dir | path join refresh.lock) $env.CURRENT_FILE refresh o> /dev/null e>> ($dir | path join refresh.log)
 }
 
+# Never blocks on the server: a stale or missing cache is answered as-is while a refresh runs.
+def cached-unread [p: record, ttl: duration] {
+    let file = (cache-path $p)
+    let cache = if ($file | path exists) { open $file } else { null }
+    let stale = ($cache == null) or (((date now) - ($cache.fetched_at | into datetime)) > $ttl)
+    if $stale { refresh-in-background $p }
+    {cache: $cache, stale: $stale}
+}
+
 def cache-drop [p: record, ids: list] {
     let file = (cache-path $p)
     if not ($file | path exists) { return }
@@ -482,10 +491,9 @@ def "main check" [
     # A missing password should fail here, not only inside the background refresh.
     password-command $p | ignore
     if $refresh { refresh-cache $p }
-    let file = (cache-path $p)
-    let cache = if ($file | path exists) { open $file } else { null }
-    let stale = ($cache == null) or (((date now) - ($cache.fetched_at | into datetime)) > $ttl)
-    if $stale { refresh-in-background $p }
+    let cached = (cached-unread $p $ttl)
+    let cache = $cached.cache
+    let stale = $cached.stale
     let unread = if $cache == null { [] } else { $cache.unread }
     let unread_ids = ($unread | each {|m| $m.id })
 
@@ -510,6 +518,20 @@ def "main check" [
     } else if not ($new | is-empty) {
         print ($new | each {|m| $"($m.id)  ($m.date)  ($m.from)  ($m.subject)" } | str join "\n")
     }
+}
+
+# Print the unread count as a bare number, for status lines. Prints nothing for 0 or when notify is off, and records nothing as reported, unlike check.
+def "main unread-count" [
+    --session: string       # use this agent session's notify setting
+    --ttl: duration = 2min  # how old the cache may get before a background refresh
+] {
+    let p = (project)
+    if $session != null { check-session $session }
+    if not (notify-setting $p $session).on { return }
+    password-command $p | ignore
+    let cache = (cached-unread $p $ttl).cache
+    let count = if $cache == null { 0 } else { $cache.unread | length }
+    if $count > 0 { print $count }
 }
 
 # Fetch this checkout's unread mail into the cache `check` answers from.
@@ -728,6 +750,7 @@ def main [] {
     print "  agent-dms send <project>[+<workspace>] -s <subject>   body on stdin"
     print "  agent-dms reply <id>                                 body on stdin"
     print "  agent-dms check [--session <id>] [--refresh] [--ttl <duration>] [--json]"
+    print "  agent-dms unread-count [--session <id>] [--ttl <duration>]   bare number, empty for 0"
     print "  agent-dms refresh         update the cache check reads"
     print "  agent-dms notify on|off|status [--session <id>]"
     print "  agent-dms himalaya ..."
