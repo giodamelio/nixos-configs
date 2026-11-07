@@ -15,6 +15,7 @@
         pkgs.jujutsu
         pkgs.git
         pkgs.coreutils
+        pkgs.util-linux
       ];
       stdin = true;
       source = ''

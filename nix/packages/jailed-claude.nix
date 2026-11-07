@@ -57,6 +57,11 @@ in
         '')
         (try-readwrite (noescape "~/.cache/claude-cli-nodejs"))
         (try-readwrite (noescape "~/.local/state/claude"))
+        # agent-dms notify toggle and unread cache, shared with the host CLI.
+        (add-runtime ''
+          mkdir -p "$HOME/.local/state/agent-dms"
+          RUNTIME_ARGS+=(--bind "$HOME/.local/state/agent-dms" "$HOME/.local/state/agent-dms")
+        '')
         (try-readwrite (noescape "~/.local/share/tuicr"))
         (try-readwrite (noescape "~/Documents/life/Projects/"))
         (try-readwrite (noescape "~/projects/browser-use/browser-harness"))

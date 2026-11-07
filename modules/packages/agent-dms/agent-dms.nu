@@ -289,6 +289,107 @@ def keyword-patch [ids: list, keyword: string, value] {
     $ids | reduce --fold {} {|id, acc| $acc | insert $id {$"keywords/($keyword)": $value} }
 }
 
+def inbox-rows [p: record, --unread] {
+    let boxes = (mailboxes $p)
+    let filter = if $unread { {inMailbox: $boxes.inbox, notKeyword: "$seen"} } else { {inMailbox: $boxes.inbox} }
+    let r = (jmap $p [
+        ["Email/query", {filter: $filter, sort: [{property: receivedAt, isAscending: true}]}, "q"]
+        ["Email/get", {
+            "#ids": {resultOf: "q", name: "Email/query", path: "/ids"}
+            properties: [id threadId from to cc subject receivedAt keywords]
+        }, "g"]
+    ])
+    $r.g.list | each {|e|
+        {
+            id: $e.id
+            unread: (not ($e.keywords | get -o '$seen' | default false))
+            date: $e.receivedAt
+            from: (format-addresses $e.from)
+            subject: ($e.subject? | default "")
+            tag: (tag-of $p $e)
+        }
+    }
+}
+
+# Keyed by the full address so each workspace keeps its own toggle and cache.
+def state-dir [p: record] {
+    $env.XDG_STATE_HOME? | default ($env.HOME | path join .local state) | path join agent-dms $p.address
+}
+
+# A temp file plus rename, so a hook reading concurrently never sees half a file.
+def save-atomic [path: string] {
+    let data = $in
+    mkdir ($path | path dirname)
+    let tmp = $"($path).(random chars --length 8).tmp"
+    $data | save --force $tmp
+    mv --force $tmp $path
+}
+
+def check-session [session: string] {
+    if ($session | find --regex '^[A-Za-z0-9._-]+$' | is-empty) { fail $"session id `($session)` must match [A-Za-z0-9._-]+" }
+}
+
+def session-file [p: record, session: string, ext: string] {
+    state-dir $p | path join sessions $"($session).($ext)"
+}
+
+def read-setting [file: string] {
+    if not ($file | path exists) { return null }
+    let v = (open --raw $file | str trim)
+    if $v not-in [on off] { fail $"($file) must hold on or off, not `($v)`" }
+    $v == "on"
+}
+
+# A session setting beats the env var so one session can be silenced in a repo that has notify on.
+def notify-setting [p: record, session?: string] {
+    let from_session = if $session == null { null } else { read-setting (session-file $p $session notify) }
+    if $from_session != null { return {on: $from_session, source: session} }
+    match ($env.AGENT_DMS_NOTIFY? | default "") {
+        "1" => ({on: true, source: env})
+        "0" => ({on: false, source: env})
+        "" => {
+            let stored = (read-setting (state-dir $p | path join notify))
+            if $stored == null { {on: false, source: default} } else { {on: $stored, source: address} }
+        }
+        $v => (fail $"AGENT_DMS_NOTIFY must be 1 or 0, not `($v)`")
+    }
+}
+
+def cache-path [p: record] { state-dir $p | path join cache.json }
+
+def now-utc [] { date now | date to-timezone UTC | format date "%Y-%m-%dT%H:%M:%SZ" }
+
+def refresh-cache [p: record] {
+    let rows = (inbox-rows $p --unread)
+    let scoped = if $p.tag == "" { $rows } else { $rows | where tag == $p.tag }
+    {fetched_at: (now-utc), unread: ($scoped | select id from subject date)} | to json | save-atomic (cache-path $p)
+    let sessions = (state-dir $p | path join sessions)
+    if ($sessions | path exists) {
+        ls $sessions | where modified < ((date now) - 7day) | each {|f| rm -f $f.name } | ignore
+    }
+}
+
+def refresh-in-background [p: record] {
+    let dir = (state-dir $p)
+    mkdir $dir
+    # flock -n: a refresh already running for this address covers this one.
+    "" | ^setsid -f flock -n ($dir | path join refresh.lock) $env.CURRENT_FILE refresh o> /dev/null e>> ($dir | path join refresh.log)
+}
+
+def cache-drop [p: record, ids: list] {
+    let file = (cache-path $p)
+    if not ($file | path exists) { return }
+    let c = (open $file)
+    $c | update unread ($c.unread | where id not-in $ids) | to json | save-atomic $file
+}
+
+# For when mail turns unread again: the cache can't know its sender or subject, so force a refetch.
+def cache-expire [p: record] {
+    let file = (cache-path $p)
+    if not ($file | path exists) { return }
+    open $file | update fetched_at "1970-01-01T00:00:00Z" | to json | save-atomic $file
+}
+
 # Show this checkout's address and workspace tag.
 def "main whoami" [] {
     let p = (project)
@@ -308,25 +409,7 @@ def "main list" [
     --json      # print JSON
 ] {
     let p = (project)
-    let boxes = (mailboxes $p)
-    let filter = if $unread { {inMailbox: $boxes.inbox, notKeyword: "$seen"} } else { {inMailbox: $boxes.inbox} }
-    let r = (jmap $p [
-        ["Email/query", {filter: $filter, sort: [{property: receivedAt, isAscending: true}]}, "q"]
-        ["Email/get", {
-            "#ids": {resultOf: "q", name: "Email/query", path: "/ids"}
-            properties: [id threadId from to cc subject receivedAt keywords]
-        }, "g"]
-    ])
-    let rows = ($r.g.list | each {|e|
-        {
-            id: $e.id
-            unread: (not ($e.keywords | get -o '$seen' | default false))
-            date: $e.receivedAt
-            from: (format-addresses $e.from)
-            subject: ($e.subject? | default "")
-            tag: (tag-of $p $e)
-        }
-    })
+    let rows = (inbox-rows $p --unread=$unread)
     let shown = if $p.tag != "" {
         if $all { $rows } else { $rows | where tag == $p.tag }
     } else if $untagged {
@@ -357,6 +440,7 @@ def "main read" [id: string, --json] {
     if $json { print ($emails | to json) } else { print-thread $emails }
     let r = (jmap $p [["Email/set", {update: (keyword-patch ($emails | get id) '$seen' true)}, "u"]])
     set-errors $r.u "marking the thread read failed"
+    cache-drop $p ($emails | get id)
 }
 
 # Mark every message in the thread unread again.
@@ -365,6 +449,7 @@ def "main unread" [id: string] {
     let emails = (thread-emails $p $id)
     let r = (jmap $p [["Email/set", {update: (keyword-patch ($emails | get id) '$seen' null)}, "u"]])
     set-errors $r.u "marking the thread unread failed"
+    cache-expire $p
 }
 
 # Move the thread out of the inbox into Archive.
@@ -378,6 +463,85 @@ def "main archive" [id: string] {
     })
     let r = (jmap $p [["Email/set", {update: $patch}, "u"]])
     set-errors $r.u "archiving failed"
+    cache-drop $p ($emails | get id)
+}
+
+# Report unread mail that is new since the last check, for agent hooks. Answers from a cache and refreshes it in the background once it is older than --ttl.
+def "main check" [
+    --session: string       # report each message once per agent session
+    --refresh               # fetch from the server first instead of answering from the cache
+    --ttl: duration = 2min  # how old the cache may get before a background refresh
+    --json                  # print JSON
+] {
+    let p = (project)
+    if $session != null { check-session $session }
+    if not (notify-setting $p $session).on {
+        if $json { print ({enabled: false} | to json --raw) }
+        return
+    }
+    # A missing password should fail here, not only inside the background refresh.
+    password-command $p | ignore
+    if $refresh { refresh-cache $p }
+    let file = (cache-path $p)
+    let cache = if ($file | path exists) { open $file } else { null }
+    let stale = ($cache == null) or (((date now) - ($cache.fetched_at | into datetime)) > $ttl)
+    if $stale { refresh-in-background $p }
+    let unread = if $cache == null { [] } else { $cache.unread }
+    let unread_ids = ($unread | each {|m| $m.id })
+
+    let seen_file = if $session == null { state-dir $p | path join last-check.json } else { session-file $p $session json }
+    let seen = if ($seen_file | path exists) { open $seen_file } else { [] }
+    let new = ($unread | where id not-in $seen)
+    if $cache != null {
+        # Without a session, "new" means changed since the last check, so read mail drops out of the baseline.
+        let record = if $session == null { $unread_ids } else { $seen | append ($new | each {|m| $m.id }) }
+        $record | to json | save-atomic $seen_file
+    }
+
+    if $json {
+        print ({
+            enabled: true
+            address: $p.address
+            unread_count: ($unread | length)
+            new: $new
+            checked_at: (if $cache == null { null } else { $cache.fetched_at })
+            stale: $stale
+        } | to json --raw)
+    } else if not ($new | is-empty) {
+        print ($new | each {|m| $"($m.id)  ($m.date)  ($m.from)  ($m.subject)" } | str join "\n")
+    }
+}
+
+# Fetch this checkout's unread mail into the cache `check` answers from.
+def "main refresh" [] {
+    refresh-cache (project)
+}
+
+# Turn unread-mail reminders on or off for this checkout, or for one agent session, or show the setting. Precedence: session, AGENT_DMS_NOTIFY=1/0, checkout, off.
+def "main notify" [
+    setting: string    # on, off or status
+    --session: string  # only this agent session
+] {
+    let p = (project)
+    if $session != null { check-session $session }
+    match $setting {
+        "on" | "off" => {
+            let file = if $session == null { state-dir $p | path join notify } else { session-file $p $session notify }
+            $setting | save-atomic $file
+            print $"Notify is ($setting) for (if $session == null { $p.address } else { $'session ($session) of ($p.address)' })."
+        }
+        "status" => {
+            let s = (notify-setting $p $session)
+            print ([
+                $"notify: (if $s.on { 'on' } else { 'off' })"
+                $"source: ($s.source)"
+                $"address: ($p.address)"
+                ...(if $session == null { [] } else { [$"session: ($session)"] })
+                $"state: (state-dir $p)"
+            ] | str join "\n")
+        }
+        _ => (fail $"notify takes on, off or status, not `($setting)`")
+    }
 }
 
 # Send a message to another project, or one of its workspaces as <project>+<workspace>. The body is read from stdin.
@@ -563,6 +727,9 @@ def main [] {
     print "  agent-dms archive <id>"
     print "  agent-dms send <project>[+<workspace>] -s <subject>   body on stdin"
     print "  agent-dms reply <id>                                 body on stdin"
+    print "  agent-dms check [--session <id>] [--refresh] [--ttl <duration>] [--json]"
+    print "  agent-dms refresh         update the cache check reads"
+    print "  agent-dms notify on|off|status [--session <id>]"
     print "  agent-dms himalaya ..."
     print "  agent-dms init            on the host, outside the jail"
 }
