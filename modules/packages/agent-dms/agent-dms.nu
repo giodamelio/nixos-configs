@@ -220,7 +220,17 @@ def print-thread [emails: list] {
     } | str join "\n\n")
 }
 
+def is-outside [address: string] {
+    ($address | str contains "@") and not ($address | str ends-with $"@($domain)")
+}
+
 def recipient [to: string] {
+    if (is-outside $to) {
+        if ($to | parse --regex '^[^@\s]+@[^@\s]+\.[^@\s]+$' | is-empty) {
+            fail $"recipient `($to)` is not an email address"
+        }
+        return $to
+    }
     let parsed = ($to | parse --regex '^(?P<name>[a-z0-9-]+)(\+(?P<tag>[a-z0-9-]+))?(@(?P<domain>.+))?$')
     if ($parsed | is-empty) {
         fail $"recipient `($to)` must be <project> or <project>+<workspace>"
@@ -566,9 +576,17 @@ def "main notify" [
     }
 }
 
-# Send a message to another project, or one of its workspaces as <project>+<workspace>. The body is read from stdin.
+def sent-message [to: string] {
+    if (is-outside $to) {
+        $"Sent to ($to). Mail outside ($domain) waits for the owner's approval; a delivery failure notice means it wasn't approved."
+    } else {
+        $"Sent to ($to)."
+    }
+}
+
+# Send a message to another project, one of its workspaces as <project>+<workspace>, or an outside address. The body is read from stdin.
 def "main send" [
-    to: string             # <project> or <project>+<workspace>
+    to: string             # <project>, <project>+<workspace>, or an outside address
     --subject (-s): string # a short, imperative subject line
     --body-file: path      # read the body from a file instead of stdin
 ] {
@@ -577,7 +595,7 @@ def "main send" [
     let p = (project)
     # No id: ours is the Sent copy, and the recipient's copy has its own.
     submit $p (recipient $to) $subject $body
-    print $"Sent to (recipient $to)."
+    print (sent-message (recipient $to))
 }
 
 # Reply to a message, staying in its thread. The body is read from stdin.
@@ -596,7 +614,7 @@ def "main reply" [
     submit $p $to $subject $body $original
     let a = (jmap $p [["Email/set", {update: (keyword-patch [$id] '$answered' true)}, "a"]])
     set-errors $a.a "marking the original answered failed"
-    print $"Sent to ($to)."
+    print (sent-message $to)
 }
 
 def --wrapped stalwart-cli-as-admin [password: string, ...args: string] {
@@ -732,6 +750,116 @@ def "main init" [] {
     print "Done. Restart the jail in this repo to pick it up."
 }
 
+def admin-password [] {
+    if ($env.AGENT_DMS_PASSWORD? | is-not-empty) {
+        fail "approvals run on the host, outside the jail"
+    }
+    must op item get $admin_item --reveal --fields=password
+}
+
+# The queued copy is the only trustworthy view of what will be sent: the agent
+# controls its own Sent copy and the Message-ID.
+def admin-blob-text [password: string, blob_id: string] {
+    let session = (http get --user admin --password $password $"($server)/jmap/session")
+    let account = ($session.primaryAccounts | get -o "urn:ietf:params:jmap:blob")
+    if $account == null { fail "the admin JMAP session has no account for urn:ietf:params:jmap:blob" }
+    let r = (http post --user admin --password $password --content-type application/json $session.apiUrl {
+        using: ["urn:ietf:params:jmap:core" "urn:ietf:params:jmap:blob"]
+        methodCalls: [["Blob/get", {accountId: $account, ids: [$blob_id], properties: ["data:asText"]}, "b"]]
+    })
+    let response = ($r.methodResponses | first)
+    if $response.0 == "error" { fail $"Blob/get for ($blob_id) failed: ($response.1.type)" }
+    if ($response.1.list | is-empty) { fail $"Blob/get found no blob ($blob_id)" }
+    let blob = ($response.1.list | first)
+    let text = ($blob | get -o "data:asText")
+    if $text == null or ($blob.isEncodingProblem? | default false) {
+        fail $"blob ($blob_id) isn't valid UTF-8, so it can't be shown for review"
+    }
+    $text
+}
+
+def held-messages [password: string] {
+    stalwart-cli-as-admin $password query QueuedMessage --where "queueName=approval" --json --fields id
+    | lines | where {|l| $l != "" } | each { from json | get id }
+    | each {|id|
+        let m = (stalwart-cli-as-admin $password get QueuedMessage $id --json | from json)
+        let raw = (admin-blob-text $password $m.blobId)
+        let headers = ($raw | split row --regex '\r?\n\r?\n' | first)
+        let ids = ($headers | parse --regex '(?im)^message-id:\s*(?P<id><[^>]+>)')
+        {
+            id: $id
+            from: $m.returnPath
+            created: $m.createdAt
+            held: ($m.recipients | transpose address r | where {|x| $x.r.queueName == "approval" } | get address)
+            message_id: (if ($ids | is-empty) { null } else { $ids | first | get id })
+            raw: $raw
+        }
+    }
+}
+
+def held-matching [password: string, message_id: string] {
+    let wanted = if ($message_id | str starts-with "<") { $message_id } else { $"<($message_id)>" }
+    let matches = (held-messages $password | where message_id == $wanted)
+    if ($matches | is-empty) {
+        fail $"no held message has Message-ID ($wanted); it may have expired or already been handled"
+    }
+    $matches
+}
+
+def show-held [m: record] {
+    print ([
+        $"=== queued message ($m.id), queued ($m.created)"
+        $"Envelope from: ($m.from)"
+        $"Held for:      ($m.held | str join ', ')"
+        ""
+        $m.raw
+    ] | str join "\n")
+}
+
+def confirm [question: string] {
+    (input $"($question) [y/N] " | str trim | str lowercase) == "y"
+}
+
+def pointer [address: string] {
+    $address | str replace --all "~" "~0" | str replace --all "/" "~1"
+}
+
+# Send a held outside message after showing the queued copy. Run on the host, not in the jail.
+def "main approve" [message_id: string] {
+    let password = (admin-password)
+    let matches = (held-matching $password $message_id)
+    # The agent picks the Message-ID, so a twin could ride along on approval.
+    if ($matches | length) > 1 {
+        fail $"($matches | length) held messages share Message-ID ($message_id). Reject them and ask the agent to resend."
+    }
+    let m = ($matches | first)
+    show-held $m
+    if not (confirm "Send it?") {
+        print "Left it held."
+        return
+    }
+    let now = (now-utc)
+    let fields = ($m.held | each {|a| ["--field" $"recipients/(pointer $a)/retryDue=($now)"] } | flatten)
+    stalwart-cli-as-admin $password update QueuedMessage $m.id ...$fields
+    print $"Released to ($m.held | str join ', ')."
+}
+
+# Cancel held outside messages after showing them. Run on the host, not in the jail.
+def "main reject" [message_id: string] {
+    let password = (admin-password)
+    let matches = (held-matching $password $message_id)
+    for m in $matches { show-held $m }
+    if not (confirm $"Cancel (if ($matches | length) == 1 { 'it' } else { $'all ($matches | length)' })?") {
+        print "Left it held."
+        return
+    }
+    for m in $matches {
+        let fields = ($m.held | each {|a| ["--field" $"recipients/(pointer $a)=null"] } | flatten)
+        stalwart-cli-as-admin $password update QueuedMessage $m.id ...$fields
+    }
+    print "Cancelled."
+}
+
 # Run himalaya against this project's account, for anything the verbs don't cover.
 def --wrapped "main himalaya" [...args] {
     let p = (project)
@@ -747,7 +875,7 @@ def main [] {
     print "  agent-dms read <id>       show the thread, mark it read"
     print "  agent-dms unread <id>"
     print "  agent-dms archive <id>"
-    print "  agent-dms send <project>[+<workspace>] -s <subject>   body on stdin"
+    print "  agent-dms send <project>[+<workspace>]|<address> -s <subject>   body on stdin"
     print "  agent-dms reply <id>                                 body on stdin"
     print "  agent-dms check [--session <id>] [--refresh] [--ttl <duration>] [--json]"
     print "  agent-dms unread-count [--session <id>] [--ttl <duration>]   bare number, empty for 0"
@@ -755,4 +883,6 @@ def main [] {
     print "  agent-dms notify on|off|status [--session <id>]"
     print "  agent-dms himalaya ..."
     print "  agent-dms init            on the host, outside the jail"
+    print "  agent-dms approve <message-id>   on the host: send a held outside message"
+    print "  agent-dms reject <message-id>    on the host: cancel it"
 }

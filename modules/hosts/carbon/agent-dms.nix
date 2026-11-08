@@ -6,6 +6,68 @@ _: let
   httpPort = 8091;
   lmtpPort = 24;
   fastmailCredential = "fastmail_agent_dms_imap";
+  fastmailLogin = "giodamelio@fastmail.com";
+  # The Stalwart account approval requests come from, and the address they go to.
+  owner = "gio";
+  ownerEmail = "gio@damelio.net";
+  approvalScript = "agent-dms-approval";
+  day = 86400000;
+
+  # Runs at DATA for authenticated submissions. It only notifies; the hold
+  # itself is the MtaOutboundStrategy route, so a failing script holds mail
+  # without a request rather than letting it through.
+  approvalSieve = ''
+    require ["variables", "envelope", "relational", "comparator-i;ascii-numeric",
+             "enotify", "foreverypart", "mime", "extracttext"];
+
+    if allof (
+      envelope :domain :value "ne" "to" "${domain}",
+      not allof (
+        envelope :count "eq" :comparator "i;ascii-numeric" "to" "1",
+        envelope :all :is "to" "${ownerEmail}"
+      )
+    ) {
+      set "sender" "";
+      if envelope :all :matches "from" "*" { set "sender" "''${1}"; }
+      set "to" "";
+      if header :matches "To" "*" { set "to" "''${1}"; }
+      set "cc" "";
+      if header :matches "Cc" "*" { set "cc" "''${1}"; }
+      set "subject" "";
+      if header :matches "Subject" "*" { set "subject" "''${1}"; }
+      set "msgid" "";
+      if header :matches "Message-ID" "*" { set "msgid" "''${1}"; }
+      set "text" "";
+      foreverypart {
+        if allof (
+          string :is "''${text}" "",
+          header :mime :contenttype "Content-Type" "text/plain",
+          not header :mime :matches "Content-Disposition" "attachment*"
+        ) {
+          extracttext :first 20000 "text";
+        }
+      }
+      set :encodeurl "subject_q" "[agent-dms] approve: ''${sender} -> ''${to}: ''${subject}";
+      set :encodeurl "body_q" "''${sender} wants to send this.
+
+    To: ''${to}
+    Cc: ''${cc}
+    Subject: ''${subject}
+    Message-ID: ''${msgid}
+
+    Only the first text part is shown. approve prints the full queued message
+    before asking.
+
+    ----- message text -----
+    ''${text}
+    ----- end -----
+
+    Approve:  agent-dms approve \"''${msgid}\"
+    Reject:   agent-dms reject \"''${msgid}\"
+    ";
+      notify "mailto:${ownerEmail}?subject=''${subject_q}&body=''${body_q}";
+    }
+  '';
 in {
   den.aspects.carbon.nixos = {
     pkgs,
@@ -125,14 +187,157 @@ in {
       {
         "@type" = "update";
         object = "MtaStageData";
-        # Fastmail already filtered what fetchmail hands over, and every LMTP
-        # session looks like it comes from 127.0.0.1.
-        value.enableSpamFilter = {
-          match."0" = {
-            "if" = "listener == 'lmtp'";
-            "then" = "false";
+        value = {
+          # Fastmail already filtered what fetchmail hands over, and every LMTP
+          # session looks like it comes from 127.0.0.1.
+          enableSpamFilter = {
+            match."0" = {
+              "if" = "listener == 'lmtp'";
+              "then" = "false";
+            };
+            "else" = "is_empty(authenticated_as)";
           };
-          "else" = "is_empty(authenticated_as)";
+          script = {
+            match."0" = {
+              "if" = "!is_empty(authenticated_as)";
+              "then" = "'${approvalScript}'";
+            };
+            "else" = "false";
+          };
+          # Fastmail signs on the way out.
+          dkimSignDomain."else" = "false";
+        };
+      }
+      {
+        "@type" = "update";
+        object = "SieveSystemInterpreter";
+        value = {
+          defaultFromName."else" = "'agent-dms approvals'";
+          defaultFromAddress."else" = "'${owner}@${domain}'";
+          # Fastmail won't relay a null sender.
+          defaultReturnPath."else" = "'${owner}@${domain}'";
+          dkimSignDomain."else" = "false";
+        };
+      }
+      {
+        "@type" = "upsert";
+        object = "SieveSystemScript";
+        matchOn = ["name"];
+        value.approval = {
+          name = approvalScript;
+          description = "Mail the owner an approval request for agent mail leaving the domain";
+          isActive = true;
+          contents = approvalSieve;
+        };
+      }
+      {
+        "@type" = "upsert";
+        object = "MtaVirtualQueue";
+        matchOn = ["name"];
+        value.apq = {
+          name = "approval";
+          description = "Agent mail held until approved";
+          threadsPerNode = 1;
+        };
+      }
+      {
+        "@type" = "upsert";
+        object = "MtaDeliverySchedule";
+        matchOn = ["name"];
+        # Retry and notify outlast expiry, so a held message is only ever
+        # retried by `agent-dms approve`.
+        value.aps = {
+          name = "approval";
+          queueId = "#apq";
+          retry = {
+            "@type" = "Custom";
+            intervals."0".duration = 30 * day;
+          };
+          notify = {
+            "@type" = "Custom";
+            intervals."0".duration = 30 * day;
+          };
+          expiry = {
+            "@type" = "Ttl";
+            expire = 7 * day;
+          };
+        };
+      }
+      {
+        "@type" = "upsert";
+        object = "MtaRoute";
+        matchOn = ["name"];
+        value = {
+          # Nothing listens here: the first attempt fails temporarily and the
+          # message waits in the approval schedule.
+          hold = {
+            "@type" = "Relay";
+            name = "hold";
+            host = "127.0.0.1";
+            port = 9;
+          };
+          fastmail = {
+            "@type" = "Relay";
+            name = "fastmail";
+            host = "smtp.fastmail.com";
+            port = 465;
+            implicitTls = true;
+            authUsername = fastmailLogin;
+            authSecret = {
+              "@type" = "File";
+              filePath = "/run/credentials/stalwart.service/${fastmailCredential}";
+            };
+          };
+        };
+      }
+      {
+        "@type" = "update";
+        object = "MtaOutboundStrategy";
+        # The owner is auto-approved. Everything else leaving the domain takes
+        # the hold route on its first attempt; approval retries it.
+        value = {
+          route = {
+            match = {
+              "0" = {
+                "if" = "is_local_domain(rcpt_domain)";
+                "then" = "'local'";
+              };
+              "1" = {
+                "if" = "rcpt == '${ownerEmail}'";
+                "then" = "'fastmail'";
+              };
+              "2" = {
+                "if" = "retry_num == 0";
+                "then" = "'hold'";
+              };
+            };
+            "else" = "'fastmail'";
+          };
+          schedule = {
+            match = {
+              "0" = {
+                "if" = "is_local_domain(rcpt_domain)";
+                "then" = "'local'";
+              };
+              "1" = {
+                "if" = "rcpt == '${ownerEmail}'";
+                "then" = "'remote'";
+              };
+              "2" = {
+                "if" = "retry_num == 0";
+                "then" = "'approval'";
+              };
+              "3" = {
+                "if" = "source == 'dsn'";
+                "then" = "'dsn'";
+              };
+              "4" = {
+                "if" = "source == 'report'";
+                "then" = "'report'";
+              };
+            };
+            "else" = "'remote'";
+          };
         };
       }
       # Last: it moves the listener this run may be talking to, and destroys
@@ -203,6 +408,9 @@ in {
           echo "stalwart-apply: falling back to the default listener on 8080" >&2
           stalwart-cli --url http://127.0.0.1:8080 apply --file ${plan}
         fi
+        # MTA rules and Sieve scripts are compiled in; listeners still need a
+        # restart of stalwart.service.
+        stalwart-cli --url http://127.0.0.1:${toString httpPort} create Action/ReloadSettings
       '';
     };
 
@@ -230,7 +438,7 @@ in {
           envelope "X-Delivered-to"
           localdomains ${domain}
           no dns
-          user "giodamelio@fastmail.com" password "$password" is * here
+          user "${fastmailLogin}" password "$password" is * here
           folder "AgentDMs"
           ssl sslcertck sslcertfile /etc/ssl/certs/ca-certificates.crt
           idle
@@ -283,7 +491,7 @@ in {
         LogsDirectory = "stalwart";
         # Caddy's token under its own credstore name: Stalwart does its own
         # DNS-01 for the IMAP and submission certificate.
-        LoadCredentialEncrypted = ["caddy_cloudflare_api_token"];
+        LoadCredentialEncrypted = ["caddy_cloudflare_api_token" fastmailCredential];
         Restart = "on-failure";
         RestartSec = 5;
         KillMode = "process";
