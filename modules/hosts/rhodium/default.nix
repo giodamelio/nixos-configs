@@ -44,6 +44,7 @@ in {
   den.aspects.rhodium.includes = [
     den.aspects.server-heartbeat
     den.aspects.rayfish
+    den.aspects.telemetry-agent
   ];
 
   den.aspects.rhodium.nixos = {

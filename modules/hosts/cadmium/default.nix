@@ -93,6 +93,7 @@
     den.aspects.ollama
 
     den.aspects.monitoring
+    den.aspects.telemetry-agent
     den.aspects.printing
     den.aspects."3d-printing"
     den.aspects.affinity

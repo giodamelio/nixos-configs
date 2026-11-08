@@ -27,6 +27,7 @@
   den.aspects.strontium.includes = [
     den.aspects.server-heartbeat
     den.aspects.rayfish
+    den.aspects.telemetry-agent
   ];
 
   den.aspects.strontium.nixos = {

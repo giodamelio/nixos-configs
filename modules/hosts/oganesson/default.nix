@@ -26,6 +26,7 @@
     den.aspects.niks3-client
     # Run the heartbeat collector (pushes to its own Healthchecks check).
     den.aspects.server-heartbeat
+    den.aspects.telemetry-agent
     # Rebuilds itself from main; it builds aarch64 natively and holds no state.
     # REMIND-ME-TO: Re-enable comin once origin/main matches what is deployed (NIXOS-119) date_passed=2026-10-22
     # den.aspects.comin

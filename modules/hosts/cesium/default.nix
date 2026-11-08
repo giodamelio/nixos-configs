@@ -68,6 +68,7 @@
 
     den.aspects.needlecast-client
     den.aspects.tailscale
+    den.aspects.telemetry-agent
   ];
 
   # ---- Host: cesium-specific config (merges with ./hardware.nix) ----
