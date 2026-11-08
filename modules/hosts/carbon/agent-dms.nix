@@ -1,9 +1,11 @@
-# agent-dms — LAN-only Stalwart mail server (agent-dms.gio.ninja) giving each
-# project's coding agents an inbox. Config lives in postgres, applied by
-# stalwart-apply.
+# agent-dms — Stalwart mail server (agent-dms.gio.ninja) giving each project's
+# coding agents an inbox. Fastmail is the public MX; fetchmail pulls from it.
+# Config lives in postgres, applied by stalwart-apply.
 _: let
   domain = "agent-dms.gio.ninja";
   httpPort = 8091;
+  lmtpPort = 24;
+  fastmailCredential = "fastmail_agent_dms_imap";
 in {
   den.aspects.carbon.nixos = {
     pkgs,
@@ -120,6 +122,19 @@ in {
         object = "Authentication";
         value.maxAppPasswords = 10;
       }
+      {
+        "@type" = "update";
+        object = "MtaStageData";
+        # Fastmail already filtered what fetchmail hands over, and every LMTP
+        # session looks like it comes from 127.0.0.1.
+        value.enableSpamFilter = {
+          match."0" = {
+            "if" = "listener == 'lmtp'";
+            "then" = "false";
+          };
+          "else" = "is_empty(authenticated_as)";
+        };
+      }
       # Last: it moves the listener this run may be talking to, and destroys
       # the default ones (25, 443, 995, 4190).
       {
@@ -146,6 +161,12 @@ in {
             protocol = "smtp";
             useTls = true;
             tlsImplicit = true;
+          };
+          lmtp = {
+            name = "lmtp";
+            bind."127.0.0.1:${toString lmtpPort}" = true;
+            protocol = "lmtp";
+            useTls = false;
           };
         };
       }
@@ -182,6 +203,42 @@ in {
           echo "stalwart-apply: falling back to the default listener on 8080" >&2
           stalwart-cli --url http://127.0.0.1:8080 apply --file ${plan}
         fi
+      '';
+    };
+
+    # IDLE on Fastmail's AgentDMs folder; X-Delivered-to is the envelope
+    # recipient Fastmail stamps above everything the sender wrote. softbounce
+    # leaves anything Stalwart refuses in Fastmail instead of bouncing it.
+    fetchmailStart = pkgs.writeShellApplication {
+      name = "agent-dms-fetchmail";
+      runtimeInputs = [pkgs.coreutils pkgs.fetchmail];
+      text = ''
+        password="$(tr -d '\n' < "$CREDENTIALS_DIRECTORY/${fastmailCredential}")"
+        # Fastmail app passwords are alphanumeric; anything else would need
+        # fetchmailrc escaping.
+        if [[ ! "$password" =~ ^[A-Za-z0-9]+$ ]]; then
+          echo "agent-dms-fetchmail: ${fastmailCredential} is not a plain alphanumeric app password" >&2
+          exit 1
+        fi
+        rc="$RUNTIME_DIRECTORY/fetchmailrc"
+        (umask 077 && cat > "$rc" <<EOF
+        set daemon 300
+        set no bouncemail
+        set softbounce
+        set postmaster "gio"
+        poll imap.fastmail.com protocol imap port 993
+          envelope "X-Delivered-to"
+          localdomains ${domain}
+          no dns
+          user "giodamelio@fastmail.com" password "$password" is * here
+          folder "AgentDMs"
+          ssl sslcertck sslcertfile /etc/ssl/certs/ca-certificates.crt
+          idle
+          lmtp smtphost 127.0.0.1/${toString lmtpPort}
+          smtpaddress ${domain}
+        EOF
+        )
+        exec fetchmail --nodetach --nosyslog -f "$rc"
       '';
     };
   in {
@@ -279,6 +336,49 @@ in {
         # stalwart-cli caches the server's schema under $XDG_CACHE_HOME.
         CacheDirectory = "stalwart-cli";
         Environment = "XDG_CACHE_HOME=/var/cache/stalwart-cli";
+      };
+    };
+
+    fleet.credentials.needs = [fastmailCredential];
+
+    systemd.services.agent-dms-fetchmail = {
+      description = "Pull agent-dms mail from Fastmail into Stalwart";
+      wantedBy = ["multi-user.target"];
+      after = ["network-online.target" "stalwart-apply.service"];
+      wants = ["network-online.target"];
+      requires = ["stalwart-apply.service"];
+      environment.HOME = "/var/lib/agent-dms-fetchmail";
+      serviceConfig = {
+        ExecStart = lib.getExe fetchmailStart;
+        DynamicUser = true;
+        StateDirectory = "agent-dms-fetchmail";
+        RuntimeDirectory = "agent-dms-fetchmail";
+        RuntimeDirectoryMode = "0700";
+        LoadCredentialEncrypted = [fastmailCredential];
+        Restart = "always";
+        RestartSec = 30;
+
+        CapabilityBoundingSet = [""];
+        LockPersonality = true;
+        MemoryDenyWriteExecute = true;
+        NoNewPrivileges = true;
+        PrivateDevices = true;
+        PrivateTmp = true;
+        ProtectClock = true;
+        ProtectControlGroups = true;
+        ProtectHome = true;
+        ProtectHostname = true;
+        ProtectKernelLogs = true;
+        ProtectKernelModules = true;
+        ProtectKernelTunables = true;
+        ProtectProc = "invisible";
+        ProtectSystem = "strict";
+        RestrictAddressFamilies = ["AF_INET" "AF_INET6" "AF_UNIX"];
+        RestrictNamespaces = true;
+        RestrictRealtime = true;
+        SystemCallArchitectures = "native";
+        SystemCallFilter = ["@system-service" "~@privileged"];
+        UMask = "0077";
       };
     };
 
