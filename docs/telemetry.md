@@ -199,7 +199,7 @@ No host declares a `telemetry-reader` certificate today. Grafana reads locally.
 
 ### Use the push site
 
-`push.telemetry.gio.ninja` is a write-only site for scripts that cannot hold a certificate. It accepts only these source ranges (`fleet.telemetry.pushAllowedRanges`): `10.0.0.0/16`, `10.30.0.0/24` and `10.100.0.0/24` (the LAN, the server VLAN and the WireGuard clients). Everything else gets `403`. It requires basic auth as user `push`, with the bcrypt hash in the `push_basic_auth_hash` credential, and limits bodies to 1MB.
+`push.telemetry.gio.ninja` is a write-only site for scripts that cannot hold a certificate. It accepts only these source ranges (`fleet.telemetry.pushAllowedRanges`): `10.0.0.0/16`, `10.30.0.0/24` and `10.100.0.0/24` (the LAN, the server VLAN and the WireGuard clients). Everything else gets `403`. Inside those ranges the site is open: it has no authentication, so the source allowlist, the 1MB body limit and the forced `source=push` label are its only guards.
 
 | Path | Goes to |
 |---|---|
@@ -215,9 +215,9 @@ Each rewrite replaces the whole query string, and the site strips the `AccountID
 Pushed values are point-in-time samples. Query them with `last_over_time(...)`.
 
 ```bash
-curl -u push:$TOKEN --data-binary 'backup_duration_seconds{job="restic"} 42' https://push.telemetry.gio.ninja/prometheus
-curl -u push:$TOKEN -d 'backup,job=restic duration=42,ok=1' https://push.telemetry.gio.ninja/influx
-curl -u push:$TOKEN -d '{"_msg":"backup finished","job":"restic"}' https://push.telemetry.gio.ninja/logs
+curl --data-binary 'backup_duration_seconds{job="restic"} 42' https://push.telemetry.gio.ninja/prometheus
+curl -d 'backup,job=restic duration=42,ok=1' https://push.telemetry.gio.ninja/influx
+curl -d '{"_msg":"backup finished","job":"restic"}' https://push.telemetry.gio.ninja/logs
 ```
 
 Query the first with `last_over_time(backup_duration_seconds{source="push"}[1d])`. The Influx line becomes the series `backup_duration` and `backup_ok` (measurement and field joined with `_`). The site sets the logs `Content-Type` itself: VictoriaLogs reads query parameters with `FormValue`, which would swallow curl's default `x-www-form-urlencoded` body and ingest nothing.
@@ -280,7 +280,6 @@ Deploy carbon and gallium together at every step that changes them: they mirror 
 
 Create these on carbon and gallium:
 
-- `push_basic_auth_hash`: the output of `caddy hash-password`.
 - `telemetry_pushover_app_token` and `telemetry_pushover_user_token`.
 - `telemetry_watchdog_url`: the ping URL of a healthchecks.io check with a 5-minute period and 10-minute grace.
 

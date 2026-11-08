@@ -67,8 +67,6 @@ in {
     cert = config.gio.mtls.certs.telemetry-node;
     caRoot = config.gio.mtls.caRoot;
     crlDir = "/var/lib/caddy/crl";
-    credentialsDir = "/run/credentials/caddy.service";
-    pushHash = "push_basic_auth_hash";
 
     # The CRL is found through each certificate's CDP, never crl_url: a crl_url
     # that cannot be fetched at startup fails the whole config load, taking every
@@ -213,6 +211,8 @@ in {
 
     pushSite = ''
       route {
+        # Deliberately unauthenticated: the remote_ip allowlist, the body size cap
+        # and the forced source=push label are its only guards.
         @outside not remote_ip ${lib.concatStringsSep " " cfg.pushAllowedRanges}
         respond @outside 403
 
@@ -222,9 +222,6 @@ in {
         request_header -ProjectID
         request_header -VL-*
 
-        basic_auth {
-          push {file.${credentialsDir}/${pushHash}}
-        }
         request_body {
           max_size 1MB
         }
@@ -269,9 +266,6 @@ in {
       ];
 
       gio.mtls.certs.telemetry-node.services = ["caddy"];
-
-      fleet.credentials.needs = [pushHash];
-      systemd.services.caddy.serviceConfig.LoadCredentialEncrypted = [pushHash];
 
       systemd.tmpfiles.rules = ["d ${crlDir} 0700 caddy caddy - -"];
 

@@ -57,8 +57,8 @@ in {
           den.aspects.telemetry-member: alerting, the Caddy front door, push site
           and caddy-l4 tunnels, plus the DNS records. Needs every member enrolled
           (`ca-enroll-host <member> mtls --role telemetry-cluster`) and the
-          push_basic_auth_hash and telemetry_pushover_* / telemetry_watchdog_url
-          credentials on every member
+          telemetry_pushover_* / telemetry_watchdog_url credentials on every
+          member
         '';
 
         dns.enable = lib.mkEnableOption ''

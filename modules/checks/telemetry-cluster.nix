@@ -18,18 +18,15 @@
       tel-b = "192.168.1.3";
     };
     members = ["tel-a" "tel-b"];
-    pushPassword = "push-test-password";
 
-    testPki = pkgs.runCommand "telemetry-cluster-test-pki" {nativeBuildInputs = [pkgs.step-cli pkgs.caddy];} ''
+    testPki = pkgs.runCommand "telemetry-cluster-test-pki" {nativeBuildInputs = [pkgs.step-cli];} ''
       mkdir $out && cd $out
       export STEPPATH=$TMPDIR/step HOME=$TMPDIR
       step certificate create "public stand-in root" public-root.crt public-root.key \
         --profile root-ca --no-password --insecure
-      caddy hash-password --plaintext ${pushPassword} > push.hash
     '';
 
     secrets = {
-      push_basic_auth_hash = "$(cat ${testPki}/push.hash)";
       telemetry_pushover_app_token = "test-token";
       telemetry_pushover_user_token = "test-user";
       telemetry_watchdog_url = "http://127.0.0.1:9/watchdog";
@@ -307,18 +304,17 @@
             tela.succeed(f"curl -sf http://127.0.0.1:{tunnel['tel-b']['alertmanager']}/-/ready")
             telb.succeed(f"curl -sf http://127.0.0.1:{tunnel['tel-a']['alertmanager']}/-/ready")
 
-        def push(m, path, data, user="push:${pushPassword}", args=""):
+        def push(m, path, data, args=""):
             return m.succeed(
-                f"curl -sS -o /dev/null -w '%{{http_code}}' -u {user} {args} --data-binary {shlex.quote(data)} "
+                f"curl -sS -o /dev/null -w '%{{http_code}}' {args} --data-binary {shlex.quote(data)} "
                 f"'https://push.telemetry.gio.ninja{path}' || true"
             ).strip()
 
-        with subtest("the push site takes basic auth from inside and refuses outside"):
+        with subtest("the push site takes unauthenticated pushes from inside and refuses outside"):
             assert push(tela, "/prometheus", 'pushed_metric{job="t"} 42') == "204"
             assert push(tela, "/prometheus?extra_label=source=evil", "evil_metric 1") == "204"
             assert push(tela, "/influx", "pushed_influx,job=t value=7") == "204"
             assert push(tela, "/logs", '{"_msg":"pushed line","job":"t"}') == "200"
-            assert push(tela, "/prometheus", "x 1", user="push:wrong") == "401"
             assert push(tela, "/elsewhere", "x 1") == "404"
             assert push(ca, "/prometheus", "x 1") == "403"
             tela.succeed("head -c 2000000 /dev/zero > /tmp/big")
