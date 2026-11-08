@@ -10,6 +10,8 @@ _: {
       exporters = {
         node = {
           enable = true;
+          # The nixpkgs default, pinned: telemetry-agent would otherwise move it to 9000.
+          port = 9100;
           enabledCollectors = ["systemd"];
         };
 
