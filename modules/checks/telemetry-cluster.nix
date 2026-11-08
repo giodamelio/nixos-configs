@@ -180,8 +180,7 @@
             paste = [l for l in out.splitlines() if l.startswith("sudo ")]
             assert len(paste) == 4, out
             m.wait_for_unit("multi-user.target")
-            # The consumers crash-looped while their certificates were missing.
-            m.succeed("systemctl reset-failed")
+            m.fail("systemctl is-failed caddy.service alertmanager.service vmagent.service systemd-journal-upload.service")
             for line in paste:
                 m.succeed(f"bash -c {shlex.quote(line)}")
             for name in ("telemetry-node", "alertmanager", "vmagent", "journal-upload"):

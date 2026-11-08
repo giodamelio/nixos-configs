@@ -112,20 +112,8 @@ in {
       meta.mainProgram = "mtls";
     };
 
-    credentialsByUnit = lib.foldlAttrs (acc: name: c:
-      lib.foldl' (a: unit:
-        a
-        // {
-          ${unit} =
-            (a.${unit} or [])
-            ++ [
-              "mtls-${name}-cert:${c.certFile}"
-              "mtls-${name}-key:${c.keyFile}"
-              "mtls-ca:${cfg.caRoot}"
-            ];
-        })
-      acc
-      c.units) {}
+    certNamesByUnit = lib.foldlAttrs (acc: name: c:
+      lib.foldl' (a: unit: a // {${unit} = (a.${unit} or []) ++ [name];}) acc c.units) {}
     certs;
 
     duplicateCns = lib.pipe certs [
@@ -188,11 +176,19 @@ in {
           certs);
 
       systemd.services =
-        lib.mapAttrs' (unit: creds:
+        lib.mapAttrs' (unit: names:
           lib.nameValuePair (lib.removeSuffix ".service" unit) {
-            serviceConfig.LoadCredential = lib.unique creds;
+            # LoadCredential= fails a unit whose file is missing, so before
+            # enrollment it stays dormant instead; mtls-enroll starts it.
+            unitConfig.ConditionPathExists = map (name: certs.${name}.certFile) names;
+            serviceConfig.LoadCredential = lib.unique (lib.concatMap (name: [
+                "mtls-${name}-cert:${certs.${name}.certFile}"
+                "mtls-${name}-key:${certs.${name}.keyFile}"
+                "mtls-ca:${cfg.caRoot}"
+              ])
+              names);
           })
-        credentialsByUnit
+        certNamesByUnit
         // {
           mtls-enroll = {
             description = "Enroll gio.mtls certificates from dropped tokens";

@@ -161,10 +161,12 @@
             ca.succeed("step-ca-provisioners")
             ca.succeed("cmp /tmp/before.json ${caDir}/ca.json")
 
-        with subtest("unenrolled hosts keep the renewer dormant"):
+        with subtest("unenrolled hosts keep the renewer and consumers dormant"):
             a.succeed("systemctl start mtls-renew.service")
             assert a.succeed("systemctl show -p ConditionResult --value mtls-renew.service").strip() == "no"
             a.fail("test -e /var/lib/mtls/echo/cert.pem")
+            assert a.succeed("systemctl show -p ConditionResult --value echo-server.service").strip() == "no"
+            a.fail("systemctl is-failed echo-server.service")
 
         with subtest("ca-enroll-host refuses hosts and roles nothing declares"):
             ca.fail("ca-enroll-host ca mtls")
