@@ -7,11 +7,42 @@
   net = import ../network/_lib.nix {inherit lib;};
   denHosts = lib.concatMapAttrs (_system: hosts: hosts) config.den.hosts;
 in {
+  # What a member host includes. Until fleet.telemetry.cluster.enable it gets
+  # only what runs without enrollment or secrets and leaves Caddy untouched.
+  den.aspects.telemetry-member.includes =
+    if config.fleet.telemetry.cluster.enable
+    then [den.aspects.telemetry-cluster]
+    else [
+      den.aspects.telemetry-backend
+      den.aspects.telemetry-agent
+      den.aspects.telemetry-node-certs
+    ];
+
+  # Declared ahead of their consumers, so strontium can enroll a member before
+  # the cluster is turned on and turning it on needs no second enrollment.
+  den.aspects.telemetry-node-certs.nixos = {
+    fleet,
+    host,
+    ...
+  }: let
+    identity = {
+      role = "telemetry-cluster";
+      serverHostnames = ["${host.name}.${fleet.dns.domain}"];
+      serverAddresses = [(net.theAddress host)];
+    };
+  in {
+    gio.mtls.certs = {
+      telemetry-node = identity // {onRenew = "reload-caddy";};
+      alertmanager = identity // {onRenew = "restart";};
+    };
+  };
+
   den.aspects.telemetry-cluster.includes = [
     den.aspects.reverse-proxy
     den.aspects.telemetry-backend
     den.aspects.telemetry-alerting
     den.aspects.telemetry-agent
+    den.aspects.telemetry-node-certs
   ];
 
   den.aspects.telemetry-cluster.nixos = {
@@ -237,14 +268,7 @@ in {
         }
       ];
 
-      gio.mtls.certs.telemetry-node = {
-        app = "telemetry-node";
-        role = "telemetry-cluster";
-        serverHostnames = [(fqdn host.name)];
-        serverAddresses = [selfAddress];
-        services = ["caddy"];
-        onRenew = "reload-caddy";
-      };
+      gio.mtls.certs.telemetry-node.services = ["caddy"];
 
       fleet.credentials.needs = [pushHash];
       systemd.services.caddy.serviceConfig.LoadCredentialEncrypted = [pushHash];

@@ -84,14 +84,8 @@ _: {
         }
       ];
 
-      gio.mtls.certs.alertmanager = {
-        app = "alertmanager";
-        role = "telemetry-cluster";
-        serverHostnames = [(fqdn host.name)];
-        serverAddresses = [(net.theAddress host)];
-        services = ["alertmanager.service"];
-        onRenew = "restart";
-      };
+      # Its identity is declared by den.aspects.telemetry-node-certs.
+      gio.mtls.certs.alertmanager.services = ["alertmanager.service"];
 
       fleet.credentials.needs = lib.attrValues credentials;
 

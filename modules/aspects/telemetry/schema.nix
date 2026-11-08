@@ -43,6 +43,8 @@
 in {
   den.schema.fleet.imports = [
     ({config, ...}: {
+      config.telemetry.dns.enable = lib.mkDefault config.telemetry.cluster.enable;
+
       options.telemetry = {
         clusterNodes = mkOption {
           type = types.listOf types.str;
@@ -50,10 +52,18 @@ in {
           description = "Hosts that run the telemetry backend. Everything else (storage nodes, tunnels, certificates, route upstreams) is generated from this list.";
         };
 
+        cluster.enable = lib.mkEnableOption ''
+          den.aspects.telemetry-cluster on every host that includes
+          den.aspects.telemetry-member: alerting, the Caddy front door, push site
+          and caddy-l4 tunnels, plus the DNS records. Needs every member enrolled
+          (`ca-enroll-host <member> mtls --role telemetry-cluster`) and the
+          push_basic_auth_hash and telemetry_pushover_* / telemetry_watchdog_url
+          credentials on every member
+        '';
+
         dns.enable = lib.mkEnableOption ''
           the telemetry.gio.ninja and push.telemetry.gio.ninja A records for every
-          member. Turn on together with including den.aspects.telemetry-cluster on
-          the members
+          member. Follows cluster.enable
         '';
 
         # The LAN, the server VLAN and the UniFi WireGuard clients (oganesson
