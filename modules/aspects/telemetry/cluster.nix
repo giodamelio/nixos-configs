@@ -226,13 +226,7 @@ in {
     options.gio.telemetry-cluster.checkRevocation = lib.mkOption {
       type = lib.types.bool;
       default = true;
-      description = ''
-        Check the step-ca CRL on every client-auth listener. As of
-        caddy-revocation-validator v1.0.7 this rejects every client: step-ca
-        always marks its Issuing Distribution Point CRL extension critical, and
-        the plugin refuses CRLs with any critical extension besides AKI and CRL
-        number, so the CRL never loads and crl_cdp_strict fails closed.
-      '';
+      description = "Check the step-ca CRL on every client-auth listener.";
     };
 
     config = {

@@ -154,17 +154,30 @@ _: {
       services.caddy = {
         enable = true;
 
-        package = pkgs.caddy.withPlugins {
-          plugins = [
-            "github.com/caddy-dns/cloudflare@v0.2.1"
-            "github.com/relvacode/caddy-oidc@v0.4.3"
-            # Last commit before master required Go 1.26.9
-            # REMIND-ME-TO: Move caddy-l4 to master or a newer tag nixpkg_version=nixpkgs-unstable:go@>=1.26.9
-            "github.com/mholt/caddy-l4@v0.1.3-0.20261029145729-f607ccea1b7d"
-            "github.com/gr33nbl00d/caddy-revocation-validator@v1.0.7"
-          ];
-          hash = "sha256-YWnbo4nx5QgqQz7jtF8AtwM63m5SvclucNokPhcr0ug=";
-        };
+        package =
+          (pkgs.caddy.withPlugins {
+            plugins = [
+              "github.com/caddy-dns/cloudflare@v0.2.1"
+              "github.com/relvacode/caddy-oidc@v0.4.3"
+              # Last commit before master required Go 1.26.9
+              # REMIND-ME-TO: Move caddy-l4 to master or a newer tag nixpkg_version=nixpkgs-unstable:go@>=1.26.9
+              "github.com/mholt/caddy-l4@v0.1.3-0.20261029145729-f607ccea1b7d"
+              "github.com/gr33nbl00d/caddy-revocation-validator@v1.0.7"
+            ];
+            hash = "sha256-YWnbo4nx5QgqQz7jtF8AtwM63m5SvclucNokPhcr0ug=";
+          }).overrideAttrs (prev: {
+            # step-ca marks its CRL's Issuing Distribution Point critical (RFC 5280 5.2.5), which v1.0.7
+            # refuses as unhandled, so with crl_cdp_strict every client is rejected. The patch processes it.
+            # The vendored copy has no _test.go files, so the patch's tests are filtered out here.
+            # REMIND-ME-TO: Submit caddy-revocation-validator-idp.patch upstream to gr33nbl00d/caddy-revocation-validator and drop it once a release handles IDP tag_exists=github:gr33nbl00d/caddy-revocation-validator@>1.0.7 date_passed=2026-12-15
+            postPatch =
+              (prev.postPatch or "")
+              + ''
+                ${pkgs.patchutils}/bin/filterdiff --clean -x '*_test.go' ${./caddy-revocation-validator-idp.patch} > "$TMPDIR/crv-idp.patch"
+                grep -q '^+++ b/crl/' "$TMPDIR/crv-idp.patch"
+                patch -p1 --forward -d vendor/github.com/gr33nbl00d/caddy-revocation-validator < "$TMPDIR/crv-idp.patch"
+              '';
+          });
 
         globalConfig = ''
           email admin@gio.ninja

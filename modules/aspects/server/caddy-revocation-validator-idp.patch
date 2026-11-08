@@ -1,0 +1,590 @@
+diff --git a/crl/crlreader/extensionsupport/extensionsupport.go b/crl/crlreader/extensionsupport/extensionsupport.go
+index 0df2f18643..8a2fbb08f0 100644
+--- a/crl/crlreader/extensionsupport/extensionsupport.go
++++ b/crl/crlreader/extensionsupport/extensionsupport.go
+@@ -31,10 +31,30 @@
+ const OidCertExtSubjectKeyId = "2.5.29.14"
+ const OidCertExtAuthorityKeyId = "2.5.29.35"
+ const OidCrlExtCrlNumber = "2.5.29.20"
+-
++const OidCrlExtIssuingDistributionPoint = "2.5.29.28"
++
++// IssuingDistributionPoint as defined in RFC 5280 Section 5.2.5
++type IssuingDistributionPoint struct {
++	DistributionPoint          DistributionPointName `asn1:"optional,tag:0"`
++	OnlyContainsUserCerts      bool                  `asn1:"optional,tag:1"`
++	OnlyContainsCACerts        bool                  `asn1:"optional,tag:2"`
++	OnlySomeReasons            asn1.BitString        `asn1:"optional,tag:3"`
++	IndirectCRL                bool                  `asn1:"optional,tag:4"`
++	OnlyContainsAttributeCerts bool                  `asn1:"optional,tag:5"`
++}
++
++type DistributionPointName struct {
++	FullName     []asn1.RawValue  `asn1:"optional,tag:0"`
++	RelativeName pkix.RDNSequence `asn1:"optional,tag:1"`
++}
++
++const generalNameTagURI = 6
++
++// The issuing distribution point is validated by CheckIssuingDistributionPoint once the CRL location is known
+ var handledCRLExtensions = map[string]bool{
+-	OidCertExtAuthorityKeyId: true,
+-	OidCrlExtCrlNumber:       true,
++	OidCertExtAuthorityKeyId:          true,
++	OidCrlExtCrlNumber:                true,
++	OidCrlExtIssuingDistributionPoint: true,
+ }
+
+ func FindExtension(oidString string, extensions *[]pkix.Extension) *pkix.Extension {
+@@ -51,7 +71,6 @@
+ 		//Unhandled CRL Extensions in general:
+ 		//Delta CRL Indicator 2.5.29.27 - No delta list support (critical)
+ 		//FreshestCRL 2.5.29.47 - No delta list support (non-critical)
+-		//Issuing Distribution Point 2.5.27.(Not needed as we get this information from cert to check) (non-critical)
+ 		//Authority Information Access 1.3.6.1.5.5.7.1.1 - We expect the signing cert to be in the chain for now (non-critical)
+ 		//Issuer Alternative Name 2.5.29.18 - Currently we only support normal issuer field as used in most cases (non-critical)
+ 		for _, extension := range *extensions {
+@@ -65,3 +84,68 @@
+ 	}
+ 	return nil
+ }
++
++// CheckIssuingDistributionPoint processes the issuing distribution point extension (RFC 5280 Section 5.2.5).
++// distributionPointURIs are the URIs the CRL was loaded for (empty if unknown, e.g. a local CRL file).
++// Only complete, direct CRLs covering end entity certificates are accepted.
++func CheckIssuingDistributionPoint(extensions *[]pkix.Extension, distributionPointURIs []string) error {
++	if extensions == nil {
++		return nil
++	}
++	extension := FindExtension(OidCrlExtIssuingDistributionPoint, extensions)
++	if extension == nil {
++		return nil
++	}
++	idp, err := ParseIssuingDistributionPoint(extension.Value)
++	if err != nil {
++		return err
++	}
++	if idp.IndirectCRL {
++		return errors.New("indirect crls are not supported")
++	}
++	if idp.OnlySomeReasons.BitLength > 0 {
++		return errors.New("crls partitioned by revocation reason (onlySomeReasons) are not supported")
++	}
++	if idp.OnlyContainsAttributeCerts {
++		return errors.New("crl only contains attribute certificates")
++	}
++	//revocation is only checked for client (end entity) certificates
++	if idp.OnlyContainsCACerts {
++		return errors.New("crl only contains ca certificates")
++	}
++	if len(idp.DistributionPoint.RelativeName) > 0 {
++		return errors.New("issuing distribution point nameRelativeToCRLIssuer is not supported")
++	}
++	if len(idp.DistributionPoint.FullName) > 0 && len(distributionPointURIs) > 0 {
++		if !issuingDistributionPointMatches(idp, distributionPointURIs) {
++			return fmt.Errorf("issuing distribution point of crl does not match any of %v", distributionPointURIs)
++		}
++	}
++	return nil
++}
++
++func ParseIssuingDistributionPoint(value []byte) (*IssuingDistributionPoint, error) {
++	idp := new(IssuingDistributionPoint)
++	rest, err := asn1.Unmarshal(value, idp)
++	if err != nil {
++		return nil, fmt.Errorf("could not parse issuing distribution point: %v", err)
++	}
++	if len(rest) != 0 {
++		return nil, errors.New("trailing data after issuing distribution point")
++	}
++	return idp, nil
++}
++
++func issuingDistributionPointMatches(idp *IssuingDistributionPoint, distributionPointURIs []string) bool {
++	for _, name := range idp.DistributionPoint.FullName {
++		if name.Class != asn1.ClassContextSpecific || name.Tag != generalNameTagURI {
++			continue
++		}
++		for _, uri := range distributionPointURIs {
++			if string(name.Bytes) == uri {
++				return true
++			}
++		}
++	}
++	return false
++}
+diff --git a/crl/crlreader/extensionsupport/issuingdistributionpoint_test.go b/crl/crlreader/extensionsupport/issuingdistributionpoint_test.go
+new file mode 100644
+index 0000000000..8f8dc8f735
+--- /dev/null
++++ b/crl/crlreader/extensionsupport/issuingdistributionpoint_test.go
+@@ -0,0 +1,88 @@
++package extensionsupport
++
++import (
++	"crypto/x509/pkix"
++	"encoding/asn1"
++	"testing"
++
++	"github.com/stretchr/testify/assert"
++	"github.com/stretchr/testify/require"
++)
++
++const testURI = "https://ca.example.com/1.0/crl"
++
++func idpExtensions(t *testing.T, idp IssuingDistributionPoint) *[]pkix.Extension {
++	value, err := asn1.Marshal(idp)
++	require.NoError(t, err)
++	return &[]pkix.Extension{{
++		Id:       asn1.ObjectIdentifier{2, 5, 29, 28},
++		Critical: true,
++		Value:    value,
++	}}
++}
++
++func fullNameURI(uri string) DistributionPointName {
++	return DistributionPointName{
++		FullName: []asn1.RawValue{{Class: asn1.ClassContextSpecific, Tag: generalNameTagURI, Bytes: []byte(uri)}},
++	}
++}
++
++func TestCriticalIssuingDistributionPointIsHandled(t *testing.T) {
++	extensions := idpExtensions(t, IssuingDistributionPoint{DistributionPoint: fullNameURI(testURI)})
++	assert.NoError(t, CheckForCriticalUnhandledCRLExtensions(extensions))
++}
++
++func TestParseIssuingDistributionPointRoundTrip(t *testing.T) {
++	extensions := idpExtensions(t, IssuingDistributionPoint{
++		DistributionPoint:     fullNameURI(testURI),
++		OnlyContainsUserCerts: true,
++	})
++	idp, err := ParseIssuingDistributionPoint((*extensions)[0].Value)
++	require.NoError(t, err)
++	require.Len(t, idp.DistributionPoint.FullName, 1)
++	assert.Equal(t, testURI, string(idp.DistributionPoint.FullName[0].Bytes))
++	assert.True(t, idp.OnlyContainsUserCerts)
++	assert.False(t, idp.IndirectCRL)
++}
++
++func TestParseIssuingDistributionPointRejectsGarbage(t *testing.T) {
++	_, err := ParseIssuingDistributionPoint([]byte{0x01, 0x02})
++	assert.Error(t, err)
++}
++
++func TestCheckIssuingDistributionPoint(t *testing.T) {
++	tests := []struct {
++		name    string
++		idp     IssuingDistributionPoint
++		uris    []string
++		wantErr string
++	}{
++		{"matching uri", IssuingDistributionPoint{DistributionPoint: fullNameURI(testURI)}, []string{"ldap://ignored", testURI}, ""},
++		{"mismatched uri", IssuingDistributionPoint{DistributionPoint: fullNameURI("https://other.example.com/crl")}, []string{testURI}, "does not match"},
++		{"no known uris", IssuingDistributionPoint{DistributionPoint: fullNameURI("https://other.example.com/crl")}, nil, ""},
++		{"no distribution point", IssuingDistributionPoint{OnlyContainsUserCerts: true}, []string{testURI}, ""},
++		{"only user certs", IssuingDistributionPoint{DistributionPoint: fullNameURI(testURI), OnlyContainsUserCerts: true}, []string{testURI}, ""},
++		{"only ca certs", IssuingDistributionPoint{DistributionPoint: fullNameURI(testURI), OnlyContainsCACerts: true}, []string{testURI}, "only contains ca certificates"},
++		{"indirect crl", IssuingDistributionPoint{DistributionPoint: fullNameURI(testURI), IndirectCRL: true}, []string{testURI}, "indirect crls are not supported"},
++		{"only some reasons", IssuingDistributionPoint{DistributionPoint: fullNameURI(testURI), OnlySomeReasons: asn1.BitString{Bytes: []byte{0x40}, BitLength: 2}}, []string{testURI}, "onlySomeReasons"},
++		{"only attribute certs", IssuingDistributionPoint{DistributionPoint: fullNameURI(testURI), OnlyContainsAttributeCerts: true}, []string{testURI}, "attribute certificates"},
++		{"relative name", IssuingDistributionPoint{DistributionPoint: DistributionPointName{RelativeName: pkix.RDNSequence{{{Type: asn1.ObjectIdentifier{2, 5, 4, 3}, Value: "crl1"}}}}}, []string{testURI}, "nameRelativeToCRLIssuer"},
++		{"non uri name", IssuingDistributionPoint{DistributionPoint: DistributionPointName{FullName: []asn1.RawValue{{Class: asn1.ClassContextSpecific, Tag: 2, Bytes: []byte(testURI)}}}}, []string{testURI}, "does not match"},
++	}
++	for _, tt := range tests {
++		t.Run(tt.name, func(t *testing.T) {
++			err := CheckIssuingDistributionPoint(idpExtensions(t, tt.idp), tt.uris)
++			if tt.wantErr == "" {
++				assert.NoError(t, err)
++			} else {
++				require.Error(t, err)
++				assert.Contains(t, err.Error(), tt.wantErr)
++			}
++		})
++	}
++}
++
++func TestCheckIssuingDistributionPointWithoutExtension(t *testing.T) {
++	assert.NoError(t, CheckIssuingDistributionPoint(nil, []string{testURI}))
++	assert.NoError(t, CheckIssuingDistributionPoint(&[]pkix.Extension{}, []string{testURI}))
++}
+diff --git a/crl/crlrepository/crlrepository.go b/crl/crlrepository/crlrepository.go
+index c77c4e588a..86b6619b11 100644
+--- a/crl/crlrepository/crlrepository.go
++++ b/crl/crlrepository/crlrepository.go
+@@ -10,6 +10,7 @@
+ 	"github.com/gr33nbl00d/caddy-revocation-validator/core/utils"
+ 	"github.com/gr33nbl00d/caddy-revocation-validator/crl/crlloader"
+ 	"github.com/gr33nbl00d/caddy-revocation-validator/crl/crlreader"
++	"github.com/gr33nbl00d/caddy-revocation-validator/crl/crlreader/extensionsupport"
+ 	"github.com/gr33nbl00d/caddy-revocation-validator/crl/crlstore"
+ 	"go.uber.org/zap"
+ 	"os"
+@@ -35,6 +36,7 @@
+ 	LastUpdateSignatureVerifyFailed bool
+ 	LastUpdateSignature             *crlreader.CRLReadResult
+ 	Loaded                          bool
++	CRLLocations                    *core.CRLLocations
+ 	//only used temporary
+ 	Chains *core.CertificateChains
+ }
+@@ -64,7 +66,7 @@
+ 	if err != nil {
+ 		return false, fmt.Errorf("could not calculate crl location identifier: %v", err)
+ 	}
+-	entry, crlAdded, err := R.getOrAddEntry(identifier, loader, chains)
++	entry, crlAdded, err := R.getOrAddEntry(identifier, loader, chains, crlLocations)
+ 	if err != nil {
+ 		return false, err
+ 	}
+@@ -89,12 +91,12 @@
+ 	return entry.Loaded
+ }
+
+-func (R *Repository) getOrAddEntry(identifier string, loader crlloader.CRLLoader, chains *core.CertificateChains) (*Entry, bool, error) {
++func (R *Repository) getOrAddEntry(identifier string, loader crlloader.CRLLoader, chains *core.CertificateChains, crlLocations *core.CRLLocations) (*Entry, bool, error) {
+ 	R.crlRepositoryLock.Lock()
+ 	defer R.crlRepositoryLock.Unlock()
+ 	entry := R.crlRepository[identifier]
+ 	if entry == nil {
+-		entry, err := R.addNewEmptyEntry(loader, identifier, chains)
++		entry, err := R.addNewEmptyEntry(loader, identifier, chains, crlLocations)
+ 		if err != nil {
+ 			//crl was not added because of error
+ 			return entry, false, err
+@@ -144,6 +146,10 @@
+ 	if err != nil {
+ 		return err
+ 	}
++	err = checkIssuingDistributionPoint(result, entry.CRLLocations)
++	if err != nil {
++		return err
++	}
+ 	if R.crlConfig.SignatureValidationModeParsed != config.SignatureValidationModeNone {
+ 		signatureCert, err := verifyCRLSignature(result, chains)
+ 		if err != nil {
+@@ -165,16 +171,17 @@
+ 	return nil
+ }
+
+-func (R *Repository) addNewEmptyEntry(loader crlloader.CRLLoader, identifier string, chains *core.CertificateChains) (*Entry, error) {
++func (R *Repository) addNewEmptyEntry(loader crlloader.CRLLoader, identifier string, chains *core.CertificateChains, crlLocations *core.CRLLocations) (*Entry, error) {
+ 	store, err := R.Factory.CreateStore(identifier, false)
+ 	if err != nil {
+ 		return nil, err
+ 	}
+ 	newEntry := Entry{
+-		CRLLoader: loader,
+-		CRLStore:  store,
+-		Chains:    chains,
+-		entryLock: &sync.RWMutex{},
++		CRLLoader:    loader,
++		CRLStore:     store,
++		Chains:       chains,
++		CRLLocations: crlLocations,
++		entryLock:    &sync.RWMutex{},
+ 	}
+ 	//if this is persistent store it might be present already
+ 	if store.IsEmpty() == false {
+@@ -335,6 +342,10 @@
+ 	if err != nil {
+ 		return err
+ 	}
++	err = checkIssuingDistributionPoint(result, points)
++	if err != nil {
++		return err
++	}
+ 	if R.crlConfig.SignatureValidationModeParsed != config.SignatureValidationModeNone {
+ 		R.logger.Info("verify crl signature of crl " + entry.CRLLoader.GetDescription())
+ 		signatureCert, err := verifyCRLSignature(result, chains)
+@@ -417,6 +428,20 @@
+ 	return chains, nil
+ }
+
++// The distribution point name is only matched for CRLs referenced by a certificate CDP, as RFC 5280 Section 6.3.3 (b)(2)(i)
++// compares it with the certificate's distribution point; CRLs configured via crl_urls or crl_files have none.
++func checkIssuingDistributionPoint(result *crlreader.CRLReadResult, crlLocations *core.CRLLocations) error {
++	var distributionPointURIs []string
++	if crlLocations != nil {
++		distributionPointURIs = crlLocations.CRLDistributionPoints
++	}
++	err := extensionsupport.CheckIssuingDistributionPoint(result.CRLExtensions, distributionPointURIs)
++	if err != nil {
++		return fmt.Errorf("crl rejected: %v", err)
++	}
++	return nil
++}
++
+ func verifyCRLSignature(result *crlreader.CRLReadResult, chains *core.CertificateChains) (*core.CertificateChainEntry, error) {
+ 	certCandidates, err := core.FindCertificateIssuerCandidates(result.Issuer, result.CRLExtensions, result.HashAndVerifyStrategy.VerifyStrategy.GetAlgorithmID(), chains)
+ 	if err != nil {
+diff --git a/crl/crlrepository/crlrepository_test.go b/crl/crlrepository/crlrepository_test.go
+index 17421e3063..de2d8da385 100644
+--- a/crl/crlrepository/crlrepository_test.go
++++ b/crl/crlrepository/crlrepository_test.go
+@@ -59,7 +59,7 @@
+ 	if err != nil {
+ 		return nil, err
+ 	}
+-	return nil, nil
++	return &crlreader.CRLReadResult{}, nil
+ }
+
+ func (t *TestingCrlLoader) LoadCRL(targetFilePath string) error {
+@@ -281,7 +281,7 @@
+
+ 	loader, err := loaderFactory.CreatePreferredCrlLoader(nil, nil)
+ 	assert.NoError(t, err)
+-	entry, b, err := repo.getOrAddEntry(testCRLIdentifier, loader, nil)
++	entry, b, err := repo.getOrAddEntry(testCRLIdentifier, loader, nil, crlLocations)
+ 	assert.True(t, b)
+ 	assert.NoError(t, err)
+ 	err = repo.loadActively(entry, nil, crlLocations)
+@@ -339,7 +339,7 @@
+
+ 	loader, err := loaderFactory.CreatePreferredCrlLoader(nil, nil)
+ 	assert.NoError(t, err)
+-	entry, b, err := repo.getOrAddEntry(testCRLIdentifier, loader, nil)
++	entry, b, err := repo.getOrAddEntry(testCRLIdentifier, loader, nil, crlLocations)
+ 	assert.True(t, b)
+ 	assert.NoError(t, err)
+ 	err = repo.loadActively(entry, nil, crlLocations)
+diff --git a/crl/crlrepository/issuingdistributionpoint_test.go b/crl/crlrepository/issuingdistributionpoint_test.go
+new file mode 100644
+index 0000000000..a5b33c43b5
+--- /dev/null
++++ b/crl/crlrepository/issuingdistributionpoint_test.go
+@@ -0,0 +1,234 @@
++package crlrepository
++
++import (
++	"crypto/ecdsa"
++	"crypto/elliptic"
++	"crypto/rand"
++	"crypto/x509"
++	"crypto/x509/pkix"
++	"encoding/asn1"
++	"math/big"
++	"os"
++	"path/filepath"
++	"sync"
++	"testing"
++	"time"
++
++	"github.com/gr33nbl00d/caddy-revocation-validator/config"
++	"github.com/gr33nbl00d/caddy-revocation-validator/core"
++	"github.com/gr33nbl00d/caddy-revocation-validator/crl/crlloader"
++	"github.com/gr33nbl00d/caddy-revocation-validator/crl/crlreader"
++	"github.com/gr33nbl00d/caddy-revocation-validator/crl/crlreader/extensionsupport"
++	"github.com/gr33nbl00d/caddy-revocation-validator/crl/crlstore"
++	"github.com/stretchr/testify/assert"
++	"github.com/stretchr/testify/require"
++	"go.uber.org/zap"
++)
++
++const testCDP = "https://ca.example.com/1.0/crl"
++const revokedSerial = 42
++
++type fileCopyCRLLoaderFactory struct {
++	crlPath string
++}
++
++type fileCopyCRLLoader struct {
++	crlPath string
++}
++
++func (f fileCopyCRLLoaderFactory) CreatePreferredCrlLoader(_ *core.CRLLocations, _ *zap.Logger) (crlloader.CRLLoader, error) {
++	return &fileCopyCRLLoader{f.crlPath}, nil
++}
++
++func (f *fileCopyCRLLoader) LoadCRL(targetFilePath string) error {
++	return copyToTargetFile(f.crlPath, targetFilePath)
++}
++
++func (f *fileCopyCRLLoader) GetCRLLocationIdentifier() (string, error) {
++	return testCRLIdentifier, nil
++}
++
++func (f *fileCopyCRLLoader) GetDescription() string {
++	return "file copy crl loader"
++}
++
++type testCA struct {
++	cert *x509.Certificate
++	key  *ecdsa.PrivateKey
++}
++
++func newTestCA(t *testing.T) *testCA {
++	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
++	require.NoError(t, err)
++	template := &x509.Certificate{
++		SerialNumber:          big.NewInt(1),
++		Subject:               pkix.Name{CommonName: "Test Intermediate CA"},
++		NotBefore:             time.Now().Add(-time.Hour),
++		NotAfter:              time.Now().Add(time.Hour),
++		KeyUsage:              x509.KeyUsageCertSign | x509.KeyUsageCRLSign,
++		BasicConstraintsValid: true,
++		IsCA:                  true,
++		SubjectKeyId:          []byte{1, 2, 3, 4},
++	}
++	der, err := x509.CreateCertificate(rand.Reader, template, template, &key.PublicKey, key)
++	require.NoError(t, err)
++	cert, err := x509.ParseCertificate(der)
++	require.NoError(t, err)
++	return &testCA{cert, key}
++}
++
++func (ca *testCA) writeCRL(t *testing.T, extensions ...pkix.Extension) string {
++	template := &x509.RevocationList{
++		Number:     big.NewInt(1),
++		ThisUpdate: time.Now().Add(-time.Minute),
++		NextUpdate: time.Now().Add(time.Hour),
++		RevokedCertificateEntries: []x509.RevocationListEntry{
++			{SerialNumber: big.NewInt(revokedSerial), RevocationTime: time.Now().Add(-time.Minute)},
++		},
++		ExtraExtensions: extensions,
++	}
++	der, err := x509.CreateRevocationList(rand.Reader, template, ca.cert, ca.key)
++	require.NoError(t, err)
++	path := filepath.Join(t.TempDir(), "test.crl")
++	require.NoError(t, os.WriteFile(path, der, 0600))
++	return path
++}
++
++// encoded the way step-ca does it: fullName URI only, always critical
++func idpExtension(t *testing.T, idp extensionsupport.IssuingDistributionPoint) pkix.Extension {
++	value, err := asn1.Marshal(idp)
++	require.NoError(t, err)
++	return pkix.Extension{
++		Id:       asn1.ObjectIdentifier{2, 5, 29, 28},
++		Critical: true,
++		Value:    value,
++	}
++}
++
++func uriFullName(uri string) extensionsupport.DistributionPointName {
++	return extensionsupport.DistributionPointName{
++		FullName: []asn1.RawValue{{Class: asn1.ClassContextSpecific, Tag: 6, Bytes: []byte(uri)}},
++	}
++}
++
++func newIDPTestRepository(t *testing.T, ca *testCA, crlPath string) *Repository {
++	logger := zap.NewNop()
++	crlConfig := &config.CRLConfigParsed{
++		CDPConfigParsed: &config.CDPConfigParsed{
++			CRLFetchModeParsed: config.CRLFetchModeActively,
++			CRLCDPStrict:       true,
++		},
++		SignatureValidationModeParsed: config.SignatureValidationModeVerify,
++		WorkDir:                       t.TempDir(),
++		TrustedSignatureCerts:         []*x509.Certificate{ca.cert},
++	}
++	factory, err := crlstore.CreateStoreFactory(crlstore.Map, crlConfig.WorkDir, logger, "")
++	require.NoError(t, err)
++	return &Repository{factory,
++		&sync.RWMutex{},
++		make(map[string]*Entry),
++		crlConfig,
++		logger,
++		fileCopyCRLLoaderFactory{crlPath},
++		crlreader.StreamingCRLFileReader{},
++	}
++}
++
++func leafCert(ca *testCA, serial int64) *x509.Certificate {
++	return &x509.Certificate{
++		RawIssuer:             ca.cert.RawSubject,
++		SerialNumber:          big.NewInt(serial),
++		CRLDistributionPoints: []string{testCDP},
++	}
++}
++
++func addCRLForCDP(repo *Repository, ca *testCA) (*core.CRLLocations, error) {
++	locations := &core.CRLLocations{CRLDistributionPoints: []string{testCDP}}
++	chains := core.NewCertificateChains(nil, []*x509.Certificate{ca.cert})
++	_, err := repo.AddCRL(locations, chains)
++	return locations, err
++}
++
++func TestStepCALikeCRLWithMatchingIssuingDistributionPointIsAccepted(t *testing.T) {
++	ca := newTestCA(t)
++	crlPath := ca.writeCRL(t, idpExtension(t, extensionsupport.IssuingDistributionPoint{
++		DistributionPoint: uriFullName(testCDP),
++	}))
++	repo := newIDPTestRepository(t, ca, crlPath)
++
++	locations, err := addCRLForCDP(repo, ca)
++	require.NoError(t, err)
++
++	status, err := repo.IsRevoked(leafCert(ca, revokedSerial), locations)
++	require.NoError(t, err)
++	assert.True(t, status.Revoked)
++
++	status, err = repo.IsRevoked(leafCert(ca, revokedSerial+1), locations)
++	require.NoError(t, err)
++	assert.False(t, status.Revoked)
++}
++
++func TestCRLWithMismatchedIssuingDistributionPointIsRejected(t *testing.T) {
++	ca := newTestCA(t)
++	crlPath := ca.writeCRL(t, idpExtension(t, extensionsupport.IssuingDistributionPoint{
++		DistributionPoint: uriFullName("https://other.example.com/crl"),
++	}))
++	repo := newIDPTestRepository(t, ca, crlPath)
++
++	locations, err := addCRLForCDP(repo, ca)
++	require.Error(t, err)
++	assert.Contains(t, err.Error(), "does not match")
++
++	_, err = repo.IsRevoked(leafCert(ca, revokedSerial+1), locations)
++	require.Error(t, err)
++	assert.Contains(t, err.Error(), "CRL defined in CDP was not loaded")
++}
++
++func TestIndirectCRLIsRejected(t *testing.T) {
++	ca := newTestCA(t)
++	crlPath := ca.writeCRL(t, idpExtension(t, extensionsupport.IssuingDistributionPoint{
++		DistributionPoint: uriFullName(testCDP),
++		IndirectCRL:       true,
++	}))
++	repo := newIDPTestRepository(t, ca, crlPath)
++
++	locations, err := addCRLForCDP(repo, ca)
++	require.Error(t, err)
++	assert.Contains(t, err.Error(), "indirect crls are not supported")
++
++	_, err = repo.IsRevoked(leafCert(ca, revokedSerial+1), locations)
++	require.Error(t, err)
++}
++
++func TestCRLWithUnknownCriticalExtensionIsStillRejected(t *testing.T) {
++	ca := newTestCA(t)
++	crlPath := ca.writeCRL(t,
++		idpExtension(t, extensionsupport.IssuingDistributionPoint{DistributionPoint: uriFullName(testCDP)}),
++		pkix.Extension{Id: asn1.ObjectIdentifier{1, 2, 3, 4, 5}, Critical: true, Value: []byte{0x05, 0x00}},
++	)
++	repo := newIDPTestRepository(t, ca, crlPath)
++
++	locations, err := addCRLForCDP(repo, ca)
++	require.Error(t, err)
++	assert.Contains(t, err.Error(), "unhandled critical crl extension 1.2.3.4.5")
++
++	_, err = repo.IsRevoked(leafCert(ca, revokedSerial+1), locations)
++	require.Error(t, err)
++}
++
++func TestCRLFromConfiguredFileSkipsDistributionPointNameMatch(t *testing.T) {
++	ca := newTestCA(t)
++	crlPath := ca.writeCRL(t, idpExtension(t, extensionsupport.IssuingDistributionPoint{
++		DistributionPoint: uriFullName("https://other.example.com/crl"),
++	}))
++	repo := newIDPTestRepository(t, ca, crlPath)
++
++	locations := &core.CRLLocations{CRLFile: crlPath}
++	chains := core.NewCertificateChains(nil, []*x509.Certificate{ca.cert})
++	_, err := repo.AddCRL(locations, chains)
++	require.NoError(t, err)
++
++	status, err := repo.IsRevoked(leafCert(ca, revokedSerial), nil)
++	require.NoError(t, err)
++	assert.True(t, status.Revoked)
++}
