@@ -84,6 +84,7 @@ in {
     den.aspects.postgresql
     den.aspects.nats
     den.aspects.send-metrics
+    den.aspects.telemetry-member
     den.aspects.server-heartbeat
     den.aspects.rayfish
     den.aspects.niks3-client

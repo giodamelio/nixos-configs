@@ -114,6 +114,7 @@ in {
     den.aspects.postgresql
     den.aspects.nats
     den.aspects.send-metrics
+    den.aspects.telemetry-member
     # den.aspects.deployed-apps # gio.deployedApps + gradient-deployer (eater/yesman)
   ];
 
