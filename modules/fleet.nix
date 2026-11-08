@@ -18,6 +18,8 @@
   };
 
   config = {
+    fleet.telemetry.cluster.enable = true;
+
     den.schema.fleet.imports = [
       {
         options.name = lib.mkOption {
