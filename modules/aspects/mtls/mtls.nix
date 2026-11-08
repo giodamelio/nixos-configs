@@ -130,7 +130,7 @@ in {
         description = ''
           Certificates from strontium's step-ca `app` provisioner, enrolled once
           with `ca-enroll-host <host> mtls` and renewed by mtls-renew.timer.
-          See modules/aspects/mtls/README.md.
+          See docs/telemetry.md.
         '';
       };
       caRoot = mkOption {
