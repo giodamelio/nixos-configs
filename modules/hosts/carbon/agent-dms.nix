@@ -120,6 +120,8 @@ in {
         matchOn = ["name"];
         value.dom = {
           name = domain;
+          # Otherwise fetchmail retries mail for an unknown address forever.
+          catchAllAddress = "${owner}@${domain}";
           certificateManagement = {
             "@type" = "Automatic";
             acmeProviderId = "#acme";
@@ -186,6 +188,42 @@ in {
       }
       {
         "@type" = "update";
+        object = "MtaStageAuth";
+        # fetchmail delivers without logging in; the listener is loopback-only.
+        value.require = {
+          match."0" = {
+            "if" = "listener == 'lmtp'";
+            "then" = "false";
+          };
+          "else" = "local_port != 25";
+        };
+      }
+      {
+        "@type" = "update";
+        object = "SieveSystemInterpreter";
+        value = {
+          defaultFromName."else" = "'agent-dms approvals'";
+          defaultFromAddress."else" = "'${owner}@${domain}'";
+          # Fastmail won't relay a null sender.
+          defaultReturnPath."else" = "'${owner}@${domain}'";
+          # Fastmail signs on the way out.
+          dkimSignDomain."else" = "false";
+        };
+      }
+      {
+        "@type" = "upsert";
+        object = "SieveSystemScript";
+        matchOn = ["name"];
+        value.approval = {
+          name = approvalScript;
+          description = "Mail the owner an approval request for agent mail leaving the domain";
+          isActive = true;
+          contents = approvalSieve;
+        };
+      }
+      # After the script it names.
+      {
+        "@type" = "update";
         object = "MtaStageData";
         value = {
           # Fastmail already filtered what fetchmail hands over, and every LMTP
@@ -204,30 +242,6 @@ in {
             };
             "else" = "false";
           };
-          # Fastmail signs on the way out.
-          dkimSignDomain."else" = "false";
-        };
-      }
-      {
-        "@type" = "update";
-        object = "SieveSystemInterpreter";
-        value = {
-          defaultFromName."else" = "'agent-dms approvals'";
-          defaultFromAddress."else" = "'${owner}@${domain}'";
-          # Fastmail won't relay a null sender.
-          defaultReturnPath."else" = "'${owner}@${domain}'";
-          dkimSignDomain."else" = "false";
-        };
-      }
-      {
-        "@type" = "upsert";
-        object = "SieveSystemScript";
-        matchOn = ["name"];
-        value.approval = {
-          name = approvalScript;
-          description = "Mail the owner an approval request for agent mail leaving the domain";
-          isActive = true;
-          contents = approvalSieve;
         };
       }
       {
@@ -273,14 +287,16 @@ in {
           hold = {
             "@type" = "Relay";
             name = "hold";
-            host = "127.0.0.1";
+            address = "127.0.0.1";
             port = 9;
+            protocol = "smtp";
           };
           fastmail = {
             "@type" = "Relay";
             name = "fastmail";
-            host = "smtp.fastmail.com";
+            address = "smtp.fastmail.com";
             port = 465;
+            protocol = "smtp";
             implicitTls = true;
             authUsername = fastmailLogin;
             authSecret = {
