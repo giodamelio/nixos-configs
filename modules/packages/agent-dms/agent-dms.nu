@@ -778,86 +778,125 @@ def admin-blob-text [password: string, blob_id: string] {
     $text
 }
 
-def held-messages [password: string] {
+const id_alphabet = "abcdefghijklmnopqrstuvwxyz792013"
+
+# The hook and the SMTP logs print a queue id as hex; JMAP spells the same
+# number in Stalwart's base32, least significant digit first.
+def queue-hex [jmap_id: string] {
+    let value = ($jmap_id | split chars | enumerate | reduce --fold 0 {|c, acc|
+        let digit = ($id_alphabet | str index-of $c.item)
+        if $digit < 0 { fail $"`($jmap_id)` is not a Stalwart id" }
+        $acc bit-or ($digit bit-shl (5 * $c.index))
+    })
+    $value | format number | get lowerhex | str replace "0x" ""
+}
+
+def held-ids [password: string] {
     stalwart-cli-as-admin $password query QueuedMessage --where "queueName=approval" --json --fields id
     | lines | where {|l| $l != "" } | each { from json | get id }
-    | each {|id|
-        let m = (stalwart-cli-as-admin $password get QueuedMessage $id --json | from json)
-        let raw = (admin-blob-text $password $m.blobId)
-        let headers = ($raw | split row --regex '\r?\n\r?\n' | first)
-        let ids = ($headers | parse --regex '(?im)^message-id:\s*(?P<id><[^>]+>)')
-        {
-            id: $id
-            from: $m.returnPath
-            created: $m.createdAt
-            held: ($m.recipients | transpose address r | where {|x| $x.r.queueName == "approval" } | get address)
-            message_id: (if ($ids | is-empty) { null } else { $ids | first | get id })
-            raw: $raw
+}
+
+def held-message [password: string, id: string] {
+    let m = (stalwart-cli-as-admin $password get QueuedMessage $id --json | from json)
+    let held = ($m.recipients | transpose address r | where {|x| $x.r.queueName == "approval" } | get address)
+    if ($held | is-empty) { fail $"queued message ($id) isn't waiting for approval" }
+    {
+        id: $id
+        queue_id: (queue-hex $id)
+        from: $m.returnPath
+        created: $m.createdAt
+        held: $held
+        blob: $m.blobId
+    }
+}
+
+# Takes the hex id from the approval request, or the JMAP id `held` prints.
+def find-held [password: string, wanted: string] {
+    let match = (held-ids $password | where {|id| $id == $wanted or (queue-hex $id) == ($wanted | str lowercase) })
+    if ($match | is-empty) {
+        fail $"nothing waiting for approval has id ($wanted); it may have expired or already been handled. `agent-dms held` lists what's waiting."
+    }
+    held-message $password ($match | first)
+}
+
+def show-held [password: string, m: record] {
+    print ([
+        $"=== queue id ($m.queue_id), queued ($m.created)"
+        $"Envelope from: ($m.from)"
+        $"Held for:      ($m.held | str join ', ')"
+        ""
+        (admin-blob-text $password $m.blob)
+    ] | str join "\n")
+}
+
+# No default answer: a stray Enter shouldn't send or cancel anything.
+def ask-yes-no [question: string] {
+    loop {
+        match (input $"($question) [y/n] " | str trim | str lowercase) {
+            "y" => { return true }
+            "n" => { return false }
+            _ => { print "Answer y or n." }
         }
     }
 }
 
-def held-matching [password: string, message_id: string] {
-    let wanted = if ($message_id | str starts-with "<") { $message_id } else { $"<($message_id)>" }
-    let matches = (held-messages $password | where message_id == $wanted)
-    if ($matches | is-empty) {
-        fail $"no held message has Message-ID ($wanted); it may have expired or already been handled"
-    }
-    $matches
+def release [password: string, m: record] {
+    let now = (now-utc)
+    let fields = ($m.held | each {|a| ["--field" $"recipients/(pointer $a)/retryDue=($now)"] } | flatten)
+    stalwart-cli-as-admin $password update QueuedMessage $m.id ...$fields
+    print $"Released ($m.queue_id) to ($m.held | str join ', ')."
 }
 
-def show-held [m: record] {
-    print ([
-        $"=== queued message ($m.id), queued ($m.created)"
-        $"Envelope from: ($m.from)"
-        $"Held for:      ($m.held | str join ', ')"
-        ""
-        $m.raw
-    ] | str join "\n")
-}
-
-def confirm [question: string] {
-    (input $"($question) [y/N] " | str trim | str lowercase) == "y"
+def cancel [password: string, m: record] {
+    let fields = ($m.held | each {|a| ["--field" $"recipients/(pointer $a)=null"] } | flatten)
+    stalwart-cli-as-admin $password update QueuedMessage $m.id ...$fields
+    print $"Cancelled ($m.queue_id)."
 }
 
 def pointer [address: string] {
     $address | str replace --all "~" "~0" | str replace --all "/" "~1"
 }
 
-# Send a held outside message after showing the queued copy. Run on the host, not in the jail.
-def "main approve" [message_id: string] {
+# List outside mail waiting for approval. Run on the host, not in the jail.
+def "main held" [] {
     let password = (admin-password)
-    let matches = (held-matching $password $message_id)
-    # The agent picks the Message-ID, so a twin could ride along on approval.
-    if ($matches | length) > 1 {
-        fail $"($matches | length) held messages share Message-ID ($message_id). Reject them and ask the agent to resend."
-    }
-    let m = ($matches | first)
-    show-held $m
-    if not (confirm "Send it?") {
-        print "Left it held."
+    let rows = (held-ids $password | each {|id| held-message $password $id })
+    if ($rows | is-empty) {
+        print "Nothing is waiting for approval."
         return
     }
-    let now = (now-utc)
-    let fields = ($m.held | each {|a| ["--field" $"recipients/(pointer $a)/retryDue=($now)"] } | flatten)
-    stalwart-cli-as-admin $password update QueuedMessage $m.id ...$fields
-    print $"Released to ($m.held | str join ', ')."
+    print ($rows | each {|m| $"($m.queue_id)  ($m.created)  ($m.from) -> ($m.held | str join ', ')" } | str join "\n")
 }
 
-# Cancel held outside messages after showing them. Run on the host, not in the jail.
-def "main reject" [message_id: string] {
+# Send a held outside message without asking. Run on the host, not in the jail.
+def "main approve" [queue_id: string] {
     let password = (admin-password)
-    let matches = (held-matching $password $message_id)
-    for m in $matches { show-held $m }
-    if not (confirm $"Cancel (if ($matches | length) == 1 { 'it' } else { $'all ($matches | length)' })?") {
-        print "Left it held."
+    release $password (find-held $password $queue_id)
+}
+
+# Cancel a held outside message without asking. Run on the host, not in the jail.
+def "main reject" [queue_id: string] {
+    let password = (admin-password)
+    cancel $password (find-held $password $queue_id)
+}
+
+# Show held outside mail and approve or reject it: one message, or every one in turn. Run on the host, not in the jail.
+def "main review" [queue_id?: string] {
+    let password = (admin-password)
+    let pending = if $queue_id != null {
+        [(find-held $password $queue_id)]
+    } else {
+        held-ids $password | each {|id| held-message $password $id }
+    }
+    if ($pending | is-empty) {
+        print "Nothing is waiting for approval."
         return
     }
-    for m in $matches {
-        let fields = ($m.held | each {|a| ["--field" $"recipients/(pointer $a)=null"] } | flatten)
-        stalwart-cli-as-admin $password update QueuedMessage $m.id ...$fields
+    for m in $pending {
+        show-held $password $m
+        if (ask-yes-no "Send it?") { release $password $m } else { cancel $password $m }
+        print ""
     }
-    print "Cancelled."
 }
 
 # Run himalaya against this project's account, for anything the verbs don't cover.
@@ -883,6 +922,8 @@ def main [] {
     print "  agent-dms notify on|off|status [--session <id>]"
     print "  agent-dms himalaya ..."
     print "  agent-dms init            on the host, outside the jail"
-    print "  agent-dms approve <message-id>   on the host: send a held outside message"
-    print "  agent-dms reject <message-id>    on the host: cancel it"
+    print "  agent-dms held                 on the host: list outside mail waiting for approval"
+    print "  agent-dms review [<queue-id>]  on the host: show each, y sends, n cancels"
+    print "  agent-dms approve <queue-id>   on the host: send it without asking"
+    print "  agent-dms reject <queue-id>    on the host: cancel it without asking"
 }

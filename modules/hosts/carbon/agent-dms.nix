@@ -7,71 +7,19 @@ _: let
   lmtpPort = 24;
   fastmailCredential = "fastmail_agent_dms_imap";
   fastmailLogin = "giodamelio@fastmail.com";
-  # The Stalwart account approval requests come from, and the address they go to.
+  # The catch-all account, and the outside address whose mail is never held.
   owner = "gio";
   ownerEmail = "gio@damelio.net";
-  approvalScript = "agent-dms-approval";
+  # agent-dms-notify sends approval requests from this account.
+  notifier = "approvals";
+  notifyCredential = "agent_dms_notify_password";
+  notifyPort = 8092;
   day = 86400000;
-
-  # Runs at DATA for authenticated submissions. It only notifies; the hold
-  # itself is the MtaOutboundStrategy route, so a failing script holds mail
-  # without a request rather than letting it through.
-  approvalSieve = ''
-    require ["variables", "envelope", "relational", "comparator-i;ascii-numeric",
-             "enotify", "foreverypart", "mime", "extracttext"];
-
-    if allof (
-      envelope :domain :value "ne" "to" "${domain}",
-      not allof (
-        envelope :count "eq" :comparator "i;ascii-numeric" "to" "1",
-        envelope :all :is "to" "${ownerEmail}"
-      )
-    ) {
-      set "sender" "";
-      if envelope :all :matches "from" "*" { set "sender" "''${1}"; }
-      set "to" "";
-      if header :matches "To" "*" { set "to" "''${1}"; }
-      set "cc" "";
-      if header :matches "Cc" "*" { set "cc" "''${1}"; }
-      set "subject" "";
-      if header :matches "Subject" "*" { set "subject" "''${1}"; }
-      set "msgid" "";
-      if header :matches "Message-ID" "*" { set "msgid" "''${1}"; }
-      set "text" "";
-      foreverypart {
-        if allof (
-          string :is "''${text}" "",
-          header :mime :contenttype "Content-Type" "text/plain",
-          not header :mime :matches "Content-Disposition" "attachment*"
-        ) {
-          extracttext :first 20000 "text";
-        }
-      }
-      set :encodeurl "subject_q" "[agent-dms] approve: ''${sender} -> ''${to}: ''${subject}";
-      set :encodeurl "body_q" "''${sender} wants to send this.
-
-    To: ''${to}
-    Cc: ''${cc}
-    Subject: ''${subject}
-    Message-ID: ''${msgid}
-
-    Only the first text part is shown. approve prints the full queued message
-    before asking.
-
-    ----- message text -----
-    ''${text}
-    ----- end -----
-
-    Approve:  agent-dms approve \"''${msgid}\"
-    Reject:   agent-dms reject \"''${msgid}\"
-    ";
-      notify "mailto:${ownerEmail}?subject=''${subject_q}&body=''${body_q}";
-    }
-  '';
 in {
   den.aspects.carbon.nixos = {
     pkgs,
     lib,
+    perSystem,
     ...
   }: let
     stalwart = pkgs.stalwart_0_16;
@@ -142,10 +90,17 @@ in {
         "@type" = "upsert";
         object = "Account";
         matchOn = ["name"];
-        value.gio = {
-          "@type" = "User";
-          name = "gio";
-          domainId = "#dom";
+        value = {
+          gio = {
+            "@type" = "User";
+            name = "gio";
+            domainId = "#dom";
+          };
+          ${notifier} = {
+            "@type" = "User";
+            name = notifier;
+            domainId = "#dom";
+          };
         };
       }
       {
@@ -200,30 +155,6 @@ in {
       }
       {
         "@type" = "update";
-        object = "SieveSystemInterpreter";
-        value = {
-          defaultFromName."else" = "'agent-dms approvals'";
-          defaultFromAddress."else" = "'${owner}@${domain}'";
-          # Fastmail won't relay a null sender.
-          defaultReturnPath."else" = "'${owner}@${domain}'";
-          # Fastmail signs on the way out.
-          dkimSignDomain."else" = "false";
-        };
-      }
-      {
-        "@type" = "upsert";
-        object = "SieveSystemScript";
-        matchOn = ["name"];
-        value.approval = {
-          name = approvalScript;
-          description = "Mail the owner an approval request for agent mail leaving the domain";
-          isActive = true;
-          contents = approvalSieve;
-        };
-      }
-      # After the script it names.
-      {
-        "@type" = "update";
         object = "MtaStageData";
         value = {
           # Fastmail already filtered what fetchmail hands over, and every LMTP
@@ -235,13 +166,33 @@ in {
             };
             "else" = "is_empty(authenticated_as)";
           };
-          script = {
+          script."else" = "false";
+        };
+      }
+      # Replaced by agent-dms-notify; runs after MtaStageData stops naming it.
+      {
+        "@type" = "destroy";
+        object = "SieveSystemScript";
+        value.name = "agent-dms-approval";
+      }
+      {
+        "@type" = "upsert";
+        object = "MtaHook";
+        matchOn = ["url"];
+        value.notify = {
+          url = "http://127.0.0.1:${toString notifyPort}/";
+          stages.data = true;
+          enable = {
             match."0" = {
               "if" = "!is_empty(authenticated_as)";
-              "then" = "'${approvalScript}'";
+              "then" = "true";
             };
             "else" = "false";
           };
+          # The hold is the route, not this hook: if the notifier is down the
+          # mail still waits, just without an approval request.
+          tempFailOnError = false;
+          timeout = 10000;
         };
       }
       {
@@ -563,7 +514,49 @@ in {
       };
     };
 
-    fleet.credentials.needs = [fastmailCredential];
+    fleet.credentials.needs = [fastmailCredential notifyCredential];
+
+    systemd.services.agent-dms-notify = {
+      description = "Mail approval requests for held agent-dms mail";
+      wantedBy = ["multi-user.target"];
+      after = ["stalwart.service"];
+      serviceConfig = {
+        ExecStart = lib.escapeShellArgs [
+          (lib.getExe perSystem.self.agent-dms-notify)
+          "-listen=127.0.0.1:${toString notifyPort}"
+          "-domain=${domain}"
+          "-owner=${ownerEmail}"
+          "-login=${notifier}@${domain}"
+          "-password-file=%d/${notifyCredential}"
+        ];
+        DynamicUser = true;
+        LoadCredentialEncrypted = [notifyCredential];
+        Restart = "always";
+        RestartSec = 10;
+
+        CapabilityBoundingSet = [""];
+        LockPersonality = true;
+        MemoryDenyWriteExecute = true;
+        NoNewPrivileges = true;
+        PrivateDevices = true;
+        PrivateTmp = true;
+        ProtectClock = true;
+        ProtectControlGroups = true;
+        ProtectHome = true;
+        ProtectHostname = true;
+        ProtectKernelLogs = true;
+        ProtectKernelModules = true;
+        ProtectKernelTunables = true;
+        ProtectProc = "invisible";
+        ProtectSystem = "strict";
+        RestrictAddressFamilies = ["AF_INET" "AF_INET6"];
+        RestrictNamespaces = true;
+        RestrictRealtime = true;
+        SystemCallArchitectures = "native";
+        SystemCallFilter = ["@system-service" "~@privileged"];
+        UMask = "0077";
+      };
+    };
 
     systemd.services.agent-dms-fetchmail = {
       description = "Pull agent-dms mail from Fastmail into Stalwart";
