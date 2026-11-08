@@ -50,6 +50,44 @@ in {
           description = "Hosts that run the telemetry backend. Everything else (storage nodes, tunnels, certificates, route upstreams) is generated from this list.";
         };
 
+        dns.enable = lib.mkEnableOption ''
+          the telemetry.gio.ninja and push.telemetry.gio.ninja A records for every
+          member. Turn on together with including den.aspects.telemetry-cluster on
+          the members
+        '';
+
+        # The LAN, the server VLAN and the UniFi WireGuard clients (oganesson
+        # included). Not the IoT VLAN or the OCI VCN.
+        pushAllowedRanges = mkOption {
+          type = types.listOf types.str;
+          default = ["10.0.0.0/16" "10.30.0.0/24" "10.100.0.0/24"];
+          description = "Source ranges push.telemetry.gio.ninja accepts; everything else gets 403.";
+        };
+
+        crlUpdateInterval = mkOption {
+          type = types.str;
+          default = "10m";
+          description = "How often every client-auth listener refetches the step-ca CRL.";
+        };
+
+        ui = {
+          enable = lib.mkEnableOption ''
+            the caddy-oidc sites vmui, logs and alertmanager.gio.ninja and their DNS
+            records. Needs the telemetry_ui_oidc_* credentials on the UI host
+          '';
+          host = mkOption {
+            type = types.str;
+            default = "carbon";
+            description = "Cluster member that serves the human-facing UIs.";
+          };
+          adminGroup = mkOption {
+            type = types.str;
+            # REMIND-ME-TO: Decide the Pocket ID admin group name (NIXOS-150) date_passed=2026-12-01
+            default = "telemetry_admin";
+            description = "Pocket ID group allowed into Grafana and the caddy-oidc UIs.";
+          };
+        };
+
         retention = {
           metrics = mkOption {
             type = types.str;
