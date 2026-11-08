@@ -67,11 +67,6 @@
           };
           environment.systemPackages = [pkgs.step-cli pkgs.jq pkgs.openssl];
 
-          # The plugin cannot load step-ca's CRL (see the option), so the rest of
-          # the test runs without it; the last subtest switches it on.
-          gio.telemetry-cluster.checkRevocation = false;
-          specialisation.crl-check.configuration.gio.telemetry-cluster.checkRevocation = lib.mkForce true;
-
           services.gio.reverse-proxy.certIssuer = "internal";
           services.caddy.globalConfig = ''
             skip_install_trust
@@ -365,23 +360,57 @@
                 "curl -s -o /dev/null -w '%{http_code}' -H 'Host: existing.gio.ninja' https://push.telemetry.gio.ninja/"
             ) == "421"
 
-        with subtest("with the CRL verifier on, step-ca's CRL never loads and every client is refused"):
-            ca.succeed("ca-revoke reader.ca")
-            tela.succeed("curl -sf http://crl.gio.ninja/ -o /tmp/crl.der")
-            crl = tela.succeed("openssl crl -inform der -in /tmp/crl.der -noout -text")
-            print(crl)
-            assert "Issuing Distribution Point: critical" in crl, crl
-            # Status 4 (failed units) is the point: journal-upload is refused the moment Caddy reloads.
-            status, _ = tela.execute("/run/current-system/specialisation/crl-check/bin/switch-to-configuration test")
-            assert status in (0, 4), status
-            tela.succeed("systemctl is-active caddy.service")
+        write = "/metrics/insert/0/prometheus/api/v1/write"
+
+        def front_refused(cert, ip=a_ip):
             ca.wait_until_succeeds(
-                f"test \"$(curl -s -o /dev/null -w '%{{http_code}}' --cert /tmp/writer.crt --key /tmp/writer.key "
-                f"--resolve telemetry.gio.ninja:443:{a_ip} -d garbage https://telemetry.gio.ninja/metrics/insert/0/prometheus/api/v1/write)\" = 000",
+                f"test \"$(curl -s -o /dev/null -w '%{{http_code}}' --cert /tmp/{cert}.crt --key /tmp/{cert}.key "
+                f"--resolve telemetry.gio.ninja:443:{ip} -d garbage https://telemetry.gio.ninja{write})\" = 000",
                 timeout=60,
             )
-            telb.fail(f"curl -sf --http1.1 --cacert /etc/step/ca-root.crt {node_cert} https://tel-a.gio.ninja:8481/health")
-            tela.succeed("journalctl -u caddy | grep -q 'CRL defined in CDP was not loaded'")
+
+        def l4_health(cert_args):
+            return f"curl -sf --http1.1 --cacert /etc/step/ca-root.crt {cert_args} https://tel-a.gio.ninja:8481/health"
+
+        with subtest("a revoked certificate is refused at the front door and a caddy-l4 listener"):
+            tela.succeed("curl -sf http://crl.gio.ninja/ -o /tmp/crl.der")
+            crl = tela.succeed("openssl crl -inform der -in /tmp/crl.der -noout -text")
+            assert "Issuing Distribution Point: critical" in crl, crl
+            mint("writer2.ca", "telemetry-writer", "/tmp/writer2")
+            # A second certificate under tel-b's node CN, so revoking it leaves tel-b's own one working.
+            mint("telemetry-node.tel-b", "telemetry-cluster", "/tmp/spare-node")
+            copy(ca, telb, "/tmp/spare-node")
+            spare_cert = "--cert /tmp/spare-node.crt --key /tmp/spare-node.key"
+            assert front(ca, write, "writer", args="-d garbage") == "400"
+            assert front(ca, write, "writer2", args="-d garbage") == "400"
+            assert telb.succeed(l4_health(spare_cert)) == "OK"
+            for cn, path in (("writer.ca", "/tmp/writer"), ("telemetry-node.tel-b", "/tmp/spare-node")):
+                serial = ca.succeed(f"step certificate inspect --format json {path}.crt | jq -r .serial_number").strip()
+                out = ca.succeed(f"ca-revoke {cn}")
+                assert serial in out, out
+            front_refused("writer")
+            telb.wait_until_fails(l4_health(spare_cert), timeout=60)
+            assert front(ca, write, "writer2", args="-d garbage") == "400"
+            assert telb.succeed(l4_health(node_cert)) == "OK"
+
+        with subtest("a member that cannot fetch the CRL refuses every client"):
+            telb.succeed("systemctl stop caddy.service")
+            telb.succeed("find /var/lib/caddy/crl -mindepth 1 -delete")
+            telb.succeed(
+                "nft add table inet crl-block && "
+                "nft add chain inet crl-block out '{ type filter hook output priority 0; }' && "
+                "nft add rule inet crl-block out ip daddr ${addressOf.ca} tcp dport 80 reject"
+            )
+            telb.succeed("systemctl start caddy.service")
+            telb.wait_for_open_port(443, b_ip)
+            front_refused("writer2", ip=b_ip)
+            telb.wait_until_succeeds("journalctl -u caddy | grep -q 'CRL defined in CDP was not loaded'", timeout=30)
+            telb.succeed("nft delete table inet crl-block")
+            ca.wait_until_succeeds(
+                f"test \"$(curl -s -o /dev/null -w '%{{http_code}}' --cert /tmp/writer2.crt --key /tmp/writer2.key "
+                f"--resolve telemetry.gio.ninja:443:{b_ip} -d garbage https://telemetry.gio.ninja{write})\" = 400",
+                timeout=60,
+            )
       '';
     };
   };
