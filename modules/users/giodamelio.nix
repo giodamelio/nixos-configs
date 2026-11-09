@@ -28,6 +28,7 @@ in {
       den.aspects.zsh
       den.aspects.nushell
       den.aspects.nix-index
+      den.aspects.nix-unfree
       den.aspects.atuind
       den.aspects.jj
       den.aspects.wezterm
