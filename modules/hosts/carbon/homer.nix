@@ -135,6 +135,24 @@ in {
             logo = dashboardLogo "prometheus";
           }
           {
+            name = "VictoriaMetrics";
+            subtitle = "Metrics explorer";
+            url = "https://vmui.gio.ninja/select/0/vmui/";
+            logo = dashboardLogo "victoriametrics";
+          }
+          {
+            name = "VictoriaLogs";
+            subtitle = "Log explorer";
+            url = "https://logs.gio.ninja/select/vmui";
+            logo = dashboardLogo "victorialogs";
+          }
+          {
+            name = "Alertmanager";
+            subtitle = "Alerts and silences";
+            url = "https://alertmanager.gio.ninja";
+            logo = dashboardLogo "alertmanager";
+          }
+          {
             name = "OpenBao";
             subtitle = "Secrets Management";
             url = "https://openbao.gio.ninja";
