@@ -67,7 +67,11 @@ _: {
 
         services.grafana = {
           enable = true;
-          declarativePlugins = [pkgs.grafanaPlugins.victoriametrics-logs-datasource];
+          declarativePlugins = with pkgs.grafanaPlugins; [
+            prometheus
+            loki
+            victoriametrics-logs-datasource
+          ];
           settings = {
             server = {
               http_addr = "127.0.0.1";
