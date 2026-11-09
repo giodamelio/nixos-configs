@@ -116,6 +116,8 @@
 
     # Tiered SSD+HDD build caches (see ./bcachefs.nix)
     den.aspects.cadmium-bcachefs
+
+    den.aspects.cadmium-fractal-headset
   ];
 
   # ---- Host: cadmium-specific config (merges with the sibling files) ----
