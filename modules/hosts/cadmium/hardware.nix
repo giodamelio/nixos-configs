@@ -19,6 +19,8 @@ _: {
     boot.initrd.kernelModules = ["amdgpu"];
     boot.kernelModules = ["kvm-intel" "amdgpu" "iwlwifi" "vhost_vsock"];
     boot.extraModulePackages = [];
+    # Drops the GPU HDMI and onboard audio; the headset and webcam are USB (snd_usb_audio).
+    boot.blacklistedKernelModules = ["snd_hda_intel"];
 
     networking.useDHCP = lib.mkDefault true;
     networking.networkmanager.enable = true;
