@@ -19,6 +19,7 @@
 
   config = {
     fleet.telemetry.cluster.enable = true;
+    fleet.telemetry.ui.enable = true;
 
     den.schema.fleet.imports = [
       {

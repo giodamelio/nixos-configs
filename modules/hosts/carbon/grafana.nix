@@ -63,6 +63,8 @@ _: {
 
     config = lib.mkMerge [
       {
+        gio.grafana.oidc.enable = true;
+
         services.grafana = {
           enable = true;
           declarativePlugins = [pkgs.grafanaPlugins.victoriametrics-logs-datasource];
