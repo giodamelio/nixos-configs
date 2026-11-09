@@ -57,7 +57,7 @@ export extern "agevault rm" [
 
 export extern "agevault push" [
   host?: string@"nu-complete agevault hosts"
-  name?: string@"nu-complete agevault names"
+  ...names: string@"nu-complete agevault names"
 ]
 
 export extern "agevault rekey" []

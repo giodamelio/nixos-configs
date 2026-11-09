@@ -326,15 +326,36 @@ def push-one [host: string, name: string] {
     print $"($name) -> ($host): ($verdict)"
 }
 
-# Deliver secrets: one (host name), a whole host, or the entire fleet.
-def "main push" [host?: string, name?: string] {
+# Accept bare names or paths to `.age` files (so the shell can glob them). A
+# path must be that host's secret, otherwise `push carbon gallium/x.age` would
+# silently push carbon's x.
+def resolve-name [host: string, arg: string] {
+    if not (($arg | str contains "/") or ($arg | str ends-with ".age")) {
+        return $arg
+    }
+    let name = ($arg | path basename | str replace --regex '\.age$' '')
+    check-name $name
+    let expected = (secret-path $host $name)
+    if not ($arg | path exists) {
+        error make {msg: $"no such file: ($arg)"}
+    }
+    if not ($expected | path exists) or (($arg | path expand) != ($expected | path expand)) {
+        error make {msg: $"($arg) is not a secret of ($host) \(expected ($expected))"}
+    }
+    $name
+}
+
+# Deliver secrets: named ones (or paths to them) on a host, a whole host, or
+# the entire fleet.
+def "main push" [host?: string, ...names: string] {
     if ($host | is-empty) {
         for h in (list-hosts) { for n in (host-secret-names $h) { push-one $h $n } }
-    } else if ($name | is-empty) {
+    } else if ($names | is-empty) {
         check-host $host
         for n in (host-secret-names $host) { push-one $host $n }
     } else {
-        push-one $host $name
+        check-host $host
+        for n in ($names | each {|a| resolve-name $host $a } | uniq) { push-one $host $n }
     }
 }
 
@@ -400,8 +421,9 @@ def "main __complete" [...words: string] {
     if $n == 1 {
         let hosts = (list-hosts)
         if ($hosts | is-not-empty) { $hosts | str join (char newline) | print }
-    } else if $n == 2 {
+    } else if $n == 2 or ($n > 2 and $sub == "push") {
         let names = (host-secret-names ($words | get 1))
+        let names = if $sub == "push" { $names | append "%files" } else { $names }
         if ($names | is-not-empty) { $names | str join (char newline) | print }
     } else if $n == 3 and $sub == "write" {
         ["-\tread the secret from stdin" "%files"] | str join (char newline) | print
@@ -416,7 +438,7 @@ def main [] {
     print "  agevault write <host> <name> [-|file] encrypt from stdin (-) or a file"
     print "  agevault edit  <host> <name>          decrypt -> \$EDITOR -> re-encrypt (creates if missing)"
     print "  agevault rm   <host> <name>     delete a secret"
-    print "  agevault push [host] [name]     deliver secret(s) into hosts' credstore over ssh"
+    print "  agevault push [host] [name|path...]  deliver secret(s) into hosts' credstore over ssh"
     print "  agevault rekey                  re-encrypt everything to recipients.txt"
     print "  agevault generate-toml          write the names-only TOML manifest"
 }
