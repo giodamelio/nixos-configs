@@ -71,6 +71,23 @@
           fonts = {
             fontconfig.enable = true;
           };
+
+          programs.mangohud = {
+            enable = true;
+            settings = {
+              fps = true;
+              frametime = true;
+              frame_timing = true;
+              gpu_name = true;
+              gpu_stats = true;
+              cpu_stats = true;
+              display_server = true;
+              # Steam owns F12 for screenshots
+              toggle_hud = "Shift_R+F9";
+              # Per-PID socket: a game can create several Vulkan instances and only the first gets a fixed name
+              control = "mangohud-%p";
+            };
+          };
         };
       }
     ];
@@ -176,7 +193,15 @@
     # Gaming
     programs.steam = {
       enable = true;
+      extraPackages = [pkgs.mangohud];
+      # Valve's Proton ignores PROTON_ENABLE_WAYLAND; GE-Proton honors it
+      extraCompatPackages = [pkgs.proton-ge-bin];
     };
+
+    # gamescope: a nested Wayland micro-compositor. Wrap a flaky game in
+    # `gamescope -- %command%` so a GPU hang kills gamescope, not the niri
+    # session. enable sets the CAP_SYS_NICE wrapper gamescope needs.
+    programs.gamescope.enable = true;
 
     # Enable aarch64 emulation for cross-building RPi images
     boot.binfmt.emulatedSystems = ["aarch64-linux"];
