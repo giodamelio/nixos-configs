@@ -116,6 +116,7 @@
 
     # Tiered SSD+HDD build caches (see ./bcachefs.nix)
     den.aspects.cadmium-bcachefs
+    den.aspects.cadmium-streamdeck
 
     den.aspects.cadmium-fractal-headset
   ];

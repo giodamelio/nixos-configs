@@ -88,6 +88,7 @@ in
 
         # Allow adding other paths to the sandbox for cross repo work
         (rw-paths-from-file ".sandbox-paths")
+        (devices-from-file ".sandbox-paths.devices")
 
         # Drop --new-session: setsid() detaches from the controlling terminal so
         # the kernel never delivers SIGWINCH and claude renders at a stale width.

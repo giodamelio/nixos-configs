@@ -38,6 +38,54 @@ inputs.jail-nix.lib.extend {
           fi
         '';
 
+      # Dev-bind USB character devices listed in a file. Entries must be udev
+      # symlinks directly under /dev/jail, so the host's udev rules are the
+      # allowlist. Only the device's own USB sysfs subtree is exposed.
+      devices-from-file = filename:
+        add-runtime ''
+          SANDBOX_DEVICES_FILE="$(realpath -m -- "$PWD/${filename}")"
+          if [[ -f "$SANDBOX_DEVICES_FILE" ]]; then
+            declare -A SANDBOX_SYSFS_SEEN=()
+            while IFS= read -r line || [[ -n "$line" ]]; do
+              [[ -z "$line" || "$line" == \#* ]] && continue
+              if [[ ! "$line" =~ ^/dev/jail/[^/]+$ || "$line" == /dev/jail/. || "$line" == /dev/jail/.. ]]; then
+                echo "jail: device entry $line is not a /dev/jail/<name> udev symlink" >&2
+                exit 1
+              fi
+              dev="$(realpath -m -- "$line")"
+              if [[ ! -e "$dev" ]]; then
+                echo "jail: device $line not present, skipping" >&2
+                continue
+              fi
+              if [[ ! -c "$dev" || "$dev" != /dev/* ]]; then
+                echo "jail: $line resolves to $dev, which is not a character device under /dev" >&2
+                exit 1
+              fi
+              sysdev="$(realpath -e -- "/sys/dev/char/$((16#$(stat -c %t -- "$dev"))):$((16#$(stat -c %T -- "$dev")))")"
+              usbdev="$sysdev"
+              while [[ "$usbdev" == /sys/devices/* && ! -f "$usbdev/idVendor" ]]; do
+                usbdev="$(dirname -- "$usbdev")"
+              done
+              if [[ "$usbdev" != /sys/devices/* ]]; then
+                echo "jail: $line ($sysdev) has no USB device ancestor in sysfs" >&2
+                exit 1
+              fi
+              RUNTIME_ARGS+=(--dev-bind "$dev" "$dev")
+              if [[ -z "''${SANDBOX_SYSFS_SEEN[$usbdev]:-}" ]]; then
+                RUNTIME_ARGS+=(--ro-bind "$usbdev" "$usbdev")
+                SANDBOX_SYSFS_SEEN[$usbdev]=1
+              fi
+              # HID enumeration walks /sys/class/<subsystem>; only bound devices get an entry there.
+              if [[ -z "''${SANDBOX_SYSFS_SEEN[$sysdev]:-}" ]]; then
+                subsystem="$(basename -- "$(readlink -- "$sysdev/subsystem")")"
+                RUNTIME_ARGS+=(--symlink "$sysdev" "/sys/class/$subsystem/$(basename -- "$sysdev")")
+                SANDBOX_SYSFS_SEEN[$sysdev]=1
+              fi
+            done < "$SANDBOX_DEVICES_FILE"
+            RUNTIME_ARGS+=(--ro-bind "$SANDBOX_DEVICES_FILE" "$SANDBOX_DEVICES_FILE")
+          fi
+        '';
+
       # Per-project overlay home keyed on $PWD
       overlay-home = add-runtime ''
         PROJECT_DIR="$(realpath "$PWD")"
