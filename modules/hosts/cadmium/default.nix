@@ -60,6 +60,7 @@
       # Folded dual-class: HM half here, NixOS half forwarded to the host.
       den.aspects.optnix
       den.aspects.kde-connect
+      den.aspects.keyd
 
       # Monitor layouts + media keybinds for niri (see ./niri.nix).
       den.aspects.cadmium-niri
@@ -123,9 +124,6 @@
     den.aspects.software-development
     den.aspects.embedded-development
     den.aspects.kache
-
-    # Easy key rebinding
-    den.aspects.keyd
 
     den.aspects.rayfish
 
