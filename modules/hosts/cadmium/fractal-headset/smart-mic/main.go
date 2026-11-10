@@ -54,7 +54,7 @@ func main() {
 
 	headset := flag.String("headset", "", "node.name of the headset mic")
 	webcam := flag.String("webcam", "", "node.name of the webcam mic")
-	pollEvery := flag.Duration("poll", 100*time.Millisecond, "HID poll interval while smart-mic is running")
+	pollEvery := flag.Duration("poll", 300*time.Millisecond, "HID fallback poll interval while smart-mic is running (patched firmware pushes react instantly; this bounds stock-firmware latency)")
 	vendorFlag := flag.String("vendor", "36bc", "USB vendor ID of the headset dongle (hex)")
 	flag.Parse()
 
@@ -383,7 +383,7 @@ func (p *poller) run(hidID string, every time.Duration) {
 			slog.Info("device found", "path", path)
 		}
 
-		st, err := query(dev)
+		st, err := query(dev, every)
 		if err != nil {
 			if cerr := dev.Close(); cerr != nil {
 				slog.Error("close hidraw", "path", devPath, "err", cerr)
@@ -395,7 +395,7 @@ func (p *poller) run(hidID string, every time.Duration) {
 			}
 			continue
 		}
-		if !p.send(st) || !p.sleep(every) {
+		if !p.send(st) {
 			return
 		}
 	}
@@ -449,18 +449,36 @@ func findHidraw(hidID string) (string, error) {
 	}
 }
 
-func query(dev *os.File) (hidState, error) {
-	if err := dev.SetDeadline(time.Now().Add(replyTimeout)); err != nil {
-		return hidState{}, fmt.Errorf("set deadline: %w", err)
-	}
-	if _, err := dev.Write(statusQuery); err != nil {
-		return hidState{}, fmt.Errorf("write status query: %w", err)
-	}
+// Patched firmware pushes an unsolicited 02 f1 21 report on every boom/mute
+// change, so block on the read to react the instant one arrives. If nothing
+// arrives within fallback, poll (write 02 f1 21, read the reply) so stock
+// firmware with no pushes stays responsive and battery/disconnect still refresh.
+// Pushes and poll replies share the 02 f1 21 prefix and layout, so either ends
+// the read; foreign reports on this shared fd are skipped.
+func query(dev *os.File, fallback time.Duration) (hidState, error) {
+	deadline := time.Now().Add(fallback)
+	polled := false
 	buf := make([]byte, 64)
 	for {
+		if err := dev.SetDeadline(deadline); err != nil {
+			return hidState{}, fmt.Errorf("set deadline: %w", err)
+		}
 		n, err := dev.Read(buf)
 		if errors.Is(err, os.ErrDeadlineExceeded) {
-			return hidState{}, fmt.Errorf("no status reply within %s", replyTimeout)
+			if polled {
+				return hidState{}, fmt.Errorf("no status reply within %s", replyTimeout)
+			}
+			// SetDeadline covers writes too, so refresh it before the poll write;
+			// the now-expired read deadline would otherwise fail the write instantly.
+			deadline = time.Now().Add(replyTimeout)
+			if err := dev.SetDeadline(deadline); err != nil {
+				return hidState{}, fmt.Errorf("set deadline: %w", err)
+			}
+			if _, err := dev.Write(statusQuery); err != nil {
+				return hidState{}, fmt.Errorf("write status query: %w", err)
+			}
+			polled = true
+			continue
 		}
 		if err != nil {
 			return hidState{}, fmt.Errorf("read reply: %w", err)

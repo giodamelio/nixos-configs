@@ -54,7 +54,8 @@ _: {
       after = ["pipewire.service" "wireplumber.service"];
       path = [pkgs.pipewire];
       serviceConfig = {
-        ExecStart = "${smart-mic}/bin/smart-mic -headset ${headsetNode} -webcam ${webcamNode}";
+        # This dongle's patched firmware pushes boom/mute, so the poll is only a slow fallback.
+        ExecStart = "${smart-mic}/bin/smart-mic -headset ${headsetNode} -webcam ${webcamNode} -poll 1s";
         Restart = "always";
         RestartSec = 2;
       };
