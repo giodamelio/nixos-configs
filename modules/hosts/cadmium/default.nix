@@ -133,7 +133,7 @@
     den.aspects.cadmium-bcachefs
     den.aspects.cadmium-streamdeck
 
-    den.aspects.cadmium-fractal-headset
+    den.aspects.cadmium-sound
   ];
 
   # ---- Host: cadmium-specific config (merges with the sibling files) ----
