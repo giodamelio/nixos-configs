@@ -7,7 +7,7 @@ _: {
       pname = "smart-mic";
       version = "0.1.0";
       src = ./smart-mic;
-      vendorHash = null;
+      vendorHash = "sha256-jdbZBZi5seSH85Fj1OiLiO5o6PUpwrPgQ06Lg4BolMc=";
     };
   in {
     users.groups.fractal = {};

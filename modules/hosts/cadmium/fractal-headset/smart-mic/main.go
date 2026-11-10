@@ -72,14 +72,56 @@ func main() {
 		os.Exit(2)
 	}
 
+	configCh := make(chan config)
+	cfg := setupConfig(configCh)
+
+	notify, err := newNotifier()
+	if err != nil {
+		slog.Warn("desktop notifications disabled", "err", err)
+		notify = nil
+	}
+
 	c := &controller{
 		headset:   *headset,
 		webcam:    *webcam,
 		pollEvery: *pollEvery,
 		hidID:     fmt.Sprintf("HID_ID=0003:%08X:%08X", vendor, dongleProduct),
 		nodes:     map[uint32]string{},
+		cfg:       cfg,
+		configCh:  configCh,
+		notify:    notify,
 	}
 	os.Exit(c.run())
+}
+
+// setupConfig loads the initial config and starts the reload watcher. Every
+// failure here is non-fatal: notifications are a convenience, so a missing or
+// unwatchable config just leaves them off.
+func setupConfig(out chan<- config) config {
+	path, err := configPath()
+	if err != nil {
+		slog.Warn("no config dir, notifications off", "err", err)
+		return config{}
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		slog.Warn("cannot create config dir, notifications off", "path", filepath.Dir(path), "err", err)
+		return config{}
+	}
+	cfg, found, err := loadConfig(path)
+	if err != nil {
+		slog.Warn("bad config, notifications off until fixed", "err", err)
+		cfg = config{}
+	} else if !found {
+		if err := writeDefaultConfig(path); err != nil {
+			slog.Warn("could not write default config, notifications off", "path", path, "err", err)
+		} else {
+			slog.Info("wrote default config", "path", path)
+		}
+	}
+	if err := watchConfig(path, out); err != nil {
+		slog.Warn("config auto-reload disabled", "err", err)
+	}
+	return cfg
 }
 
 type controller struct {
@@ -101,6 +143,10 @@ type controller struct {
 	hid     hidState
 	haveHID bool
 	blocked string
+
+	cfg      config
+	configCh chan config
+	notify   *notifier
 }
 
 func (c *controller) run() int {
@@ -136,6 +182,8 @@ func (c *controller) run() int {
 			}
 		case st := <-states:
 			c.handleHID(st)
+		case cfg := <-c.configCh:
+			c.cfg = cfg
 		case err := <-dumpErr:
 			slog.Error("pw-dump stream ended", "decode_err", err, "exit", cmd.Wait())
 			return 1
@@ -257,9 +305,15 @@ func (c *controller) handleHID(st hidState) {
 	if st.available {
 		if !hadPrev || prev.boomUp != st.boomUp {
 			slog.Info("boom", "up", st.boomUp)
+			if hadPrev && c.cfg.DesktopNotifications.enabled("boom") {
+				c.notify.notify(boomMessage(st.boomUp))
+			}
 		}
 		if !hadPrev || prev.muted != st.muted {
 			slog.Info("mic", "muted", st.muted)
+			if hadPrev && c.cfg.DesktopNotifications.enabled("mute") {
+				c.notify.notify(muteMessage(st.muted))
+			}
 		}
 	}
 	if hadPrev && prev == st {
