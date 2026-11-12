@@ -45,7 +45,6 @@ in
         pkgs.nix-output-monitor
         pkgs.lua-language-server
         pkgs.nh
-        pkgs.minio-client
         pkgs.jq
 
         pkgs.nixd
